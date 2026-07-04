@@ -1,0 +1,49 @@
+"""
+xG Calculator - calculates HExpG+ and AExpG+ using formula:
+HExpG+ = 0.55 × HxG + 0.45 × HG
+AExpG+ = 0.55 × AxG + 0.45 × AG
+"""
+
+from typing import Dict, List
+import config
+
+
+class XGCalculator:
+    WEIGHT_XG = 0.55
+    WEIGHT_GOALS = 0.45
+
+    def calculate_hext(self, hg: int, hxg: float) -> float:
+        """Calculate home team's expected goals."""
+        if hg is None or hxg is None:
+            return 0.0
+        return self.WEIGHT_XG * hxg + self.WEIGHT_GOALS * hg
+
+    def calculate_aext(self, ag: int, axg: float) -> float:
+        """Calculate away team's expected goals."""
+        if ag is None or axg is None:
+            return 0.0
+        return self.WEIGHT_XG * axg + self.WEIGHT_GOALS * ag
+
+    def calculate_match_xg(self, hg: int, ag: int, hxg: float, axg: float) -> Dict:
+        """Calculate xG for a complete match."""
+        return {
+            "HExpG+": self.calculate_hext(hg, hxg),
+            "AExpG+": self.calculate_aext(ag, axg),
+        }
+
+    def calculate_batch(self, matches: List[Dict]) -> List[Dict]:
+        """Calculate xG for a batch of matches."""
+        results = []
+        for match in matches:
+            hg = match.get("home_goals")
+            ag = match.get("away_goals")
+            hxg = match.get("HxG", 0)
+            axg = match.get("AxG", 0)
+            
+            xg = self.calculate_match_xg(hg, ag, hxg, axg)
+            
+            result = match.copy()
+            result.update(xg)
+            results.append(result)
+        
+        return results
