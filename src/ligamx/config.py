@@ -1,24 +1,24 @@
 """
-Configuration for LigaMX Betting Tool
+Configuration for the Liga MX Terminal pipeline.
 """
 
 import os
 import pandas as pd
 from dotenv import load_dotenv
 
-load_dotenv()
+from ligamx import paths
 
-API_FOOTBALL_BASE_URL = "https://v3.football.api-sports.io"
-API_FOOTBALL_API_KEY = os.getenv("API_FOOTBALL_API_KEY", "")
+load_dotenv()
 
 THE_ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4"
 THE_ODDS_API_KEY = os.getenv("THE_ODDS_API_KEY", "")
 
-LIGA_MX_LEAGUE_ID = 262
 ODDS_SPORT_KEY = "soccer_mexico_ligamx"
 BOOKMAKER = "pinnacle"
 MARKET = "spreads"
 
+# DATA_FILE is repo-relative; consumers resolve it against paths.project_root()
+# (kept as a relative string so tests can redirect it to a temp path).
 DATA_FILE = "data/MEX_ligamx.csv"
 MODELS_DIR = "models"
 OUTPUT_DIR = "output"
@@ -27,24 +27,24 @@ CSV_DATE_FORMAT = "%Y/%m/%d"
 XG_REFRESH_DAYS = 30
 XG_COMPARE_EPSILON = 1e-6
 
-# Sofascore season IDs
+# SofaScore unique-tournament ids (Liga MX runs two tournaments per year).
 SOFASCORE_APERTURA = 11621
-SOFASCORE_CLASURA = 11620
+SOFASCORE_CLAUSURA = 11620
+
 
 # Load team mapping from CSV
 def _load_team_mapping():
     """Load team mapping from CSV file."""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(base_dir, "data", "ligamx_team_name_mapping.csv")
-    
+    csv_path = paths.team_mapping_csv()
+
     try:
         df = pd.read_csv(csv_path)
-        
+
         # Create mapping dictionaries
         odds_to_sofascore = dict(zip(df["odds_team"], df["sofascore_team"]))
         odds_to_standard = dict(zip(df["odds_team"], df["standard_team"]))
         standard_to_odds = dict(zip(df["standard_team"], df["odds_team"]))
-        
+
         # Create model to odds mapping (model uses standard names but may have encoding issues)
         # Map from model CSV names to odds names
         model_to_odds = {}
@@ -57,9 +57,9 @@ def _load_team_mapping():
             model_to_odds[standard.replace("ó", "_").replace("á", "_").replace("é", "_").replace("í", "_").replace("ú", "_")] = odds
             if standard == "Atl. San Luis":
                 model_to_odds["Atl_tico San Luis"] = odds
-        
+
         sofascore_to_standard = dict(zip(df["sofascore_team"], df["standard_team"]))
-        
+
         return {
             "odds_to_sofascore": odds_to_sofascore,
             "odds_to_standard": odds_to_standard,
@@ -74,6 +74,7 @@ def _load_team_mapping():
             "odds_to_standard": {},
             "standard_to_odds": {},
             "model_to_odds": {},
+            "sofascore_to_standard": {},
         }
 
 TEAM_MAPPING = _load_team_mapping()

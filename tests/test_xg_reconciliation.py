@@ -3,9 +3,9 @@ import unittest
 
 import pandas as pd
 
-import config
-from src.data_updater import DataUpdater
-from src.xg_calculator import XGCalculator
+from ligamx import config
+from ligamx.xg.data_updater import DataUpdater
+from ligamx.xg.xg_calculator import XGCalculator
 
 
 class TestXGReconciliation(unittest.TestCase):

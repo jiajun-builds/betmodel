@@ -2,18 +2,27 @@
 Data Updater - updates MEX_ligamx.csv with new results, avoiding duplicates.
 """
 
+import os
 import pandas as pd
 from typing import List, Dict
 from datetime import datetime
-import config
-import os
-from src.xg_calculator import XGCalculator
+
+from ligamx import config, paths
+from ligamx.xg.xg_calculator import XGCalculator
 
 
 class DataUpdater:
     def __init__(self):
+        # Kept as a (possibly relative) config value so tests can redirect it;
+        # resolved to an absolute path against the repo root via _abs_path().
         self.data_file = config.DATA_FILE
         self.xg_calculator = XGCalculator()
+
+    def _abs_path(self) -> str:
+        """Resolve self.data_file against the repo root (not the CWD)."""
+        if os.path.isabs(self.data_file):
+            return self.data_file
+        return os.path.join(paths.project_root(), self.data_file)
 
     def _map_team_name(self, team_name: str) -> str:
         """Map Sofascore team names to standard team names for CSV."""
@@ -21,9 +30,7 @@ class DataUpdater:
 
     def load_existing(self) -> pd.DataFrame:
         """Load existing CSV data."""
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        filepath = os.path.join(base_dir, self.data_file)
-        df = pd.read_csv(filepath)
+        df = pd.read_csv(self._abs_path())
         return df
 
     def get_existing_keys(self) -> set:
@@ -46,7 +53,7 @@ class DataUpdater:
             try:
                 dt = datetime.strptime(date_str, fmt)
                 return dt.strftime(config.CSV_DATE_FORMAT)
-            except:
+            except ValueError:
                 pass
         return date_str
 
@@ -55,22 +62,22 @@ class DataUpdater:
         try:
             dt = datetime.strptime(date_str, "%Y-%m-%d")
             return dt.strftime(config.CSV_DATE_FORMAT)
-        except:
+        except ValueError:
             return self.normalize_date(date_str)
 
     def create_row(self, match: Dict) -> Dict:
         """Create a CSV row from Odds API match data."""
         commence = match.get("commence_time", "")
         date_part = commence[:10] if commence else ""
-        
+
         home_team = self._map_team_name(match.get("home_team", ""))
         away_team = self._map_team_name(match.get("away_team", ""))
-        
+
         return {
             "Country": "Mexico",
             "League": "Liga MX",
-            "Season": "2025/2026",
-            "round": "",
+            "Season": match.get("season", "2025/2026"),
+            "round": match.get("round", ""),
             "Date": self.format_date(date_part),
             "Time": commence[11:16] if len(commence) > 16 else "",
             "Home": home_team,
@@ -82,7 +89,7 @@ class DataUpdater:
             "HExpG+": match.get("HExpG+", 0),
             "AExpG+": match.get("AExpG+", 0),
             "Res": self._result_from_score(
-                match.get("home_goals", 0), 
+                match.get("home_goals", 0),
                 match.get("away_goals", 0)
             ),
             "PSCH": "",
@@ -223,9 +230,7 @@ class DataUpdater:
                 (df["Away"].astype(str).str.strip() != "")
             ]
             df = self._sort_by_date(df)
-            base_dir = os.path.dirname(os.path.dirname(__file__))
-            filepath = os.path.join(base_dir, self.data_file)
-            df.to_csv(filepath, index=False)
+            df.to_csv(self._abs_path(), index=False)
 
         return stats
 
@@ -251,9 +256,7 @@ class DataUpdater:
         df["HExpG+"] = recalculated_home
         df["AExpG+"] = recalculated_away
 
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        filepath = os.path.join(base_dir, self.data_file)
-        df.to_csv(filepath, index=False)
+        df.to_csv(self._abs_path(), index=False)
         return len(df)
 
     def add_matches(self, matches: List[Dict]) -> int:

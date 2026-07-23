@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Liga MX Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="term">
+      <!-- COMMAND BAR -->
+      <header class="cmd">
+        <div class="cmd__brand">
+          <div class="cmd__glyph"><span style="width:100%;height:100%;display:grid;place-items:center;border:1px solid var(--accent);color:var(--accent);font:700 11px/1 var(--mono);border-radius:3px;">MX</span></div>
+          <div>
+            <div class="cmd__title-row">
+              <span class="cmd__title">Liga MX Terminal</span>
+              <span class="cmd__tag">Macro Terminal</span>
+            </div>
+            <div class="cmd__trail" data-bind="masthead-trail">Liga MX · Apertura 2026</div>
+          </div>
+        </div>
+        <div class="cmd__status">
+          <div class="cmd__stat"><span class="cmd__stat-k">NEXT</span><span class="cmd__stat-v" data-bind="masthead-next-date">--</span></div>
+          <div class="cmd__stat"><span class="cmd__stat-k">UPDATED</span><span class="cmd__stat-v" data-bind="masthead-updated">--</span></div>
+          <div class="cmd__stat cmd__stat--live"><span class="cmd__stat-k">● LIVE</span><span class="cmd__stat-v" data-bind="masthead-clock">--:--:--</span></div>
+        </div>
+      </header>
+
+      <!-- FUNCTION TABS -->
+      <nav class="tabs" aria-label="Views">
+        <button type="button" class="tab tab--active" data-view-target="overview" aria-current="page"><span class="tab__f">F1</span> OVERVIEW</button>
+        <button type="button" class="tab" data-view-target="ev-bet" aria-current="false"><span class="tab__f">F2</span> EV BET</button>
+        <button type="button" class="tab" data-view-target="schedule" aria-current="false"><span class="tab__f">F3</span> SCHEDULE</button>
+        <button type="button" class="tab" data-view-target="club" aria-current="false"><span class="tab__f">F4</span> TEAM STRENGTH</button>
+        <button type="button" class="tab" data-view-target="context" aria-current="false"><span class="tab__f">F5</span> MODEL</button>
+        <div class="tabs__meta">
+          <span>PLAYED <b data-bind="played">--</b></span>
+          <span class="tabs__sep">|</span>
+          <span>RND <b data-bind="round-label">--</b></span>
+          <div class="progress"><div class="progress__fill" id="round-fill"></div></div>
+        </div>
+      </nav>
+
+      <div class="views">
+        <!-- ===== OVERVIEW ===== -->
+        <section class="view view--active" data-view="overview" aria-label="Overview">
+          <div class="hero" id="overview-hero"></div>
+
+          <div class="ov-grid">
+            <div class="panel ov-grid__main">
+              <div class="panel__bar">
+                <div class="panel__title-wrap"><span class="panel__title">BET SIGNALS</span><span class="panel__kick">FIXTURES CLEARING THE EV FILTER</span></div>
+                <span class="panel__meta"><b data-bind="ov-signal-count">--</b> firing · <span data-bind="ov-signal-total">--</span> fixtures</span>
+              </div>
+              <div class="scroll">
+                <table class="tbl tbl--overview">
+                  <thead>
+                    <tr>
+                      <th class="c-time">TIME</th>
+                      <th class="c-match">MATCH</th>
+                      <th class="c-pick">MODEL PICK</th>
+                      <th class="num c-odds">PINNACLE</th>
+                      <th class="num c-ev">EV</th>
+                      <th class="c-signal">SIGNAL</th>
+                    </tr>
+                  </thead>
+                  <tbody id="overview-body"></tbody>
+                </table>
+              </div>
+              <div class="legend"><span>Ranked by EV · pick is the model’s +EV side on the Pinnacle Asian-Handicap line · <span class="badge">BET</span> = model EV &gt; 0</span></div>
+            </div>
+
+            <aside class="ov-grid__side">
+              <article class="tile">
+                <span class="tile__label">NEXT FIXTURE</span>
+                <span class="tile__value" data-bind="next-fixture">--</span>
+                <span class="tile__note" data-bind="next-note"></span>
+              </article>
+              <article class="tile">
+                <span class="tile__label">STRONGEST CLUB</span>
+                <span class="tile__value tile__value--accent" data-bind="strong-team">--</span>
+                <span class="tile__note" data-bind="strong-note"></span>
+              </article>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ===== EV BET ===== -->
+        <section class="view" data-view="ev-bet" aria-label="Bet Signals">
+          <div class="panel">
+            <div class="panel__bar">
+              <div class="panel__title-wrap"><span class="panel__title">EV — ASIAN HANDICAP</span><span class="panel__kick">PINNACLE LINE · MODEL vs MARKET</span></div>
+              <span class="panel__meta" data-bind="panel-signal-meta">Model -- · Pinnacle --</span>
+            </div>
+            <div class="panel__config">
+              <span>PINNACLE</span><span>ASIAN HANDICAP</span><span>EV &gt; 0 → BET</span><span>STRATEGY: BACKTEST PENDING</span>
+            </div>
+            <div class="scroll">
+              <table class="tbl tbl--signals">
+                <thead>
+                  <tr>
+                    <th class="c-time">TIME</th>
+                    <th class="c-outcome">SIDE (HANDICAP)</th>
+                    <th class="num c-prob">WIN PROB</th>
+                    <th class="num c-grp">PINNACLE</th>
+                    <th class="num c-ev">EV</th>
+                    <th class="c-grp c-signal">SIGNAL</th>
+                  </tr>
+                </thead>
+                <tbody id="signal-body"></tbody>
+              </table>
+            </div>
+            <div class="legend">
+              <span><b class="pos">+EV</b> value vs model &nbsp; <b class="neg">−EV</b> negative edge</span>
+              <span><span class="badge">BET</span> model’s +EV side on this fixture</span>
+              <span>WIN PROB = model 1X2 win prob (reference); EV is on the handicap line</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== SCHEDULE ===== -->
+        <section class="view" data-view="schedule" aria-label="Upcoming Schedule">
+          <div class="panel">
+            <div class="panel__bar">
+              <span class="panel__title">UPCOMING MATCHES</span>
+              <span class="panel__meta" data-bind="panel-market-meta">-- matches</span>
+            </div>
+            <div class="scroll">
+              <table class="tbl tbl--market">
+                <thead>
+                  <tr>
+                    <th class="c-rnd">RND</th>
+                    <th class="c-date">DATE</th>
+                    <th class="c-mtime">TIME</th>
+                    <th class="c-match">MATCH</th>
+                    <th class="num c-grp c-p">HOME</th>
+                    <th class="num c-p">DRAW</th>
+                    <th class="num c-p">AWAY</th>
+                  </tr>
+                </thead>
+                <tbody id="market-body"></tbody>
+              </table>
+            </div>
+            <div class="legend"><span>Highlighted = model’s most-likely outcome · small figure = fair odds (F)</span></div>
+          </div>
+        </section>
+
+        <!-- ===== TEAM STRENGTH ===== -->
+        <section class="view" data-view="club" aria-label="Club Snapshot">
+          <div class="panel">
+            <div class="panel__bar">
+              <span class="panel__title">TEAM STRENGTH</span>
+              <span class="panel__meta" data-bind="panel-strength-meta">-- clubs</span>
+            </div>
+            <div class="scroll">
+              <table class="tbl tbl--strength">
+                <thead>
+                  <tr>
+                    <th class="num c-rk">RK</th>
+                    <th class="c-team">TEAM</th>
+                    <th class="num c-grp c-ovr">OVR</th>
+                    <th class="num c-r">ATT</th>
+                    <th class="num c-r">DEF</th>
+                    <th class="c-grp c-form">FORM</th>
+                  </tr>
+                </thead>
+                <tbody id="strength-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== MODEL CONTEXT ===== -->
+        <section class="view" data-view="context" aria-label="Model Context">
+          <div class="panel panel--narrow">
+            <div class="panel__bar">
+              <span class="panel__title">MODEL CONTEXT</span>
+              <span class="panel__meta">SYSTEM REFERENCE</span>
+            </div>
+            <dl class="meta" id="context-body"></dl>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
