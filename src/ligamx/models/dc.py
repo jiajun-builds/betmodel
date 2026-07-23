@@ -6,6 +6,7 @@ Outputs team strengths (MEX_team_stats.csv) and per-fixture 1X2 + Asian-Handicap
 cover probabilities (MEX_team_stats_match_simulations.csv).
 """
 
+import numpy as np
 import pandas as pd
 import penaltyblog as pb
 from penaltyblog.models import dixon_coles_weights
@@ -21,6 +22,33 @@ TRAINING_WINDOW_MONTHS = 24
 
 # Asian Handicap lines to generate (mirrored home/away).
 AH_LINES = [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
+
+# Empirical-Bayes shrinkage of team ratings toward the (weighted) league mean.
+# Teams with few matches in the window (e.g. promoted sides) get unstable, extreme
+# MLE strengths; shrinkage pulls them to the mean. Per-team weight w = n/(n+K),
+# where n is the Dixon-Coles-weighted match count: n >> K keeps a team's own
+# estimate, n << K pulls it to the mean. K is a pseudo-count, loosely "how many
+# recent matches before the model half-trusts a team's own rating". Tunable —
+# re-validate in the backtest.
+ENABLE_SHRINKAGE = True
+SHRINKAGE_K = 6.0
+
+
+def _shrink_ratings(values: np.ndarray, eff_n: np.ndarray, k: float) -> np.ndarray:
+    """Shrink per-team ratings toward the sample-size-weighted league mean.
+
+    Low-sample teams are pulled strongly to the mean; well-sampled teams barely
+    move. The weighted mean is preserved (only the spread is regularized) so the
+    league's overall scoring level is unchanged.
+    """
+    if eff_n.sum() <= 0:
+        return values
+    target = np.average(values, weights=eff_n)
+    w = eff_n / (eff_n + k)
+    shrunk = target + w * (values - target)
+    # Re-center so the weighted mean is unchanged (regularize spread only).
+    shrunk += target - np.average(shrunk, weights=eff_n)
+    return shrunk
 
 
 def run_negative_binomial_model(input_csv_path, output_csv_path):
@@ -59,35 +87,49 @@ def run_negative_binomial_model(input_csv_path, output_csv_path):
     clf.fit()
     clf.get_params()
 
-    # Step 3: Extract parameters
+    # Step 3: Extract fitted parameters. penaltyblog order is
+    # [attack x n, defence x n, home_advantage, dispersion]; use clf.teams as the
+    # authoritative team ordering aligned with those parameter slots.
+    teams_ordered = list(clf.teams)
+    n_teams = len(teams_ordered)
     params = clf._params
-    print(f"Total parameters: {len(params)}")
-    print(f"Number of teams: {len(teams)}")
+    attack = np.asarray(params[:n_teams], dtype=float)
+    defense = np.asarray(params[n_teams:2 * n_teams], dtype=float)
+    home_advantage = float(params[-2])
+    dispersion = float(params[-1])
+    print(f"Home advantage: {home_advantage:.4f}, Dispersion: {dispersion:.4f}")
 
-    # Compute parameter indices dynamically rather than hardcoding.
-    n_teams = len(teams)
-    attack = params[:n_teams]            # first n_teams values: Attack
-    defense = params[n_teams:2 * n_teams]  # next n_teams values: Defense
+    # Step 3b: Empirical-Bayes shrinkage toward the league mean. Effective sample
+    # size per team = sum of Dixon-Coles weights over its matches in the window.
+    # Injected back into clf._params so clf.predict() uses the shrunk strengths.
+    if ENABLE_SHRINKAGE:
+        eff_n = {t: 0.0 for t in teams_ordered}
+        for w_row, home, away in zip(np.asarray(weights, dtype=float), df["Home"], df["Away"]):
+            if home in eff_n:
+                eff_n[home] += w_row
+            if away in eff_n:
+                eff_n[away] += w_row
+        n_arr = np.array([eff_n[t] for t in teams_ordered])
+        attack_raw, defense_raw = attack.copy(), defense.copy()
+        attack = _shrink_ratings(attack, n_arr, SHRINKAGE_K)
+        defense = _shrink_ratings(defense, n_arr, SHRINKAGE_K)
 
-    # Guard against a parameter-length mismatch.
-    if len(attack) != n_teams or len(defense) != n_teams:
-        print("Warning: Parameter length mismatch!")
-        print(f"Attack params: {len(attack)}, Defense params: {len(defense)}, Teams: {n_teams}")
+        clf._params[:n_teams] = attack
+        clf._params[n_teams:2 * n_teams] = defense
 
-        attack = attack[:n_teams] if len(attack) >= n_teams else list(attack) + [0.0] * (n_teams - len(attack))
-        defense = defense[:n_teams] if len(defense) >= n_teams else list(defense) + [0.0] * (n_teams - len(defense))
+        movers = sorted(
+            ((t, n_arr[i], attack_raw[i], attack[i]) for i, t in enumerate(teams_ordered)),
+            key=lambda r: abs(r[3] - r[2]), reverse=True,
+        )
+        print(f"Shrinkage applied (K={SHRINKAGE_K}); top movers by |Δattack|:")
+        for t, n, a0, a1 in movers[:5]:
+            print(f"  {t:<20} eff_n={n:5.1f}  attack {a0:+.3f} -> {a1:+.3f}")
 
-    # Home advantage and rho (correlation) parameters.
-    home_advantage = params[2 * n_teams] if len(params) > 2 * n_teams else 0.0
-    rho = params[2 * n_teams + 1] if len(params) > 2 * n_teams + 1 else 0.0
-
-    print(f"Home advantage: {home_advantage}, Rho: {rho}")
-
-    # Step 4: Team stats DataFrame
+    # Step 4: Team stats DataFrame (post-shrinkage ratings)
     team_stats = pd.DataFrame({
-        "Team": teams,
+        "Team": teams_ordered,
         "Attack": attack,
-        "Defense": defense
+        "Defense": defense,
     })
 
     # Tag every row with the latest match date used in the fit.
@@ -101,8 +143,8 @@ def run_negative_binomial_model(input_csv_path, output_csv_path):
     simulation_results = []
 
     print("Starting match simulations...")
-    for home_team in teams:
-        for away_team in teams:
+    for home_team in teams_ordered:
+        for away_team in teams_ordered:
             if home_team == away_team:
                 continue
             try:
