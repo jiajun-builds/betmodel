@@ -5,7 +5,6 @@ AExpG+ = 0.55 × AxG + 0.45 × AG
 """
 
 from typing import Dict, List
-import config
 
 
 class XGCalculator:
@@ -39,11 +38,11 @@ class XGCalculator:
             ag = match.get("away_goals")
             hxg = match.get("HxG", 0)
             axg = match.get("AxG", 0)
-            
+
             xg = self.calculate_match_xg(hg, ag, hxg, axg)
-            
+
             result = match.copy()
             result.update(xg)
             results.append(result)
-        
+
         return results

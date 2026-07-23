@@ -7,9 +7,11 @@ venv/
 
 .env
 .env.*
-!.env.example
+!.env.local.example
 
 output/
+site/
+data/output_data/
 
 AGENTS.md
 CLAUDE.md

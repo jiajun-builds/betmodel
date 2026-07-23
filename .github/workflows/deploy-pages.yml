@@ -1,0 +1,56 @@
+name: Deploy Liga MX Dashboard to GitHub Pages
+
+on:
+  # Rebuild + redeploy when the site source or its committed data changes.
+  # (The scheduled data-refresh workflow is deferred; for now the pipeline is
+  # run locally and its dashboard JSON committed, which triggers this deploy.)
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
+      - 'data/dashboard/json/**'
+      - 'scripts/build_dashboard_site.sh'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  # Never interrupt an in-flight Pages deploy: cancelling the job mid-deploy
+  # leaves the backend deployment half-finished, and the next run fails with
+  # "Deployment failed, try again later." Queue deploys instead of cancelling.
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Build site bundle
+        run: ./scripts/build_dashboard_site.sh
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
