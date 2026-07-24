@@ -1,6 +1,6 @@
 """
-Fetch the current ('Now') Pinnacle Asian-Handicap ('spreads') line for upcoming
-Liga MX matches from The Odds API, and cache it to MEX_pinnacle_spreads.csv.
+Fetch the current ('Now') Pinnacle 1X2 ('h2h') line for upcoming Liga MX
+matches from The Odds API, and cache it to MEX_pinnacle_h2h.csv.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from ligamx import config, paths
 
 COLUMNS = [
     "event_id", "commence_time", "home_team", "away_team",
-    "home_odds", "away_odds", "spread", "bookmaker", "last_update", "fetched_at",
+    "home_odds", "draw_odds", "away_odds", "bookmaker", "last_update", "fetched_at",
 ]
 
 
@@ -27,8 +27,8 @@ def _get(endpoint: str, params: dict) -> list:
     return r.json()
 
 
-def get_odds(regions: str = "eu", markets: str = "spreads") -> list:
-    """Return the current Pinnacle spread line per upcoming fixture."""
+def get_odds(regions: str = "eu", markets: str = "h2h") -> list:
+    """Return the current Pinnacle 1X2 (home/draw/away) line per upcoming fixture."""
     params = {
         "regions": regions,
         "markets": markets,
@@ -50,23 +50,25 @@ def get_odds(regions: str = "eu", markets: str = "spreads") -> list:
 
         home_team = event.get("home_team")
         away_team = event.get("away_team")
-        home_odds = away_odds = spread = None
+        home_odds = draw_odds = away_odds = None
         for o in outcomes:
-            if o.get("name") == home_team:
+            name = o.get("name")
+            if name == home_team:
                 home_odds = o.get("price")
-                spread = o.get("point")
-            elif o.get("name") == away_team:
+            elif name == away_team:
                 away_odds = o.get("price")
+            elif name == "Draw":
+                draw_odds = o.get("price")
 
-        if home_odds and away_odds:
+        if home_odds and draw_odds and away_odds:
             results.append({
                 "event_id": event.get("id"),
                 "commence_time": event.get("commence_time"),
                 "home_team": home_team,
                 "away_team": away_team,
                 "home_odds": home_odds,
+                "draw_odds": draw_odds,
                 "away_odds": away_odds,
-                "spread": spread,
                 "bookmaker": config.BOOKMAKER,
                 "last_update": bm.get("last_update"),
             })
@@ -76,7 +78,7 @@ def get_odds(regions: str = "eu", markets: str = "spreads") -> list:
 def fetch_and_save() -> list:
     odds = get_odds()
     fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    out = paths.pinnacle_spreads_csv()
+    out = paths.pinnacle_h2h_csv()
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=COLUMNS)
         w.writeheader()
@@ -84,7 +86,7 @@ def fetch_and_save() -> list:
             row = dict(o)
             row["fetched_at"] = fetched_at
             w.writerow(row)
-    print(f"Fetched {len(odds)} Pinnacle spread lines -> {out}")
+    print(f"Fetched {len(odds)} Pinnacle 1X2 lines -> {out}")
     return odds
 
 

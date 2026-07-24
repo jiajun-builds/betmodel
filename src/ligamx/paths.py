@@ -32,9 +32,9 @@ def data_output_dir() -> str:
     return os.path.join(data_dir(), "output_data")
 
 
-def pinnacle_spreads_csv() -> str:
-    """Current ('Now') Pinnacle Asian-Handicap line snapshot."""
-    return os.path.join(data_dir(), "MEX_pinnacle_spreads.csv")
+def pinnacle_h2h_csv() -> str:
+    """Current ('Now') Pinnacle 1X2 (h2h) line snapshot."""
+    return os.path.join(data_dir(), "MEX_pinnacle_h2h.csv")
 
 
 def market_comparison_csv() -> str:

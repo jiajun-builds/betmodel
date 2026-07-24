@@ -232,6 +232,11 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 .state-banner { margin-top: 6px; border: 1px solid rgba(255,95,95,.4); background: rgba(255,95,95,.08);
   color: #ff8a8a; padding: 10px 14px; font: 400 12px var(--mono); }
 
+/* CAUTION — uncalibrated / unvalidated surfaces */
+.warn-banner { margin: 0 0 10px; border: 1px solid rgba(255,158,44,.45); background: rgba(255,158,44,.09);
+  color: var(--accent); padding: 9px 13px; font: 400 11px/1.45 var(--mono); letter-spacing: .02em; }
+.warn-banner b { font-weight: 700; letter-spacing: .08em; }
+
 @media (max-width: 900px) {
   .ov-grid { grid-template-columns: 1fr; }
   .tabs { flex-wrap: wrap; }

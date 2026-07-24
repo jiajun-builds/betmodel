@@ -50,6 +50,8 @@
         <section class="view view--active" data-view="overview" aria-label="Overview">
           <div class="hero" id="overview-hero"></div>
 
+          <div class="warn-banner"><b>⚠ UNCALIBRATED · NOT VALIDATED</b> — the model over-weights draws (~+6pp vs market), so the 1X2 EV skews to DRAW on nearly every fixture. These signals are not backtested — for review only, do not bet.</div>
+
           <div class="ov-grid">
             <div class="panel ov-grid__main">
               <div class="panel__bar">
@@ -71,7 +73,7 @@
                   <tbody id="overview-body"></tbody>
                 </table>
               </div>
-              <div class="legend"><span>Ranked by EV · pick is the model’s +EV side on the Pinnacle Asian-Handicap line · <span class="badge">BET</span> = model EV &gt; 0</span></div>
+              <div class="legend"><span>Ranked by EV · pick is the model’s best +EV outcome on the Pinnacle 1X2 line · <span class="badge">BET</span> = model EV &gt; 0</span></div>
             </div>
 
             <aside class="ov-grid__side">
@@ -93,19 +95,20 @@
         <section class="view" data-view="ev-bet" aria-label="Bet Signals">
           <div class="panel">
             <div class="panel__bar">
-              <div class="panel__title-wrap"><span class="panel__title">EV — ASIAN HANDICAP</span><span class="panel__kick">PINNACLE LINE · MODEL vs MARKET</span></div>
+              <div class="panel__title-wrap"><span class="panel__title">EV — 1X2</span><span class="panel__kick">PINNACLE MATCH ODDS · MODEL vs MARKET</span></div>
               <span class="panel__meta" data-bind="panel-signal-meta">Model -- · Pinnacle --</span>
             </div>
             <div class="panel__config">
-              <span>PINNACLE</span><span>ASIAN HANDICAP</span><span>EV &gt; 0 → BET</span><span>STRATEGY: BACKTEST PENDING</span>
+              <span>PINNACLE</span><span>1X2 / MATCH ODDS</span><span>EV &gt; 0 → BET</span><span>STATUS: UNCALIBRATED · NOT VALIDATED</span>
             </div>
+            <div class="warn-banner"><b>⚠ UNCALIBRATED · NOT VALIDATED</b> — model draw probability runs ~+6pp above market, inflating DRAW EV on nearly every fixture; signals are not backtested. Review only — do not bet.</div>
             <div class="scroll">
               <table class="tbl tbl--signals">
                 <thead>
                   <tr>
                     <th class="c-time">TIME</th>
-                    <th class="c-outcome">SIDE (HANDICAP)</th>
-                    <th class="num c-prob">WIN PROB</th>
+                    <th class="c-outcome">OUTCOME</th>
+                    <th class="num c-prob">MODEL PROB</th>
                     <th class="num c-grp">PINNACLE</th>
                     <th class="num c-ev">EV</th>
                     <th class="c-grp c-signal">SIGNAL</th>
@@ -116,8 +119,8 @@
             </div>
             <div class="legend">
               <span><b class="pos">+EV</b> value vs model &nbsp; <b class="neg">−EV</b> negative edge</span>
-              <span><span class="badge">BET</span> model’s +EV side on this fixture</span>
-              <span>WIN PROB = model 1X2 win prob (reference); EV is on the handicap line</span>
+              <span><span class="badge">BET</span> model’s best +EV outcome on this fixture</span>
+              <span>MODEL PROB = model 1X2 probability; EV = model prob × Pinnacle odds − 1</span>
             </div>
           </div>
         </section>

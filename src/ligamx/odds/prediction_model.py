@@ -55,55 +55,11 @@ class PredictionModel:
 
         row = match.iloc[0]
 
-        ah_cols = {}
-        for col in self._simulations_df.columns:
-            if col.startswith("Home ") or col.startswith("Away "):
-                if col not in ["Home Team", "Away Team"]:
-                    ah_cols[col] = row[col]
-
         return {
             "home_win": row["Home Win Probability"],
             "draw": row["Draw Probability"],
             "away_win": row["Away Win Probability"],
-            **ah_cols,
         }
-
-    def get_ah_probability(self, home_team: str, away_team: str, spread: float) -> Optional[Dict]:
-        """Get the model cover probability for a given Asian-Handicap spread."""
-        probs = self.get_probabilities(home_team, away_team)
-        if not probs:
-            return None
-
-        if spread == 0:
-            return {"probability": probs.get("Home Win Probability", 0), "line": 0, "type": "1x2"}
-
-        if spread < 0:
-            col_name = f"Home {spread}"
-        else:
-            col_name = f"Home +{spread}"
-
-        if col_name in probs:
-            return {"probability": probs[col_name], "line": spread, "type": "ah"}
-
-        available_home = [c for c in probs.keys() if c.startswith("Home ") and c not in ["Home Team", "Away Team"]]
-        available_home.sort(key=lambda x: abs(self._parse_line(x) - spread))
-
-        if available_home:
-            closest = available_home[0]
-            return {"probability": probs[closest], "line": self._parse_line(closest), "type": "ah_approximate"}
-
-        return {"probability": probs.get("Home Win Probability", 0), "line": 0, "type": "1x2_fallback"}
-
-    def _parse_line(self, col_name: str) -> float:
-        """Parse the line value from a column name like 'Home -1.5'."""
-        try:
-            if col_name.startswith("Home "):
-                return float(col_name.replace("Home ", ""))
-            elif col_name.startswith("Away "):
-                return float(col_name.replace("Away ", ""))
-        except ValueError:
-            pass
-        return 0.0
 
     def get_team_stats(self, team_name: str) -> Optional[Dict]:
         """Get team attack/defense stats (team name in model/standard format)."""
