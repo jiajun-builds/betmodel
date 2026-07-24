@@ -37,6 +37,11 @@ def pinnacle_h2h_csv() -> str:
     return os.path.join(data_dir(), "MEX_pinnacle_h2h.csv")
 
 
+def odds_snapshots_csv() -> str:
+    """Append-only long-format store of every captured odds snapshot (all venues)."""
+    return os.path.join(data_dir(), "odds_snapshots.csv")
+
+
 def market_comparison_csv() -> str:
     """Model-vs-market comparison (drives the dashboard EV view)."""
     return os.path.join(data_output_dir(), "MEX_upcoming_market_comparison.csv")

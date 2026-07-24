@@ -27,17 +27,48 @@ CSV_DATE_FORMAT = "%Y/%m/%d"
 XG_REFRESH_DAYS = 30
 XG_COMPARE_EPSILON = 1e-6
 
-# Odds columns of the MEX_ligamx.csv schema (mirrors CHN_Super League), populated
-# by the odds/capture layer. Pinnacle closing 1X2 is the model-vs-market benchmark;
-# the rest (opens, Asian handicap, execution book) are reserved for the CLV work.
+# Odds columns of the MEX_ligamx.csv schema, populated by the odds/capture layer.
+# Pinnacle closing 1X2 is the model-vs-market benchmark; opens + the exchange
+# venues (Betfair, Polymarket) drive the CLV work. Asian-handicap columns stay
+# reserved. `open` = earliest captured price at a fixed lead time before kickoff;
+# `close` = last price before kickoff. Keep in sync with data/MEX_ligamx.csv.
 ODDS_COLUMNS = [
     "pinnacle_open_h", "pinnacle_open_d", "pinnacle_open_a",
     "pinnacle_close_h", "pinnacle_close_d", "pinnacle_close_a",
     "pinnacle_open_ah", "pinnacle_open_ah_h", "pinnacle_open_ah_a",
     "pinnacle_close_ah", "pinnacle_close_ah_h", "pinnacle_close_ah_a",
-    "onexbet_open_h", "onexbet_open_d", "onexbet_open_a",
-    "onexbet_close_h", "onexbet_close_d", "onexbet_close_a",
+    "betfair_open_h", "betfair_open_d", "betfair_open_a",
+    "betfair_close_h", "betfair_close_d", "betfair_close_a",
+    "polymarket_open_h", "polymarket_open_d", "polymarket_open_a",
+    "polymarket_close_h", "polymarket_close_d", "polymarket_close_a",
 ]
+
+# --- Odds capture (poller) --------------------------------------------------
+# The Odds API books to snapshot. matchbook is captured into the store even
+# though it has no MEX_ligamx column yet (reducible later). betfair_ex_eu is
+# the exchange venue surfaced as betfair_* in the schema.
+ODDS_API_REGIONS = "eu,uk"
+ODDS_API_BOOKMAKERS = ["pinnacle", "betfair_ex_eu", "matchbook"]
+# venue key (as stored) -> MEX_ligamx column prefix (None = store-only, no column)
+VENUE_TO_SCHEMA_PREFIX = {
+    "pinnacle": "pinnacle",
+    "betfair_ex_eu": "betfair",
+    "matchbook": None,
+    "polymarket": "polymarket",
+}
+
+# Polymarket read-only Gamma catalogue API (unauthenticated). Match markets are
+# a bundle of 3 Yes/No sub-markets (home win / draw / away win); the Yes price is
+# the implied probability, so decimal odds = 1 / yes_price.
+POLYMARKET_GAMMA_BASE = "https://gamma-api.polymarket.com"
+# CLOB read API: /prices-history?market={token_id} returns a free, per-outcome
+# price time-series from market open to settlement (works for closed markets too),
+# so Polymarket early prices can be backfilled retroactively at no quota cost.
+POLYMARKET_CLOB_BASE = "https://clob.polymarket.com"
+HTTP_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
+)
 
 # SofaScore unique-tournament ids (Liga MX runs two tournaments per year).
 SOFASCORE_APERTURA = 11621
