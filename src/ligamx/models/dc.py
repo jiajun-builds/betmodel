@@ -20,6 +20,16 @@ MODEL_XI = 0.0015
 # Trailing training window.
 TRAINING_WINDOW_MONTHS = 24
 
+# Post-hoc draw recalibration. The NegBinom fit systematically over-prices the
+# draw on Liga MX (walk-forward: model draw ~0.30 vs realized ~0.25), which pushes
+# most EV picks onto the draw for the wrong reason. The 1X2 draw probability is
+# deflated by this factor and home/away scaled up to renormalize; ALPHA=0.85 was
+# RPS-selected on 2024-07..2025-09 and held flat (0.85-0.95) out-of-sample on the
+# 2025-10.. window. Re-validate with `python -m ligamx.eval.draw_calibration`.
+# Set to 1.0 to disable. Only 1X2 outputs are recalibrated; Asian-handicap cover
+# probabilities come from the full scoreline grid and are left untouched.
+DRAW_CALIBRATION_ALPHA = 0.85
+
 # Asian Handicap lines to generate (mirrored home/away).
 AH_LINES = [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
 
@@ -32,6 +42,20 @@ AH_LINES = [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
 # re-validate in the backtest.
 ENABLE_SHRINKAGE = True
 SHRINKAGE_K = 6.0
+
+
+def calibrate_1x2(home_win: float, draw: float, away_win: float,
+                  alpha: float = DRAW_CALIBRATION_ALPHA) -> tuple[float, float, float]:
+    """Deflate the draw probability by ``alpha`` and renormalize onto home/away.
+
+    Corrects the model's systematic draw over-pricing (see DRAW_CALIBRATION_ALPHA).
+    The home/away split is preserved; only mass is shifted off the draw. alpha=1.0
+    is a no-op.
+    """
+    d = alpha * draw
+    rest = home_win + away_win
+    scale = (1.0 - d) / rest if rest > 0 else 1.0
+    return home_win * scale, d, away_win * scale
 
 
 def _shrink_ratings(values: np.ndarray, eff_n: np.ndarray, k: float) -> np.ndarray:
@@ -153,6 +177,10 @@ def run_negative_binomial_model(input_csv_path, output_csv_path):
                 home_win_prob = probs.asian_handicap("home", 0)
                 away_win_prob = probs.asian_handicap("away", 0)
                 draw_prob = 1 - home_win_prob - away_win_prob
+
+                # Deflate the over-priced draw and renormalize onto home/away.
+                home_win_prob, draw_prob, away_win_prob = calibrate_1x2(
+                    home_win_prob, draw_prob, away_win_prob)
 
                 results = {
                     "Home Team": home_team,

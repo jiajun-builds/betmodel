@@ -59,6 +59,16 @@ def upcoming_fixtures_csv() -> str:
     return os.path.join(data_dir(), "MEX_upcoming_fixtures.csv")
 
 
+def football_data_csv() -> str:
+    """Cached football-data.co.uk Liga MX CSV (free market/exchange closing odds).
+
+    Backfills closing 1X2 benchmarks (AvgC market-average, BFEC Betfair exchange)
+    after football-data stopped publishing Pinnacle closes in Oct-2025. Used by the
+    eval/CLV layer only; not part of the production schema.
+    """
+    return os.path.join(data_dir(), "football_data_mex.csv")
+
+
 def team_mapping_csv() -> str:
     """Team-name mapping across the provider namespaces + canonical name."""
     return os.path.join(data_dir(), "ligamx_team_name_mapping.csv")
