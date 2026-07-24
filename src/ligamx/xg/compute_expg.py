@@ -1,5 +1,5 @@
 """Recompute the blended expected-goals columns (HExpG+/AExpG+) over the whole
-match-history CSV. HExpG+ = 0.55*HxG + 0.45*HG (mirror for away)."""
+match-history CSV. HExpG+ = 0.25*HxG + 0.75*HG (mirror for away)."""
 
 from ligamx.xg.data_updater import DataUpdater
 
