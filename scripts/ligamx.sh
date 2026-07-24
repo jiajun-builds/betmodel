@@ -68,7 +68,7 @@ run_dashboard() {
 
 run_odds_fetch() {
   ligamx_require_env THE_ODDS_API_KEY || return 1
-  "$PYTHON" -m ligamx.odds.fetch_pinnacle_spreads
+  "$PYTHON" -m ligamx.odds.fetch_pinnacle_h2h
 }
 
 run_market_comparison() {
@@ -116,7 +116,7 @@ EOF
 
   run_timed_phase "STEP 1/6" "Data Update" "./scripts/run_ligamx_update.sh" run_update
   run_timed_phase "STEP 2/6" "Model Export" "./scripts/ligamx-model.sh" run_model
-  run_timed_phase "STEP 3/6" "Odds Fetch" "python -m ligamx.odds.fetch_pinnacle_spreads" run_odds_fetch
+  run_timed_phase "STEP 3/6" "Odds Fetch" "python -m ligamx.odds.fetch_pinnacle_h2h" run_odds_fetch
   run_timed_phase "STEP 4/6" "Market Comparison Export" "python -m ligamx.odds.export_upcoming_market_comparison" run_market_comparison
   run_timed_phase "STEP 5/6" "Dashboard Export" "python -m ligamx.dashboard.export_dashboard" run_dashboard
   run_timed_phase "STEP 6/6" "Publish Site" "./scripts/build_dashboard_site.sh" run_site_build
