@@ -15,7 +15,7 @@ THE_ODDS_API_KEY = os.getenv("THE_ODDS_API_KEY", "")
 
 ODDS_SPORT_KEY = "soccer_mexico_ligamx"
 BOOKMAKER = "pinnacle"
-MARKET = "spreads"
+MARKET = "h2h"
 
 # DATA_FILE is repo-relative; consumers resolve it against paths.project_root()
 # (kept as a relative string so tests can redirect it to a temp path).

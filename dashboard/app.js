@@ -7,7 +7,7 @@
  *   team_strength_rankings.json, upcoming_market_comparison.json
  * from ./data (built site) or ../data/dashboard/json (repo run).
  *
- * EV surface is Asian-Handicap (Pinnacle). EV values are percentages.
+ * EV surface is 1X2 / match odds (Pinnacle). EV values are percentages.
  * ------------------------------------------------------------------ */
 
 const DATA_BASES = ["./data", "../data/dashboard/json"];
@@ -34,7 +34,6 @@ function ev(v) { if (v == null || v === "") return "--"; const n = Number(v); re
 function evClass(v) { if (v == null || v === "") return "zero"; const n = Number(v); return n > 0.1 ? "pos" : n < -0.1 ? "neg" : "zero"; }
 function sideLetter(k) { return k === "home" ? "H" : k === "away" ? "A" : "D"; }
 function sideWord(k) { return k === "home" ? "HOME" : k === "away" ? "AWAY" : "DRAW"; }
-function fmtSpread(s) { if (s == null || s === "") return ""; const n = Number(s); return (n > 0 ? "+" : "") + n; }
 
 function fmtStamp(v) {
   if (!v) return "--";
@@ -62,20 +61,29 @@ function clock() {
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
+/* ---------- 1X2 market outcomes (home / draw / away) ---------- */
+function marketOutcomes(r) {
+  return [
+    { key: "home", label: r.home_team, prob: r.home_win_prob, odds: r.home_odds, ev: r.home_ev },
+    { key: "draw", label: "Draw", prob: r.draw_prob, odds: r.draw_odds, ev: r.draw_ev },
+    { key: "away", label: r.away_team, prob: r.away_win_prob, odds: r.away_odds, ev: r.away_ev },
+  ];
+}
+function outcomeByKey(r, key) { return marketOutcomes(r).find((o) => o.key === key); }
+
 /* ---------- OVERVIEW (best-bet hero + firing signals) ---------- */
 function renderOverview(market) {
   const bets = market
     .filter((r) => r.signal_state === "bet" && r.signal_pick && r.signal_pick !== "none")
     .map((r) => {
-      const home = r.signal_pick === "home";
+      const o = outcomeByKey(r, r.signal_pick);
       return {
         time: r.match_time, kickoff_at: r.kickoff_at,
         match: `${r.home_team} vs ${r.away_team}`,
-        team: home ? r.home_team : r.away_team,
+        team: o.label,
         key: r.signal_pick,
-        spread: home ? r.spread : (r.spread == null ? null : -r.spread),
-        odds: home ? r.home_odds : r.away_odds,
-        ev: home ? r.home_ev : r.away_ev,
+        odds: o.odds,
+        ev: o.ev,
       };
     })
     .sort((a, b) => b.ev - a.ev);
@@ -93,7 +101,7 @@ function renderOverview(market) {
   el.overviewBody.innerHTML = bets.map((b) => `<tr>
     <td class="ov-time">${fmtTime(b.kickoff_at, b.time)}</td>
     <td class="ov-match">${esc(b.match)}</td>
-    <td class="ov-pick">${esc(b.team)} <span class="ov-side">(${sideLetter(b.key)} ${fmtSpread(b.spread)})</span></td>
+    <td class="ov-pick">${esc(b.team)} <span class="ov-side">(${sideLetter(b.key)})</span></td>
     <td class="num ov-odds">${odds(b.odds)}</td>
     <td class="num ov-ev${b.ev >= 5 ? " strong" : ""}">${ev(b.ev)}</td>
     <td class="ov-sig"><span class="badge">● BET</span></td>
@@ -107,11 +115,10 @@ function renderHero(bets, market) {
   const firing = Boolean(pick);
   if (!pick) {
     market.forEach((r) => {
-      [["home", r.home_ev, r.home_odds, r.home_team, r.spread],
-       ["away", r.away_ev, r.away_odds, r.away_team, (r.spread == null ? null : -r.spread)]].forEach(([k, e, o, t, sp]) => {
-        if (e == null || e === "") return;
-        if (!pick || Number(e) > pick.ev) {
-          pick = { ev: Number(e), odds: o, key: k, team: t, spread: sp, match: `${r.home_team} vs ${r.away_team}`, time: r.match_time, kickoff_at: r.kickoff_at };
+      marketOutcomes(r).forEach((o) => {
+        if (o.ev == null || o.ev === "") return;
+        if (!pick || Number(o.ev) > pick.ev) {
+          pick = { ev: Number(o.ev), odds: o.odds, key: o.key, team: o.label, match: `${r.home_team} vs ${r.away_team}`, time: r.match_time, kickoff_at: r.kickoff_at };
         }
       });
     });
@@ -132,7 +139,7 @@ function renderHero(bets, market) {
       <span class="hero__label">${firing ? "★ BEST BET" : "★ TOP EDGE"}</span>
       <div class="hero__headline">
         <span class="hero__team">${esc(pick.team)}</span>
-        <span class="hero__side">${sideWord(pick.key)} ${fmtSpread(pick.spread)}</span>
+        <span class="hero__side">${sideWord(pick.key)}</span>
       </div>
       <span class="hero__ctx">${esc(pick.match)}${when ? ` · ${when}` : ""}</span>
     </div>
@@ -143,24 +150,21 @@ function renderHero(bets, market) {
     </div>`;
 }
 
-/* ---------- EV BET (Asian-Handicap sides) ---------- */
+/* ---------- EV BET (1X2 outcomes: home / draw / away) ---------- */
 function renderEvBet(rows) {
   el.signalBody.innerHTML = rows.map((row) => {
-    const outs = [
-      { key: "home", label: row.home_team, spread: row.spread, prob: row.home_win_prob, odds: row.home_odds, ev: row.home_ev },
-      { key: "away", label: row.away_team, spread: row.spread == null ? null : -row.spread, prob: row.away_win_prob, odds: row.away_odds, ev: row.away_ev },
-    ];
+    const outs = marketOutcomes(row);
     const isBet = row.signal_state === "bet";
 
     const tr = outs.map((o, i) => {
-      const timeCell = i === 0 ? `<td class="sig-time" rowspan="2">${fmtTime(row.kickoff_at, row.match_time)}</td>` : "";
+      const timeCell = i === 0 ? `<td class="sig-time" rowspan="3">${fmtTime(row.kickoff_at, row.match_time)}</td>` : "";
       const nameCls = "sig-name" + (isBet && row.signal_pick === o.key ? " is-pick" : "");
       const evStrong = o.ev != null && Math.abs(Number(o.ev)) >= 5 ? " strong" : "";
       const action = (row.signal_pick === o.key && isBet)
         ? `<span class="sig-action"><span class="badge">● BET</span></span>` : "";
       return `<tr>
         ${timeCell}
-        <td class="${nameCls}">${esc(o.label)} <span class="ov-side">${fmtSpread(o.spread)}</span></td>
+        <td class="${nameCls}">${esc(o.label)} <span class="ov-side">${sideLetter(o.key)}</span></td>
         <td class="num sig-prob">${pct(o.prob)}</td>
         <td class="num c-grp sig-odds">${odds(o.odds)}</td>
         <td class="num sig-ev ${evClass(o.ev)}${evStrong}">${ev(o.ev)}</td>

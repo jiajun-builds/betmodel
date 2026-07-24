@@ -1,10 +1,10 @@
 """
-Join model probabilities to the current Pinnacle Asian-Handicap line, compute
-per-side EV, and emit the market-comparison dataset that drives the dashboard's
-EV view. Reads the cached Now-line CSV if present (no extra API spend).
+Join model probabilities to the current Pinnacle 1X2 (h2h) line, compute
+per-outcome EV, and emit the market-comparison dataset that drives the
+dashboard's EV view. Reads the cached Now-line CSV if present (no extra API spend).
 
-Note: EV here is Asian-Handicap based (the current strategy). The 1X2 + draw
-de-bias path is deferred until the Liga MX backtest decides 1X2-vs-AH.
+EV here is 1X2 based: for each outcome EV = model_prob * decimal_odds - 1.
+The firing signal is the highest-EV outcome among home/draw/away with EV > 0.
 """
 
 from __future__ import annotations
@@ -16,21 +16,23 @@ from datetime import datetime, timezone
 import pandas as pd
 
 from ligamx import config, paths
-from ligamx.odds.fetch_pinnacle_spreads import get_odds
+from ligamx.odds.fetch_pinnacle_h2h import get_odds
 from ligamx.odds.prediction_model import PredictionModel
 from ligamx.odds.ev_calculator import EVCalculator
 
 COLUMNS = [
     "home_team", "away_team", "round", "match_date", "match_time", "kickoff_utc",
-    "home_win_prob", "draw_prob", "away_win_prob", "home_minus_1", "away_minus_1",
-    "spread", "home_odds", "away_odds", "home_ev", "away_ev", "home_is_ev", "away_is_ev",
+    "home_win_prob", "draw_prob", "away_win_prob",
+    "home_odds", "draw_odds", "away_odds",
+    "home_ev", "draw_ev", "away_ev",
+    "home_is_ev", "draw_is_ev", "away_is_ev",
     "signal_pick", "signal_state", "bookmaker", "last_update", "fetched_at",
 ]
 
 
 def _load_cached_odds() -> list:
     try:
-        df = pd.read_csv(paths.pinnacle_spreads_csv())
+        df = pd.read_csv(paths.pinnacle_h2h_csv())
         return df.to_dict("records")
     except Exception:
         return []
@@ -65,21 +67,19 @@ def run(odds=None) -> list:
 
         std_home = config.ODDS_TO_STANDARD.get(oh, oh)
         std_away = config.ODDS_TO_STANDARD.get(oa, oa)
-        spread = od.get("spread", 0) or 0
-        ho, ao = od.get("home_odds"), od.get("away_odds")
+        ho, do, ao = od.get("home_odds"), od.get("draw_odds"), od.get("away_odds")
 
         home_win = probs.get("home_win", 0)
         draw = probs.get("draw", 0)
         away_win = probs.get("away_win", 0)
-        h1 = probs.get("Home -1", 0)
-        a1 = probs.get("Away -1", 0)
 
-        evs = ev_calc.calculate_match_evs(home_win, draw, away_win, h1, a1, ho, ao, spread)
-        he, ae = evs["home_ev"], evs["away_ev"]
+        evs = ev_calc.calculate_1x2_evs(home_win, draw, away_win, ho, do, ao)
+        he, de, ae = evs["home_ev"], evs["draw_ev"], evs["away_ev"]
 
-        signal_pick = "none"
-        if he > 0 or ae > 0:
-            signal_pick = "home" if he >= ae else "away"
+        # Firing signal = best +EV outcome among home / draw / away.
+        candidates = {"home": he, "draw": de, "away": ae}
+        best_pick = max(candidates, key=candidates.get)
+        signal_pick = best_pick if candidates[best_pick] > 0 else "none"
         signal_state = "bet" if signal_pick != "none" else "none"
 
         uf = upcoming.get((std_home, std_away))
@@ -94,14 +94,14 @@ def run(odds=None) -> list:
             "home_win_prob": home_win,
             "draw_prob": draw,
             "away_win_prob": away_win,
-            "home_minus_1": h1,
-            "away_minus_1": a1,
-            "spread": spread,
             "home_odds": ho,
+            "draw_odds": do,
             "away_odds": ao,
             "home_ev": round(he * 100, 3),
+            "draw_ev": round(de * 100, 3),
             "away_ev": round(ae * 100, 3),
             "home_is_ev": he > 0,
+            "draw_is_ev": de > 0,
             "away_is_ev": ae > 0,
             "signal_pick": signal_pick,
             "signal_state": signal_state,

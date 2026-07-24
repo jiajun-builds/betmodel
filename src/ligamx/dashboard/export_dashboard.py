@@ -3,7 +3,7 @@ Export the dashboard's 5-file JSON contract from the pipeline outputs.
 
 Reads:  MEX_ligamx.csv (history), MEX_upcoming_fixtures.csv (schedule),
         MEX_team_stats.csv + _match_simulations.csv (model),
-        MEX_upcoming_market_comparison.csv (Asian-Handicap EV; optional).
+        MEX_upcoming_market_comparison.csv (1X2 EV; optional).
 Writes: data/dashboard/json/{dashboard_meta, upcoming_fixtures, match_predictions,
         team_strength_rankings, upcoming_market_comparison}.json
 """
@@ -29,7 +29,8 @@ DISPLAY_TZ = "America/Mexico_City"
 MARKET_FIELDS = [
     "home_team", "away_team", "round", "match_time", "kickoff_at",
     "home_win_prob", "draw_prob", "away_win_prob",
-    "spread", "home_odds", "away_odds", "home_ev", "away_ev",
+    "home_odds", "draw_odds", "away_odds",
+    "home_ev", "draw_ev", "away_ev",
     "signal_pick", "signal_state", "bookmaker", "last_update", "fetched_at",
 ]
 
@@ -180,7 +181,7 @@ def run() -> None:
         "overall_rating", "attack_rank", "defense_rank", "form",
     ]])
 
-    # ---- market comparison (AH EV; optional) -------------------------------
+    # ---- market comparison (1X2 EV; optional) ------------------------------
     market_rows = []
     if os.path.exists(paths.market_comparison_csv()):
         mc = pd.read_csv(paths.market_comparison_csv())
