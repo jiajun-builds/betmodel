@@ -27,6 +27,18 @@ CSV_DATE_FORMAT = "%Y/%m/%d"
 XG_REFRESH_DAYS = 30
 XG_COMPARE_EPSILON = 1e-6
 
+# Odds columns of the MEX_ligamx.csv schema (mirrors CHN_Super League), populated
+# by the odds/capture layer. Pinnacle closing 1X2 is the model-vs-market benchmark;
+# the rest (opens, Asian handicap, execution book) are reserved for the CLV work.
+ODDS_COLUMNS = [
+    "pinnacle_open_h", "pinnacle_open_d", "pinnacle_open_a",
+    "pinnacle_close_h", "pinnacle_close_d", "pinnacle_close_a",
+    "pinnacle_open_ah", "pinnacle_open_ah_h", "pinnacle_open_ah_a",
+    "pinnacle_close_ah", "pinnacle_close_ah_h", "pinnacle_close_ah_a",
+    "onexbet_open_h", "onexbet_open_d", "onexbet_open_a",
+    "onexbet_close_h", "onexbet_close_d", "onexbet_close_a",
+]
+
 # SofaScore unique-tournament ids (Liga MX runs two tournaments per year).
 SOFASCORE_APERTURA = 11621
 SOFASCORE_CLAUSURA = 11620

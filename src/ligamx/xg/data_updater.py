@@ -44,11 +44,11 @@ class DataUpdater:
         return keys
 
     def normalize_date(self, date_str: str) -> str:
-        """Normalize date to YYYY/m/d format with zero-padded month/day."""
+        """Normalize date to CSV_DATE_FORMAT (YYYY/MM/DD), accepting slash or dash input."""
         date_str = str(date_str).strip()
         if not date_str:
             return ""
-        formats = ["%Y/%m/%d", "%Y/%m/d", "%Y/m/%d", "%Y/m/d"]
+        formats = ["%Y-%m-%d", "%Y/%m/%d", "%Y/%m/d", "%Y/m/%d", "%Y/m/d"]
         for fmt in formats:
             try:
                 dt = datetime.strptime(date_str, fmt)
@@ -58,7 +58,7 @@ class DataUpdater:
         return date_str
 
     def format_date(self, date_str: str) -> str:
-        """Convert YYYY-MM-DD to YYYY/m/d format."""
+        """Convert an ISO YYYY-MM-DD date to CSV_DATE_FORMAT (YYYY/MM/DD)."""
         try:
             dt = datetime.strptime(date_str, "%Y-%m-%d")
             return dt.strftime(config.CSV_DATE_FORMAT)
@@ -73,29 +73,30 @@ class DataUpdater:
         home_team = self._map_team_name(match.get("home_team", ""))
         away_team = self._map_team_name(match.get("away_team", ""))
 
-        return {
+        row = {
             "Country": "Mexico",
             "League": "Liga MX",
             "Season": match.get("season", "2025/2026"),
-            "round": match.get("round", ""),
+            "Round": match.get("round", ""),
             "Date": self.format_date(date_part),
             "Time": commence[11:16] if len(commence) > 16 else "",
             "Home": home_team,
             "Away": away_team,
-            "HG": match.get("home_goals", 0),
-            "AG": match.get("away_goals", 0),
             "HxG": match.get("HxG", 0),
             "AxG": match.get("AxG", 0),
+            "HG": match.get("home_goals", 0),
+            "AG": match.get("away_goals", 0),
             "HExpG+": match.get("HExpG+", 0),
             "AExpG+": match.get("AExpG+", 0),
             "Res": self._result_from_score(
                 match.get("home_goals", 0),
                 match.get("away_goals", 0)
             ),
-            "PSCH": "",
-            "PSCD": "",
-            "PSCA": "",
         }
+        # Odds columns (CHN schema) are populated later by the odds/capture layer.
+        for col in config.ODDS_COLUMNS:
+            row[col] = ""
+        return row
 
     def _result_from_score(self, hg: int, ag: int) -> str:
         """Determine result: H (home win), A (away win), D (draw)."""

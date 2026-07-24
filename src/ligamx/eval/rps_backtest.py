@@ -8,7 +8,7 @@ lower = better), plus log-loss and accuracy for context.
 
 Compared: several penaltyblog distributions (+ the production shrinkage variant)
 against three baselines — uniform, training-window base rates, and a de-vigged
-Pinnacle market benchmark (on the subset of matches that have PSCH/PSCD/PSCA).
+Pinnacle market benchmark (on the subset of matches that have pinnacle_close_h/d/a).
 Runs both the xG-blend and actual-goals training targets.
 
     python -m ligamx.eval.rps_backtest [--test-start 2025-01-01] [--target xG|goals|both]
@@ -80,9 +80,11 @@ def _shrink_inplace(clf, weights, home_series, away_series) -> None:
 
 
 def _market_probs(row):
-    """De-vig Pinnacle 1X2 (PSCH/PSCD/PSCA decimal odds) to probabilities."""
+    """De-vig Pinnacle 1X2 closing odds (pinnacle_close_h/d/a decimals) to probabilities."""
     try:
-        inv = [1.0 / float(row["PSCH"]), 1.0 / float(row["PSCD"]), 1.0 / float(row["PSCA"])]
+        inv = [1.0 / float(row["pinnacle_close_h"]),
+               1.0 / float(row["pinnacle_close_d"]),
+               1.0 / float(row["pinnacle_close_a"])]
     except (TypeError, ValueError, ZeroDivisionError):
         return None
     s = sum(inv)
