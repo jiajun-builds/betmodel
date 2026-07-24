@@ -1,15 +1,19 @@
 """
 xG Calculator - calculates HExpG+ and AExpG+ using formula:
-HExpG+ = 0.55 × HxG + 0.45 × HG
-AExpG+ = 0.55 × AxG + 0.45 × AG
+HExpG+ = 0.25 × HxG + 0.75 × HG
+AExpG+ = 0.25 × AxG + 0.75 × AG
+
+The 0.25/0.75 blend (down from 0.55/0.45) was chosen by the RPS walk-forward
+sweep (ligamx.eval.hyperparam_sweep): a lower xG weight scored marginally better
+than the old blend and than pure xG on Liga MX 1X2 forecasts.
 """
 
 from typing import Dict, List
 
 
 class XGCalculator:
-    WEIGHT_XG = 0.55
-    WEIGHT_GOALS = 0.45
+    WEIGHT_XG = 0.25
+    WEIGHT_GOALS = 0.75
 
     def calculate_hext(self, hg: int, hxg: float) -> float:
         """Calculate home team's expected goals."""

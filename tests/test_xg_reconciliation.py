@@ -40,8 +40,8 @@ class TestXGReconciliation(unittest.TestCase):
     def test_formula_weights(self):
         home = self.calc.calculate_hext(hg=2, hxg=1.0)
         away = self.calc.calculate_aext(ag=1, axg=0.8)
-        self.assertAlmostEqual(home, 1.45, places=9)  # 0.55*1.0 + 0.45*2
-        self.assertAlmostEqual(away, 0.89, places=9)  # 0.55*0.8 + 0.45*1
+        self.assertAlmostEqual(home, 1.75, places=9)  # 0.25*1.0 + 0.75*2
+        self.assertAlmostEqual(away, 0.95, places=9)  # 0.25*0.8 + 0.75*1
 
     def test_upsert_add_new_row(self):
         match = {
@@ -60,8 +60,8 @@ class TestXGReconciliation(unittest.TestCase):
         self.assertEqual(len(df), 1)
         self.assertAlmostEqual(df.loc[0, "HxG"], 1.3, places=9)
         self.assertAlmostEqual(df.loc[0, "AxG"], 0.9, places=9)
-        self.assertAlmostEqual(df.loc[0, "HExpG+"], 1.615, places=9)
-        self.assertAlmostEqual(df.loc[0, "AExpG+"], 0.945, places=9)
+        self.assertAlmostEqual(df.loc[0, "HExpG+"], 1.825, places=9)  # 0.25*1.3 + 0.75*2
+        self.assertAlmostEqual(df.loc[0, "AExpG+"], 0.975, places=9)  # 0.25*0.9 + 0.75*1
 
     def test_upsert_updates_existing_changed_xg(self):
         self._write_rows([{
@@ -86,8 +86,8 @@ class TestXGReconciliation(unittest.TestCase):
         df = self._read_df()
         self.assertAlmostEqual(df.loc[0, "HxG"], 1.5, places=9)
         self.assertAlmostEqual(df.loc[0, "AxG"], 1.2, places=9)
-        self.assertAlmostEqual(df.loc[0, "HExpG+"], 1.725, places=9)
-        self.assertAlmostEqual(df.loc[0, "AExpG+"], 1.11, places=9)
+        self.assertAlmostEqual(df.loc[0, "HExpG+"], 1.875, places=9)  # 0.25*1.5 + 0.75*2
+        self.assertAlmostEqual(df.loc[0, "AExpG+"], 1.05, places=9)   # 0.25*1.2 + 0.75*1
 
     def test_upsert_noop_when_unchanged(self):
         self._write_rows([{
@@ -153,10 +153,10 @@ class TestXGReconciliation(unittest.TestCase):
         self.assertEqual(rows_recalculated, 2)
 
         df = self._read_df()
-        self.assertAlmostEqual(df.loc[0, "HExpG+"], 1.615, places=9)
-        self.assertAlmostEqual(df.loc[0, "AExpG+"], 0.945, places=9)
-        self.assertAlmostEqual(df.loc[1, "HExpG+"], 0.835, places=9)
-        self.assertAlmostEqual(df.loc[1, "AExpG+"], 1.67, places=9)
+        self.assertAlmostEqual(df.loc[0, "HExpG+"], 1.825, places=9)
+        self.assertAlmostEqual(df.loc[0, "AExpG+"], 0.975, places=9)
+        self.assertAlmostEqual(df.loc[1, "HExpG+"], 0.925, places=9)
+        self.assertAlmostEqual(df.loc[1, "AExpG+"], 1.85, places=9)
 
 
 if __name__ == "__main__":
