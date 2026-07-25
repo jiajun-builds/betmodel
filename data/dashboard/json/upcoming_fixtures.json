@@ -2,18 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-25T09:10:08+01:00"
+    "updated_at": "2026-07-25T11:04:41+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-qingdao-hainiu-tianjin-jinmen-tiger",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "match_time": "09:30",
-      "kickoff_at": "2026-07-25T10:30:00+01:00",
-      "home_team": "Qingdao Hainiu",
-      "away_team": "Tianjin Jinmen Tiger"
-    },
     {
       "fixture_id": "CSL-2026-20-2026-07-25-liaoning-tieren-qingdao-west-coast",
       "round": 20,
@@ -123,15 +114,6 @@
       "away_team": "Wuhan Three Towns"
     },
     {
-      "fixture_id": "CSL-2026-21-2026-08-01-shenzhen-xinpengcheng-chongqing-tonglianglong",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "match_time": "12:00",
-      "kickoff_at": "2026-08-01T13:00:00+01:00",
-      "home_team": "Shenzhen Xinpengcheng",
-      "away_team": "Chongqing Tonglianglong"
-    },
-    {
       "fixture_id": "CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu",
       "round": 21,
       "match_date": "2026-08-02",
@@ -150,6 +132,15 @@
       "away_team": "Shanghai Shenhua"
     },
     {
+      "fixture_id": "CSL-2026-21-2026-08-02-shenzhen-xinpengcheng-chongqing-tonglianglong",
+      "round": 21,
+      "match_date": "2026-08-02",
+      "match_time": "12:00",
+      "kickoff_at": "2026-08-02T13:00:00+01:00",
+      "home_team": "Shenzhen Xinpengcheng",
+      "away_team": "Chongqing Tonglianglong"
+    },
+    {
       "fixture_id": "CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng",
       "round": 22,
       "match_date": "2026-08-07",
@@ -157,6 +148,42 @@
       "kickoff_at": "2026-08-07T12:35:00+01:00",
       "home_team": "Beijing Guoan",
       "away_team": "Shenzhen Xinpengcheng"
+    },
+    {
+      "fixture_id": "CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua",
+      "round": 22,
+      "match_date": "2026-08-08",
+      "match_time": "11:00",
+      "kickoff_at": "2026-08-08T12:00:00+01:00",
+      "home_team": "Qingdao Hainiu",
+      "away_team": "Shanghai Shenhua"
+    },
+    {
+      "fixture_id": "CSL-2026-22-2026-08-08-dalian-yingbo-liaoning-tieren",
+      "round": 22,
+      "match_date": "2026-08-08",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-08T12:35:00+01:00",
+      "home_team": "Dalian Yingbo",
+      "away_team": "Liaoning Tieren"
+    },
+    {
+      "fixture_id": "CSL-2026-22-2026-08-08-zhejiang-professional-wuhan-three-towns",
+      "round": 22,
+      "match_date": "2026-08-08",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-08T12:35:00+01:00",
+      "home_team": "Zhejiang Professional",
+      "away_team": "Wuhan Three Towns"
+    },
+    {
+      "fixture_id": "CSL-2026-22-2026-08-08-yunnan-yukun-chengdu-rongcheng",
+      "round": 22,
+      "match_date": "2026-08-08",
+      "match_time": "12:00",
+      "kickoff_at": "2026-08-08T13:00:00+01:00",
+      "home_team": "Yunnan Yukun",
+      "away_team": "Chengdu Rongcheng"
     }
   ]
 }
