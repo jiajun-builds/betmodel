@@ -930,3 +930,96 @@ coherent probability across the prediction surface, honest cross-book draw compa
 equal data coverage) while being *measurably* non-inferior on the betting bar. The odds≤7
 cap (§13.4b) is orthogonal — it applies identically to both anchors — and stays in the
 production config.
+
+---
+
+## 14. Polymarket (roadmap: new source) — open is an artifact, close is efficient (2026-07-25)
+
+Added Polymarket as a third CSL odds source (`src/csl/odds/fetch_polymarket.py`; key-free
+Gamma + CLOB, decimal odds = 1/Yes-price). Coverage runs 2025-10-24 → 2026-08-02 (184 main
+1X2 events); 164 CSV rows filled (`polymarket_open_*`, `polymarket_close_*`) — the 2025
+season tail (16) plus all 2026 rounds 1–19 (148). Two questions were pre-registered: does
+betting the Polymarket **open** beat 1xBet's open (§14.1), and can the ~0-vig Polymarket
+**close** be used as a cheap execution venue (§14.2)? Both answers are **no**, for opposite
+reasons. Overrounds frame the whole section:
+
+| price | mean overround R | note |
+|---|---|---|
+| polymarket_open  | **44.3 %** | 3 independent binaries each seeded ~0.5 → sum ~1.44 (synthetic) |
+| onexbet_open     | 4.87 % | a real posted line |
+| pinnacle_close   | 4.87 % | the sharp reference |
+| polymarket_close | **0.14 %** | near vig-free |
+
+### 14.1 Betting Polymarket OPEN — a flat-seed artifact, not alpha
+
+Same shipped strategy (NegBinom, λ=0.75 Pinnacle-open anchor, EV≥thr, CLV vs Pinnacle
+close), 1xBet-open vs Polymarket-open on the **identical 153 fixtures**. `backtest_polymarket.py`.
+Headline cell (prod variant, WITH draw, thr>0.20):
+
+| bet price | n | ROI | ROI t | CLV | exCLV | bar | gap |
+|---|---|---|---|---|---|---|---|
+| 1xBet open      | 35 | +0.297 | +1.00 | +2.54pp | +2.14pp | 1.64 | **+0.90** |
+| Polymarket open | 57 | +0.272 | +2.01 | **+28.18pp** | **+17.65pp** | 15.00 | **+13.18** |
+
+Every framework metric screams that Polymarket wins — and **every one of them is a
+measurement artifact**. The smoking gun is the no-vig OPEN probability of the picked
+outcome: for Polymarket it ranges only **0.306–0.371** (a flat ~0.333 coin) versus 1xBet's
+**0.115–0.640** (a live, matchup-varying line). Polymarket's open carries *zero* matchup
+information — it is the market-maker seed. So the +28pp "CLV" is mechanical:
+`true close (~0.61 for a favourite) − flat seed (0.33)`. The exCLV home-drift baseline
+cannot neutralise it because the flat seed misprices *every* favourite; the 44% "overround"
+is likewise synthetic (three binaries seeded near 0.5), not a cost a single-outcome bet
+pays. The only honest, comparable number — realized ROI — is **the same as 1xBet**
+(+0.27 vs +0.30 pooled; 2026: +0.36 @ t=2.48 vs +0.51 @ t=1.55), and it lives or dies on
+getting filled at the thin seed price. Sample is ~90% 2026, so not cross-season.
+
+**Verdict:** do **not** read the giant Polymarket-open CLV/gap as a signal. The open is not
+a tradeable line; the apparent edge is "measuring favourites against a coin-flip."
+
+### 14.2 Betting Polymarket CLOSE — the ~0-vig venue is efficient (the second idea)
+
+If the open is an artifact, is the near-vig-free **close** a cheap execution venue? Decouple
+the probability source from the execution price and bet *at* the Polymarket close (bar≈0, no
+wall). The judge is realized ROI + calibration, not CLV. `backtest_polymarket_close.py`,
+same 153 fixtures. **Calibration decides it** (Brier / log-loss vs actual, lower better;
+uniform 1/3 → Brier 0.667):
+
+| probability source | Brier | log-loss |
+|---|---|---|
+| model (prod de-biased) | 0.6402 | 1.0627 |
+| Pinnacle close no-vig | 0.6268 | 1.0394 |
+| **Polymarket close no-vig** | **0.6228** | **1.0332** |
+
+Polymarket's close is **as sharp as Pinnacle's** (marginally better here; the two agree to a
+mean 2.3pp per outcome) — cheap **and** efficient, resolving the paradox toward the
+pessimistic branch. Neither bet variant survives:
+
+* **(a) Model vs Poly-close** — no-draw pooled ROI is flat/negative (thr>0.10 +0.037 t=0.23;
+  thr>0.20 +0.169 t=0.71). The positive WITH-draw cells are pure longshot variance
+  (avg odds 34, t<2), leaning on the 9-fixture 2025 tail. Consistent with calibration: the
+  model is *worse* than the close it is betting into.
+* **(b) Pinnacle-close vs Poly-close (no model)** — the cleanest test of the venue. No-draw
+  2026 ROI +0.539 (t=1.42) at thr>0.10, but driven by avg odds 50–150 tail disagreements,
+  t never clears 2, and 2025 flips to −100%. Betting the noise between two equally-sharp
+  closes.
+
+**Verdict:** the vig wall vanishes at the Polymarket close, but so does the edge — you face
+a price as sharp as Pinnacle's. This is the textbook efficient-market outcome and a clean
+negative result.
+
+### 14.3 What Polymarket does and does not change
+
+Polymarket opens **no new edge for CSL**: the open is untradeable (flat seed), the close is
+efficient (unbeatable). Two side-findings worth carrying forward:
+
+1. **The model barely beats a coin on 1X2** (Brier 0.640 vs uniform 0.667) and is *worse*
+   than both market closes — a standing reminder that the edge is thin, which is exactly why
+   it dies at any vig wall (§11.7).
+2. **One door left ajar:** the longshot/draw tail cells (avg odds 30–150) are persistently
+   *nominally* positive across both variants — consistent with the known favourite-longshot
+   bias of prediction markets — but t<2 and almost entirely single-season (2026). Not
+   actionable now; would need multi-season Polymarket data and a pre-registered "tail-only"
+   test to separate a real inefficiency from variance.
+
+Reproduce: `PYTHONPATH=src python backtest/backtest_polymarket.py` and
+`.../backtest_polymarket_close.py`.
