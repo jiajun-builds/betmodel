@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-25T17:06:44+01:00"
+    "updated_at": "2026-07-25T20:10:52+01:00"
   },
   "rows": [
     {
@@ -22,7 +22,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-25T16:06:40Z"
+      "fetched_at": "2026-07-25T19:10:48Z"
     },
     {
       "home_team": "Chengdu Rongcheng",
@@ -41,7 +41,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-25T16:06:40Z"
+      "fetched_at": "2026-07-25T19:10:48Z"
     },
     {
       "home_team": "Shandong Taishan",
@@ -60,7 +60,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-25T16:06:40Z"
+      "fetched_at": "2026-07-25T19:10:48Z"
     },
     {
       "home_team": "Zhejiang Professional",
@@ -79,7 +79,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-25T16:06:40Z"
+      "fetched_at": "2026-07-25T19:10:48Z"
     }
   ]
 }
