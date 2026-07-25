@@ -50,7 +50,7 @@
         <section class="view view--active" data-view="overview" aria-label="Overview">
           <div class="hero" id="overview-hero"></div>
 
-          <div class="warn-banner"><b>⚠ UNCALIBRATED · NOT VALIDATED</b> — the model over-weights draws (~+6pp vs market), so the 1X2 EV skews to DRAW on nearly every fixture. These signals are not backtested — for review only, do not bet.</div>
+          <div class="warn-banner"><b>⚠ NO MEASURED EDGE · DO NOT BET</b> — draw calibration is now applied (α=0.85), so the EV surface no longer skews to DRAW. But the model has since been backtested and does <b>not</b> beat the closing line: RPS 0.2007 vs the market's 0.1978, and excess CLV ≈ 0 across 244 matches with every bootstrap CI straddling zero. Positive EV shown here is not a measured edge — for review only.</div>
 
           <div class="ov-grid">
             <div class="panel ov-grid__main">
@@ -99,9 +99,9 @@
               <span class="panel__meta" data-bind="panel-signal-meta">Model -- · Pinnacle --</span>
             </div>
             <div class="panel__config">
-              <span>PINNACLE</span><span>1X2 / MATCH ODDS</span><span>EV &gt; 0 → BET</span><span>STATUS: UNCALIBRATED · NOT VALIDATED</span>
+              <span>PINNACLE</span><span>1X2 / MATCH ODDS</span><span>EV &gt; 0 → BET</span><span>STATUS: CALIBRATED · NO MEASURED EDGE</span>
             </div>
-            <div class="warn-banner"><b>⚠ UNCALIBRATED · NOT VALIDATED</b> — model draw probability runs ~+6pp above market, inflating DRAW EV on nearly every fixture; signals are not backtested. Review only — do not bet.</div>
+            <div class="warn-banner"><b>⚠ NO MEASURED EDGE · DO NOT BET</b> — draw calibration applied (α=0.85). Backtested since: the model trails the de-vigged close (RPS 0.2007 vs 0.1978) and excess CLV is ≈ 0 over 244 matches, CIs straddling zero. Review only.</div>
             <div class="scroll">
               <table class="tbl tbl--signals">
                 <thead>
