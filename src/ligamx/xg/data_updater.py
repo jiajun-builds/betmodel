@@ -3,6 +3,7 @@ Data Updater - updates MEX_ligamx.csv with new results, avoiding duplicates.
 """
 
 import os
+import re
 import pandas as pd
 from typing import List, Dict
 from datetime import datetime
@@ -44,15 +45,24 @@ class DataUpdater:
         return keys
 
     def normalize_date(self, date_str: str) -> str:
-        """Normalize date to CSV_DATE_FORMAT (YYYY/MM/DD), accepting slash or dash input."""
+        """Normalize a date to CSV_DATE_FORMAT (YYYY/MM/DD).
+
+        Accepts year-first (YYYY/MM/DD, YYYY-MM-DD) and day-first (DD/MM/YYYY,
+        DD-MM-YYYY) input. Day-first is what a locale-set Excel rewrites the column
+        to when the file is opened and saved, so recompute repairs it in place.
+        For the ambiguous DD/MM vs MM/DD case day-first wins (the observed Excel
+        locale here); a value that can't be day-first (month > 12) falls back to
+        month-first so a US-locale export still parses.
+        """
         date_str = str(date_str).strip()
         if not date_str:
             return ""
-        formats = ["%Y-%m-%d", "%Y/%m/%d", "%Y/%m/d", "%Y/m/%d", "%Y/m/d"]
-        for fmt in formats:
+        year_first = ["%Y-%m-%d", "%Y/%m/%d"]
+        day_first = ["%d/%m/%Y", "%d-%m-%Y", "%m/%d/%Y", "%m-%d-%Y"]
+        order = year_first if re.match(r"^\d{4}[-/]", date_str) else day_first
+        for fmt in order:
             try:
-                dt = datetime.strptime(date_str, fmt)
-                return dt.strftime(config.CSV_DATE_FORMAT)
+                return datetime.strptime(date_str, fmt).strftime(config.CSV_DATE_FORMAT)
             except ValueError:
                 pass
         return date_str
@@ -236,28 +246,39 @@ class DataUpdater:
         return stats
 
     def recalculate_all_expected_goals(self) -> int:
-        """Recalculate HExpG+ and AExpG+ for all rows in the CSV."""
-        df = self.load_existing()
+        """Recompute HExpG+/AExpG+ for every row and normalize the Date column.
 
+        Reads the CSV as strings (keep_default_na=False) so only Date, HExpG+ and
+        AExpG+ are rewritten -- every other column keeps its exact on-disk form.
+        This avoids the float drift a plain read_csv/to_csv round-trip would
+        introduce (e.g. an empty playoff Round turning the whole column from "1" to
+        "1.0"), and repairs any day-first dates Excel left behind. Blank HxG/HG
+        rows compute from 0 exactly as before.
+        """
+        path = self._abs_path()
+        df = pd.read_csv(path, dtype=str, keep_default_na=False)
         if df.empty:
             return 0
 
-        recalculated_home = []
-        recalculated_away = []
+        df["Date"] = df["Date"].map(self.normalize_date)
 
+        def _fmt(x: float) -> str:
+            return str(round(float(x), 6))
+
+        home_vals, away_vals = [], []
         for _, row in df.iterrows():
             hg = self._safe_int(row.get("HG", 0))
             ag = self._safe_int(row.get("AG", 0))
             hxg = self._safe_float(row.get("HxG", 0))
             axg = self._safe_float(row.get("AxG", 0))
-            recalculated = self.xg_calculator.calculate_match_xg(hg=hg, ag=ag, hxg=hxg, axg=axg)
-            recalculated_home.append(recalculated["HExpG+"])
-            recalculated_away.append(recalculated["AExpG+"])
+            rec = self.xg_calculator.calculate_match_xg(hg=hg, ag=ag, hxg=hxg, axg=axg)
+            home_vals.append(_fmt(rec["HExpG+"]))
+            away_vals.append(_fmt(rec["AExpG+"]))
 
-        df["HExpG+"] = recalculated_home
-        df["AExpG+"] = recalculated_away
+        df["HExpG+"] = home_vals
+        df["AExpG+"] = away_vals
 
-        df.to_csv(self._abs_path(), index=False)
+        df.to_csv(path, index=False)
         return len(df)
 
     def add_matches(self, matches: List[Dict]) -> int:

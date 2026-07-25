@@ -58,6 +58,19 @@ run_update() {
   ./scripts/run_ligamx_update.sh
 }
 
+# Recompute HExpG+/AExpG+ and normalize the Date column WITHOUT re-fetching from
+# SofaScore. Run this after hand-editing MEX_ligamx.csv (adding matches, fixing
+# xG) so the blended columns and Excel-mangled dates are repaired in place.
+run_recompute() {
+  "$PYTHON" -m ligamx.xg.compute_expg
+}
+
+# Audit stored xG against the SofaScore API (incl. the liguilla the round-walk
+# fetcher misses). Read-only; reports missing / mis-scraped matches.
+run_verify_xg() {
+  "$PYTHON" -m ligamx.xg.verify_xg
+}
+
 run_model() {
   ./scripts/ligamx-model.sh
 }
@@ -136,6 +149,8 @@ Usage:
 
 Commands:
   update     Run fixtures/xG/expg data update pipeline
+  recompute  Recompute HExpG+/AExpG+ and fix dates after hand-editing the CSV
+  verify-xg  Audit stored xG vs SofaScore (incl. liguilla); read-only
   model      Run the goals model export
   dashboard  Export dashboard CSV and JSON
   odds       Fetch Pinnacle odds and export market comparison
@@ -149,6 +164,8 @@ EOF
 dispatch_command() {
   case "${1:-}" in
     update) run_update ;;
+    recompute) run_recompute ;;
+    verify-xg) run_verify_xg ;;
     model) run_model ;;
     dashboard) run_dashboard ;;
     odds) run_odds ;;
