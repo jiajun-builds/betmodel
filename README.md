@@ -40,7 +40,7 @@ interactive menu.
 | --- | --- |
 | `update` | Run the fixtures/xG/expg data update pipeline |
 | `recompute` | Recompute HExpG+/AExpG+ and fix dates after hand-editing the CSV |
-| `verify-xg` | Audit stored xG against SofaScore (incl. liguilla); read-only |
+| `verify-xg` | Audit stored xG/scores/Round/Season against SofaScore; read-only unless `--fix` |
 | `model` | Run the goals model export |
 | `odds` | Fetch Pinnacle odds and export the market comparison |
 | `dashboard` | Export dashboard CSV and JSON |

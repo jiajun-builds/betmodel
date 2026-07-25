@@ -19,7 +19,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from ligamx import config, paths
-from ligamx.sofascore_client import SofascoreClient
+from ligamx.sofascore_client import SofascoreClient, event_goals, round_label
 from ligamx.xg.data_updater import DataUpdater
 
 # Tournaments that make up a Liga MX year (each has its own SofaScore season ids).
@@ -27,7 +27,6 @@ TOURNAMENTS = [
     (config.SOFASCORE_APERTURA, "Apertura"),
     (config.SOFASCORE_CLAUSURA, "Clausura"),
 ]
-MAX_ROUNDS = 40
 MX_TZ = ZoneInfo("America/Mexico_City")
 
 UPCOMING_COLUMNS = ["Season", "round", "Date", "Time", "Home", "Away", "kickoff_utc", "sofa_event_id"]
@@ -78,58 +77,66 @@ def run():
         season_label = sname.split(",")[-1].strip() or tour_name
         print(f"\n{season_label}: tournament={ut} season={sid}")
 
-        for rnd in range(1, MAX_ROUNDS + 1):
-            events = client.round_events(ut, sid, rnd)
-            if not events:
-                break
-            for e in events:
-                home_sofa = e["homeTeam"]["name"]
-                away_sofa = e["awayTeam"]["name"]
-                if home_sofa not in config.SOFASCORE_TO_STANDARD:
-                    unmapped.add(home_sofa)
-                if away_sofa not in config.SOFASCORE_TO_STANDARD:
-                    unmapped.add(away_sofa)
+        # Enumerate the season through the paginated events endpoints rather than
+        # walking rounds 1..N. The old walk stopped at the first empty round, so it
+        # only ever saw the 17-round regular season and silently dropped every
+        # liguilla tie (SofaScore files those under non-sequential round numbers).
+        events = client.season_events(ut, sid, "last") + client.season_events(ut, sid, "next")
+        seen_ids = set()
+        for e in events:
+            if e["id"] in seen_ids:
+                continue  # an in-progress match can surface in both pages
+            seen_ids.add(e["id"])
 
-                ts = e.get("startTimestamp")
-                if not ts:
+            home_sofa = e["homeTeam"]["name"]
+            away_sofa = e["awayTeam"]["name"]
+            if home_sofa not in config.SOFASCORE_TO_STANDARD:
+                unmapped.add(home_sofa)
+            if away_sofa not in config.SOFASCORE_TO_STANDARD:
+                unmapped.add(away_sofa)
+
+            ts = e.get("startTimestamp")
+            if not ts:
+                continue
+            date_mx, time_mx, kickoff_utc = _parts(ts)
+            status = e.get("status", {}).get("type")
+            rnd = round_label(e)
+
+            if status == "finished":
+                # Skip anything already covered by the rolling history cache.
+                if max_existing is not None and date_mx <= str(max_existing):
                     continue
-                date_mx, time_mx, kickoff_utc = _parts(ts)
-                status = e.get("status", {}).get("type")
-
-                if status == "finished":
-                    # Skip anything already covered by the rolling history cache.
-                    if max_existing is not None and date_mx <= str(max_existing):
-                        continue
-                    hxg, axg = client.event_xg(e["id"])
-                    if hxg is None and axg is None:
-                        continue  # xG not published yet; a 0/0 row would be rejected anyway
-                    played_updates.append({
-                        "commence_time": f"{date_mx}T{time_mx}:00",
-                        "home_team": home_sofa,
-                        "away_team": away_sofa,
-                        "home_goals": e.get("homeScore", {}).get("current", 0),
-                        "away_goals": e.get("awayScore", {}).get("current", 0),
-                        "HxG": hxg or 0.0,
-                        "AxG": axg or 0.0,
-                        "season": season_label,
-                        "round": rnd,
-                    })
-                else:
-                    # Only genuinely-future fixtures (skip postponed/abandoned past
-                    # matches that never received a 'finished' status). 6h grace keeps
-                    # in-progress games.
-                    if ts < now_ts - 21600:
-                        continue
-                    upcoming_rows.append({
-                        "Season": season_label,
-                        "round": rnd,
-                        "Date": date_mx,
-                        "Time": time_mx,
-                        "Home": _std(home_sofa),
-                        "Away": _std(away_sofa),
-                        "kickoff_utc": kickoff_utc,
-                        "sofa_event_id": e["id"],
-                    })
+                hxg, axg = client.event_xg(e["id"])
+                if hxg is None and axg is None:
+                    continue  # xG not published yet; a 0/0 row would be rejected anyway
+                hg, ag = event_goals(e)
+                played_updates.append({
+                    "commence_time": f"{date_mx}T{time_mx}:00",
+                    "home_team": home_sofa,
+                    "away_team": away_sofa,
+                    "home_goals": 0 if hg is None else hg,
+                    "away_goals": 0 if ag is None else ag,
+                    "HxG": hxg or 0.0,
+                    "AxG": axg or 0.0,
+                    "season": season_label,
+                    "round": rnd,
+                })
+            else:
+                # Only genuinely-future fixtures (skip postponed/abandoned past
+                # matches that never received a 'finished' status). 6h grace keeps
+                # in-progress games.
+                if ts < now_ts - 21600:
+                    continue
+                upcoming_rows.append({
+                    "Season": season_label,
+                    "round": rnd,
+                    "Date": date_mx,
+                    "Time": time_mx,
+                    "Home": _std(home_sofa),
+                    "Away": _std(away_sofa),
+                    "kickoff_utc": kickoff_utc,
+                    "sofa_event_id": e["id"],
+                })
 
     stats = updater.upsert_matches(played_updates)
     print(f"\nUpsert into MEX_ligamx.csv: {stats}")

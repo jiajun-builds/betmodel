@@ -65,10 +65,10 @@ run_recompute() {
   "$PYTHON" -m ligamx.xg.compute_expg
 }
 
-# Audit stored xG against the SofaScore API (incl. the liguilla the round-walk
-# fetcher misses). Read-only; reports missing / mis-scraped matches.
+# Audit stored xG, scores and Round/Season against the SofaScore API. Read-only;
+# pass --fix (and the gated --fix-xg-diffs / --fix-meta) to repair.
 run_verify_xg() {
-  "$PYTHON" -m ligamx.xg.verify_xg
+  "$PYTHON" -m ligamx.xg.verify_xg "$@"
 }
 
 run_model() {
@@ -150,7 +150,7 @@ Usage:
 Commands:
   update     Run fixtures/xG/expg data update pipeline
   recompute  Recompute HExpG+/AExpG+ and fix dates after hand-editing the CSV
-  verify-xg  Audit stored xG vs SofaScore (incl. liguilla); read-only
+  verify-xg  Audit stored xG/scores/Round/Season vs SofaScore; read-only unless --fix
   model      Run the goals model export
   dashboard  Export dashboard CSV and JSON
   odds       Fetch Pinnacle odds and export market comparison
@@ -162,10 +162,12 @@ EOF
 }
 
 dispatch_command() {
-  case "${1:-}" in
+  local cmd="${1:-}"
+  shift || true
+  case "$cmd" in
     update) run_update ;;
     recompute) run_recompute ;;
-    verify-xg) run_verify_xg ;;
+    verify-xg) run_verify_xg "$@" ;;
     model) run_model ;;
     dashboard) run_dashboard ;;
     odds) run_odds ;;
@@ -174,7 +176,7 @@ dispatch_command() {
     all) run_all ;;
     help|-h|--help) show_help ;;
     *)
-      echo "Unknown command: $1" >&2
+      echo "Unknown command: $cmd" >&2
       show_help >&2
       return 1
       ;;
@@ -215,5 +217,5 @@ show_menu() {
 if [ "$#" -eq 0 ]; then
   show_menu
 else
-  dispatch_command "$1"
+  dispatch_command "$@"
 fi
