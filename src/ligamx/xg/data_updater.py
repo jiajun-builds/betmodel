@@ -86,7 +86,11 @@ class DataUpdater:
         row = {
             "Country": "Mexico",
             "League": "Liga MX",
-            "Season": match.get("season", "2025/2026"),
+            # Season labels follow SofaScore ("Apertura 2026"), which -- unlike a
+            # "2025/2026" football-year -- distinguishes the two tournaments Liga MX
+            # plays per year. Callers always supply it; a blank is left blank rather
+            # than guessed, so a missing label fails visibly instead of mis-bucketing.
+            "Season": match.get("season", ""),
             "Round": match.get("round", ""),
             "Date": self.format_date(date_part),
             "Time": commence[11:16] if len(commence) > 16 else "",
