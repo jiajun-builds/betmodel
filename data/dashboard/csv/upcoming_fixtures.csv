@@ -1,5 +1,4 @@
 fixture_id,round,match_date,match_time,kickoff_at,home_team,away_team
-CSL-2026-20-2026-07-25-qingdao-hainiu-tianjin-jinmen-tiger,20,2026-07-25,09:30,2026-07-25T10:30:00+01:00,Qingdao Hainiu,Tianjin Jinmen Tiger
 CSL-2026-20-2026-07-25-liaoning-tieren-qingdao-west-coast,20,2026-07-25,11:35,2026-07-25T12:35:00+01:00,Liaoning Tieren,Qingdao West Coast
 CSL-2026-20-2026-07-25-shanghai-port-shanghai-shenhua,20,2026-07-25,11:35,2026-07-25T12:35:00+01:00,Shanghai Port,Shanghai Shenhua
 CSL-2026-20-2026-07-25-wuhan-three-towns-chongqing-tonglianglong,20,2026-07-25,12:00,2026-07-25T13:00:00+01:00,Wuhan Three Towns,Chongqing Tonglianglong
@@ -12,6 +11,11 @@ CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun,21,2026-08-01,11:00,202
 CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional,21,2026-08-01,11:35,2026-08-01T12:35:00+01:00,Beijing Guoan,Zhejiang Professional
 CSL-2026-21-2026-08-01-shanghai-port-shandong-taishan,21,2026-08-01,11:35,2026-08-01T12:35:00+01:00,Shanghai Port,Shandong Taishan
 CSL-2026-21-2026-08-01-chengdu-rongcheng-wuhan-three-towns,21,2026-08-01,12:00,2026-08-01T13:00:00+01:00,Chengdu Rongcheng,Wuhan Three Towns
-CSL-2026-21-2026-08-01-shenzhen-xinpengcheng-chongqing-tonglianglong,21,2026-08-01,12:00,2026-08-01T13:00:00+01:00,Shenzhen Xinpengcheng,Chongqing Tonglianglong
 CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu,21,2026-08-02,10:00,2026-08-02T11:00:00+01:00,Qingdao West Coast,Qingdao Hainiu
 CSL-2026-21-2026-08-02-liaoning-tieren-shanghai-shenhua,21,2026-08-02,11:35,2026-08-02T12:35:00+01:00,Liaoning Tieren,Shanghai Shenhua
+CSL-2026-21-2026-08-02-shenzhen-xinpengcheng-chongqing-tonglianglong,21,2026-08-02,12:00,2026-08-02T13:00:00+01:00,Shenzhen Xinpengcheng,Chongqing Tonglianglong
+CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng,22,2026-08-07,11:35,2026-08-07T12:35:00+01:00,Beijing Guoan,Shenzhen Xinpengcheng
+CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua,22,2026-08-08,11:00,2026-08-08T12:00:00+01:00,Qingdao Hainiu,Shanghai Shenhua
+CSL-2026-22-2026-08-08-dalian-yingbo-liaoning-tieren,22,2026-08-08,11:35,2026-08-08T12:35:00+01:00,Dalian Yingbo,Liaoning Tieren
+CSL-2026-22-2026-08-08-zhejiang-professional-wuhan-three-towns,22,2026-08-08,11:35,2026-08-08T12:35:00+01:00,Zhejiang Professional,Wuhan Three Towns
+CSL-2026-22-2026-08-08-yunnan-yukun-chengdu-rongcheng,22,2026-08-08,12:00,2026-08-08T13:00:00+01:00,Yunnan Yukun,Chengdu Rongcheng

@@ -147,11 +147,11 @@ match_id,round,date,home_team,away_team,home_score,away_score,home_xg,away_xg,st
 15552576,19,2026-07-17,Beijing Guoan,Liaoning Tieren,1,1,2.05,1.73,Ended
 15552581,19,2026-07-17,Henan Songshan Longmen,Qingdao Hainiu,5,1,3.62,1.03,Ended
 15552577,19,2026-07-17,Qingdao West Coast,Chengdu Rongcheng,1,1,0.52,1.17,Ended
-15552580,19,2026-07-17,Yunnan Yukun,Shanghai Port,2,2,1.96,1.21,Ended
+15552580,19,2026-07-17,Yunnan Yukun,Shanghai Port,2,2,2,1.23,Ended
 15552578,19,2026-07-18,Chongqing Tonglianglong,Zhejiang Professional,1,1,1.55,0.66,Ended
-15552584,19,2026-07-18,Dalian Yingbo,Shandong Taishan,3,1,2.53,2.48,Ended
-15552579,19,2026-07-18,Shanghai Shenhua,Tianjin Jinmen Tiger,0,2,2.05,0.86,Ended
-15552583,19,2026-07-18,Wuhan Three Towns,Shenzhen Xinpengcheng,2,0,,,Ended
+15552584,19,2026-07-18,Dalian Yingbo,Shandong Taishan,3,1,2.55,2.33,Ended
+15552579,19,2026-07-18,Shanghai Shenhua,Tianjin Jinmen Tiger,0,2,2.11,0.88,Ended
+15552583,19,2026-07-18,Wuhan Three Towns,Shenzhen Xinpengcheng,2,0,3.87,0.76,Ended
 15552585,20,2026-07-25,Liaoning Tieren,Qingdao West Coast,,,,,Not started
 15552582,20,2026-07-25,Qingdao Hainiu,Tianjin Jinmen Tiger,,,,,Not started
 15552589,20,2026-07-25,Shanghai Port,Shanghai Shenhua,,,,,Not started
