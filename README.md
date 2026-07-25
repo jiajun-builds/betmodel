@@ -28,32 +28,50 @@ prefer the conda env.
 ## Usage
 
 Everything goes through `scripts/ligamx.sh`, which activates the conda env and
-sets `PYTHONPATH=src` before running anything. Run with no argument for an
-interactive menu.
+sets `PYTHONPATH=src` before running anything.
 
 ```bash
 ./scripts/ligamx.sh all         # full workflow, including the odds fetch
 ./scripts/ligamx.sh help        # list all commands
 ```
 
-| Command | What it does |
-| --- | --- |
-| `update` | Run the fixtures/xG/expg data update pipeline |
-| `recompute` | Recompute HExpG+/AExpG+ and fix dates after hand-editing the CSV |
-| `verify-xg` | Audit stored xG/scores/Round/Season against SofaScore; read-only unless `--fix` |
-| `model` | Run the goals model export |
-| `odds` | Fetch Pinnacle odds and export the market comparison |
-| `dashboard` | Export dashboard CSV and JSON |
-| `publish` | Rebuild dashboard exports and `site/` |
-| `republish` | Rebuild market comparison + dashboard + `site/` without fetching odds |
-| `all` | The full local workflow |
+| Command | What it does | Network |
+| --- | --- | --- |
+| `update` | Fetch fixtures/results/xG from SofaScore, recompute ExpG+ | SofaScore |
+| `recompute` | Recompute ExpG+ and fix dates after hand-editing the CSV | — |
+| `verify-xg` | Audit stored xG/scores/Round/Season against SofaScore; read-only unless `--fix` | SofaScore |
+| `model` | Run the goals model export | — |
+| `odds` | Fetch Pinnacle 1X2 odds (needs `THE_ODDS_API_KEY`) | Odds API |
+| `publish` | Rebuild market comparison + dashboard + `site/` | — |
+| `all` | `update` → `model` → `odds` → `publish` | both |
 
-`republish` exists to avoid burning Odds API credit when you only need to
-regenerate output.
+`publish` is fully offline, so it is the command to use when you only need to
+regenerate output without burning Odds API credit.
 
-The underlying entry points are runnable directly with `PYTHONPATH=src`, e.g.
-`python -m ligamx.odds.fetch_pinnacle_h2h`, but going through the script is
-preferred since it handles env activation and loads `.env.local`.
+### `update` does not backfill — run `verify-xg`
+
+`update` is incremental and forward-only: it skips every match at or before the
+newest date already in `MEX_ligamx.csv`. If SofaScore has not published a
+match's xG at fetch time, that match is skipped, and once a later match advances
+the watermark it is never reconsidered. `update` now prints a `[WARN]` listing
+any match it skipped for this reason.
+
+`verify-xg` is the only command that re-checks rows already written. It
+enumerates every season overlapping the CSV and reports `MISSING`, `NO_XG`,
+`XG_DIFF`, `SCORE` and `META` discrepancies:
+
+```bash
+./scripts/ligamx.sh verify-xg                              # read-only audit
+./scripts/ligamx.sh verify-xg --fix                        # add MISSING, fill blank meta
+./scripts/ligamx.sh verify-xg --fix --fix-xg-diffs --fix-meta   # full alignment
+```
+
+### Analysis entry points
+
+The backtest/calibration modules are not wrapped by `ligamx.sh`. Run them
+directly with `PYTHONPATH=src` inside the env, e.g.
+`python -m ligamx.eval.rps_backtest`, `python -m ligamx.eval.draw_calibration`,
+`python -m ligamx.odds.capture_odds`.
 
 ## Project structure
 
@@ -65,20 +83,23 @@ src/ligamx/
   sofascore_client.py
   fixtures/           # fixture + xG data updates
   xg/
-  models/             # goals model (see DC_MEX.py wrapper)
+  models/             # goals model (python -m ligamx.models.dc)
   odds/               # Pinnacle fetch, EV calc, market comparison
   dashboard/          # CSV/JSON exports for the dashboard
-  eval/
-scripts/              # ligamx.sh entry point + helpers
+  eval/               # backtests + calibration (run directly, see above)
+scripts/
+  ligamx.sh           # single entry point for every command
+  common.sh           # conda activation + .env loading
+  build_dashboard_site.sh   # assembles site/; also called by the Pages workflow
 dashboard/            # dashboard front-end source
 site/                 # generated static site (GitHub Pages)
 data/                 # match data, odds snapshots, exports
 models/
 tests/
-DC_MEX.py             # thin wrapper over the goals model
 ```
 
 ## Deploy
 
-`.github/workflows/deploy-pages.yml` publishes `site/` to GitHub Pages. The
-local `publish`/`republish` commands are what regenerate `site/`.
+`.github/workflows/deploy-pages.yml` publishes `site/` to GitHub Pages, calling
+`scripts/build_dashboard_site.sh` itself. Locally, `publish` (or `all`) is what
+regenerates `site/`.

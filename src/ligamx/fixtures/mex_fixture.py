@@ -66,6 +66,7 @@ def run():
     played_updates = []
     upcoming_rows = []
     unmapped = set()
+    missing_xg = []
 
     for ut, tour_name in TOURNAMENTS:
         seasons = client.seasons(ut)
@@ -108,7 +109,12 @@ def run():
                     continue
                 hxg, axg = client.event_xg(e["id"])
                 if hxg is None and axg is None:
-                    continue  # xG not published yet; a 0/0 row would be rejected anyway
+                    # xG not published yet; a 0/0 row would be rejected anyway.
+                    # This skip is permanent: once a later match advances the
+                    # max-date watermark above, this one is never reconsidered.
+                    # verify_xg is what catches it (MISSING / NO_XG).
+                    missing_xg.append(f"{date_mx} {_std(home_sofa)} vs {_std(away_sofa)}")
+                    continue
                 hg, ag = event_goals(e)
                 played_updates.append({
                     "commence_time": f"{date_mx}T{time_mx}:00",
@@ -153,6 +159,19 @@ def run():
         print("\n[WARN] Unmapped SofaScore team names (add rows to ligamx_team_name_mapping.csv):")
         for t in sorted(unmapped):
             print(f"   - {t}")
+
+    if missing_xg:
+        print(
+            f"\n[WARN] {len(missing_xg)} finished match(es) skipped -- SofaScore has "
+            "not published xG for them yet:"
+        )
+        for m in sorted(missing_xg):
+            print(f"   - {m}")
+        print(
+            "   These will NOT be picked up by a later 'update' (the max-date\n"
+            "   watermark has moved past them). Re-run once SofaScore publishes,\n"
+            "   then reconcile with: ./scripts/ligamx.sh verify-xg"
+        )
 
 
 if __name__ == "__main__":
