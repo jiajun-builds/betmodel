@@ -142,28 +142,20 @@ show_help() {
 Usage: ./scripts/ligamx.sh <command> [args]
 
 Commands:
-  update     Fetch fixtures/results/xG from SofaScore, recompute ExpG+
-  recompute  Recompute ExpG+ and fix dates after hand-editing the CSV (offline)
-  verify-xg  Audit stored xG/scores/Round/Season vs SofaScore; read-only unless --fix
-  model      Run the goals model export
+  update     Fetch new fixtures/results/xG from SofaScore, recompute ExpG+
+  recompute  Recompute ExpG+ and fix dates from the local CSV
+  verify-xg  Audit the CSV against SofaScore; add --fix to repair
+  model      Run the goals model
   odds       Fetch Pinnacle 1X2 odds (needs THE_ODDS_API_KEY)
-  publish    Rebuild market comparison + dashboard + site/ (offline)
+  publish    Rebuild market comparison, dashboard and site/
   all        update -> model -> odds -> publish
   help       Show this message
 
-Typical loop:
-  ./scripts/ligamx.sh all         # after a matchday
-  ./scripts/ligamx.sh verify-xg   # reconcile what `update` skipped, then --fix
-  ./scripts/ligamx.sh publish     # re-export without spending an odds API call
-
-`update` only moves forward from the newest cached match, so it cannot repair or
-backfill existing rows -- `verify-xg` is what catches matches whose xG was not
-yet published at fetch time.
-
-Analysis entry points are not wrapped here; run them directly, e.g.
-  python -m ligamx.eval.rps_backtest
-  python -m ligamx.eval.draw_calibration
-  python -m ligamx.odds.capture_odds
+When to use what:
+  After a matchday       all
+  Data looks wrong       verify-xg   (then --fix to repair)
+  Hand-edited the CSV    recompute
+  Only rebuilding site/  publish     (offline, spends no odds credit)
 EOF
 }
 
