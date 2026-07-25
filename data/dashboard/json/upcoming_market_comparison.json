@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-24T23:07:27+01:00"
+    "updated_at": "2026-07-25T03:50:19+01:00"
   },
   "rows": [
     {
@@ -22,7 +22,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-18T12:18:48Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Liaoning Tieren",
@@ -41,7 +41,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-18T13:20:34Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Shanghai Port",
@@ -60,7 +60,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-18T12:18:48Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Wuhan Three Towns",
@@ -79,7 +79,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-18T12:47:15Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Yunnan Yukun",
@@ -98,7 +98,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Chengdu Rongcheng",
@@ -117,7 +117,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Shandong Taishan",
@@ -136,7 +136,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     },
     {
       "home_team": "Zhejiang Professional",
@@ -155,7 +155,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-24T22:07:24Z"
+      "fetched_at": "2026-07-25T02:50:15Z"
     }
   ]
 }
