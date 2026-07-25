@@ -48,6 +48,11 @@ sets `PYTHONPATH=src` before running anything.
 `publish` is fully offline, so it is the command to use when you only need to
 regenerate output without burning Odds API credit.
 
+Note that `publish` rebuilds from the *model output* (`models/MEX_team_stats.csv`
+and `..._match_simulations.csv`), not from `MEX_ligamx.csv` directly. Editing the
+match CSV and running `publish` alone will only refresh timestamps — the full
+sequence after a hand edit is `recompute` → `model` → `publish`.
+
 ### `update` does not backfill — run `verify-xg`
 
 `update` is incremental and forward-only: it skips every match at or before the

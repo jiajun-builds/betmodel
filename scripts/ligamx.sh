@@ -113,8 +113,10 @@ cmd_odds() {
   "$PYTHON" -m ligamx.odds.fetch_pinnacle_h2h
 }
 
-# Fully offline: rebuilds every export from the CSVs already on disk. Order
-# matters -- export_dashboard reads the market comparison CSV.
+# Fully offline. Rebuilds the exports from what is already on disk, which
+# includes the MODEL OUTPUT (MEX_team_stats.csv, ..._match_simulations.csv), not
+# just MEX_ligamx.csv -- so a CSV edit does not reach the dashboard until `model`
+# re-runs. Order matters: export_dashboard reads the market comparison CSV.
 cmd_publish() {
   run_pipeline "Rebuild exports and site/" \
     "$PYTHON -m ligamx.odds.export_upcoming_market_comparison" \
@@ -154,8 +156,11 @@ Commands:
 When to use what:
   After a matchday       all
   Data looks wrong       verify-xg   (then --fix to repair)
-  Hand-edited the CSV    recompute
+  Hand-edited the CSV    recompute -> model -> publish
   Only rebuilding site/  publish     (offline, spends no odds credit)
+
+publish reuses the last model run. If MEX_ligamx.csv changed, run model first or
+the dashboard will rebuild from stale team strengths.
 EOF
 }
 
