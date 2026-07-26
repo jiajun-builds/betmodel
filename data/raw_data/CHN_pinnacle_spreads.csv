@@ -1,5 +1,5 @@
 event_id,commence_time,api_home_team,api_away_team,home_team,away_team,home_odds,draw_odds,away_odds,bookmaker,market,regions,last_update,fetched_at
-4a30ff683e400a1559b6c80e8eee9aa2,2026-07-26T11:00:00Z,Yunnan Yukun,Shenzhen Peng City FC,Yunnan Yukun,Shenzhen Xinpengcheng,1.75,4.32,4.21,pinnacle,h2h,us,2026-07-26T03:15:44Z,2026-07-26T03:15:53Z
-d010a40219f8686887964dfddefd9e08,2026-07-26T11:35:00Z,Chengdu Rongcheng FC,Beijing FC,Chengdu Rongcheng,Beijing Guoan,2.02,4.05,3.35,pinnacle,h2h,us,2026-07-26T03:15:44Z,2026-07-26T03:15:53Z
-a7f00cc64f5bc888a30615d1eea9e41f,2026-07-26T11:35:00Z,Shandong Luneng Taishan FC,Henan FC,Shandong Taishan,Henan Songshan Longmen,2.06,4.02,3.27,pinnacle,h2h,us,2026-07-26T03:15:44Z,2026-07-26T03:15:53Z
-20e991dc3fcbd43781dd25de5a920798,2026-07-26T12:00:00Z,Zhejiang,Dalian Yingbo,Zhejiang Professional,Dalian Yingbo,1.9,4.0,3.76,pinnacle,h2h,us,2026-07-26T03:15:44Z,2026-07-26T03:15:53Z
+4a30ff683e400a1559b6c80e8eee9aa2,2026-07-26T11:00:00Z,Yunnan Yukun,Shenzhen Peng City FC,Yunnan Yukun,Shenzhen Xinpengcheng,1.68,4.45,4.48,pinnacle,h2h,us,2026-07-26T08:32:57Z,2026-07-26T08:32:59Z
+d010a40219f8686887964dfddefd9e08,2026-07-26T11:35:00Z,Chengdu Rongcheng FC,Beijing FC,Chengdu Rongcheng,Beijing Guoan,2.07,3.96,3.28,pinnacle,h2h,us,2026-07-26T08:32:57Z,2026-07-26T08:32:59Z
+a7f00cc64f5bc888a30615d1eea9e41f,2026-07-26T11:35:00Z,Shandong Luneng Taishan FC,Henan FC,Shandong Taishan,Henan Songshan Longmen,2.03,4.04,3.33,pinnacle,h2h,us,2026-07-26T08:32:57Z,2026-07-26T08:32:59Z
+20e991dc3fcbd43781dd25de5a920798,2026-07-26T12:00:00Z,Zhejiang,Dalian Yingbo,Zhejiang Professional,Dalian Yingbo,2.04,3.95,3.37,pinnacle,h2h,us,2026-07-26T08:32:57Z,2026-07-26T08:32:59Z
