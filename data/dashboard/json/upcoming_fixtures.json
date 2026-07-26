@@ -2,36 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-25T22:59:20+01:00"
+    "updated_at": "2026-07-26T04:15:56+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-liaoning-tieren-qingdao-west-coast",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "match_time": "11:35",
-      "kickoff_at": "2026-07-25T12:35:00+01:00",
-      "home_team": "Liaoning Tieren",
-      "away_team": "Qingdao West Coast"
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-shanghai-port-shanghai-shenhua",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "match_time": "11:35",
-      "kickoff_at": "2026-07-25T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Shanghai Shenhua"
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-wuhan-three-towns-chongqing-tonglianglong",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "match_time": "12:00",
-      "kickoff_at": "2026-07-25T13:00:00+01:00",
-      "home_team": "Wuhan Three Towns",
-      "away_team": "Chongqing Tonglianglong"
-    },
     {
       "fixture_id": "CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng",
       "round": 20,

@@ -1,7 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-20-2026-07-25-liaoning-tieren-qingdao-west-coast,20,2026-07-25,2026-07-25T12:35:00+01:00,Liaoning Tieren,Qingdao West Coast,0.436001,0.294129,0.269871,2.2936,3.3999,3.7055
-CSL-2026-20-2026-07-25-shanghai-port-shanghai-shenhua,20,2026-07-25,2026-07-25T12:35:00+01:00,Shanghai Port,Shanghai Shenhua,0.439396,0.245976,0.314628,2.2759,4.0654,3.1784
-CSL-2026-20-2026-07-25-wuhan-three-towns-chongqing-tonglianglong,20,2026-07-25,2026-07-25T13:00:00+01:00,Wuhan Three Towns,Chongqing Tonglianglong,0.494221,0.346723,0.159056,2.0234,2.8841,6.2871
 CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng,20,2026-07-26,2026-07-26T12:00:00+01:00,Yunnan Yukun,Shenzhen Xinpengcheng,0.589621,0.253185,0.157194,1.696,3.9497,6.3616
 CSL-2026-20-2026-07-26-chengdu-rongcheng-beijing-guoan,20,2026-07-26,2026-07-26T12:35:00+01:00,Chengdu Rongcheng,Beijing Guoan,0.574961,0.256282,0.168757,1.7392,3.902,5.9257
 CSL-2026-20-2026-07-26-shandong-taishan-henan-songshan-longmen,20,2026-07-26,2026-07-26T12:35:00+01:00,Shandong Taishan,Henan Songshan Longmen,0.511516,0.247458,0.241026,1.955,4.0411,4.1489

@@ -2,53 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-25T22:59:20+01:00",
+    "updated_at": "2026-07-26T04:15:56+01:00",
     "model_name": "Negative Binomial with Dixon-Coles Time Decay",
     "model_version": "v2.7"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-liaoning-tieren-qingdao-west-coast",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "kickoff_at": "2026-07-25T12:35:00+01:00",
-      "home_team": "Liaoning Tieren",
-      "away_team": "Qingdao West Coast",
-      "home_win_prob": 0.436001,
-      "draw_prob": 0.294129,
-      "away_win_prob": 0.269871,
-      "home_win_fair_odds": 2.2936,
-      "draw_fair_odds": 3.3999,
-      "away_win_fair_odds": 3.7055
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-shanghai-port-shanghai-shenhua",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "kickoff_at": "2026-07-25T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Shanghai Shenhua",
-      "home_win_prob": 0.439396,
-      "draw_prob": 0.245976,
-      "away_win_prob": 0.314628,
-      "home_win_fair_odds": 2.2759,
-      "draw_fair_odds": 4.0654,
-      "away_win_fair_odds": 3.1784
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-25-wuhan-three-towns-chongqing-tonglianglong",
-      "round": 20,
-      "match_date": "2026-07-25",
-      "kickoff_at": "2026-07-25T13:00:00+01:00",
-      "home_team": "Wuhan Three Towns",
-      "away_team": "Chongqing Tonglianglong",
-      "home_win_prob": 0.494221,
-      "draw_prob": 0.346723,
-      "away_win_prob": 0.159056,
-      "home_win_fair_odds": 2.0234,
-      "draw_fair_odds": 2.8841,
-      "away_win_fair_odds": 6.2871
-    },
     {
       "fixture_id": "CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng",
       "round": 20,
