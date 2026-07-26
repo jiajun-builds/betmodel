@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-26T11:46:44+01:00"
+    "updated_at": "2026-07-26T12:52:07+01:00"
   },
   "rows": [
     {
@@ -80,6 +80,25 @@
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
       "fetched_at": "2026-07-26T10:46:41Z"
+    },
+    {
+      "home_team": "Tianjin Jinmen Tiger",
+      "away_team": "Yunnan Yukun",
+      "match_time": "11:00",
+      "home_win_prob": 0.4622153960359293,
+      "draw_prob": 0.2861386499635758,
+      "away_win_prob": 0.2516459540004948,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": 2.42,
+      "onexbet_open_draw_odds": 3.54,
+      "onexbet_open_away_odds": 2.84,
+      "onexbet_open_home_ev": 0.118561258406949,
+      "onexbet_open_draw_ev": 0.0129308208710585,
+      "onexbet_open_away_ev": -0.2853254906385949,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": "2026-07-26T11:49:58Z",
+      "fetched_at": null
     },
     {
       "home_team": "Qingdao West Coast",
