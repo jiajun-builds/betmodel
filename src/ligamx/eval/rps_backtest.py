@@ -25,13 +25,23 @@ import penaltyblog as pb
 from penaltyblog.models import dixon_coles_weights
 
 from ligamx import paths
-from ligamx.models.dc import MODEL_XI, SHRINKAGE_K, TRAINING_WINDOW_MONTHS, _shrink_ratings
+from ligamx.models.dc import (
+    MODEL_XI,
+    SHRINKAGE_K,
+    TRAINING_WINDOW_MONTHS,
+    _shrink_ratings,
+    fit_production_model,
+)
 
 warnings.filterwarnings("ignore")
 
 RESULT_IDX = {"H": 0, "D": 1, "A": 2}  # ordered [home, draw, away] for RPS
 
-# name -> (penaltyblog class, apply_shrinkage)
+# name -> (penaltyblog class, apply_shrinkage). These are fed a ROUNDED target:
+# penaltyblog truncates its goal arguments to integers, so handing them the raw
+# xG blend would fit floor(xG) and deflate every rate by ~30% (see
+# models/continuous_poisson). Rounding is mean-preserving, which is the fairest
+# comparison the library allows.
 MODELS = {
     "Poisson": (pb.models.PoissonGoalsModel, False),
     "DixonColes": (pb.models.DixonColesGoalModel, False),
@@ -40,6 +50,12 @@ MODELS = {
     "BivariatePoisson": (pb.models.BivariatePoissonGoalModel, False),
     "ZeroInfPoisson": (pb.models.ZeroInflatedPoissonGoalsModel, False),
     "WeibullCopula": (pb.models.WeibullCopulaGoalsModel, False),
+}
+
+# The production model, fitted on the exact continuous target via our own MLE.
+PRODUCTION_MODELS = {
+    "ContPoisson": False,
+    "ContPoisson+Shrink": True,
 }
 BASELINES = ["Uniform", "BaseRate", "Market"]
 
@@ -126,9 +142,10 @@ def collect(target: str, test_start: str, min_train: int = 80) -> list:
 
         w = dixon_coles_weights(train["Date"], xi=MODEL_XI)
         # penaltyblog's Cython loss needs writable float64 buffers; integer goals
-        # (int64) otherwise raise "buffer source array is read-only".
-        gh_f = train[gh].to_numpy(dtype=float, copy=True)
-        ga_f = train[ga].to_numpy(dtype=float, copy=True)
+        # (int64) otherwise raise "buffer source array is read-only". Round first —
+        # the library truncates anyway, and rounding at least preserves the mean.
+        gh_f = train[gh].round().to_numpy(dtype=float, copy=True)
+        ga_f = train[ga].round().to_numpy(dtype=float, copy=True)
         fitted = {}
         for name, (cls, shrink) in MODELS.items():
             try:
@@ -136,6 +153,12 @@ def collect(target: str, test_start: str, min_train: int = 80) -> list:
                 m.fit()
                 if shrink:
                     _shrink_inplace(m, w, train["Home"], train["Away"])
+                fitted[name] = (m, set(m.teams))
+            except Exception:
+                fitted[name] = None
+        for name, shrink in PRODUCTION_MODELS.items():
+            try:
+                m = fit_production_model(train, target=(gh, ga), shrink=shrink)
                 fitted[name] = (m, set(m.teams))
             except Exception:
                 fitted[name] = None
@@ -170,7 +193,7 @@ def _mean(rows, name, fn):
 
 
 def summarize(records: list, target: str) -> pd.DataFrame:
-    model_names = list(MODELS.keys())
+    model_names = list(MODELS.keys()) + list(PRODUCTION_MODELS.keys())
     # Comparable set: every model produced a prediction (both teams known in training).
     comp = [r for r in records if all(r.get(n) is not None for n in model_names)]
     print(f"\n{'='*66}\nTARGET = {target}   |   test matches = {len(records)}   |   comparable = {len(comp)}\n{'='*66}")
