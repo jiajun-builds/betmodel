@@ -1,17 +1,24 @@
 """
-Goals model for Liga MX: penaltyblog NegativeBinomialGoalModel fit on blended
-expected goals (HExpG+/AExpG+) with Dixon-Coles recency weights.
+Goals model for Liga MX: weighted Poisson fit on blended expected goals
+(HExpG+/AExpG+) with Dixon-Coles recency weights and empirical-Bayes shrinkage.
 
 Outputs team strengths (MEX_team_stats.csv) and per-fixture 1X2 + Asian-Handicap
 cover probabilities (MEX_team_stats_match_simulations.csv).
+
+fit_production_model() is the single source of truth for "how the model is
+fitted" -- the eval harnesses (rps_backtest, clv_backtest, clv_signals,
+hyperparam_sweep) all go through it, so a backtest can never silently drift from
+what production does.
 """
+
+from dataclasses import replace
 
 import numpy as np
 import pandas as pd
-import penaltyblog as pb
 from penaltyblog.models import dixon_coles_weights
 
 from ligamx import paths
+from ligamx.models.continuous_poisson import fit_continuous_poisson
 
 # Dixon-Coles time-decay parameter (higher => older matches down-weighted faster).
 # Centralized here so every fit uses the same value.
@@ -20,18 +27,28 @@ MODEL_XI = 0.0015
 # Trailing training window.
 TRAINING_WINDOW_MONTHS = 24
 
-# Post-hoc draw recalibration. The NegBinom fit systematically over-prices the
-# draw on Liga MX (walk-forward: model draw ~0.30 vs realized ~0.25), which pushes
-# most EV picks onto the draw for the wrong reason. The 1X2 draw probability is
-# deflated by this factor and home/away scaled up to renormalize; ALPHA=0.85 was
-# RPS-selected on 2024-07..2025-09 and held flat (0.85-0.95) out-of-sample on the
-# 2025-10.. window. Re-validate with `python -m ligamx.eval.draw_calibration`.
-# Set to 1.0 to disable. Only 1X2 outputs are recalibrated; Asian-handicap cover
-# probabilities come from the full scoreline grid and are left untouched.
-DRAW_CALIBRATION_ALPHA = 0.85
+# Post-hoc draw recalibration: deflate the 1X2 draw by this factor and renormalize
+# onto home/away. DISABLED (1.0) as of the continuous-target fix.
+#
+# The old ALPHA=0.85 was compensating for a bug, not for the sport: penaltyblog
+# truncated the continuous xG target to integers, which deflated every scoring
+# rate ~30% and inflated the draw to ~0.30 against a realized ~0.25. With the rate
+# scale fixed the raw model draw lands at 0.241 vs realized 0.239 (calibration,
+# n=439) and 0.238 vs 0.244 (out-of-sample, n=250) -- deflating it again would
+# re-introduce a ~2pp bias in the other direction. RPS is nearly flat in alpha
+# (0.0003 across 0.80-1.00 on calibration, which nominally prefers 0.90); the
+# out-of-sample window prefers 1.00 outright, and the calibration evidence picks
+# it too. Re-validate with `python -m ligamx.eval.draw_calibration`.
+# Only 1X2 outputs are recalibrated; Asian-handicap cover probabilities come from
+# the full scoreline grid and are left untouched.
+DRAW_CALIBRATION_ALPHA = 1.0
 
 # Asian Handicap lines to generate (mirrored home/away).
 AH_LINES = [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
+
+# Training target columns: the blended-xG pair. Overridable so the sweep can try
+# other blends (and pure goals) through the same fit path.
+DEFAULT_TARGET = ("HExpG+", "AExpG+")
 
 # Empirical-Bayes shrinkage of team ratings toward the (weighted) league mean.
 # Teams with few matches in the window (e.g. promoted sides) get unstable, extreme
@@ -75,7 +92,44 @@ def _shrink_ratings(values: np.ndarray, eff_n: np.ndarray, k: float) -> np.ndarr
     return shrunk
 
 
-def run_negative_binomial_model(input_csv_path, output_csv_path):
+def _effective_n(teams, weights, home_series, away_series) -> np.ndarray:
+    """Dixon-Coles-weighted match count per team, in ``teams`` order."""
+    eff = {t: 0.0 for t in teams}
+    for w, home, away in zip(np.asarray(weights, dtype=float), home_series, away_series):
+        if home in eff:
+            eff[home] += w
+        if away in eff:
+            eff[away] += w
+    return np.array([eff[t] for t in teams])
+
+
+def fit_production_model(train, target=DEFAULT_TARGET, xi=MODEL_XI,
+                         shrinkage_k=SHRINKAGE_K, shrink=ENABLE_SHRINKAGE):
+    """Fit the production goals model on a training frame.
+
+    ``train`` needs Date, Home, Away and the two ``target`` columns. Returns a
+    ContinuousPoissonFit whose ratings have already been shrunk, so callers just
+    call .predict(home, away).
+    """
+    gh, ga = target
+    n_before = len(train)
+    train = train.dropna(subset=[gh, ga, "Home", "Away", "Date"])
+    dropped = n_before - len(train)
+    if dropped:
+        print(f"WARNING: dropped {dropped} training rows with missing {gh}/{ga}")
+    weights = np.asarray(dixon_coles_weights(train["Date"], xi=xi), dtype=float)
+    fit = fit_continuous_poisson(
+        train[gh].to_numpy(dtype=float), train[ga].to_numpy(dtype=float),
+        train["Home"], train["Away"], weights)
+    if shrink:
+        eff_n = _effective_n(fit.teams, weights, train["Home"], train["Away"])
+        fit = replace(fit,
+                      attack=_shrink_ratings(fit.attack, eff_n, shrinkage_k),
+                      defence=_shrink_ratings(fit.defence, eff_n, shrinkage_k))
+    return fit
+
+
+def run_goals_model(input_csv_path, output_csv_path):
     """
     Fit the goals model and write team stats + per-fixture simulations.
 
@@ -105,44 +159,20 @@ def run_negative_binomial_model(input_csv_path, output_csv_path):
     cutoff_date = df["Date"].max() - pd.DateOffset(months=TRAINING_WINDOW_MONTHS)
     df = df[df["Date"] >= cutoff_date]
 
-    # Step 2: Fit the NegativeBinomial model with Dixon-Coles recency weights
-    weights = dixon_coles_weights(df["Date"], xi=MODEL_XI)
-    clf = pb.models.NegativeBinomialGoalModel(df["HExpG+"], df["AExpG+"], df["Home"], df["Away"], weights,)
-    clf.fit()
-    clf.get_params()
-
-    # Step 3: Extract fitted parameters. penaltyblog order is
-    # [attack x n, defence x n, home_advantage, dispersion]; use clf.teams as the
-    # authoritative team ordering aligned with those parameter slots.
+    # Step 2: Fit, with Dixon-Coles recency weights and shrinkage, through the
+    # shared entry point the eval harnesses also use.
+    raw = fit_production_model(df, shrink=False)
+    clf = fit_production_model(df)
     teams_ordered = list(clf.teams)
-    n_teams = len(teams_ordered)
-    params = clf._params
-    attack = np.asarray(params[:n_teams], dtype=float)
-    defense = np.asarray(params[n_teams:2 * n_teams], dtype=float)
-    home_advantage = float(params[-2])
-    dispersion = float(params[-1])
-    print(f"Home advantage: {home_advantage:.4f}, Dispersion: {dispersion:.4f}")
+    attack = clf.attack
+    defense = clf.defence
+    print(f"Home advantage: {clf.home_advantage:.4f}, baseline log-rate: {clf.intercept:.4f}")
 
-    # Step 3b: Empirical-Bayes shrinkage toward the league mean. Effective sample
-    # size per team = sum of Dixon-Coles weights over its matches in the window.
-    # Injected back into clf._params so clf.predict() uses the shrunk strengths.
     if ENABLE_SHRINKAGE:
-        eff_n = {t: 0.0 for t in teams_ordered}
-        for w_row, home, away in zip(np.asarray(weights, dtype=float), df["Home"], df["Away"]):
-            if home in eff_n:
-                eff_n[home] += w_row
-            if away in eff_n:
-                eff_n[away] += w_row
-        n_arr = np.array([eff_n[t] for t in teams_ordered])
-        attack_raw, defense_raw = attack.copy(), defense.copy()
-        attack = _shrink_ratings(attack, n_arr, SHRINKAGE_K)
-        defense = _shrink_ratings(defense, n_arr, SHRINKAGE_K)
-
-        clf._params[:n_teams] = attack
-        clf._params[n_teams:2 * n_teams] = defense
-
+        eff_n = _effective_n(clf.teams, dixon_coles_weights(df["Date"], xi=MODEL_XI),
+                             df["Home"], df["Away"])
         movers = sorted(
-            ((t, n_arr[i], attack_raw[i], attack[i]) for i, t in enumerate(teams_ordered)),
+            ((t, eff_n[i], raw.attack[i], attack[i]) for i, t in enumerate(teams_ordered)),
             key=lambda r: abs(r[3] - r[2]), reverse=True,
         )
         print(f"Shrinkage applied (K={SHRINKAGE_K}); top movers by |Δattack|:")
@@ -228,7 +258,7 @@ def run_negative_binomial_model(input_csv_path, output_csv_path):
 
 
 def main():
-    run_negative_binomial_model(paths.ligamx_data_csv(), paths.team_stats_csv())
+    run_goals_model(paths.ligamx_data_csv(), paths.team_stats_csv())
 
 
 if __name__ == "__main__":

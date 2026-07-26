@@ -14,9 +14,8 @@ benchmarks — polymarket_close and pinnacle_close — reporting:
        over the closing line itself (not just good timing).
   ROI@open (realized): the actual money metric — picks settled at the open odds.
 
-Walk-forward, out-of-sample: the production model (NegativeBinomial + shrinkage on
-the xG-blend target) is refit each ISO week on the prior rolling window, same as
-eval/rps_backtest. All prices are devigged before comparison (Pinnacle ~5% vs
+Walk-forward, out-of-sample: the production model is refit each ISO week on the
+prior rolling window via dc.fit_production_model, same as eval/rps_backtest. All prices are devigged before comparison (Pinnacle ~5% vs
 Polymarket ~0% overround would otherwise bias the gap).
 
     python -m ligamx.eval.clv_backtest [--test-start 2025-10-01]
@@ -29,12 +28,10 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import penaltyblog as pb
-from penaltyblog.models import dixon_coles_weights
 
 from ligamx import paths
-from ligamx.models.dc import MODEL_XI, TRAINING_WINDOW_MONTHS
-from ligamx.eval.rps_backtest import RESULT_IDX, _shrink_inplace
+from ligamx.models.dc import DEFAULT_TARGET, TRAINING_WINDOW_MONTHS, fit_production_model
+from ligamx.eval.rps_backtest import RESULT_IDX
 
 warnings.filterwarnings("ignore")
 
@@ -72,8 +69,8 @@ def _load():
 
 
 def _model_probs(df, test_start, min_train=80):
-    """Walk-forward NegBinom+shrink probs per test match -> {row_index: [ph,pd,pa]}."""
-    gh, ga = "HExpG+", "AExpG+"
+    """Walk-forward production-model probs per test match -> {row_index: [ph,pd,pa]}."""
+    gh, ga = DEFAULT_TARGET
     fit_df = df.dropna(subset=[gh, ga])
     test = df[df["Date"] >= pd.Timestamp(test_start)].copy()
     test["_wk"] = test["Date"].dt.strftime("%G-W%V")
@@ -85,13 +82,8 @@ def _model_probs(df, test_start, min_train=80):
         train = fit_df[(fit_df["Date"] < cutoff) & (fit_df["Date"] >= lo)]
         if len(train) < min_train:
             continue
-        w = dixon_coles_weights(train["Date"], xi=MODEL_XI)
-        gh_f = train[gh].to_numpy(dtype=float, copy=True)
-        ga_f = train[ga].to_numpy(dtype=float, copy=True)
         try:
-            m = pb.models.NegativeBinomialGoalModel(gh_f, ga_f, train["Home"], train["Away"], w)
-            m.fit()
-            _shrink_inplace(m, w, train["Home"], train["Away"])
+            m = fit_production_model(train)
         except Exception:
             continue
         teams = set(m.teams)

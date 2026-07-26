@@ -1,13 +1,18 @@
 """
 Hyperparameter sweep (RPS) for the goals model. Fixes the family to
-NegativeBinomial (the RPS-best family from rps_backtest) and sweeps one axis at a
-time via walk-forward, reporting RPS on the full test set and the Pinnacle-odds
-subset. Coordinate descent: the best value of each axis is carried into the next.
+the production fitter (dc.fit_production_model) and sweeps one axis at a time via
+walk-forward, reporting RPS on the full test set and the Pinnacle-odds subset.
+Coordinate descent: the best value of each axis is carried into the next.
+
+RPS alone must not decide anything here — it barely moved for a bug that left the
+Asian-handicap ladder 6-8pp mis-priced. Confirm any candidate with
+ligamx.eval.calibration_report before adopting it.
 
 Axes:
   A. Training target = xW * xG + (1 - xW) * goals   (xW: 0=pure goals .. 1=pure xG)
   B. Dixon-Coles time-decay xi
   C. Rolling training-window length (months)
+  D. Empirical-Bayes shrinkage K
 
     python -m ligamx.eval.hyperparam_sweep [--test-start 2024-07-01]
 """
@@ -19,17 +24,20 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import penaltyblog as pb
-from penaltyblog.models import dixon_coles_weights
 
 from ligamx import paths
+from ligamx.models.dc import MODEL_XI, SHRINKAGE_K, TRAINING_WINDOW_MONTHS, fit_production_model
+from ligamx.xg.xg_calculator import XGCalculator
 from ligamx.eval.rps_backtest import RESULT_IDX, _market_probs, log_loss, rps
 
 warnings.filterwarnings("ignore")
 
-DEFAULT_XW = 0.55
-DEFAULT_XI = 0.0015
-DEFAULT_WIN = 24
+# Production values, sourced from where they actually live so the sweep's
+# "baseline" line can never go stale.
+DEFAULT_XW = XGCalculator.WEIGHT_XG
+DEFAULT_XI = MODEL_XI
+DEFAULT_WIN = TRAINING_WINDOW_MONTHS
+DEFAULT_K = SHRINKAGE_K
 
 
 def _load_raw() -> pd.DataFrame:
@@ -50,8 +58,12 @@ def _load_raw() -> pd.DataFrame:
 
 
 def collect_ng(played: pd.DataFrame, x_weight: float, xi: float, window_months: int,
-               test_start: str, min_train: int = 80) -> list:
-    """Walk-forward with NegBinom on a blended target; return per-match records."""
+               shrinkage_k: float, test_start: str, min_train: int = 80) -> list:
+    """Walk-forward on a blended target; return per-match records.
+
+    Fits through dc.fit_production_model so the sweep optimises exactly the model
+    production runs. ``shrinkage_k <= 0`` disables shrinkage.
+    """
     p = played.copy()
     p["th"] = x_weight * p["HxG"] + (1 - x_weight) * p["HG"]
     p["ta"] = x_weight * p["AxG"] + (1 - x_weight) * p["AG"]
@@ -67,12 +79,9 @@ def collect_ng(played: pd.DataFrame, x_weight: float, xi: float, window_months: 
         train = p[(p["Date"] < cutoff) & (p["Date"] >= lo)]
         if len(train) < min_train:
             continue
-        w = dixon_coles_weights(train["Date"], xi=xi)
-        gh = train["th"].to_numpy(dtype=float, copy=True)
-        ga = train["ta"].to_numpy(dtype=float, copy=True)
         try:
-            m = pb.models.NegativeBinomialGoalModel(gh, ga, train["Home"], train["Away"], w)
-            m.fit()
+            m = fit_production_model(train, target=("th", "ta"), xi=xi,
+                                     shrinkage_k=shrinkage_k, shrink=shrinkage_k > 0)
             teams = set(m.teams)
         except Exception:
             continue
@@ -116,23 +125,34 @@ def main():
     ts = ap.parse_args().test_start
     played = _load_raw()
 
-    # A) training target: xG blend weight (xi/window at defaults)
-    cfgA = [(f"xW={w:.2f}", (w, DEFAULT_XI, DEFAULT_WIN)) for w in [0.0, 0.25, 0.45, 0.55, 0.75, 1.0]]
+    # A) training target: xG blend weight (xi/window/K at defaults)
+    cfgA = [(f"xW={w:.2f}", (w, DEFAULT_XI, DEFAULT_WIN, DEFAULT_K))
+            for w in [0.0, 0.25, 0.45, 0.55, 0.75, 1.0]]
     bA = sweep("A) Training target (0=goals .. 1=xG)", played, cfgA, ts)
     xw = bA[2][0]
 
     # B) time-decay xi (best target, default window)
-    cfgB = [(f"xi={xi:g}", (xw, xi, DEFAULT_WIN)) for xi in [0.0, 0.0005, 0.001, 0.0015, 0.002, 0.003, 0.005]]
+    cfgB = [(f"xi={xi:g}", (xw, xi, DEFAULT_WIN, DEFAULT_K))
+            for xi in [0.0, 0.0005, 0.001, 0.0015, 0.002, 0.003, 0.005]]
     bB = sweep(f"B) Time-decay xi (xW={xw:.2f}, win={DEFAULT_WIN})", played, cfgB, ts)
     xi = bB[2][1]
 
     # C) rolling window months (best target + xi)
-    cfgC = [(f"win={m}mo", (xw, xi, m)) for m in [12, 18, 24, 36, 120]]
+    cfgC = [(f"win={m}mo", (xw, xi, m, DEFAULT_K)) for m in [12, 18, 24, 36, 120]]
     bC = sweep(f"C) Window months (xW={xw:.2f}, xi={xi:g})", played, cfgC, ts)
+    win = bC[2][2]
+
+    # D) shrinkage strength (K=0 disables)
+    cfgD = [(f"K={k:g}", (xw, xi, win, k)) for k in [0.0, 3.0, 6.0, 10.0, 20.0]]
+    bD = sweep(f"D) Shrinkage K (xW={xw:.2f}, xi={xi:g}, win={win})", played, cfgD, ts)
 
     print("\n===== best config =====")
-    print(f"  xW={bC[2][0]:.2f}  xi={bC[2][1]:g}  window={bC[2][2]}mo  ->  RPS {bC[1]:.4f}")
-    print(f"  (production baseline was xW=0.55, xi=0.0015, window=24)")
+    print(f"  xW={bD[2][0]:.2f}  xi={bD[2][1]:g}  window={bD[2][2]}mo  K={bD[2][3]:g}"
+          f"  ->  RPS {bD[1]:.4f}")
+    print(f"  (production baseline: xW={DEFAULT_XW:.2f}, xi={DEFAULT_XI:g}, "
+          f"window={DEFAULT_WIN}, K={DEFAULT_K:g})")
+    print("  NOTE: RPS is near-blind to the scoreline-scale errors that matter for "
+          "betting; confirm any change with ligamx.eval.calibration_report.")
 
 
 if __name__ == "__main__":

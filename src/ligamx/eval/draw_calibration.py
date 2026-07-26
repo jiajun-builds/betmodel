@@ -1,6 +1,7 @@
 """Select and validate the 1X2 draw-deflation factor (dc.DRAW_CALIBRATION_ALPHA).
 
-The NegBinom fit over-prices the draw on Liga MX. This deflates the draw
+Kept as a guard, not as a live correction: alpha is 1.0 since the continuous-target
+fix removed the draw over-pricing it used to offset. This deflates the draw
 probability by alpha (home/away renormalized) and picks alpha by RPS on a
 calibration period, then reports RPS on a held-out out-of-sample period so the
 choice can be seen to hold up rather than overfit. Also prints the raw model-vs-

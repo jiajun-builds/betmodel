@@ -41,6 +41,7 @@ from ligamx.models.dc import (
     MODEL_XI,
     TRAINING_WINDOW_MONTHS,
     calibrate_1x2,
+    fit_production_model,
 )
 from ligamx.eval.football_data import load_enriched
 from ligamx.eval.rps_backtest import RESULT_IDX, _shrink_inplace
@@ -103,7 +104,7 @@ def model_probs(df, family=None, xw=DEFAULT_XW, xi=MODEL_XI,
     Refits weekly on the trailing rolling window (Dixon-Coles weighted) on the
     xG-blend target; optional production shrinkage. Returns raw (uncalibrated) probs.
     """
-    cls = FAMILIES[family or "negbinom"]
+    cls = FAMILIES[family] if family else None  # None => the production fitter
     p = df.copy()
     p["th"] = xw * p["HxG"] + (1 - xw) * p["HG"]
     p["ta"] = xw * p["AxG"] + (1 - xw) * p["AG"]
@@ -119,14 +120,20 @@ def model_probs(df, family=None, xw=DEFAULT_XW, xi=MODEL_XI,
         train = fit_df[(fit_df["Date"] < cutoff) & (fit_df["Date"] >= lo)]
         if len(train) < min_train:
             continue
-        w = dixon_coles_weights(train["Date"], xi=xi)
-        gh = train["th"].to_numpy(dtype=float, copy=True)
-        ga = train["ta"].to_numpy(dtype=float, copy=True)
         try:
-            m = cls(gh, ga, train["Home"], train["Away"], w)
-            m.fit()
-            if use_shrink:
-                _shrink_inplace(m, w, train["Home"], train["Away"])
+            if cls is None:
+                m = fit_production_model(train, target=("th", "ta"), xi=xi,
+                                         shrink=use_shrink)
+            else:
+                # penaltyblog truncates to int; round first so the comparison
+                # family at least keeps the target's mean.
+                w = dixon_coles_weights(train["Date"], xi=xi)
+                m = cls(train["th"].round().to_numpy(dtype=float, copy=True),
+                        train["ta"].round().to_numpy(dtype=float, copy=True),
+                        train["Home"], train["Away"], w)
+                m.fit()
+                if use_shrink:
+                    _shrink_inplace(m, w, train["Home"], train["Away"])
         except Exception:
             continue
         teams = set(m.teams)
@@ -248,7 +255,8 @@ def analyze(recs, close_key):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--family", default="negbinom", choices=list(FAMILIES))
+    ap.add_argument("--family", default=None, choices=list(FAMILIES),
+                    help="comparison family; omit to use the production fitter")
     ap.add_argument("--xw", type=float, default=DEFAULT_XW)
     ap.add_argument("--xi", type=float, default=MODEL_XI)
     ap.add_argument("--window", type=int, default=TRAINING_WINDOW_MONTHS)

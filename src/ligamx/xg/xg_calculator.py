@@ -5,7 +5,9 @@ AExpG+ = 0.25 × AxG + 0.75 × AG
 
 The 0.25/0.75 blend (down from 0.55/0.45) was chosen by the RPS walk-forward
 sweep (ligamx.eval.hyperparam_sweep): a lower xG weight scored marginally better
-than the old blend and than pure xG on Liga MX 1X2 forecasts.
+than the old blend and than pure xG on Liga MX 1X2 forecasts. Re-confirmed
+2026-07-26 on the fixed continuous-target fitter (RPS 0.2023 at xW=0.25 vs 0.2024
+at pure goals, 0.2042 at pure xG), so it was not an artifact of the truncation bug.
 """
 
 from typing import Dict, List
