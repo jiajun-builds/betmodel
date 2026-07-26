@@ -21,14 +21,20 @@ Draw de-bias is hybrid (AGENTS.md roadmap #10, validated in backtest.md §12):
     ``p'_D = (1-λ)·p_D + λ·m_D`` where ``m_D`` is Pinnacle's no-vig opening draw
     probability; the freed mass is returned to H/A pro-rata. Anchoring on the
     raw grid (``predict_raw``) avoids stacking λ on top of the δ calibration.
-  * Fixture WITHOUT a captured Pinnacle open -> δ-calibrated model (``predict``),
-    the same market-free calibration used by the all-pairs prediction surface.
+  * Fixture WITHOUT a captured Pinnacle open -> the ``predict`` path, which since
+    backtest.md §15.3 applies **no** draw correction (δ is retired,
+    ``DRAW_DELTA_SHRINK = 0.0``) and therefore returns the raw grid.
+
+At the shipped ``DEBIAS_LAMBDA = 1.0`` the anchored draw is exactly ``m_D``, so the
+model contributes only the home/away split; see §15.4 for why 1.0 rather than the
+measured argmax of 1.25.
 
 The ``debias_method`` column records which path produced each row's
 probabilities ("market_anchor" or "delta"). EV is computed against the 1xBet
 opening price: ``onexbet_open_EV_k = p'_k * onexbet_open_odds_k - 1``.
 
-Signal (backtest.md §13.4): pick = argmax EV over {home, draw, away} priced on
+Signal (backtest.md §13.4, §15.4): pick = argmax EV over ``SIGNAL_SIDES`` —
+**{home, away} only**, draws cannot fire (``SIGNAL_ALLOW_DRAW = False``) — priced on
 the 1xBet open; ``signal_state`` is "bet" when that pick's EV > ``SIGNAL_EV_MIN``
 and its 1xBet odds <= ``SIGNAL_ODDS_CAP``, "odds_cap" when the EV clears but the
 long-shot cap does not, "" otherwise.
@@ -72,10 +78,23 @@ log = logging.getLogger(__name__)
 
 MODEL_XI = 0.001
 
-# Market-anchored draw shrink weight. backtest.md §12: λ=0.75 lands the
-# walk-forward draw mean on the actual rate (0.245 vs 0.242) and doubles excess
-# CLV at thr>0.10; the result holds over the surrounding λ region, not a point.
-DEBIAS_LAMBDA = 0.75
+# Market-anchored draw shrink weight. λ=1.0 means the draw probability IS the
+# anchor book's no-vig draw — the model contributes nothing to it, and only splits
+# home/away. backtest.md §15.4.
+#
+# Why exactly 1.0 and not the measured argmax (1.25, gap +3.58 vs +3.32): λ>1
+# extrapolates PAST the market draw, which gives p_D a *negative* weight on the
+# model's own draw estimate — and §15.3 showed that estimate's bias changes sign
+# season to season (2023 +0.81pp, 2025 -4.37pp). Depending negatively on an
+# unstable quantity is the fragility that retiring δ removed; at λ=1.0 the draw is
+# independent of the model, so that instability cannot propagate. λ=1.0 captures
+# ~93% of the available gap, and 1.25 was chosen by argmax on the evaluation set —
+# structurally the same mistake that produced δ=1.258. Earning 1.25 requires a
+# pre-registered forward test, not a re-read of the same table.
+#
+# NB this stays load-bearing even though draws are never bet (SIGNAL_ALLOW_DRAW):
+# p_home/p_away are renormalized by (1-p_D_new)/(1-p_D), so λ moves their EV.
+DEBIAS_LAMBDA = 1.0
 
 # Betting signal thresholds (backtest.md §13.4 recommended config). A pick fires
 # ("bet") only when its 1xBet-open EV clears SIGNAL_EV_MIN AND its price is within
@@ -83,6 +102,15 @@ DEBIAS_LAMBDA = 0.75
 # because the odds>7 tail is the least-edge slice in the book (§13.4b).
 SIGNAL_EV_MIN = 0.20
 SIGNAL_ODDS_CAP = 7.0
+
+# Draws are never bet. At DEBIAS_LAMBDA >= 1.0 the draw probability carries no model
+# information — it is the anchor book's no-vig draw — so a draw signal would mean
+# only "1xBet's draw price beats Pinnacle's implied fair draw", a cross-book price
+# disagreement rather than a model view. Measured cost of excluding them: none.
+# backtest.md §15.4, at λ=1.25/thr>0.20/cap<=7: with draws n=110 gap +3.58, without
+# n=104 gap +3.60. The draw is still modelled and displayed; it just cannot fire.
+SIGNAL_ALLOW_DRAW = False
+SIGNAL_SIDES = ("home", "draw", "away") if SIGNAL_ALLOW_DRAW else ("home", "away")
 
 # 1xBet opening-price columns joined from the capture history (snapshot_type=open,
 # bookmaker=onexbet). These are the displayed line, the EV basis, and the signal
@@ -391,8 +419,9 @@ def attach_model_probabilities(
 def attach_signals(frame: pd.DataFrame) -> pd.DataFrame:
     """Flag the max-EV 1xBet-open pick per fixture (backtest.md §13.4).
 
-    ``signal_pick`` is the outcome ("home"/"draw"/"away") with the highest EV among
-    the outcomes that have a 1xBet opening price; ``signal_state`` is:
+    ``signal_pick`` is the outcome with the highest EV among the ``SIGNAL_SIDES``
+    that have a 1xBet opening price — home/away only by default, see
+    ``SIGNAL_ALLOW_DRAW``; ``signal_state`` is:
 
       * "bet"      — pick EV > SIGNAL_EV_MIN and pick odds <= SIGNAL_ODDS_CAP.
       * "odds_cap" — pick EV > SIGNAL_EV_MIN but odds over the long-shot cap
@@ -405,7 +434,7 @@ def attach_signals(frame: pd.DataFrame) -> pd.DataFrame:
     for row in out.itertuples(index=False):
         best_key = ""
         best_ev = float("-inf")
-        for side in ("home", "draw", "away"):
+        for side in SIGNAL_SIDES:
             odds = getattr(row, f"onexbet_open_{side}_odds")
             ev = getattr(row, f"onexbet_open_{side}_ev")
             if pd.isna(odds) or pd.isna(ev):
@@ -513,10 +542,10 @@ def run(
         int((enriched["debias_method"] == "delta").sum()),
     )
     log.info(
-        "Signals: %d bet, %d odds_cap (EV>%.2f, cap odds<=%.0f)",
+        "Signals: %d bet, %d odds_cap (EV>%.2f, cap odds<=%.0f, sides=%s)",
         int((enriched["signal_state"] == "bet").sum()),
         int((enriched["signal_state"] == "odds_cap").sum()),
-        SIGNAL_EV_MIN, SIGNAL_ODDS_CAP,
+        SIGNAL_EV_MIN, SIGNAL_ODDS_CAP, "/".join(SIGNAL_SIDES),
     )
 
     full_df = enriched[FULL_COLUMNS].copy()
@@ -544,7 +573,8 @@ def main() -> None:
     )
     parser.add_argument("--xi", type=float, default=MODEL_XI, help="Dixon-Coles time-decay factor")
     parser.add_argument("--lam", type=float, default=DEBIAS_LAMBDA,
-                        help="Market-anchored draw shrink weight λ (default: 0.75, backtest.md §12)")
+                        help="Market-anchored draw shrink weight λ (default: 1.0 = take the "
+                             "anchor book's no-vig draw outright, backtest.md §15.4)")
     args = parser.parse_args()
 
     try:

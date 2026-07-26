@@ -24,7 +24,7 @@ Two strategies compared (the user's ask):
   * WITH draw  — pick = argmax EV over {home, draw, away}
   * NO draw    — pick = argmax EV over {home, away} only (draw never backed)
 
-Four model variants: raw NegBinom, δ-calibrated (market-free), λ=0.75 anchored on
+Four model variants: raw ContinuousPoisson, δ-calibrated (market-free), λ=0.75 anchored on
 the 1xBet opening no-vig draw, and λ=0.75 anchored on the PINNACLE opening no-vig
 draw (the config shipped to production / dashboard v2.7 — bet the cheap 1xBet line,
 de-bias against the sharp Pinnacle reference). No leakage: both opens are known at
@@ -54,6 +54,7 @@ from backtest_1x2 import (  # noqa: E402  reuse the validated harness
     one_x_two,
 )
 from csl.date_utils import parse_date_only_series  # noqa: E402
+from csl.models.continuous_poisson import ContinuousPoissonGoalModel  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV = os.path.join(REPO_ROOT, "data", "raw_data", "CHN_Super League.csv")
@@ -75,10 +76,10 @@ EV_THRESHOLDS = [0.00, 0.10, 0.20]
 # shipped to production, dashboard v2.7).
 PINNACLE_ANCHOR_LAM = 0.75
 VARIANTS = [
-    ("NegBinom raw", 0.00),
-    ("NegBinom + delta-cal (market-free, prod)", "delta"),
-    ("NegBinom + lam=0.75 (anchored on 1xBet open)", 0.75),
-    ("NegBinom + lam=0.75 (anchored on PINNACLE open)", "pinnacle_anchor"),
+    ("ContinuousPoisson raw", 0.00),
+    ("ContinuousPoisson + delta-cal (market-free)", "delta"),
+    ("ContinuousPoisson + lam=0.75 (anchored on 1xBet open)", 0.75),
+    ("ContinuousPoisson + lam=0.75 (anchored on PINNACLE open)", "pinnacle_anchor"),
 ]
 
 
@@ -95,7 +96,7 @@ def load() -> pd.DataFrame:
 
 
 def walk_forward(df: pd.DataFrame) -> pd.DataFrame:
-    """NegBinom walk-forward over fixtures that carry 1xBet open + Pinnacle close."""
+    """Walk-forward over fixtures that carry 1xBet open + Pinnacle close."""
     graded = df[df["res"].notna()
                 & df[OPEN_COLS].notna().all(axis=1)
                 & df[CLOSE_COLS].notna().all(axis=1)
@@ -110,7 +111,7 @@ def walk_forward(df: pd.DataFrame) -> pd.DataFrame:
             continue
         weights = pb.models.dixon_coles_weights(hist["Date"], PROD_XI)
         try:
-            clf = fit_model(pb.models.NegativeBinomialGoalModel, hist, weights)
+            clf = fit_model(ContinuousPoissonGoalModel, hist, weights)
             delta = fit_draw_delta(clf, hist, weights)
         except Exception:
             continue

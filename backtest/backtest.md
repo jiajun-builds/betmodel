@@ -1023,3 +1023,203 @@ efficient (unbeatable). Two side-findings worth carrying forward:
 
 Reproduce: `PYTHONPATH=src python backtest/backtest_polymarket.py` and
 `.../backtest_polymarket_close.py`.
+
+---
+
+## 15. penaltyblog truncated the xG targets — every fit since inception (2026-07-26)
+
+**A silent library bug voided the whole tuning history.** penaltyblog's
+`BaseGoalsModel.__init__` coerces the goal arrays to a Cython integer dtype before
+the likelihood runs (v1.11.0, `penaltyblog/models/base_model.py:114-115`):
+
+```python
+self.goals_home = np.asarray(goals_home, dtype=cython_long_dtype, order="C")
+```
+
+`np.asarray(1.79, dtype=np.int64) == 1`. This project trains on `HExpG+ = 0.7*HxG
++ 0.3*HG`, non-integer by construction, so **every fit was made against
+`floor(target)`**. The coercion is in the *base* class, so all families (Poisson,
+DixonColes, NegBinom, BivariatePoisson, ZIP, Weibull) were equally affected —
+§9–§12's family comparisons were never measuring what they thought.
+
+Found in the sister project ligamxterminal and confirmed here independently.
+
+### 15.1 Evidence (18-month window, n=385, xi=0.001)
+
+|                        | home   | away   |
+|------------------------|--------|--------|
+| `mean(target)`         | 1.7955 | 1.3590 |
+| `mean(floor(target))`  | 1.3117 | 0.8571 |
+| `mean(fitted lambda)`  | 1.3195 | 0.8512 |
+
+lambda tracked the **floor** mean. The Poisson score equation
+`sum(w*lambda)/sum(w*y)` — which must be exactly 1.0 at a correct optimum — read
+**0.7330**. lambda was **27% too low**. A never-noticed corroborating red flag:
+NegBinom's `dispersion` sat pinned at its 1000.0 optimizer bound, i.e. the
+NegBinom family had silently degenerated to Poisson all along.
+
+**Two diagnostic traps, recorded so they are not repeated:**
+
+1. **The "shift the target by +0.4" test does not work on continuous targets.** It
+   returned a healthy-looking +0.3722 here. Fractional parts are ~uniform, so
+   `floor(y+0.4)` shifts by ~0.4 too. Only the floor-mean match and the score
+   equation are evidence. The regression test uses `y` vs `floor(y)` instead.
+2. **RPS is nearly blind to this.** The bug cost 27% of lambda and moved RPS by
+   0.0031 (0.1952 -> 0.1921). Every RPS-driven sweep in §9–§13 walked straight
+   past it. Rank on calibration, not RPS.
+
+### 15.2 Damage and repair, walk-forward (241 refits, n=758)
+
+|                              | truncated  | fixed      |
+|------------------------------|------------|------------|
+| score eq `sum(wl)/sum(wy)`   | 0.7330     | 1.000001   |
+| total goals (actual 3.120)   | **2.016**  | 2.975      |
+| draw bias                    | **+4.20pp** (t +2.70) | −1.97 (t −1.27) |
+| home bias                    | −3.36 (t −1.99) | −0.58 (t −0.34) |
+| mean \|AH ladder bias\|      | **2.61pp** | 1.29pp     |
+| log-loss                     | 0.9718     | 0.9616     |
+| RPS (for contrast only)      | 0.1952     | 0.1930     |
+
+The fix is `src/csl/models/continuous_poisson.py` — a weighted Poisson
+**pseudo**-likelihood `max sum w(y log l − l)` with analytic gradient, sum-zero
+attack/defence centring, valid and consistent for continuous `y`. It returns a
+real `FootballProbabilityGrid`, so all downstream markets are untouched. Rejected
+alternative: `.round()` the targets. Measured head-to-head every difference was
+inside noise (log-loss diff −0.0023, 95% CI [−0.0070, +0.0024]; RPS −0.00086;
+AH +0.095pp, CI [−0.102, +0.139]), so the choice rests on correctness — `.round()`
+is only *approximately* mean-preserving (1.7955 -> 1.7870, −0.47%) and leaves the
+int cast live for the next call site that forgets.
+
+### 15.3 The draw de-bias delta is RETIRED
+
+delta was a patch over this bug and does not survive it. Fitted in-sample it now
+comes out ~1.26 (>1, the opposite side), and **applying it made out-of-sample
+calibration worse**: draw bias −1.97pp -> +2.19pp, log-loss 0.9616 -> 0.9649. It
+overshoots zero.
+
+The tempting story — "delta>1 is genuine Dixon-Coles low-score dependence" — is
+**false**, and the per-season split is what kills it:
+
+| season      | 2023    | 2024    | 2025    | 2026    | pooled  |
+|-------------|---------|---------|---------|---------|---------|
+| draw bias   | +0.81pp | −0.23pp | −4.37pp | −3.56pp | −1.97pp |
+| best shrink | 0.00    | 0.00    | 1.00    | 0.50    | 0.15    |
+
+The residual **changes sign** across seasons, so no diagonal scale can fix it — it
+is season noise, and the in-sample delta MLE chases it. Pooled out-of-sample
+optimum is a shrink of 0.15, i.e. delta ~= 1.04, indistinguishable from off.
+`DRAW_DELTA_SHRINK = 0.0` in `csl.models.dc`; delta is still fitted and logged as
+a diagnostic. This vindicates the pre-registered criterion "the draw coefficient's
+optimum should return to ~1.0 after the fix" — it does, once you read the
+*out-of-sample optimum* rather than the in-sample MLE.
+
+### 15.4 Re-swept parameters (all prior tuning void)
+
+| parameter | old | re-swept verdict |
+|---|---|---|
+| `DEBIAS_LAMBDA` | 0.75 | **SHIPPED at 1.0** (not the 1.25 argmax — see §15.4b). |
+| `SIGNAL_ALLOW_DRAW` | (implicit true) | **SHIPPED false** — draws can no longer fire. |
+| `SIGNAL_EV_MIN` | 0.20 | **survives** — still the peak; 0.10 fails 2026. |
+| odds cap | ≤7 | survives; tighter is better still (see below). |
+| `DRAW_DELTA` | fitted | **retired**, §15.3. |
+| xi / lookback | 0.001 / 18mo | **inconclusive** — do not move yet. |
+| xG blend `w_xG` | 0.7 | **survives** — sits between both criteria's optima. |
+| model family | NegBinom | moot; it was degenerate to Poisson. |
+
+`DEBIAS_LAMBDA` on the Pinnacle-open anchor, thr>0.20 (gap = CLV − vig wall):
+
+| lam | n | ROI | exCLV | gap | 2024/2025/2026 gap |
+|---|---|---|---|---|---|
+| 0.75 (was shipped) | 156 | +0.194 | +3.12 | +2.06 | +0.90 / +3.93 / +1.65 |
+| 1.00 | 150 | +0.200 | +3.59 | +2.59 | +1.41 / +4.21 / +2.81 |
+| **1.25** | 152 | +0.171 | **+3.76** | **+2.78** | +1.65 / +4.31 / +2.99 |
+| 1.50 | 152 | +0.163 | +3.43 | +2.48 | +1.33 / +3.92 / +2.99 |
+| 2.00 | 185 | +0.132 | +2.55 | +1.55 | +0.95 / +2.32 / +1.41 |
+
+The optimum is **interior at ~1.25**, so the boundary guardrail is satisfied (the
+grid was widened past 1.0 precisely because 1.0 was the edge). Note lam >= 1.0
+means *discarding the model's draw entirely* in favour of the market's no-vig draw
+— consistent with §14's finding that the model barely beats a coin on 1X2 and the
+draw was always the weak spot.
+
+**§15.4b — shipped lam = 1.0, deliberately NOT the 1.25 argmax.** Expanding
+lam=1.25 gives `p_D = 1.25*m_D - 0.25*p_D(model)`: a **negative** weight on the
+model's own draw estimate, whose bias §15.3 showed changes sign season to season
+(2023 +0.81pp, 2025 -4.37pp). Depending negatively on a quantity that unstable is
+exactly the fragility retiring delta removed. At lam=1.0 the draw is `m_D`
+outright, so the model's draw instability cannot propagate at all. Cost: gap +3.32
+vs +3.58 with cap<=7, i.e. lam=1.0 keeps ~93% of the gain. And 1.25 was picked by
+argmax on the evaluation set — structurally the same error that produced
+delta=1.258, whose in-sample 1.258 had an out-of-sample optimum of ~1.04. Earning
+1.25 needs a pre-registered forward test, not a re-read of this table. Weak
+counter-evidence, recorded: 1.25 beat 1.0 in all three seasons (+1.65/+4.31/+2.99
+vs +1.41/+4.21/+2.81), directionally consistent but tiny and not independent.
+
+**§15.4c — draws no longer fire (`SIGNAL_ALLOW_DRAW = False`).** At lam >= 1.0 the
+draw probability contains no model information, so a draw signal would mean only
+"1xBet's draw price beats Pinnacle's implied fair draw" — a cross-book price
+disagreement, not a model view. Excluding them is free:
+
+| lam | with draws (n / gap) | without draws (n / gap) | draw bets |
+|---|---|---|---|
+| 0.75 | 115 / +2.53 | 114 / +2.56 | 1 |
+| 1.00 | 108 / +3.32 | 106 / +3.32 | 2 |
+| 1.25 | 110 / +3.58 | 104 / **+3.60** | 6 |
+
+Counter-intuitively lam>1 *increases* draw picks (1 -> 6 -> 10 at lam=1.5) because
+it pushes `p_D` above `m_D`; the EV floor, not lam, is what filters them. The draw
+is still modelled and displayed — it just cannot become a bet. lam remains
+load-bearing even so, because `p_home`/`p_away` are renormalized by
+`(1-p_D_new)/(1-p_D)`, so lam moves their EV directly.
+
+**xi / lookback is boundary-limited and self-contradictory** — log-loss wants
+xi=0.0040/12mo (both grid edges), draw-bias wants xi=0.0005/30mo (the *opposite*
+edges), AH-ladder wants xi=0.0020/24mo (interior). Spread is small (log-loss
+0.9563–0.9677; AH 1.25–1.41pp). Per the guardrail this is unconverged: **left at
+0.001/18mo pending a widened grid.** Do not adopt a boundary winner.
+
+**Odds cap shows a strong favourite-longshot gradient** (lam=1.0, thr>0.20):
+cap<=3 gap +5.30 (n=26), <=5 +3.15 (n=80), <=7 +3.32 (n=108), <=10 +2.79, none
++2.59. All clear every season. Worth a dedicated pre-registered test before
+tightening — the tight cells are thin.
+
+### 15.5 Does the 1xBet edge survive? YES, and it improves
+
+The §13 cross-season +EV cell was derived on the broken lambda, so it had to be
+re-earned against **both** original bars (model-free "always home" baseline via
+exCLV > 0, and the §11.7 vig wall via gap > 0), in all three seasons.
+
+Production config, Pinnacle-open anchor, thr>0.20, odds cap <=7:
+
+| config | n | ROI | exCLV | gap | 2024/2025/2026 gap |
+|---|---|---|---|---|---|
+| truncated, lam=0.75 (was live) | 115 | +0.291 | +3.75 | +2.53 | +1.26 / +4.75 / +1.51 |
+| fixed, lam=0.75 | 108 | +0.317 | +4.47 | +3.32 | +2.11 / +5.15 / +2.68 |
+| **fixed, lam=1.25** | 110 | +0.275 | **+4.70** | **+3.58** | +2.47 / +5.24 / +2.87 |
+
+Both bars clear in all three seasons independently, and at its own lam the fixed
+model **beats** the old one (gap +3.58 vs +2.53, +42%). So the BET badge did not
+need gating. Two structural shifts: the fixed model fires ~30% more bets and picks
+almost no draws (Pinnacle-anchor draw picks 9 -> 1), which is the draw over-pricing
+disappearing.
+
+Caveat: lam=1.25 was chosen by reading the table above, i.e. in-sample on the eval
+set — the same trap that produced delta=1.258. It does clear the pre-registered
+per-season bar, but treat it as a lead, not a settled value.
+
+### 15.6 Residual, recorded and deliberately NOT patched
+
+Post-fix there is a −1.97pp draw / +2.54pp away bias, all |t| < 1.75, and
+total goals still runs 0.145 light (2.975 vs 3.120). Not significant; §15.3 is
+exactly what happens when you add a parameter for it. Also beware the AH ladder's
+outer tiers: `AH ±0.5` are algebraically 1X2 home/away with draws dropped, and
+`AH +1.5` shows t=−2.63 off only −2.95pp because its variance is tiny — the same
+matches at low variance, not independent evidence.
+
+Reproduce:
+```
+python tests/test_continuous_poisson.py                      # 8 assertions
+PYTHONPATH=src python backtest/verify_truncation_fix.py      # 4 pre-registered criteria
+PYTHONPATH=src python backtest/sweep_xi_lookback.py          # xi/lookback grid
+cd backtest && PYTHONPATH=../src python backtest_1xbet.py    # the +EV cell
+```

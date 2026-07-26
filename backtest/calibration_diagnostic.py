@@ -31,12 +31,13 @@ import penaltyblog as pb
 from scipy.optimize import minimize_scalar
 
 from csl.date_utils import parse_date_only_series
+from csl.models.continuous_poisson import ContinuousPoissonGoalModel
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV = os.path.join(REPO_ROOT, "data", "raw_data", "CHN_Super League.csv")
 
-PROD_XI = 0.001
-PROD_LOOKBACK_MONTHS = 18
+# Imported from the production module so this diagnostic cannot drift from what ships.
+from csl.models.dc import PROD_LOOKBACK_MONTHS, PROD_XI  # noqa: E402,F401
 res_map = {"H": 0, "D": 1, "A": 2}  # 0=home win, 1=draw, 2=away win
 
 
@@ -147,7 +148,9 @@ def run():
             continue
         weights = pb.models.dixon_coles_weights(hist["Date"], PROD_XI)
         try:
-            clf = pb.models.ZeroInflatedPoissonGoalsModel(
+            # ContinuousPoisson, not ZIP: the xG targets are non-integer and every
+            # penaltyblog family truncates them (see csl.models.continuous_poisson).
+            clf = ContinuousPoissonGoalModel(
                 hist["HExpG+"], hist["AExpG+"], hist["Home"], hist["Away"], weights)
             clf.fit()
         except Exception:

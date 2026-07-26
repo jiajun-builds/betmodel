@@ -1,3 +1,14 @@
+# ============================================================================
+# STALE RESULTS WARNING — this script's published conclusions predate the fix
+# for penaltyblog's silent truncation of non-integer goal targets. It fits a
+# penaltyblog family on xG-blend targets, and penaltyblog's BaseGoalsModel
+# coerces those to int before the likelihood, so every lambda here is ~27% too
+# low (score equation sum(w*lambda)/sum(w*y) = 0.733 instead of 1.0). Model
+# families cannot be meaningfully ranked against each other on a truncated fit —
+# they were all equally broken. See src/csl/models/continuous_poisson.py and
+# backtest/verify_truncation_fix.py. Re-run against ContinuousPoissonGoalModel
+# before citing any number from this file.
+# ============================================================================
 """
 Step 1 of the ZIP validity checklist: is the zero-inflation actually doing
 anything, or has production's ZeroInflatedPoissonGoalsModel effectively

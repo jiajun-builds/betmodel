@@ -1,19 +1,52 @@
 import numpy as np
 import pandas as pd
-import penaltyblog as pb
 from penaltyblog.models import FootballProbabilityGrid, dixon_coles_weights
 from scipy.optimize import minimize_scalar
 import os
 from datetime import datetime
 
 from csl.date_utils import parse_date_only_series
+from csl.models.continuous_poisson import ContinuousPoissonGoalModel
 
-# Draw de-bias (backtest/backtest.md §12.4): every goals model in this family
-# over-prices the draw (~0.28 predicted vs ~0.24 actual — independent-Poisson mass
-# piling up at goal-difference 0). The fix is a market-free calibration: scale the
-# scoreline-grid diagonal by a factor delta fit on the training window, then
-# renormalize. Validated walk-forward in backtest/backtest_1x2.py before deploying
-# here (out-of-sample it repairs roughly half the bias, draw 0.276 -> 0.255).
+# The production fit recipe, in one place. These used to be re-declared in eight
+# backtest modules, which is how a 27% lambda error (see continuous_poisson) went
+# unnoticed across five separate copies of the fit: nothing forced the backtests
+# and production to agree. Import them; do not re-declare them.
+PROD_XI = 0.001  # Dixon-Coles time decay
+PROD_LOOKBACK_MONTHS = 18  # training window
+# Minimum training fixtures before a backtest scores a match. The dataset starts
+# 2023-04-15, so early-2023 matches have almost no history (median 26 fixtures for
+# the 2023 rows that carry opening lines — the model there is noise). 100 cleanly
+# excludes them; 2024+ always has >=240.
+MIN_TRAIN = 100
+
+# Draw de-bias (backtest/backtest.md §12.4): a market-free calibration that scales
+# the scoreline-grid diagonal by a factor delta fit on the training window, then
+# renormalizes.
+#
+# RETIRED — delta existed to patch the truncation bug, and does not survive it.
+# While goal targets were being truncated (see continuous_poisson), lambda was
+# ~27% too low, the grid piled up on low scores and the model OVER-priced the draw
+# by +4.20pp; delta fit around 0.90 and suppressed it. On the corrected fit that
+# excess is gone, and what remains does not generalize:
+#
+#   season       2023     2024     2025     2026    pooled
+#   draw bias  +0.81pp  -0.23pp  -4.37pp  -3.56pp  -1.97pp
+#   best shrink   0.00     0.00     1.00     0.50      0.15
+#
+# The residual draw bias changes SIGN across seasons, so it is not a structural
+# low-score dependence that a diagonal scale could fix — it is season noise, and
+# the in-sample delta MLE chases it. Applying the fitted delta (mean 1.258) made
+# out-of-sample calibration worse, not better: draw bias -1.97pp -> +2.19pp and
+# log-loss 0.9616 -> 0.9649, i.e. it overshot zero. The pooled out-of-sample
+# optimum is a shrink of 0.15, i.e. delta ~= 1.04 — indistinguishable from off.
+#
+# So delta is computed and logged for diagnostics but NOT applied. Set
+# DRAW_DELTA_SHRINK above 0.0 only with fresh cross-season evidence that the
+# residual has acquired a stable sign; a value tuned on pooled data alone is
+# fitting noise. Predictions with fixtures that lack a market anchor now ship the
+# raw grid, which measured better on every axis.
+DRAW_DELTA_SHRINK = 0.0
 DRAW_DELTA_BOUNDS = (0.3, 2.0)
 DRAW_DELTA_MIN_ROWS = 20  # below this, calibration is noise: fall back to 1.0
 
@@ -115,12 +148,66 @@ class DrawCalibratedModel:
         return self._clf.predict(home_team, away_team)
 
 
-def fit_dixon_coles_model_from_csv(input_csv_path, xi=0.001):
+def fit_production_model(train: pd.DataFrame, xi: float = PROD_XI) -> "DrawCalibratedModel":
+    """Fit the production model on an already-filtered training frame.
+
+    **The single definition of the production recipe.** Both production and every
+    backtest must go through here, so a change to the fit cannot silently apply to
+    one and not the other.
+
+    Expects ``train`` to carry ``Date``, ``Home``, ``Away``, ``HExpG+``, ``AExpG+``
+    (for the fit) and ``HG``/``AG`` (for the draw-delta calibration), already
+    windowed and NaN-filtered — see ``fit_dixon_coles_model_from_csv`` for the
+    canonical preparation. Returns a ``DrawCalibratedModel``.
+    """
+    # Time-decay weights so recent matches matter more.
+    weights = dixon_coles_weights(train["Date"], xi=xi)
+
+    # ContinuousPoissonGoalModel, not a penaltyblog family: the targets are xG
+    # blends (non-integer) and penaltyblog's base class truncates them to int
+    # before the likelihood. See csl.models.continuous_poisson for the evidence.
+    clf = ContinuousPoissonGoalModel(
+        train["HExpG+"],
+        train["AExpG+"],
+        train["Home"],
+        train["Away"],
+        weights,
+    )
+    clf.fit()
+
+    # Guard the fix: the Poisson score equation must hold. This is what the old
+    # fit violated (ratio 0.733), and it is cheap enough to assert on every run.
+    ratio_home, ratio_away = clf.score_equation_ratio()
+    if not (abs(ratio_home - 1.0) < 1e-3 and abs(ratio_away - 1.0) < 1e-3):
+        raise RuntimeError(
+            "Poisson score equation violated — sum(w*lambda)/sum(w*y) = "
+            f"({ratio_home:.6f}, {ratio_away:.6f}), expected 1.0. The fit is not at "
+            "its optimum, or goal targets are being coerced somewhere."
+        )
+
+    # delta is still fitted so regressions in the residual draw bias stay visible
+    # in the logs, but DRAW_DELTA_SHRINK gates how much of it is applied. It is 0.0
+    # because the fitted value does not generalize — see the constant's comment.
+    delta_fit = fit_draw_delta(clf, train, weights)
+    delta_applied = 1.0 + DRAW_DELTA_SHRINK * (delta_fit - 1.0)
+    print(
+        f"Fitted {len(train)} matches: mean lambda "
+        f"{clf.lambda_home.mean():.3f}/{clf.lambda_away.mean():.3f}, "
+        f"score eq ({ratio_home:.6f}, {ratio_away:.6f})"
+    )
+    print(
+        f"Draw de-bias delta: fitted {delta_fit:.3f}, applied {delta_applied:.3f} "
+        f"(shrink {DRAW_DELTA_SHRINK:.2f})"
+    )
+    return DrawCalibratedModel(clf, delta_applied)
+
+
+def fit_dixon_coles_model_from_csv(input_csv_path, xi=PROD_XI):
     """
     Load league data, apply the standard 18-month filter and fit the project
-    model: penaltyblog's NegativeBinomialGoalModel on xG targets with
-    Dixon-Coles time-decay weights, wrapped in the §12.4 draw de-bias
-    calibration. Returns a DrawCalibratedModel.
+    model via ``fit_production_model``: a weighted continuous-target Poisson fit
+    on xG targets with Dixon-Coles time-decay weights, wrapped in the §12.4 draw
+    de-bias calibration. Returns a DrawCalibratedModel.
     """
     df = pd.read_csv(input_csv_path)
     raw_dates = df["Date"].copy()
@@ -144,31 +231,16 @@ def fit_dixon_coles_model_from_csv(input_csv_path, xi=0.001):
     df["HExpG+"] = pd.to_numeric(df["HExpG+"], errors="coerce")
     df["AExpG+"] = pd.to_numeric(df["AExpG+"], errors="coerce")
 
-    # Filter to most recent 1.5 years of data only
-    # Uses the latest match date in the dataset as the reference point
-    cutoff_date = df["Date"].max() - pd.DateOffset(months=18)
+    # Filter to the standard training window, measured back from the latest match
+    # date in the dataset rather than from today.
+    cutoff_date = df["Date"].max() - pd.DateOffset(months=PROD_LOOKBACK_MONTHS)
     df = df[df["Date"] >= cutoff_date]
 
     df = df.dropna(subset=["HExpG+", "AExpG+"]).copy()
     if df.empty:
         raise ValueError("No training rows remain after dropping missing HExpG+/AExpG+ values")
 
-    # Generate time-decay weights so recent matches matter more
-    weights = dixon_coles_weights(df["Date"], xi=xi)
-
-    clf = pb.models.NegativeBinomialGoalModel(
-        df["HExpG+"],
-        df["AExpG+"],
-        df["Home"],
-        df["Away"],
-        weights,
-    )
-    clf.fit()
-    clf.get_params()
-
-    draw_delta = fit_draw_delta(clf, df, weights)
-    print(f"Draw de-bias delta (training-window calibration): {draw_delta:.3f}")
-    return DrawCalibratedModel(clf, draw_delta)
+    return fit_production_model(df, xi=xi)
 
 
 def run_dixon_coles_model(input_csv_path, output_csv_path, xi=0.001):

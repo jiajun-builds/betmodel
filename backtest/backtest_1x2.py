@@ -73,25 +73,30 @@ import penaltyblog as pb
 from scipy.optimize import minimize_scalar
 
 from csl.date_utils import parse_date_only_series
+from csl.models.continuous_poisson import ContinuousPoissonGoalModel
+
+# Recipe constants come from the production module so a backtest cannot silently
+# drift from what actually ships. They used to be re-declared here and in seven
+# other backtest files. See the MIN_TRAIN=100 rationale in csl.models.dc.
+from csl.models.dc import MIN_TRAIN, PROD_LOOKBACK_MONTHS, PROD_XI  # noqa: F401
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV = os.path.join(REPO_ROOT, "data", "raw_data", "CHN_Super League.csv")
 
-PROD_XI = 0.001
-PROD_LOOKBACK_MONTHS = 18
-# Minimum training fixtures before a match is scored. The dataset starts
-# 2023-04-15, so early-2023 matches have almost no history (median 26 fixtures for
-# the 2023 rows that carry opening lines — the model there is noise). 100 cleanly
-# excludes them; 2024+ always has >=240.
-MIN_TRAIN = 100
 EV_THRESHOLDS = [0.00, 0.10, 0.20]
 KELLY_FRACTIONS = [1.0, 0.5, 0.25]
 res_map = {"H": 0, "D": 1, "A": 2}  # 0=home win, 1=draw, 2=away win
 OUTCOME = ["home", "draw", "away"]
 
+# ContinuousPoisson is production. The two penaltyblog families are retained only
+# as a before/after reference: both silently truncate the non-integer xG targets to
+# integers, so every conclusion previously drawn from comparing them was drawn on a
+# lambda ~27% too low, and the choice between them was never meaningful. See
+# csl.models.continuous_poisson.
 MODELS = {
-    "ZIP (prod)": pb.models.ZeroInflatedPoissonGoalsModel,
-    "NegBinom": pb.models.NegativeBinomialGoalModel,
+    "ContinuousPoisson (prod)": ContinuousPoissonGoalModel,
+    "ZIP (truncating)": pb.models.ZeroInflatedPoissonGoalsModel,
+    "NegBinom (truncating)": pb.models.NegativeBinomialGoalModel,
 }
 
 # (frame name, de-bias mode, report label, per-bet CSV slug).
@@ -100,15 +105,20 @@ MODELS = {
 # window — the production-deployable variant, no market anchor needed).
 # NegBinom carries the lam grid (the roadmap-#9 candidate); ZIP+lam=1 isolates
 # "how much is the de-bias vs how much is the distribution swap".
+# The lam grid on ContinuousPoisson is the DEBIAS_LAMBDA re-sweep: lam was tuned to
+# 0.75 against the truncated fit, where the model sat ABOVE the market draw so the
+# anchor pulled down. On the corrected fit the model sits BELOW it, so the same lam
+# now pulls the draw the other way — the old optimum carries no information.
 VARIANTS = [
-    ("ZIP (prod)", 0.00, "ZIP (prod)", "zip"),
-    ("NegBinom", 0.00, "NegBinom", "negbinom"),
-    ("NegBinom", 0.25, "NegBinom + draw shrink lam=0.25", "negbinom_lam25"),
-    ("NegBinom", 0.50, "NegBinom + draw shrink lam=0.50", "negbinom_lam50"),
-    ("NegBinom", 0.75, "NegBinom + draw shrink lam=0.75", "negbinom_lam75"),
-    ("NegBinom", 1.00, "NegBinom + draw shrink lam=1.00", "negbinom_lam100"),
-    ("NegBinom", "delta", "NegBinom + delta-cal (market-free)", "negbinom_delta"),
-    ("ZIP (prod)", 1.00, "ZIP + draw shrink lam=1.00", "zip_lam100"),
+    ("ContinuousPoisson (prod)", 0.00, "ContinuousPoisson (raw)", "cpois"),
+    ("ContinuousPoisson (prod)", 0.25, "ContinuousPoisson + anchor lam=0.25", "cpois_lam25"),
+    ("ContinuousPoisson (prod)", 0.50, "ContinuousPoisson + anchor lam=0.50", "cpois_lam50"),
+    ("ContinuousPoisson (prod)", 0.75, "ContinuousPoisson + anchor lam=0.75", "cpois_lam75"),
+    ("ContinuousPoisson (prod)", 1.00, "ContinuousPoisson + anchor lam=1.00", "cpois_lam100"),
+    ("ContinuousPoisson (prod)", "delta", "ContinuousPoisson + delta-cal", "cpois_delta"),
+    # Truncated-fit reference points — kept to quantify the bug, not to choose from.
+    ("NegBinom (truncating)", 0.00, "NegBinom (truncating, raw)", "negbinom"),
+    ("NegBinom (truncating)", 0.75, "NegBinom (truncating) + anchor lam=0.75", "negbinom_lam75"),
 ]
 
 OPEN_COLS = ["pinnacle_open_h", "pinnacle_open_d", "pinnacle_open_a"]

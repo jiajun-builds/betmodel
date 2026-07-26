@@ -283,15 +283,37 @@ where the model diverges from the market and bet +EV lines at aggregator books.
   would clear breakeven at a ≤5%-overround book.
 
 ### Model
-- `src/csl/models/dc.py` is named "Dixon-Coles" and since **v2.5 (2026-07-15)** fits
-  `NegativeBinomialGoalModel` on **xG targets** (`HExpG+`/`AExpG+`), 18-month window,
-  `xi=0.001`, Dixon-Coles time-decay weights, **wrapped in a draw de-bias**
-  (`DrawCalibratedModel`): a scale δ for the scoreline-grid diagonal is fit on the
-  training window by weighted 1X2 log-likelihood (`fit_draw_delta`) and applied to every
-  predicted grid. Rationale + walk-forward validation: `backtest/backtest.md` §12.4
-  (NegBinom = best RPS/log-loss, §9.4; the de-bias repairs ~half of the structural ~4pp
-  draw over-pricing, out-of-sample draw 0.276 → 0.255 vs actual 0.242; current
-  production fit δ ≈ 0.91).
+- **v2.8 (2026-07-26) — `src/csl/models/dc.py` fits `ContinuousPoissonGoalModel`**
+  (`src/csl/models/continuous_poisson.py`) on **xG targets** (`HExpG+`/`AExpG+`),
+  18-month window, `xi=0.001`, Dixon-Coles time-decay weights, via the single entry
+  point `fit_production_model()`. **Do not go back to a penaltyblog family here:**
+  penaltyblog's `BaseGoalsModel.__init__` coerces goal arrays to int before the
+  likelihood, so it silently fit `floor(HExpG+)` and every λ was **27% too low**
+  (score equation `Σwλ/Σwy` = 0.733 instead of 1.0). Affects all families — it is in
+  the base class. Full write-up: `backtest/backtest.md` **§15**.
+- **The draw de-bias δ is RETIRED** (`DRAW_DELTA_SHRINK = 0.0`). It was a patch over
+  the truncation bug; post-fix the residual draw bias *changes sign* by season
+  (2023 +0.81pp, 2025 −4.37pp), so no diagonal scale fixes it, and applying the
+  fitted δ made out-of-sample calibration worse (draw −1.97pp → +2.19pp). δ is still
+  fitted and logged as a diagnostic only. `backtest.md` §15.3.
+- **Every hyperparameter tuned before 2026-07-26 was tuned on the broken fit.**
+  Re-swept in §15.4: `SIGNAL_EV_MIN=0.20` and `w_xG=0.7` survive; `xi`/lookback is
+  boundary-limited and inconclusive, left at 0.001/18mo.
+- **`DEBIAS_LAMBDA = 1.0`** (was 0.75, which became worst-of-grid). λ=1.0 takes the
+  anchor book's no-vig draw **outright** — the model only splits home/away. Shipped at
+  1.0 rather than the measured argmax 1.25 because λ>1 gives `p_D` a *negative* weight
+  on the model's own draw, whose bias changes sign by season (§15.3) — the same
+  fragility that retired δ. §15.4b.
+- **Draws cannot fire as bets** (`SIGNAL_ALLOW_DRAW = False`). At λ≥1.0 a draw signal
+  would only mean "1xBet's draw price beats Pinnacle's fair draw", a cross-book price
+  gap rather than a model view; excluding them measured free (gap +3.58 → +3.60). The
+  draw is still modelled and displayed. §15.4c.
+- **Never accept RPS as evidence about this model's calibration.** The 27% λ error
+  moved RPS by 0.0031 and log-loss by 0.0102, which is why years of RPS-driven sweeps
+  missed it. Rank on per-outcome bias, AH-ladder bias and log-loss.
+- Guard rail: `fit_production_model` raises if the score equation drifts from 1.0, and
+  `tests/test_continuous_poisson.py` locks it. `backtest/verify_truncation_fix.py`
+  re-checks the four pre-registered acceptance criteria.
 - Since **v2.6 (2026-07-16, roadmap #10)** the de-bias is **hybrid**: the market-comparison
   surface uses the §12-validated **market-anchored shrink** (λ = 0.75 toward the no-vig
   *captured opening* draw prob, applied to the raw un-δ'd grid via
@@ -350,6 +372,15 @@ scripts in `backtest/` and `model comparison/distribution_comparison.py`.
   *slightly worse*; all six distributions overstate EV +17–23%. **A `ZIP→NegBinom` swap in
   `dc.py` is justified for accuracy only, not betting edge.** (ZIP == Poisson exactly; still
   collapsed — see prior finding above.)
+
+> ⚠️ **VOID — every model-family and distribution comparison above and below this line was
+> run on truncated targets.** penaltyblog floors non-integer goal targets before the
+> likelihood, so all six "distributions" were fit to `floor(HExpG+)` with λ 27% too low, and
+> NegBinom's over-dispersion parameter was pinned at its optimizer bound (i.e. it *was*
+> Poisson). Ranking them against each other measured nothing. The under-dispersed
+> goal-difference / handicap-cover finding (ECE 0.086) is largely this bug: mean |AH ladder
+> bias| went 2.61pp → 1.29pp on the corrected fit. See `backtest/backtest.md` **§15**.
+> Production is now `ContinuousPoissonGoalModel`. Re-run before citing any number here.
 - **Line-magnitude filter doesn't rescue it.** Big lines (>2) catastrophic (−29% ROI); small
   lines (≤0.5) less bad (−3.6%) but still overstate EV +17% (t=3.66). Only takeaway: avoid
   big-favourite lines.
@@ -672,10 +703,14 @@ less beats predicting better.** See roadmap #8.
 11. **Model & strategy status after #9/#10 + next direction — DECIDED (2026-07-16,
     user-confirmed).** The one-stop snapshot for future sessions; numbers are from
     `backtest/backtest.md` §12 (walk-forward, 611 fixtures 2024–26) unless noted.
-    - **Model (v2.6):** NegBinom on xG + DC decay (xi=0.001, 18mo), δ=0.908 market-free
-      calibration everywhere, λ=0.75 market-anchored shrink on the comparison/EV surface.
-      Accuracy: best of six distributions — RPS 0.1971 / log-loss 0.9755 (~1.5% better than
-      the retired ZIP, which had collapsed to Poisson).
+    - **Model (v2.6 — SUPERSEDED by v2.8, see §15):** NegBinom on xG + DC decay (xi=0.001,
+      18mo), δ=0.908 market-free calibration everywhere, λ=0.75 market-anchored shrink on the
+      comparison/EV surface. Accuracy: best of six distributions — RPS 0.1971 / log-loss
+      0.9755 (~1.5% better than the retired ZIP, which had collapsed to Poisson).
+      **All three numbers are artefacts of the truncation bug**: the fit was against
+      `floor(HExpG+)`, δ=0.908 was suppressing a bug-induced draw excess (now retired), and
+      λ=0.75 is no longer the optimum (~1.25 is; 0.75 is worst-of-grid). Current: v2.8
+      `ContinuousPoissonGoalModel`, δ off, λ pending — `backtest/backtest.md` §15.
     - **What the de-bias bought (before → δ → λ=0.75):** OOS draw prob 0.276 → 0.255 →
       **0.245** vs actual 0.242 (bias eliminated); draw share of picks 63% → 45% → 27%
       (stake off the bug); excess CLV thr>0.10 +0.60 → +0.93 → **+1.39–1.42pp (t=3.2)**,

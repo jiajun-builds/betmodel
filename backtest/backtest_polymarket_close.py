@@ -53,6 +53,7 @@ from backtest_1x2 import (  # noqa: E402  reuse the validated harness
 from backtest_1xbet import apply_debias  # noqa: E402  validated de-bias
 from backtest_polymarket import novig  # noqa: E402  shared no-vig helper
 from csl.date_utils import parse_date_only_series  # noqa: E402
+from csl.models.continuous_poisson import ContinuousPoissonGoalModel  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV = os.path.join(REPO_ROOT, "data", "raw_data", "CHN_Super League.csv")
@@ -91,7 +92,7 @@ def walk_forward(df: pd.DataFrame) -> pd.DataFrame:
             continue
         weights = pb.models.dixon_coles_weights(hist["Date"], PROD_XI)
         try:
-            clf = fit_model(pb.models.NegativeBinomialGoalModel, hist, weights)
+            clf = fit_model(ContinuousPoissonGoalModel, hist, weights)
             delta = fit_draw_delta(clf, hist, weights)
         except Exception:
             continue
