@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-26T11:15:06+01:00"
+    "updated_at": "2026-07-26T11:46:44+01:00"
   },
   "rows": [
     {
@@ -22,7 +22,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-26T10:15:03Z"
+      "fetched_at": "2026-07-26T10:46:41Z"
     },
     {
       "home_team": "Chengdu Rongcheng",
@@ -41,7 +41,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-26T10:15:03Z"
+      "fetched_at": "2026-07-26T10:46:41Z"
     },
     {
       "home_team": "Shandong Taishan",
@@ -60,7 +60,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-26T10:15:03Z"
+      "fetched_at": "2026-07-26T10:46:41Z"
     },
     {
       "home_team": "Zhejiang Professional",
@@ -79,7 +79,26 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-19T16:00:26Z",
-      "fetched_at": "2026-07-26T10:15:03Z"
+      "fetched_at": "2026-07-26T10:46:41Z"
+    },
+    {
+      "home_team": "Qingdao West Coast",
+      "away_team": "Qingdao Hainiu",
+      "match_time": "10:00",
+      "home_win_prob": 0.4988604721331979,
+      "draw_prob": 0.2558808507050544,
+      "away_win_prob": 0.2452586771617475,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": 1.72,
+      "onexbet_open_draw_odds": 4.08,
+      "onexbet_open_away_odds": 4.53,
+      "onexbet_open_home_ev": -0.1419599879308996,
+      "onexbet_open_draw_ev": 0.0439938708766221,
+      "onexbet_open_away_ev": 0.1110218075427162,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": "2026-07-26T10:46:02Z",
+      "fetched_at": "2026-07-26T10:46:41Z"
     }
   ]
 }
