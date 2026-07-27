@@ -2,67 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-26T23:02:06+01:00",
+    "updated_at": "2026-07-27T04:24:17+01:00",
     "model_name": "Negative Binomial with Dixon-Coles Time Decay",
     "model_version": "v2.7"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "kickoff_at": "2026-07-26T12:00:00+01:00",
-      "home_team": "Yunnan Yukun",
-      "away_team": "Shenzhen Xinpengcheng",
-      "home_win_prob": 0.605855,
-      "draw_prob": 0.203812,
-      "away_win_prob": 0.190333,
-      "home_win_fair_odds": 1.6506,
-      "draw_fair_odds": 4.9065,
-      "away_win_fair_odds": 5.2539
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-chengdu-rongcheng-beijing-guoan",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "kickoff_at": "2026-07-26T12:35:00+01:00",
-      "home_team": "Chengdu Rongcheng",
-      "away_team": "Beijing Guoan",
-      "home_win_prob": 0.569943,
-      "draw_prob": 0.211992,
-      "away_win_prob": 0.218065,
-      "home_win_fair_odds": 1.7546,
-      "draw_fair_odds": 4.7172,
-      "away_win_fair_odds": 4.5858
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-shandong-taishan-henan-songshan-longmen",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "kickoff_at": "2026-07-26T12:35:00+01:00",
-      "home_team": "Shandong Taishan",
-      "away_team": "Henan Songshan Longmen",
-      "home_win_prob": 0.512955,
-      "draw_prob": 0.214725,
-      "away_win_prob": 0.27232,
-      "home_win_fair_odds": 1.9495,
-      "draw_fair_odds": 4.6571,
-      "away_win_fair_odds": 3.6722
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-zhejiang-professional-dalian-yingbo",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "kickoff_at": "2026-07-26T13:00:00+01:00",
-      "home_team": "Zhejiang Professional",
-      "away_team": "Dalian Yingbo",
-      "home_win_prob": 0.500813,
-      "draw_prob": 0.237603,
-      "away_win_prob": 0.261584,
-      "home_win_fair_odds": 1.9968,
-      "draw_fair_odds": 4.2087,
-      "away_win_fair_odds": 3.8229
-    },
     {
       "fixture_id": "CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo",
       "round": 21,

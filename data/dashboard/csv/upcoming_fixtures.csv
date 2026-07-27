@@ -1,8 +1,4 @@
 fixture_id,round,match_date,match_time,kickoff_at,home_team,away_team
-CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng,20,2026-07-26,11:00,2026-07-26T12:00:00+01:00,Yunnan Yukun,Shenzhen Xinpengcheng
-CSL-2026-20-2026-07-26-chengdu-rongcheng-beijing-guoan,20,2026-07-26,11:35,2026-07-26T12:35:00+01:00,Chengdu Rongcheng,Beijing Guoan
-CSL-2026-20-2026-07-26-shandong-taishan-henan-songshan-longmen,20,2026-07-26,11:35,2026-07-26T12:35:00+01:00,Shandong Taishan,Henan Songshan Longmen
-CSL-2026-20-2026-07-26-zhejiang-professional-dalian-yingbo,20,2026-07-26,12:00,2026-07-26T13:00:00+01:00,Zhejiang Professional,Dalian Yingbo
 CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo,21,2026-07-31,11:35,2026-07-31T12:35:00+01:00,Henan Songshan Longmen,Dalian Yingbo
 CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun,21,2026-08-01,11:00,2026-08-01T12:00:00+01:00,Tianjin Jinmen Tiger,Yunnan Yukun
 CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional,21,2026-08-01,11:35,2026-08-01T12:35:00+01:00,Beijing Guoan,Zhejiang Professional

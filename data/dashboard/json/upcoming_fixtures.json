@@ -2,45 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-26T23:02:06+01:00"
+    "updated_at": "2026-07-27T04:24:17+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "match_time": "11:00",
-      "kickoff_at": "2026-07-26T12:00:00+01:00",
-      "home_team": "Yunnan Yukun",
-      "away_team": "Shenzhen Xinpengcheng"
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-chengdu-rongcheng-beijing-guoan",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "match_time": "11:35",
-      "kickoff_at": "2026-07-26T12:35:00+01:00",
-      "home_team": "Chengdu Rongcheng",
-      "away_team": "Beijing Guoan"
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-shandong-taishan-henan-songshan-longmen",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "match_time": "11:35",
-      "kickoff_at": "2026-07-26T12:35:00+01:00",
-      "home_team": "Shandong Taishan",
-      "away_team": "Henan Songshan Longmen"
-    },
-    {
-      "fixture_id": "CSL-2026-20-2026-07-26-zhejiang-professional-dalian-yingbo",
-      "round": 20,
-      "match_date": "2026-07-26",
-      "match_time": "12:00",
-      "kickoff_at": "2026-07-26T13:00:00+01:00",
-      "home_team": "Zhejiang Professional",
-      "away_team": "Dalian Yingbo"
-    },
     {
       "fixture_id": "CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo",
       "round": 21,

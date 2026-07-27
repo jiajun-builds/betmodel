@@ -1,8 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-20-2026-07-26-yunnan-yukun-shenzhen-xinpengcheng,20,2026-07-26,2026-07-26T12:00:00+01:00,Yunnan Yukun,Shenzhen Xinpengcheng,0.605855,0.203812,0.190333,1.6506,4.9065,5.2539
-CSL-2026-20-2026-07-26-chengdu-rongcheng-beijing-guoan,20,2026-07-26,2026-07-26T12:35:00+01:00,Chengdu Rongcheng,Beijing Guoan,0.569943,0.211992,0.218065,1.7546,4.7172,4.5858
-CSL-2026-20-2026-07-26-shandong-taishan-henan-songshan-longmen,20,2026-07-26,2026-07-26T12:35:00+01:00,Shandong Taishan,Henan Songshan Longmen,0.512955,0.214725,0.27232,1.9495,4.6571,3.6722
-CSL-2026-20-2026-07-26-zhejiang-professional-dalian-yingbo,20,2026-07-26,2026-07-26T13:00:00+01:00,Zhejiang Professional,Dalian Yingbo,0.500813,0.237603,0.261584,1.9968,4.2087,3.8229
 CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo,21,2026-07-31,2026-07-31T12:35:00+01:00,Henan Songshan Longmen,Dalian Yingbo,0.545447,0.233331,0.221223,1.8334,4.2858,4.5203
 CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun,21,2026-08-01,2026-08-01T12:00:00+01:00,Tianjin Jinmen Tiger,Yunnan Yukun,0.446324,0.249213,0.304463,2.2405,4.0126,3.2845
 CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional,21,2026-08-01,2026-08-01T12:35:00+01:00,Beijing Guoan,Zhejiang Professional,0.618127,0.193944,0.187929,1.6178,5.1561,5.3212
