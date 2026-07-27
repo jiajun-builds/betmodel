@@ -1,2 +1,2 @@
 competition_code,competition_name,season,updated_at,model_updated_at,timezone,last_completed_match_date,next_fixture_date,matches_played,current_round,total_rounds,model_name,model_version
-CSL,Chinese Super League,2026,2026-07-27T04:24:17+01:00,2026-07-26T13:48:09+01:00,Europe/London,2026-07-25,2026-07-31,152,18,30,Negative Binomial with Dixon-Coles Time Decay,v2.7
+CSL,Chinese Super League,2026,2026-07-27T10:56:55+01:00,2026-07-26T13:48:09+01:00,Europe/London,2026-07-25,2026-07-31,152,18,30,Negative Binomial with Dixon-Coles Time Decay,v2.7
