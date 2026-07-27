@@ -29,6 +29,7 @@ function setText(bind, value) {
 }
 function pct(v) { return `${(v * 100).toFixed(1)}%`; }
 function rating(v) { return Number(v).toFixed(3); }
+function goals(v) { return Number(v).toFixed(2); }
 function odds(v) { return v == null ? "--" : Number(v).toFixed(2); }
 function ev(v) { if (v == null) return "--"; const n = Number(v); return (n >= 0 ? "+" : "") + n.toFixed(3); }
 function evClass(v) { if (v == null) return "zero"; return v > 0.0005 ? "pos" : v < -0.0005 ? "neg" : "zero"; }
@@ -216,12 +217,21 @@ function renderStrength(rows) {
       const cls = c === "W" ? "w" : c === "D" ? "d" : "l";
       return `<span class="${cls}">${c}</span>`;
     }).join("");
-    return `<tr>
-      <td class="num st-rk${t.rank_overall <= 3 ? " top" : ""}">${t.rank_overall}</td>
-      <td class="st-team">${esc(t.team)}</td>
+    // Relegated clubs still carry a rating — how they would fare against this
+    // season's field — but they are not in the league, so they are greyed rather
+    // than dropped, and the top-3 accent skips them.
+    const rel = t.in_current_season === false;
+    const flags = [
+      rel ? `<span class="st-flag" title="Relegated — not in this season’s league">REL</span>` : "",
+      t.low_sample ? `<span class="st-flag st-flag--warn" title="Only ${goals(t.weighted_matches)} weighted matches in the model’s 18-month window — this rating is less certain">!</span>` : "",
+    ].join("");
+    const coefs = `Model coefficients — attack ${rating(t.attack_coef)}, defence ${rating(t.defense_coef)} (log scale, mean-centred); ${goals(t.weighted_matches)} weighted matches`;
+    return `<tr class="${rel ? "st-row--rel" : ""}" title="${esc(coefs)}">
+      <td class="num st-rk${!rel && t.rank_overall <= 3 ? " top" : ""}">${t.rank_overall}</td>
+      <td class="st-team">${esc(t.team)}${flags}</td>
       <td class="num c-grp st-ovr">${rating(t.overall_rating)}</td>
-      <td class="num st-r">${rating(t.attack_rating)}</td>
-      <td class="num st-r">${rating(t.defense_rating)}</td>
+      <td class="num st-r">${goals(t.attack_rating)}</td>
+      <td class="num st-r">${goals(t.defense_rating)}</td>
       <td class="c-grp"><div class="form">${form}</div></td>
     </tr>`;
   }).join("");
@@ -250,17 +260,24 @@ function renderHeader(meta, fixtures, predictions, strength, market, openMax) {
 
   setText("panel-signal-meta", `Model ${fmtStamp(meta.model_updated_at)} · 1XBET OPEN ${fmtStamp(openMax)}`);
   setText("panel-market-meta", `${predictions.length} matches · ${meta.model_name}`);
-  setText("panel-strength-meta", `${strength.length} clubs · recent 5 form`);
+  // Count the league, not the table: the model's 18-month window straddles two
+  // seasons, so relegated clubs are listed (greyed) but must not inflate this.
+  const inLeague = strength.filter((t) => t.in_current_season !== false);
+  setText("panel-strength-meta", `${inLeague.length} clubs · recent 5 form`);
+  setText(
+    "strength-legend-avg",
+    `A league-average team is ${goals(meta.league_avg_goals)} in both ATT and DEF.`,
+  );
 
   const nf = predictions[0] || fixtures[0];
   if (nf) {
     setText("next-fixture", `${nf.home_team} vs ${nf.away_team}`);
     setText("next-note", `${fmtDay(nf.kickoff_at, nf.match_date)} · ${fmtTime(nf.kickoff_at, nf.match_time)}`);
   }
-  const sc = strength[0];
+  const sc = inLeague[0];
   if (sc) {
     setText("strong-team", sc.team);
-    setText("strong-note", `OVR ${rating(sc.overall_rating)} · ATT ${rating(sc.attack_rating)} · DEF ${rating(sc.defense_rating)}`);
+    setText("strong-note", `OVR ${rating(sc.overall_rating)} · ATT ${goals(sc.attack_rating)} · DEF ${goals(sc.defense_rating)}`);
   }
   // Best bet + firing signals now render on the Overview view (renderOverview / renderHero).
 }

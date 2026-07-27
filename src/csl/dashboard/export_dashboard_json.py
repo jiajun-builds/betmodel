@@ -211,6 +211,7 @@ def run() -> None:
             "total_rounds",
             "model_name",
             "model_version",
+            "league_avg_goals",
         ],
         "dashboard_meta.csv",
     )
@@ -260,6 +261,11 @@ def run() -> None:
             "attack_rank",
             "defense_rank",
             "form",
+            "attack_coef",
+            "defense_coef",
+            "weighted_matches",
+            "low_sample",
+            "in_current_season",
         ],
         "team_strength_rankings.csv",
         )

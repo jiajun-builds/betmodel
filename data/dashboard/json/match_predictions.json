@@ -2,9 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-27T18:00:37+01:00",
-    "model_name": "Negative Binomial with Dixon-Coles Time Decay",
-    "model_version": "v2.7"
+    "updated_at": "2026-07-27T18:25:00+01:00",
+    "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
+    "model_version": "v2.8"
   },
   "rows": [
     {

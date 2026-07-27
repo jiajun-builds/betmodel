@@ -85,7 +85,13 @@ CSV outputs:
 - `data/dashboard/csv/dashboard_meta.csv`
 - `data/dashboard/csv/upcoming_fixtures.csv`
 - `data/dashboard/csv/match_predictions.csv`
-- `data/dashboard/csv/team_strength_rankings.csv`
+- `data/dashboard/csv/team_strength_rankings.csv` — **`attack_rating`/`defense_rating` are
+  goals per match against an average opponent** (`exp(Const + coef)` times the home/away
+  venue factor), not the raw coefficients, which are carried alongside as
+  `attack_coef`/`defense_coef`. **`overall_rating` is the calibrated strength rating** from
+  `src/csl/models/strength.py` — it is deliberately NOT `attack_rating - defense_rating`;
+  see that module for why the naive difference misranks clubs. Also carries `low_sample`
+  and `in_current_season`, which the panel uses to mark and grey rows.
 - `data/dashboard/csv/upcoming_market_comparison.csv` if market comparison has been generated
 
 JSON outputs:
@@ -231,7 +237,11 @@ Scenario matrix (behaviour reflects the gated `publish` job + 6h capture window,
 
 ### Model / Processed Outputs
 - team name mapping: `data/output_data/CHN_team_name_mapping.csv`
-- team stats: `data/output_data/CHN_team_stats.csv`
+- team stats: `data/output_data/CHN_team_stats.csv` — `Team,Attack,Defense,Const,HomeAdv,
+  Matches,WeightedMatches,Date`. `Attack`/`Defense` are the raw mean-centred log
+  coefficients; `Const`/`HomeAdv` are league-wide scalars repeated per row, needed to turn
+  a coefficient into goals per match; `WeightedMatches` is the summed Dixon-Coles weight
+  behind each club's fit (promoted sides land near 0.45 of the median)
 - match simulations: `data/output_data/CHN_team_stats_match_simulations.csv`
 - market comparison: `data/output_data/CHN_upcoming_market_comparison.csv`
 - opening-time calendar (predicted Pinnacle open windows): `data/output_data/CHN_opening_time_calendar.csv`

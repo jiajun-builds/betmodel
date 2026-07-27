@@ -147,7 +147,7 @@ b { font-weight: 600; }
 .tbl--overview { min-width: 720px; }
 .tbl--signals { min-width: 860px; }
 .tbl--market { min-width: 840px; }
-.tbl--strength { min-width: 640px; }
+.tbl--strength { min-width: 700px; }
 .tbl thead tr { background: var(--panel-3); }
 .tbl th { padding: 7px 12px; font: 600 10px/1.1 var(--mono); letter-spacing: .14em; color: #8a8c92;
   text-align: left; border-bottom: 1px solid var(--hair-strong); white-space: nowrap; }
@@ -209,6 +209,13 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 .st-team { font: 500 13px/1.3 var(--sans); color: var(--text); white-space: nowrap; }
 .st-ovr { font: 600 13px/1.3 var(--mono); color: var(--accent); }
 .st-r { font: 400 12px/1.3 var(--mono); color: var(--text-2); }
+/* Relegated clubs: still rated against this season's field, so they stay on the
+   same scale and in the same ranking, but recede so the league reads first. */
+.st-row--rel { opacity: .48; }
+.st-row--rel .st-ovr { color: var(--dim-2); }
+.st-flag { margin-left: 7px; display: inline-block; font: 600 9px/1 var(--mono); letter-spacing: .08em;
+  padding: 2px 4px; border: 1px solid var(--border-2); color: var(--dim); vertical-align: 1px; }
+.st-flag--warn { color: var(--accent); border-color: rgba(255,158,44,.4); }
 .form { display: flex; gap: 4px; }
 .form span { width: 19px; height: 19px; display: inline-grid; place-items: center; font: 700 10px/1 var(--mono); border: 1px solid var(--border-2); }
 .form .w { color: var(--pos); background: rgba(70,209,127,.10); border-color: rgba(70,209,127,.35); }
@@ -218,6 +225,13 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 /* LEGEND */
 .legend { display: flex; gap: 22px; padding: 8px 14px; border-top: 1px solid var(--border);
   font: 400 10px/1.4 var(--mono); letter-spacing: .04em; color: var(--dim); flex-wrap: wrap; }
+/* Prose-length legend entries: one per line, readable measure, rather than the
+   default row of short chips. */
+/* nowrap matters: the base .legend is flex-wrap:wrap, which in column direction
+   wraps entries into narrow side-by-side columns instead of stacking them. */
+.legend--stack { flex-direction: column; flex-wrap: nowrap; gap: 6px; line-height: 1.55; }
+.legend--stack span { max-width: min(100%, 130ch); }
+.legend--stack b { color: var(--text-2); font-weight: 600; }
 .legend .pos { color: var(--pos); } .legend .neg { color: var(--neg); }
 .legend .badge { font-size: 9px; padding: 1px 5px; }
 .legend .swatch { color: var(--accent); }

@@ -125,8 +125,19 @@ class DrawCalibratedModel:
     def _params(self):
         return self._clf._params
 
+    @property
+    def const(self):
+        return self._clf.const
+
+    @property
+    def home_advantage(self):
+        return self._clf.home_advantage
+
     def get_params(self):
         return self._clf.get_params()
+
+    def appearances(self):
+        return self._clf.appearances()
 
     def predict(self, home_team: str, away_team: str) -> FootballProbabilityGrid:
         pred = self._clf.predict(home_team, away_team)
@@ -265,10 +276,22 @@ def run_dixon_coles_model(input_csv_path, output_csv_path, xi=0.001):
     defense = params[len(teams):len(teams)*2]  # Defense values
 
     # Step 3: Create DataFrame for Team Statistics
+    #
+    # Const/HomeAdv are repeated on every row rather than split into a sidecar:
+    # attack/defence are only interpretable together with the intercept (the
+    # dashboard turns them into goals per match via exp(Const + coef)), so
+    # keeping them in one file means one read and no chance of the two drifting
+    # apart. Matches/WeightedMatches carry how much evidence each coefficient
+    # rests on, which promoted sides need — see ``appearances``.
+    counts, weighted_counts = clf.appearances()
     team_stats = pd.DataFrame({
         "Team": teams,
         "Attack": attack,
-        "Defense": defense
+        "Defense": defense,
+        "Const": clf.const,
+        "HomeAdv": clf.home_advantage,
+        "Matches": counts.astype(int),
+        "WeightedMatches": weighted_counts,
     })
     team_stats["Date"] = datetime.now().strftime("%Y-%m-%d")
 

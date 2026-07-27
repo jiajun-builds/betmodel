@@ -206,6 +206,22 @@ class ContinuousPoissonGoalModel:
         params.update({f"defence_{t}": float(v) for t, v in zip(self.teams, self.defence)})
         return params
 
+    def appearances(self) -> tuple[np.ndarray, np.ndarray]:
+        """``(counts, weighted_counts)`` per team, in ``self.teams`` order.
+
+        How much evidence each team's coefficients actually rest on. Promoted
+        sides enter the training window part-way through, so they can carry less
+        than half the sample of an established club while their ratings are
+        reported on the same scale — the weighted count is what makes that
+        visible downstream rather than silently absorbed.
+        """
+        counts = np.zeros(self.n_teams)
+        weighted = np.zeros(self.n_teams)
+        for idx in (self._ih, self._ia):
+            np.add.at(counts, idx, 1.0)
+            np.add.at(weighted, idx, self.weights)
+        return counts, weighted
+
     def predict(self, home_team: str, away_team: str) -> FootballProbabilityGrid:
         """Scoreline grid for a fixture.
 

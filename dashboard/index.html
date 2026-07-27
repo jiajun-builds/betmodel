@@ -180,6 +180,12 @@
                 <tbody id="strength-body"></tbody>
               </table>
             </div>
+            <div class="legend legend--stack">
+              <span><b>OVR</b> = overall strength rating · 0.000 = league average · higher is stronger. Ranks by expected points against this season’s field, so it accounts for the goal level and not just the scored-to-conceded ratio.</span>
+              <span><b>ATT</b> / <b>DEF</b> = ExpG+ (0.7·xG + 0.3·goals) this club would score / concede per match against an average opponent, adjusted for opponent quality and recency — not this season’s raw goal tally.</span>
+              <span data-bind="strength-legend-avg">A league-average team is -- in both ATT and DEF.</span>
+              <span><span class="st-flag">REL</span> greyed = relegated, not in this season’s league · <span class="st-flag">!</span> = fewer matches in the model’s 18-month window, so the rating is less certain · hover a row for the raw model coefficients</span>
+            </div>
           </div>
         </section>
 

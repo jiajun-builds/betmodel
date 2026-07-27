@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from csl.date_utils import format_date_only_series, parse_date_only_series
+from csl.models.strength import calibrated_rating, per_match_goals
 from csl.paths import data_dashboard_csv_dir, data_output_dir, data_raw_dir, model_meta_json
 
 logging.basicConfig(
@@ -25,8 +26,19 @@ log = logging.getLogger(__name__)
 TZ = ZoneInfo("Europe/London")
 COMPETITION_CODE = "CSL"
 COMPETITION_NAME = "Chinese Super League"
-MODEL_NAME = "Negative Binomial with Dixon-Coles Time Decay"
-MODEL_VERSION = "v2.7"
+# The model is csl.models.continuous_poisson.ContinuousPoissonGoalModel: a weighted
+# Poisson pseudo-likelihood on xG-blend targets, with no dispersion parameter. The
+# name said "Negative Binomial" until v2.8, left over from the family retired by
+# the truncation fix — the masthead and MODEL CONTEXT panel both print this, so it
+# has to describe the fit that actually produces the ratings.
+MODEL_NAME = "Weighted Poisson on xG with Dixon-Coles Time Decay"
+MODEL_VERSION = "v2.8"
+
+# A club's weighted match count below this fraction of the league median is
+# flagged low-sample in the UI. Promoted sides enter the 18-month window
+# part-way through and land around 0.4 of the median, established clubs at 1.0,
+# so the boundary is nowhere near either group.
+LOW_SAMPLE_FRACTION = 0.6
 
 META_COLUMNS = [
     "competition_code",
@@ -42,6 +54,7 @@ META_COLUMNS = [
     "total_rounds",
     "model_name",
     "model_version",
+    "league_avg_goals",
 ]
 
 UPCOMING_COLUMNS = [
@@ -69,6 +82,9 @@ PREDICTION_COLUMNS = [
     "away_win_fair_odds",
 ]
 
+# attack_rating/defense_rating are goals per match against an average opponent and
+# overall_rating is the calibrated strength rating — NOT the raw fitted coefficients,
+# which are carried separately as attack_coef/defense_coef. See csl.models.strength.
 STRENGTH_COLUMNS = [
     "rank_overall",
     "team",
@@ -78,6 +94,11 @@ STRENGTH_COLUMNS = [
     "attack_rank",
     "defense_rank",
     "form",
+    "attack_coef",
+    "defense_coef",
+    "weighted_matches",
+    "low_sample",
+    "in_current_season",
 ]
 
 
@@ -351,30 +372,105 @@ def _build_team_form_map(matches: pd.DataFrame) -> dict[str, str]:
     return {team: ",".join(results[-5:][::-1]) for team, results in team_results.items()}
 
 
-def build_team_strength_rankings(team_stats_path: str, matches_path: str) -> pd.DataFrame:
+def _current_season_teams(matches: pd.DataFrame, season: str) -> set[str]:
+    """Clubs that appear in ``season``'s fixtures, home or away.
+
+    The model's 18-month training window straddles two seasons, so
+    ``CHN_team_stats.csv`` carries relegated clubs alongside the current league —
+    18 rows for a 16-team competition. They still belong in the fit as opponents
+    that calibrate everyone else, but the panel has to be able to tell them apart.
+    """
+    _require_columns(matches, ["Season", "Home", "Away"], "CHN_Super League.csv")
+    season_rows = matches.copy()
+    season_rows["Season"] = season_rows["Season"].astype(str).str.strip()
+    season_rows = season_rows[season_rows["Season"] == season]
+    if season_rows.empty:
+        raise ValueError(f"No matches found for season {season} in CHN_Super League.csv")
+    home = season_rows["Home"].dropna().astype(str).str.strip()
+    away = season_rows["Away"].dropna().astype(str).str.strip()
+    return set(home) | set(away)
+
+
+def build_team_strength_rankings(
+    team_stats_path: str, matches_path: str, season: str
+) -> tuple[pd.DataFrame, float]:
+    """Strength rankings, plus the league-average goals-per-match reference.
+
+    The reference is returned rather than stored per row because it is a single
+    league-wide scalar: it is the value both ``attack_rating`` and
+    ``defense_rating`` take for a perfectly average club, so the dashboard legend
+    needs it to give the two columns a neutral line. It belongs in the meta.
+    """
     stats = pd.read_csv(team_stats_path)
-    _require_columns(stats, ["Team", "Attack", "Defense"], "CHN_team_stats.csv")
+    _require_columns(
+        stats,
+        ["Team", "Attack", "Defense", "Const", "HomeAdv", "WeightedMatches"],
+        "CHN_team_stats.csv",
+    )
     matches = pd.read_csv(matches_path)
     form_map = _build_team_form_map(matches)
+    season_teams = _current_season_teams(matches, season)
 
     out = stats.rename(
         columns={
             "Team": "team",
-            "Attack": "attack_rating",
-            "Defense": "defense_rating",
+            "Attack": "attack_coef",
+            "Defense": "defense_coef",
+            "WeightedMatches": "weighted_matches",
         }
     ).copy()
+    out["team"] = out["team"].astype(str).str.strip()
+    for col in ("attack_coef", "defense_coef", "weighted_matches"):
+        out[col] = pd.to_numeric(out[col], errors="coerce")
 
-    out["attack_rating"] = pd.to_numeric(out["attack_rating"], errors="coerce")
-    out["defense_rating"] = pd.to_numeric(out["defense_rating"], errors="coerce")
-    out["overall_rating"] = out["attack_rating"] - out["defense_rating"]
+    # Const and HomeAdv are league-wide, repeated on every row by run_dixon_coles_model.
+    const = float(pd.to_numeric(stats["Const"], errors="coerce").iloc[0])
+    home_adv = float(pd.to_numeric(stats["HomeAdv"], errors="coerce").iloc[0])
+    league_avg_goals = per_match_goals(0.0, const, home_adv)
+
+    out["in_current_season"] = out["team"].isin(season_teams)
+    if not out["in_current_season"].any():
+        raise ValueError(
+            "CHN_team_stats.csv contains no clubs from the current season — "
+            "team naming has probably drifted between the model and the fixture list"
+        )
+
+    # Ratings are only meaningful against a stated field, and the one a reader has
+    # in mind is this season's league. Relegated clubs are still rated — against
+    # that same field, which is the comparison that answers "how would they fare
+    # here now" — they are simply marked so the panel can grey them out.
+    field = {
+        row.team: (row.attack_coef, row.defense_coef)
+        for row in out.itertuples()
+        if row.in_current_season
+    }
+
+    def rating_for(team: str, atk: float, dfn: float) -> float:
+        # Exclude by name, not by coefficient value: calibrated_rating compares a
+        # club against a reference facing the *same* opponents, so the club must
+        # not appear in its own opponent list.
+        opponents = [pair for name, pair in field.items() if name != team]
+        return calibrated_rating(atk, dfn, const, home_adv, opponents)
+
+    out["attack_rating"] = [per_match_goals(v, const, home_adv) for v in out["attack_coef"]]
+    out["defense_rating"] = [per_match_goals(v, const, home_adv) for v in out["defense_coef"]]
+    out["overall_rating"] = [
+        rating_for(row.team, row.attack_coef, row.defense_coef) for row in out.itertuples()
+    ]
+
+    # exp() is monotone, so ranking on goals per match orders identically to
+    # ranking on the coefficients: more goals scored is better, fewer conceded is better.
     out["attack_rank"] = out["attack_rating"].rank(method="min", ascending=False).astype(int)
     out["defense_rank"] = out["defense_rating"].rank(method="min", ascending=True).astype(int)
+
+    median_weight = out["weighted_matches"].median()
+    out["low_sample"] = out["weighted_matches"] < LOW_SAMPLE_FRACTION * median_weight
+
     out = out.sort_values(["overall_rating", "team"], ascending=[False, True]).reset_index(drop=True)
     out["rank_overall"] = out.index + 1
     out["form"] = out["team"].map(form_map).fillna("")
     out = out[STRENGTH_COLUMNS].copy()
-    return out
+    return out, league_avg_goals
 
 
 def _read_model_updated_at(default: str) -> str:
@@ -399,6 +495,7 @@ def build_dashboard_meta(
     season: str,
     export_now: pd.Timestamp,
     round_progress: dict[str, int],
+    league_avg_goals: float,
 ) -> pd.DataFrame:
     played = matches.copy()
     played["parsed_date"] = _parse_match_dates(played["Date"])
@@ -437,6 +534,9 @@ def build_dashboard_meta(
                 "total_rounds": round_progress["total_rounds"],
                 "model_name": MODEL_NAME,
                 "model_version": MODEL_VERSION,
+                # Neutral line for the strength panel's ATT/DEF columns: what a
+                # perfectly average club scores and concedes per match.
+                "league_avg_goals": round(league_avg_goals, 4),
             }
         ],
         columns=META_COLUMNS,
@@ -466,9 +566,22 @@ def validate_outputs(meta: pd.DataFrame, upcoming: pd.DataFrame, predictions: pd
 
     if not strength["team"].is_unique:
         raise ValueError("team_strength_rankings.csv team values must be unique")
-    expected_overall = (strength["attack_rating"] - strength["defense_rating"]).round(10)
-    if not expected_overall.equals(strength["overall_rating"].round(10)):
-        raise ValueError("team_strength_rankings.csv overall_rating does not equal attack_rating - defense_rating")
+    # overall_rating is no longer attack_rating - defense_rating (it is the calibrated
+    # strength rating, and the two columns are now goals per match), so the invariants
+    # that replace that identity are the ones the panel actually depends on.
+    expected_ranks = list(range(1, len(strength) + 1))
+    if strength["rank_overall"].tolist() != expected_ranks:
+        raise ValueError("team_strength_rankings.csv rank_overall must be 1..N in row order")
+    if not strength["overall_rating"].is_monotonic_decreasing:
+        raise ValueError("team_strength_rankings.csv rows must be sorted by overall_rating desc")
+    goal_cols = strength[["attack_rating", "defense_rating"]]
+    if not (goal_cols > 0).all().all():
+        raise ValueError(
+            "team_strength_rankings.csv attack_rating/defense_rating must be positive "
+            "(they are goals per match, not log coefficients)"
+        )
+    if not strength["in_current_season"].any():
+        raise ValueError("team_strength_rankings.csv has no clubs in the current season")
 
 
 def write_csv(df: pd.DataFrame, path: str) -> None:
@@ -487,9 +600,13 @@ def run() -> None:
 
     upcoming = build_upcoming_fixtures(paths.fixtures_csv, season, export_now)
     predictions = build_match_predictions(paths.simulations_csv, upcoming)
-    strength = build_team_strength_rankings(paths.team_stats_csv, paths.matches_csv)
+    strength, league_avg_goals = build_team_strength_rankings(
+        paths.team_stats_csv, paths.matches_csv, season
+    )
     round_progress = build_round_progress(paths.fresh_schedule_csv, season)
-    meta = build_dashboard_meta(matches, upcoming, season, export_now, round_progress)
+    meta = build_dashboard_meta(
+        matches, upcoming, season, export_now, round_progress, league_avg_goals
+    )
 
     validate_outputs(meta, upcoming, predictions, strength, export_now)
 
