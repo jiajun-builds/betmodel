@@ -103,6 +103,16 @@ run_notify() {
   "$PYTHON" -m csl.notify.signal_alert || true
 }
 
+# Warn on Telegram when the home Mac's xG feed has gone stale. xG is fetched outside CI
+# (residential IP — see scripts/LOCAL_XG_SETUP.md) and the merge is no-erase, so a dead
+# fetcher is otherwise completely silent: every step below it rebuilds green on frozen
+# data. Wired into `all` only — the every-3h odds refresh never touches xG, and one
+# message a day is the right volume for an outage that needs a human at another machine.
+# Fail-open like run_notify: the module exits 0 on any error, `|| true` is belt-and-braces.
+run_xg_freshness() {
+  "$PYTHON" -m csl.xg.check_freshness || true
+}
+
 run_publish() {
   run_dashboard
   run_notify
@@ -139,6 +149,7 @@ Running full CSL workflow:
 EOF
 
   run_timed_phase "STEP 1/6" "Data Update" "./scripts/run_csl_update.sh" run_update
+  run_timed_phase "STEP 1b/6" "xG Freshness Check" "python -m csl.xg.check_freshness" run_xg_freshness
   run_timed_phase "STEP 2/6" "Model Export" "./scripts/csl-model.sh" run_model
   run_timed_phase "STEP 3/6" "Odds Fetch" "python -m csl.odds.fetch_pinnacle_spreads" run_odds_fetch
   run_timed_phase "STEP 3b/6" "Fallback Open Backfill" "python -m csl.odds.backfill_open" run_backfill_open

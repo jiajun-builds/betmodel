@@ -72,6 +72,18 @@ scheduled minute, so a missed run self-heals.
 - **Mode:** the job runs `--full-season` (robust, ~a few minutes). For the faster
   two-round refresh, edit the plist / set `XG_MODE=""` in the environment.
 - **Nothing pushed?** That's normal when xG is unchanged — check the log.
+- **"cannot switch branch while rebasing"** — a wedged clone. This killed the feed for
+  10 days in July 2026: a hand-edit to `xg_data.csv` on GitHub collided with the same
+  rows the fetcher regenerated (identical numbers, different bytes: `2` vs `2.0`), the
+  rebase conflicted, and the old retry loop just re-ran `git pull --rebase`, which can
+  only fatal while files are unmerged. Every later run then died before reaching the
+  API. The script now unwinds a leftover rebase on startup and, on a rejected push,
+  resets to the remote tip and re-runs the pipeline instead of rebasing — the pipeline's
+  no-erase merge is the right resolver, and it cannot leave a conflict behind. It also
+  refuses to reset if anything **other than** `xg_data.csv` is uncommitted, so don't
+  keep work-in-progress in this clone.
+- **Did anyone notice?** Now, yes: the daily CI refresh sends a Telegram alert when xG
+  falls behind the results feed (`csl.xg.check_freshness`, see `SETUP_ALERTS.md` §1.5).
 - **`conda: not found` in the log:** re-run `install_local_xg.sh` from a shell
   where `conda` works (it bakes the path in).
 - **Uninstall:**

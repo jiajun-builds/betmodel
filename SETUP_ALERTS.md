@@ -52,6 +52,24 @@ build.
   ```
   Drop `--dry-run` to actually send (it will send only genuinely-new signals).
 
+### 1.5 The other alert: a stale xG feed
+The same two secrets also power a health alert. xG is fetched outside CI on a home Mac
+(see `scripts/LOCAL_XG_SETUP.md`), and because the xG merge is no-erase, a dead fetcher
+is otherwise **silent** — every downstream step rebuilds green on frozen data. In July
+2026 that went unnoticed for 10 days.
+
+- Runs once a day, inside `./scripts/csl.sh all` (STEP 1b) — not on the every-3h odds
+  refresh, which never touches xG.
+- Fires when xG trails the results feed by more than **`XG_STALE_DAYS`** (default 3)
+  **and** at least 4 played matches sit past the xG frontier. Both conditions are
+  needed: SofaScore does not cover every CSL fixture, so an isolated result with no xG
+  is normal and must not alert forever.
+- Test it:
+  ```bash
+  PYTHONPATH=src python -m csl.xg.check_freshness --dry-run
+  PYTHONPATH=src python -m csl.xg.check_freshness --stale-days 0 --dry-run  # force it
+  ```
+
 ---
 
 ## 2. Fast capture via `repository_dispatch`

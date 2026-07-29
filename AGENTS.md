@@ -201,6 +201,8 @@ Scenario matrix (behaviour reflects the gated `publish` job + 6h capture window,
 - Fixtures/results ingestion: `src/csl/fixtures/chn_fixture_v5.py`
 - xG pipeline: `src/csl/xg/xg_pipeline.py`
 - xG merge: `src/csl/xg/chn_merge.py`
+- xG staleness alert (`all` STEP 1b — xG is fetched off-CI on a home Mac and the merge is
+  no-erase, so a dead fetcher is otherwise silent): `src/csl/xg/check_freshness.py`
 - expected-goals-plus calculation: `src/csl/xg/compute_expg.py`
 - Dixon-Coles model: `src/csl/models/dc.py`
 - dashboard CSV export: `src/csl/dashboard/export_dashboard_csv.py` (emits `updated_at`
