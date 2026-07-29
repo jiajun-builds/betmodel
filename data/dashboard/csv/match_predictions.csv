@@ -1,17 +1,17 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo,21,2026-07-31,2026-07-31T12:35:00+01:00,Henan Songshan Longmen,Dalian Yingbo,0.545447,0.233331,0.221223,1.8334,4.2858,4.5203
-CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun,21,2026-08-01,2026-08-01T12:00:00+01:00,Tianjin Jinmen Tiger,Yunnan Yukun,0.446324,0.249213,0.304463,2.2405,4.0126,3.2845
-CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional,21,2026-08-01,2026-08-01T12:35:00+01:00,Beijing Guoan,Zhejiang Professional,0.618127,0.193944,0.187929,1.6178,5.1561,5.3212
-CSL-2026-21-2026-08-01-shanghai-port-shandong-taishan,21,2026-08-01,2026-08-01T12:35:00+01:00,Shanghai Port,Shandong Taishan,0.485098,0.209205,0.305697,2.0614,4.78,3.2712
-CSL-2026-21-2026-08-01-chengdu-rongcheng-wuhan-three-towns,21,2026-08-01,2026-08-01T13:00:00+01:00,Chengdu Rongcheng,Wuhan Three Towns,0.774577,0.137721,0.087702,1.291,7.2611,11.4022
-CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu,21,2026-08-02,2026-08-02T11:00:00+01:00,Qingdao West Coast,Qingdao Hainiu,0.517669,0.231421,0.25091,1.9317,4.3211,3.9855
-CSL-2026-21-2026-08-02-liaoning-tieren-shanghai-shenhua,21,2026-08-02,2026-08-02T12:35:00+01:00,Liaoning Tieren,Shanghai Shenhua,0.280188,0.211904,0.507908,3.569,4.7191,1.9689
-CSL-2026-21-2026-08-02-shenzhen-xinpengcheng-chongqing-tonglianglong,21,2026-08-02,2026-08-02T13:00:00+01:00,Shenzhen Xinpengcheng,Chongqing Tonglianglong,0.380337,0.299083,0.32058,2.6292,3.3436,3.1193
-CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng,22,2026-08-07,2026-08-07T12:35:00+01:00,Beijing Guoan,Shenzhen Xinpengcheng,0.756679,0.145692,0.097629,1.3216,6.8638,10.2429
-CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua,22,2026-08-08,2026-08-08T12:00:00+01:00,Qingdao Hainiu,Shanghai Shenhua,0.249656,0.2096,0.540744,4.0055,4.771,1.8493
-CSL-2026-22-2026-08-08-dalian-yingbo-liaoning-tieren,22,2026-08-08,2026-08-08T12:35:00+01:00,Dalian Yingbo,Liaoning Tieren,0.508363,0.228603,0.263034,1.9671,4.3744,3.8018
-CSL-2026-22-2026-08-08-zhejiang-professional-wuhan-three-towns,22,2026-08-08,2026-08-08T12:35:00+01:00,Zhejiang Professional,Wuhan Three Towns,0.583279,0.205309,0.211412,1.7144,4.8707,4.7301
-CSL-2026-22-2026-08-08-yunnan-yukun-chengdu-rongcheng,22,2026-08-08,2026-08-08T13:00:00+01:00,Yunnan Yukun,Chengdu Rongcheng,0.245241,0.221638,0.533121,4.0776,4.5119,1.8757
-CSL-2026-22-2026-08-09-henan-songshan-longmen-qingdao-west-coast,22,2026-08-09,2026-08-09T12:00:00+01:00,Henan Songshan Longmen,Qingdao West Coast,0.563583,0.229016,0.207401,1.7744,4.3665,4.8216
-CSL-2026-22-2026-08-09-chongqing-tonglianglong-shanghai-port,22,2026-08-09,2026-08-09T12:35:00+01:00,Chongqing Tonglianglong,Shanghai Port,0.307111,0.280096,0.412793,3.2562,3.5702,2.4225
-CSL-2026-22-2026-08-09-shandong-taishan-tianjin-jinmen-tiger,22,2026-08-09,2026-08-09T13:00:00+01:00,Shandong Taishan,Tianjin Jinmen Tiger,0.607344,0.20325,0.189406,1.6465,4.92,5.2797
+CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo,21,2026-07-31,2026-07-31T12:35:00+01:00,Henan Songshan Longmen,Dalian Yingbo,0.541316,0.233025,0.225659,1.8473,4.2914,4.4315
+CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun,21,2026-08-01,2026-08-01T12:00:00+01:00,Tianjin Jinmen Tiger,Yunnan Yukun,0.452834,0.248474,0.298692,2.2083,4.0246,3.3479
+CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional,21,2026-08-01,2026-08-01T12:35:00+01:00,Beijing Guoan,Zhejiang Professional,0.624781,0.191129,0.18409,1.6006,5.2321,5.4321
+CSL-2026-21-2026-08-01-shanghai-port-shandong-taishan,21,2026-08-01,2026-08-01T12:35:00+01:00,Shanghai Port,Shandong Taishan,0.484921,0.210034,0.305045,2.0622,4.7611,3.2782
+CSL-2026-21-2026-08-01-chengdu-rongcheng-wuhan-three-towns,21,2026-08-01,2026-08-01T13:00:00+01:00,Chengdu Rongcheng,Wuhan Three Towns,0.772624,0.139106,0.08827,1.2943,7.1888,11.3289
+CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu,21,2026-08-02,2026-08-02T11:00:00+01:00,Qingdao West Coast,Qingdao Hainiu,0.521723,0.23223,0.246047,1.9167,4.3061,4.0643
+CSL-2026-21-2026-08-02-liaoning-tieren-shanghai-shenhua,21,2026-08-02,2026-08-02T12:35:00+01:00,Liaoning Tieren,Shanghai Shenhua,0.272418,0.21208,0.515502,3.6708,4.7152,1.9399
+CSL-2026-21-2026-08-02-shenzhen-xinpengcheng-chongqing-tonglianglong,21,2026-08-02,2026-08-02T13:00:00+01:00,Shenzhen Xinpengcheng,Chongqing Tonglianglong,0.378554,0.297772,0.323674,2.6416,3.3583,3.0895
+CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng,22,2026-08-07,2026-08-07T12:35:00+01:00,Beijing Guoan,Shenzhen Xinpengcheng,0.752656,0.147117,0.100227,1.3286,6.7973,9.9774
+CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua,22,2026-08-08,2026-08-08T12:00:00+01:00,Qingdao Hainiu,Shanghai Shenhua,0.244573,0.209963,0.545463,4.0888,4.7627,1.8333
+CSL-2026-22-2026-08-08-dalian-yingbo-liaoning-tieren,22,2026-08-08,2026-08-08T12:35:00+01:00,Dalian Yingbo,Liaoning Tieren,0.519324,0.225775,0.254901,1.9256,4.4292,3.9231
+CSL-2026-22-2026-08-08-zhejiang-professional-wuhan-three-towns,22,2026-08-08,2026-08-08T12:35:00+01:00,Zhejiang Professional,Wuhan Three Towns,0.581247,0.204713,0.21404,1.7204,4.8849,4.672
+CSL-2026-22-2026-08-08-yunnan-yukun-chengdu-rongcheng,22,2026-08-08,2026-08-08T13:00:00+01:00,Yunnan Yukun,Chengdu Rongcheng,0.239648,0.219481,0.540871,4.1728,4.5562,1.8489
+CSL-2026-22-2026-08-09-henan-songshan-longmen-qingdao-west-coast,22,2026-08-09,2026-08-09T12:00:00+01:00,Henan Songshan Longmen,Qingdao West Coast,0.557421,0.231739,0.21084,1.794,4.3152,4.7429
+CSL-2026-22-2026-08-09-chongqing-tonglianglong-shanghai-port,22,2026-08-09,2026-08-09T12:35:00+01:00,Chongqing Tonglianglong,Shanghai Port,0.308703,0.281819,0.409478,3.2394,3.5484,2.4421
+CSL-2026-22-2026-08-09-shandong-taishan-tianjin-jinmen-tiger,22,2026-08-09,2026-08-09T13:00:00+01:00,Shandong Taishan,Tianjin Jinmen Tiger,0.597606,0.207396,0.194998,1.6733,4.8217,5.1283
