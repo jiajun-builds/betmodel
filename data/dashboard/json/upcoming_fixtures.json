@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-31T09:53:30+01:00"
+    "updated_at": "2026-07-31T12:02:07+01:00"
   },
   "rows": [
     {
@@ -148,6 +148,33 @@
       "kickoff_at": "2026-08-09T13:00:00+01:00",
       "home_team": "Shandong Taishan",
       "away_team": "Tianjin Jinmen Tiger"
+    },
+    {
+      "fixture_id": "CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu",
+      "round": 23,
+      "match_date": "2026-08-14",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-14T12:35:00+01:00",
+      "home_team": "Shandong Taishan",
+      "away_team": "Qingdao Hainiu"
+    },
+    {
+      "fixture_id": "CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port",
+      "round": 23,
+      "match_date": "2026-08-14",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-14T12:35:00+01:00",
+      "home_team": "Wuhan Three Towns",
+      "away_team": "Shanghai Port"
+    },
+    {
+      "fixture_id": "CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong",
+      "round": 23,
+      "match_date": "2026-08-14",
+      "match_time": "12:00",
+      "kickoff_at": "2026-08-14T13:00:00+01:00",
+      "home_team": "Qingdao West Coast",
+      "away_team": "Chongqing Tonglianglong"
     }
   ]
 }

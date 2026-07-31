@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-31T09:53:30+01:00",
+    "updated_at": "2026-07-31T12:02:07+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
@@ -230,6 +230,48 @@
       "home_win_fair_odds": 1.6733,
       "draw_fair_odds": 4.8217,
       "away_win_fair_odds": 5.1283
+    },
+    {
+      "fixture_id": "CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu",
+      "round": 23,
+      "match_date": "2026-08-14",
+      "kickoff_at": "2026-08-14T12:35:00+01:00",
+      "home_team": "Shandong Taishan",
+      "away_team": "Qingdao Hainiu",
+      "home_win_prob": 0.68628,
+      "draw_prob": 0.163422,
+      "away_win_prob": 0.150298,
+      "home_win_fair_odds": 1.4571,
+      "draw_fair_odds": 6.1191,
+      "away_win_fair_odds": 6.6534
+    },
+    {
+      "fixture_id": "CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port",
+      "round": 23,
+      "match_date": "2026-08-14",
+      "kickoff_at": "2026-08-14T12:35:00+01:00",
+      "home_team": "Wuhan Three Towns",
+      "away_team": "Shanghai Port",
+      "home_win_prob": 0.319347,
+      "draw_prob": 0.225324,
+      "away_win_prob": 0.455329,
+      "home_win_fair_odds": 3.1314,
+      "draw_fair_odds": 4.4381,
+      "away_win_fair_odds": 2.1962
+    },
+    {
+      "fixture_id": "CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong",
+      "round": 23,
+      "match_date": "2026-08-14",
+      "kickoff_at": "2026-08-14T13:00:00+01:00",
+      "home_team": "Qingdao West Coast",
+      "away_team": "Chongqing Tonglianglong",
+      "home_win_prob": 0.455603,
+      "draw_prob": 0.297325,
+      "away_win_prob": 0.247072,
+      "home_win_fair_odds": 2.1949,
+      "draw_fair_odds": 3.3633,
+      "away_win_fair_odds": 4.0474
     }
   ]
 }
