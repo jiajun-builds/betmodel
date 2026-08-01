@@ -2,18 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-31T23:08:50+01:00"
+    "updated_at": "2026-08-01T04:15:44+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo",
-      "round": 21,
-      "match_date": "2026-07-31",
-      "match_time": "11:35",
-      "kickoff_at": "2026-07-31T12:35:00+01:00",
-      "home_team": "Henan Songshan Longmen",
-      "away_team": "Dalian Yingbo"
-    },
     {
       "fixture_id": "CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun",
       "round": 21,

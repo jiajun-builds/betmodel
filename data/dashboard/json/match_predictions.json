@@ -2,25 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-07-31T23:08:50+01:00",
+    "updated_at": "2026-08-01T04:15:44+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo",
-      "round": 21,
-      "match_date": "2026-07-31",
-      "kickoff_at": "2026-07-31T12:35:00+01:00",
-      "home_team": "Henan Songshan Longmen",
-      "away_team": "Dalian Yingbo",
-      "home_win_prob": 0.541316,
-      "draw_prob": 0.233025,
-      "away_win_prob": 0.225659,
-      "home_win_fair_odds": 1.8473,
-      "draw_fair_odds": 4.2914,
-      "away_win_fair_odds": 4.4315
-    },
     {
       "fixture_id": "CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun",
       "round": 21,

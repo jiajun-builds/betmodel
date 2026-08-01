@@ -1,5 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-21-2026-07-31-henan-songshan-longmen-dalian-yingbo,21,2026-07-31,2026-07-31T12:35:00+01:00,Henan Songshan Longmen,Dalian Yingbo,0.541316,0.233025,0.225659,1.8473,4.2914,4.4315
 CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun,21,2026-08-01,2026-08-01T12:00:00+01:00,Tianjin Jinmen Tiger,Yunnan Yukun,0.452834,0.248474,0.298692,2.2083,4.0246,3.3479
 CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional,21,2026-08-01,2026-08-01T12:35:00+01:00,Beijing Guoan,Zhejiang Professional,0.624781,0.191129,0.18409,1.6006,5.2321,5.4321
 CSL-2026-21-2026-08-01-shanghai-port-shandong-taishan,21,2026-08-01,2026-08-01T12:35:00+01:00,Shanghai Port,Shandong Taishan,0.484921,0.210034,0.305045,2.0622,4.7611,3.2782
