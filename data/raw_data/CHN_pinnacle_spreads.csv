@@ -1,6 +1,6 @@
 event_id,commence_time,api_home_team,api_away_team,home_team,away_team,home_odds,draw_odds,away_odds,bookmaker,market,regions,last_update,fetched_at
-a22a19e686e0a4d9e9a81bf34d96d411,2026-08-02T10:00:00Z,Qingdao West Coast FC,Qingdao Hainiu FC,Qingdao West Coast,Qingdao Hainiu,1.78,4.0,4.21,pinnacle,h2h,us,2026-08-01T19:11:54Z,2026-08-01T19:12:11Z
-c41cd08c20d94834425d64a444da7298,2026-08-02T11:35:00Z,Liaoning Tieren FC,Shanghai Shenhua FC,Liaoning Tieren,Shanghai Shenhua,4.15,4.7,1.68,pinnacle,h2h,us,2026-08-01T19:11:54Z,2026-08-01T19:12:11Z
-d115aa16adbce2466367a191674b90cc,2026-08-02T12:00:00Z,Shenzhen Peng City FC,Chongqing Tonglianglong FC,Shenzhen Xinpengcheng,Chongqing Tonglianglong,2.33,3.36,3.15,pinnacle,h2h,us,2026-08-01T19:11:54Z,2026-08-01T19:12:11Z
-453ed6b200e1432c820826dbc336785a,2026-08-08T11:35:00Z,Zhejiang,Wuhan Three Towns,Zhejiang Professional,Wuhan Three Towns,1.68,4.2,4.36,pinnacle,h2h,us,2026-08-01T19:11:54Z,2026-08-01T19:12:11Z
-e6706ba277f22cb0455e3952c3d540e8,2026-08-08T12:00:00Z,Yunnan Yukun,Chengdu Rongcheng FC,Yunnan Yukun,Chengdu Rongcheng,3.41,3.94,1.96,pinnacle,h2h,us,2026-08-01T19:11:54Z,2026-08-01T19:12:11Z
+a22a19e686e0a4d9e9a81bf34d96d411,2026-08-02T10:00:00Z,Qingdao West Coast FC,Qingdao Hainiu FC,Qingdao West Coast,Qingdao Hainiu,1.78,4.0,4.21,pinnacle,h2h,us,2026-08-01T21:59:38Z,2026-08-01T21:59:42Z
+c41cd08c20d94834425d64a444da7298,2026-08-02T11:35:00Z,Liaoning Tieren FC,Shanghai Shenhua FC,Liaoning Tieren,Shanghai Shenhua,4.15,4.7,1.68,pinnacle,h2h,us,2026-08-01T21:59:38Z,2026-08-01T21:59:42Z
+d115aa16adbce2466367a191674b90cc,2026-08-02T12:00:00Z,Shenzhen Peng City FC,Chongqing Tonglianglong FC,Shenzhen Xinpengcheng,Chongqing Tonglianglong,2.36,3.34,3.12,pinnacle,h2h,us,2026-08-01T21:59:38Z,2026-08-01T21:59:42Z
+453ed6b200e1432c820826dbc336785a,2026-08-08T11:35:00Z,Zhejiang,Wuhan Three Towns,Zhejiang Professional,Wuhan Three Towns,1.68,4.2,4.36,pinnacle,h2h,us,2026-08-01T21:59:38Z,2026-08-01T21:59:42Z
+e6706ba277f22cb0455e3952c3d540e8,2026-08-08T12:00:00Z,Yunnan Yukun,Chengdu Rongcheng FC,Yunnan Yukun,Chengdu Rongcheng,3.41,3.94,1.96,pinnacle,h2h,us,2026-08-01T21:59:38Z,2026-08-01T21:59:42Z
