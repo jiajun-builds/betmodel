@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T12:39:21+01:00"
+    "updated_at": "2026-08-02T13:13:50+01:00"
   },
   "rows": [
     {
@@ -42,6 +42,25 @@
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-26T12:47:37Z",
       "fetched_at": "2026-08-02T10:43:26Z"
+    },
+    {
+      "home_team": "Qingdao Hainiu",
+      "away_team": "Shanghai Shenhua",
+      "match_time": "11:00",
+      "home_win_prob": 0.2357901325474014,
+      "draw_prob": 0.2401932290406784,
+      "away_win_prob": 0.5240166384119203,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": 3.6,
+      "onexbet_open_draw_odds": 4.02,
+      "onexbet_open_away_odds": 1.92,
+      "onexbet_open_home_ev": -0.1511555228293548,
+      "onexbet_open_draw_ev": -0.0344232192564728,
+      "onexbet_open_away_ev": 0.0061119457508869,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": "2026-08-02T12:11:53Z",
+      "fetched_at": null
     },
     {
       "home_team": "Dalian Yingbo",
