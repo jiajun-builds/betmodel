@@ -2,67 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-01T22:59:47+01:00",
+    "updated_at": "2026-08-02T03:58:17+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "kickoff_at": "2026-08-01T12:00:00+01:00",
-      "home_team": "Tianjin Jinmen Tiger",
-      "away_team": "Yunnan Yukun",
-      "home_win_prob": 0.45252,
-      "draw_prob": 0.248363,
-      "away_win_prob": 0.299117,
-      "home_win_fair_odds": 2.2098,
-      "draw_fair_odds": 4.0264,
-      "away_win_fair_odds": 3.3432
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "kickoff_at": "2026-08-01T12:35:00+01:00",
-      "home_team": "Beijing Guoan",
-      "away_team": "Zhejiang Professional",
-      "home_win_prob": 0.624279,
-      "draw_prob": 0.191179,
-      "away_win_prob": 0.184542,
-      "home_win_fair_odds": 1.6018,
-      "draw_fair_odds": 5.2307,
-      "away_win_fair_odds": 5.4188
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-shanghai-port-shandong-taishan",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "kickoff_at": "2026-08-01T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Shandong Taishan",
-      "home_win_prob": 0.484149,
-      "draw_prob": 0.209965,
-      "away_win_prob": 0.305886,
-      "home_win_fair_odds": 2.0655,
-      "draw_fair_odds": 4.7627,
-      "away_win_fair_odds": 3.2692
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-chengdu-rongcheng-wuhan-three-towns",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "kickoff_at": "2026-08-01T13:00:00+01:00",
-      "home_team": "Chengdu Rongcheng",
-      "away_team": "Wuhan Three Towns",
-      "home_win_prob": 0.772204,
-      "draw_prob": 0.139247,
-      "away_win_prob": 0.088549,
-      "home_win_fair_odds": 1.295,
-      "draw_fair_odds": 7.1815,
-      "away_win_fair_odds": 11.2932
-    },
     {
       "fixture_id": "CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu",
       "round": 21,

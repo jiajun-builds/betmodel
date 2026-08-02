@@ -2,45 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-01T22:59:47+01:00"
+    "updated_at": "2026-08-02T03:58:17+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-tianjin-jinmen-tiger-yunnan-yukun",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "match_time": "11:00",
-      "kickoff_at": "2026-08-01T12:00:00+01:00",
-      "home_team": "Tianjin Jinmen Tiger",
-      "away_team": "Yunnan Yukun"
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-beijing-guoan-zhejiang-professional",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "match_time": "11:35",
-      "kickoff_at": "2026-08-01T12:35:00+01:00",
-      "home_team": "Beijing Guoan",
-      "away_team": "Zhejiang Professional"
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-shanghai-port-shandong-taishan",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "match_time": "11:35",
-      "kickoff_at": "2026-08-01T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Shandong Taishan"
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-01-chengdu-rongcheng-wuhan-three-towns",
-      "round": 21,
-      "match_date": "2026-08-01",
-      "match_time": "12:00",
-      "kickoff_at": "2026-08-01T13:00:00+01:00",
-      "home_team": "Chengdu Rongcheng",
-      "away_team": "Wuhan Three Towns"
-    },
     {
       "fixture_id": "CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu",
       "round": 21,
