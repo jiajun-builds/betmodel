@@ -156,14 +156,14 @@ function renderSignals(rows) {
       { key: "draw", label: "Draw", prob: row.draw_prob, odds: row.onexbet_open_draw_odds, ev: row.onexbet_open_draw_ev },
       { key: "away", label: row.away_team, prob: row.away_win_prob, odds: row.onexbet_open_away_odds, ev: row.onexbet_open_away_ev },
     ];
-    const maxKey = outs.reduce((a, b) => (b.prob > a.prob ? b : a)).key;
     const isBet = row.signal_state === "bet";
     if (row.onexbet_open_last_update > openMax) openMax = row.onexbet_open_last_update;
 
     const tr = outs.map((o, i) => {
       const timeCell = i === 0 ? `<td class="sig-time" rowspan="3">${esc(row.match_time)}</td>` : "";
-      const nameCls = "sig-name" + (isBet && row.signal_pick === o.key ? " is-pick" : "");
-      const probCls = "sig-prob" + (isBet && o.key === maxKey ? " is-max" : "");
+      const isPick = isBet && row.signal_pick === o.key;
+      const nameCls = "sig-name" + (isPick ? " is-pick" : "");
+      const probCls = "sig-prob" + (isPick ? " is-pick" : "");
       const evStrong = o.ev != null && o.ev >= 0.2 ? " strong" : "";
       let action = "";
       if (row.signal_pick === o.key && row.signal_state === "bet") {

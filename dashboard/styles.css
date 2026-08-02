@@ -170,7 +170,7 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 .sig-name { font: 400 13px/1.3 var(--sans); color: var(--text); white-space: nowrap; }
 .sig-name.is-pick { color: var(--accent); font-weight: 600; }
 .sig-prob { font: 400 12px/1.3 var(--mono); color: var(--dim-2); }
-.sig-prob.is-max { color: var(--accent); font-weight: 600; }
+.sig-prob.is-pick { color: var(--accent); font-weight: 600; }
 .sig-odds { font: 400 12px/1.3 var(--mono); color: var(--text-2); }
 .sig-ev { font: 500 12px/1.3 var(--mono); }
 .sig-ev.pos { color: var(--pos); } .sig-ev.neg { color: var(--neg); } .sig-ev.zero { color: var(--dim); }
