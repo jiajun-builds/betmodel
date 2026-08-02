@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T13:23:57+01:00"
+    "updated_at": "2026-08-02T14:26:50+01:00"
   },
   "rows": [
     {
@@ -10,7 +10,7 @@
       "team": "Chengdu Rongcheng",
       "attack_rating": 2.05291369036718,
       "defense_rating": 1.0408745224061584,
-      "overall_rating": 0.6726866724958718,
+      "overall_rating": 0.6726866724958719,
       "attack_rank": 2,
       "defense_rank": 1,
       "form": "D,D,D,D,D",
@@ -25,7 +25,7 @@
       "team": "Shanghai Shenhua",
       "attack_rating": 2.0588064231165344,
       "defense_rating": 1.2669343303897946,
-      "overall_rating": 0.509925444652574,
+      "overall_rating": 0.5099254446525737,
       "attack_rank": 1,
       "defense_rank": 4,
       "form": "L,L,W,W,W",
@@ -68,8 +68,8 @@
     {
       "rank_overall": 5,
       "team": "Shanghai Port",
-      "attack_rating": 1.811335000090229,
-      "defense_rating": 1.37606208364082,
+      "attack_rating": 1.8113350000902289,
+      "defense_rating": 1.3760620836408195,
       "overall_rating": 0.2859304263219725,
       "attack_rank": 5,
       "defense_rank": 7,
@@ -85,7 +85,7 @@
       "team": "Henan Songshan Longmen",
       "attack_rating": 1.6120500914029698,
       "defense_rating": 1.2981496582149268,
-      "overall_rating": 0.2123906948489614,
+      "overall_rating": 0.2123906948489615,
       "attack_rank": 6,
       "defense_rank": 5,
       "form": "D,W,W,L,L",
@@ -130,7 +130,7 @@
       "team": "Yunnan Yukun",
       "attack_rating": 1.5778908194931474,
       "defense_rating": 1.6607602211036214,
-      "overall_rating": -0.0502040976170128,
+      "overall_rating": -0.0502040976170126,
       "attack_rank": 8,
       "defense_rank": 12,
       "form": "L,W,D,L,W",
@@ -220,7 +220,7 @@
       "team": "Qingdao Hainiu",
       "attack_rating": 1.3948632182375362,
       "defense_rating": 1.7537473349904025,
-      "overall_rating": -0.2331348953002017,
+      "overall_rating": -0.233134895300202,
       "attack_rank": 12,
       "defense_rank": 16,
       "form": "D,D,L,L,D",
@@ -265,7 +265,7 @@
       "team": "Changchun Yatai",
       "attack_rating": 0.9199350801685544,
       "defense_rating": 1.6929039505358503,
-      "overall_rating": -0.5674053492006712,
+      "overall_rating": -0.567405349200671,
       "attack_rank": 18,
       "defense_rank": 13,
       "form": "L,L,D,L,D",
