@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T13:13:50+01:00"
+    "updated_at": "2026-08-02T13:23:57+01:00"
   },
   "rows": [
     {
@@ -42,6 +42,25 @@
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-26T12:47:37Z",
       "fetched_at": "2026-08-02T10:43:26Z"
+    },
+    {
+      "home_team": "Beijing Guoan",
+      "away_team": "Shenzhen Xinpengcheng",
+      "match_time": "11:35",
+      "home_win_prob": 0.740243826852345,
+      "draw_prob": 0.1650340887655285,
+      "away_win_prob": 0.0947220843821262,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": 1.39,
+      "onexbet_open_draw_odds": 5.39,
+      "onexbet_open_away_odds": 6.92,
+      "onexbet_open_home_ev": 0.0289389193247595,
+      "onexbet_open_draw_ev": -0.110466261553801,
+      "onexbet_open_away_ev": -0.344523176075686,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": "2026-08-02T12:22:34Z",
+      "fetched_at": null
     },
     {
       "home_team": "Qingdao Hainiu",
@@ -136,6 +155,25 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-08-02T11:30:21Z",
+      "fetched_at": null
+    },
+    {
+      "home_team": "Chongqing Tonglianglong",
+      "away_team": "Shanghai Port",
+      "match_time": "11:35",
+      "home_win_prob": 0.3049741399948305,
+      "draw_prob": 0.2810523878954273,
+      "away_win_prob": 0.413973472109742,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": 3.35,
+      "onexbet_open_draw_odds": 3.56,
+      "onexbet_open_away_odds": 2.14,
+      "onexbet_open_home_ev": 0.0216633689826823,
+      "onexbet_open_draw_ev": 0.0005465009077212,
+      "onexbet_open_away_ev": -0.1140967696851519,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": "2026-08-02T12:22:34Z",
       "fetched_at": null
     }
   ]
