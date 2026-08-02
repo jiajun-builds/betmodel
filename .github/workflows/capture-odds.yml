@@ -6,6 +6,12 @@ name: Capture Odds
 # the opening line to data/raw_data/CHN_pinnacle_spreads_history.csv and commits it
 # back to main.
 #
+# Two providers write that same history file here:
+#   * capture_scheduler  -> Pinnacle (+ recon books) from The Odds API, window-gated,
+#                           ~500 requests/MONTH.
+#   * fetch_onexbet_open -> 1xBet from odds-api.io, NO window, ~500 requests/DAY,
+#                           every tick, bounded by a per-run --max-requests cap.
+#
 # NOTE: scheduled workflows only run from the default branch (main), so this has no
 # effect until merged there. GitHub's cron can be delayed/skipped under load; that is
 # tolerated here because open windows are ~1h wide and a fixture is captured at most
@@ -72,6 +78,44 @@ jobs:
             ARGS="--dry-run"
           fi
           python -m csl.odds.capture_scheduler $ARGS
+
+      # 1xBet's opening line comes from a different provider (odds-api.io) on a
+      # different budget: ~500 requests/DAY vs The Odds API's ~500/MONTH. That is what
+      # lets it poll with no predicted window at all, which is the fix for opens lost
+      # when a fixture reaches the feed after its window closed.
+      #
+      # It rides in this workflow rather than a separate one so that new 1xBet opens
+      # flow through the existing `appended` gate below and refresh the dashboard
+      # immediately — the bet price, EV and signal all key off this book, so a fresh
+      # open that waited ~3h for the next csl-refresh would blunt the whole signal.
+      #
+      # Runs on EVERY tick, deliberately unthrottled. An earlier version gated this to
+      # ~2 runs/hour on a minute band, on the assumption that this workflow ticks a
+      # reliable 144 times/day. Measured over 299 real runs it does not: the gap between
+      # runs has a median of 10min but a p75 of 74min, a p90 of 137min and a max of
+      # 232min (the external dispatch timer dies intermittently, leaving only the
+      # heavily-throttled GitHub cron). Actual volume is 13-54 runs/day. So the band was
+      # tripling capture latency — p90 ~7h — while using only ~7% of the daily budget.
+      #
+      # Cost is bounded by --max-requests instead, which is a hard per-run cap rather
+      # than a guess about cadence: 2 requests (1 /events + 1 /odds/multi, i.e. up to 10
+      # fixtures) x even a fully-recovered 144 runs/day = 288/day, inside the ~500/day
+      # free tier. Overflow past 10 pending fixtures simply waits for the next tick.
+      # Idle runs — every fixture already has its 1xBet open — still cost zero.
+      - name: Capture 1xBet opening lines (odds-api.io)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          if [ -z "${ODDS_API_IO_KEY:-}" ]; then
+            echo "ODDS_API_IO_KEY not configured; skipping."
+            exit 0
+          fi
+          # Fail-open: a supplementary source must never fail the Pinnacle tick.
+          python -m csl.odds.fetch_onexbet_open --max-requests 2 || \
+            echo "WARNING: odds-api.io capture failed; continuing."
 
       - name: Commit captured snapshot
         id: commit

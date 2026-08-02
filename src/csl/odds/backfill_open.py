@@ -14,12 +14,16 @@ All three used to surface as "dashboard shows current odds but no opening odds".
 
 This module is the safety net. It runs inside the every-3h Now-line refresh — which
 already fetches the whole capture slate (all CAPTURE_BOOKMAKERS), so it costs **zero
-extra quota** — and, for each of ``REQUIRED_OPEN_BOOKS`` (Pinnacle anchor + 1xBet bet
-price), records the current line as a fallback ``open`` for any fixture that has a Now
-line but no captured open for that book **and whose primary capture window has already
-closed** (or never existed). The window-closed guard means the 10-min capture keeps
-first crack at a fresher open while the window is still live; only genuine misses are
-backfilled.
+extra quota** — and, for each of ``REQUIRED_OPEN_BOOKS``, records the current line as a
+fallback ``open`` for any fixture that has a Now line but no captured open for that book
+**and whose primary capture window has already closed** (or never existed). The
+window-closed guard means the 10-min capture keeps first crack at a fresher open while
+the window is still live; only genuine misses are backfilled.
+
+Scope note (2026-08-02): ``REQUIRED_OPEN_BOOKS`` is now Pinnacle alone, so this fallback
+covers the λ anchor only. 1xBet's open is no longer sourced from The Odds API at all —
+``csl.odds.fetch_onexbet_open`` polls odds-api.io for it without any window, so there is
+no window to miss and nothing here to back-fill for that book.
 
 The recorded price is the line as it stands at this refresh — the best opening proxy
 available once the true-open window is gone — and ``capture_reason`` marks it as a

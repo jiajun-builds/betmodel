@@ -1,23 +1,23 @@
-﻿match_team,odds_team,sofa_team,standard_team
-Beijing Guoan,Beijing FC,Beijing Guoan,Beijing Guoan
-Cangzhou,,Cangzhou Mighty Lions,Cangzhou
-Changchun Yatai,,,Changchun Yatai
-Chengdu Rongcheng,Chengdu Rongcheng FC,Chengdu Rongcheng,Chengdu Rongcheng
-Chongqing Tonglianglong,Chongqing Tonglianglong FC,Chongqing Tonglianglong FC,Chongqing Tonglianglong
-Dalian Pro,,,Dalian Pro
-Dalian Yingbo,,Dalian Yingbo FC,Dalian Yingbo
-Henan FC,,Henan FC Jiuzu Dukang,Henan Songshan Longmen
-Liaoning Tieren,Liaoning Tieren FC,Liaoning Tieren FC,Liaoning Tieren
-Meizhou Hakka,,,Meizhou Hakka
-Nantong Zhiyun,,,Nantong Zhiyun
-Qingdao Hainiu,Qingdao Hainiu FC,Qingdao Hainiu,Qingdao Hainiu
-Qingdao West Coast,Qingdao West Coast FC,Qingdao West Coast,Qingdao West Coast
-Shandong Taishan,Shandong Luneng Taishan FC,Shandong Taishan,Shandong Taishan
-Shanghai Port,Shanghai SIPG FC,Shanghai Port,Shanghai Port
-Shanghai Shenhua,Shanghai Shenhua FC,Shanghai Shenhua,Shanghai Shenhua
-Shenzhen,,,Shenzhen
-Shenzhen Peng City,Shenzhen Peng City FC,Shenzhen Peng City,Shenzhen Xinpengcheng
-Tianjin Jinmen Tiger,Tianjin Jinmen Tiger FC,Tianjin Jinmen Tiger,Tianjin Jinmen Tiger
-Wuhan Three Towns,,Wuhan Three Towns,Wuhan Three Towns
-Yunnan Yukun,,Yunnan Yukun,Yunnan Yukun
-Zhejiang Professional,Zhejiang,Zhejiang,Zhejiang Professional
+﻿match_team,odds_team,sofa_team,oddsapiio_team,standard_team
+Beijing Guoan,Beijing FC,Beijing Guoan,Beijing Guoan,Beijing Guoan
+Cangzhou,,Cangzhou Mighty Lions,,Cangzhou
+Changchun Yatai,,,,Changchun Yatai
+Chengdu Rongcheng,Chengdu Rongcheng FC,Chengdu Rongcheng,Chengdu Rongcheng,Chengdu Rongcheng
+Chongqing Tonglianglong,Chongqing Tonglianglong FC,Chongqing Tonglianglong FC,Chongqing Tonglianglong FC,Chongqing Tonglianglong
+Dalian Pro,,,,Dalian Pro
+Dalian Yingbo,,Dalian Yingbo FC,Dalian Yingbo FC,Dalian Yingbo
+Henan FC,,Henan FC Jiuzu Dukang,Henan,Henan Songshan Longmen
+Liaoning Tieren,Liaoning Tieren FC,Liaoning Tieren FC,Liaoning Tieren FC,Liaoning Tieren
+Meizhou Hakka,,,,Meizhou Hakka
+Nantong Zhiyun,,,,Nantong Zhiyun
+Qingdao Hainiu,Qingdao Hainiu FC,Qingdao Hainiu,Qingdao Hainiu FC,Qingdao Hainiu
+Qingdao West Coast,Qingdao West Coast FC,Qingdao West Coast,Qingdao West Coast FC,Qingdao West Coast
+Shandong Taishan,Shandong Luneng Taishan FC,Shandong Taishan,Shandong Taishan FC,Shandong Taishan
+Shanghai Port,Shanghai SIPG FC,Shanghai Port,Shanghai Port FC,Shanghai Port
+Shanghai Shenhua,Shanghai Shenhua FC,Shanghai Shenhua,Shanghai Shenhua FC,Shanghai Shenhua
+Shenzhen,,,,Shenzhen
+Shenzhen Peng City,Shenzhen Peng City FC,Shenzhen Peng City,Shenzhen Peng City,Shenzhen Xinpengcheng
+Tianjin Jinmen Tiger,Tianjin Jinmen Tiger FC,Tianjin Jinmen Tiger,Tianjin Jinmen Tiger,Tianjin Jinmen Tiger
+Wuhan Three Towns,,Wuhan Three Towns,Wuhan Three Towns FC,Wuhan Three Towns
+Yunnan Yukun,,Yunnan Yukun,Yunnan Yukun,Yunnan Yukun
+Zhejiang Professional,Zhejiang,Zhejiang,Zhejiang FC,Zhejiang Professional

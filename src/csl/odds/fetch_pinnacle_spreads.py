@@ -25,7 +25,7 @@ import argparse
 import logging
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
@@ -54,7 +54,14 @@ DEFAULT_REGIONS = "us"
 # measured 2026-07-16: this 5-book list = 1 credit, same as the Pinnacle-only call,
 # and it reaches eu/uk-only books that `regions=us` alone would miss. Keep the list
 # at <= 10 entries or the cost doubles.
-CAPTURE_BOOKMAKERS = (BOOKMAKER, "onexbet", "betfair_ex_eu", "betfair_ex_uk", "matchbook")
+#
+# `onexbet` was REMOVED 2026-08-02: 1xBet's opening line now comes from odds-api.io
+# (`csl.odds.fetch_onexbet_open`), whose ~500-requests/DAY free tier can poll without a
+# predicted window — the window this module's captures depend on is what lost the
+# Shandong Taishan vs Tianjin Jinmen Tiger open. Dropping it costs nothing here (still
+# 1 credit) and, via REQUIRED_OPEN_BOOKS in capture_scheduler, actively saves The Odds
+# API quota by letting a fixture stop ticking as soon as Pinnacle opens.
+CAPTURE_BOOKMAKERS = (BOOKMAKER, "betfair_ex_eu", "betfair_ex_uk", "matchbook")
 API_KEY_ENV = "THE_ODDS_API_KEY"
 
 DEFAULT_OUTPUT_CSV = os.path.join(data_raw_dir(), "CHN_pinnacle_spreads.csv")
@@ -95,6 +102,10 @@ class TeamMapping:
     odds_to_standard: dict[str, str]
     standard_to_standard: dict[str, str]
     match_to_standard: dict[str, str]
+    # odds-api.io's own club spellings ("Shandong Taishan FC", "Henan", "Zhejiang FC").
+    # Optional and defaulted so older mapping files — and any caller constructing a
+    # TeamMapping directly — keep working; it is simply empty when the column is absent.
+    oddsapiio_to_standard: dict[str, str] = field(default_factory=dict)
 
 
 def _clean_name(value: Any) -> str | None:
@@ -135,6 +146,14 @@ def load_team_mapping(path: str = TEAM_MAPPING_CSV) -> TeamMapping:
         odds_to_standard=_build_mapping_column(df, "odds_team", "standard_team"),
         standard_to_standard=_build_mapping_column(df, "standard_team", "standard_team"),
         match_to_standard=_build_mapping_column(df, "match_team", "standard_team"),
+        # Deliberately NOT in the required-column check above: odds-api.io is a
+        # supplementary source (1xBet opens only), so a mapping file without the column
+        # must still load for the Pinnacle path rather than failing the whole pipeline.
+        oddsapiio_to_standard=(
+            _build_mapping_column(df, "oddsapiio_team", "standard_team")
+            if "oddsapiio_team" in df.columns
+            else {}
+        ),
     )
     log.info("Loaded team mapping from %s", path)
     return mapping
@@ -150,6 +169,10 @@ def normalize_team_name(api_name: str, mapping: TeamMapping) -> str | None:
         return mapping.standard_to_standard[name]
     if name in mapping.match_to_standard:
         return mapping.match_to_standard[name]
+    # Checked last so adding odds-api.io's vocabulary cannot change how any existing
+    # The-Odds-API / results-CSV name already resolves.
+    if name in mapping.oddsapiio_to_standard:
+        return mapping.oddsapiio_to_standard[name]
     return None
 
 

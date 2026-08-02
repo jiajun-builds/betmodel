@@ -76,6 +76,7 @@ run_odds() {
   # Now line but no captured open and whose 10-min capture window has closed. Reuses
   # the Now-line CSV just fetched above (no extra /odds request).
   "$PYTHON" -m csl.odds.backfill_open
+  run_onexbet_open
   "$PYTHON" -m csl.odds.export_upcoming_market_comparison
 }
 
@@ -86,6 +87,21 @@ run_odds_fetch() {
 
 run_backfill_open() {
   "$PYTHON" -m csl.odds.backfill_open
+}
+
+# 1xBet opening lines from odds-api.io (separate provider, separate key, separate
+# budget — see csl/odds/fetch_onexbet_open.py). Fail-open on purpose: this is a
+# supplementary source, and an outage or a missing key must never block the Pinnacle
+# refresh or the dashboard publish. Idle runs cost zero requests.
+run_onexbet_open() {
+  if [ -z "${ODDS_API_IO_KEY:-}" ]; then
+    echo "ODDS_API_IO_KEY unset; skipping the odds-api.io 1xBet open capture."
+    return 0
+  fi
+  "$PYTHON" -m csl.odds.fetch_onexbet_open || {
+    echo "WARNING: odds-api.io 1xBet capture failed; continuing without it."
+    return 0
+  }
 }
 
 run_market_comparison() {
@@ -153,6 +169,7 @@ EOF
   run_timed_phase "STEP 2/6" "Model Export" "./scripts/csl-model.sh" run_model
   run_timed_phase "STEP 3/6" "Odds Fetch" "python -m csl.odds.fetch_pinnacle_spreads" run_odds_fetch
   run_timed_phase "STEP 3b/6" "Fallback Open Backfill" "python -m csl.odds.backfill_open" run_backfill_open
+  run_timed_phase "STEP 3c/6" "1xBet Open (odds-api.io)" "python -m csl.odds.fetch_onexbet_open" run_onexbet_open
   run_timed_phase "STEP 4/6" "Market Comparison Export" "python -m csl.odds.export_upcoming_market_comparison" run_market_comparison
   run_timed_phase "STEP 5/6" "Dashboard Export" "python -m csl.dashboard.export_dashboard_csv && python -m csl.dashboard.export_dashboard_json" run_dashboard
   run_timed_phase "STEP 5b/6" "Signal Alerts" "python -m csl.notify.signal_alert" run_notify

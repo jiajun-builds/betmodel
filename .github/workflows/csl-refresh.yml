@@ -92,6 +92,9 @@ jobs:
       - name: Run refresh (${{ steps.mode.outputs.mode }})
         env:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          # 1xBet opens (csl.sh run_onexbet_open, reached by both `odds` and `all`).
+          # Unset -> that step skips itself; it never fails the refresh.
+          ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           PYTHONPATH: src
           MODE: ${{ steps.mode.outputs.mode }}
           # Signal alerts: publish (odds mode) and `all` (full mode) both run the

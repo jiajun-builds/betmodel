@@ -76,19 +76,20 @@ DEFAULT_CAPTURE_WINDOW_HOURS = 12.0
 REFERENCE_BOOKMAKER = BOOKMAKER
 
 # The books a fixture must have an ``open`` row for before it stops being pending.
-# Both are load-bearing for the dashboard: Pinnacle's open is the λ de-bias anchor,
-# 1xBet's open is the displayed bet price / EV basis / signal price
-# (export_upcoming_market_comparison). A fixture keeps firing (1 credit/tick) until
-# BOTH are captured or its window closes — this is the point of P0-1: the earlier
-# Pinnacle-only rule stopped ticking the moment Pinnacle opened, so a 1xBet line that
-# posted later than that single tick was lost, leaving the fixture with no bet price.
-# Requiring BOTH is strictly *stricter* than the old rule (never looser), so it can
-# never let an early-opening rival stop the ticks before Pinnacle's anchor is stored.
-# Bounded by the 12h capture window + kickoff cap + the min-remaining quota guard, and
-# any genuine miss is caught quota-free by the 3h Now-refresh fallback (backfill_open).
+#
+# Pinnacle only, since 2026-08-02. 1xBet used to be required here too (P0-1), because
+# its open is the dashboard's bet price / EV basis and a line posting later than
+# Pinnacle's would otherwise be lost. That whole problem now belongs to a different
+# provider: 1xBet's open comes from odds-api.io via ``csl.odds.fetch_onexbet_open``,
+# which polls without any predicted window (~500 requests/DAY there vs ~500/MONTH here).
+#
+# Reverting to Pinnacle-only is a quota *win*, not a regression: a fixture now stops
+# ticking the moment Pinnacle's anchor is stored instead of continuing to spend 1 credit
+# per 10-min tick waiting for a book this module no longer even fetches.
+#
 # Recon-only books (betfair/matchbook) are deliberately NOT required: they have patchy
 # coverage (matchbook 4/8 fixtures) and would burn a fixture to window-close every time.
-REQUIRED_OPEN_BOOKS = (BOOKMAKER, "onexbet")
+REQUIRED_OPEN_BOOKS = (BOOKMAKER,)
 
 logging.basicConfig(
     level=logging.INFO,

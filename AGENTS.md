@@ -219,8 +219,13 @@ Scenario matrix (behaviour reflects the gated `publish` job + 6h capture window,
 - Pinnacle opening-time calendar: `src/csl/odds/opening_calendar.py` (`python -m csl.odds.opening_calendar`; `build_open_windows()` returns tz-aware windows for the scheduler)
 - odds-capture history store (append-only): `src/csl/odds/snapshot_store.py`
 - single-shot snapshot capture: `src/csl/odds/capture_snapshot.py` (`python -m csl.odds.capture_snapshot`)
-- scheduler tick (captures opening lines in-window): `src/csl/odds/capture_scheduler.py` (`python -m csl.odds.capture_scheduler`)
-- fallback open backfill (zero-quota safety net in the 3h refresh — records a missed open from the current Now line): `src/csl/odds/backfill_open.py` (`python -m csl.odds.backfill_open --dry-run`)
+- scheduler tick (captures **Pinnacle** opening lines in-window; 1xBet moved off it 2026-08-02): `src/csl/odds/capture_scheduler.py` (`python -m csl.odds.capture_scheduler`)
+- fallback open backfill (zero-quota safety net in the 3h refresh — records a missed open from the current Now line; Pinnacle only since 1xBet left The Odds API): `src/csl/odds/backfill_open.py` (`python -m csl.odds.backfill_open --dry-run`)
+- odds-api.io client (1xBet only — base URL, key, rate-limit headers, row mapping):
+  `src/csl/odds/oddsapi_io.py`
+- **1xBet opening-line capture, no predicted window**: `src/csl/odds/fetch_onexbet_open.py`
+  (`python -m csl.odds.fetch_onexbet_open --dry-run`). Polls odds-api.io and records the
+  first 1X2 price it sees per fixture. See "Two odds providers" below for why.
 - canonical path helpers: `src/csl/paths.py`
 
 ## Important Data Paths
@@ -259,10 +264,47 @@ Scenario matrix (behaviour reflects the gated `publish` job + 6h capture window,
 ## External Dependencies
 - `csl.fixtures.chn_fixture_v5` depends on TheSportsDB
 - `csl.xg.xg_pipeline` depends on the official SofaScore API via `curl_cffi` browser impersonation (no key); the merge lets fresh values win (xG tracks SofaScore's latest) but a blank scrape never erases an xG already in the cache
-- `csl.odds.fetch_pinnacle_spreads` depends on The Odds API
+- `csl.odds.fetch_pinnacle_spreads` depends on The Odds API (`THE_ODDS_API_KEY`)
+- `csl.odds.fetch_onexbet_open` depends on odds-api.io (`ODDS_API_IO_KEY`)
+
+### Two odds providers, and why (2026-08-02)
+
+| | The Odds API | odds-api.io |
+|---|---|---|
+| books | Pinnacle (λ anchor) + betfair/matchbook recon | **1xBet only** (free tier = recreational books; sharp books are paid) |
+| free quota | ~500 requests / **month** | ~500 / **day**, 100/hour |
+| capture style | window-gated (`[anchor, anchor+12h]`) | **no window** — poll until a price appears |
+| league/book keys | `soccer_china_superleague`, `pinnacle`/`onexbet` | `china-chinese-super-league`, `1xbet` |
+
+The split exists because the window-gated design **loses opening lines**. Verified case:
+Shandong Taishan vs Tianjin Jinmen Tiger (round 22). Its window ran 2026-08-01 11:35→23:35
+UTC; the scheduler polled correctly throughout and The Odds API never listed the fixture
+(`None of the in-window fixtures were present in the odds response`). The line posted ~25h
+after the anchor and the open was gone for good. The window cannot simply be widened — at
+1 request per 10-min tick, a monthly budget of ~500 makes a 48h window cost ~288 requests
+on one stubborn fixture. odds-api.io's *daily* budget removes that constraint entirely.
+
+Notes for anyone touching this:
+- Rows from odds-api.io are written with `bookmaker="onexbet"` — The Odds API's key, not
+  `"1xbet"` — precisely so `export_upcoming_market_comparison` and every downstream
+  consumer need no change. The provider is recorded in `regions` (`oddsapiio` vs `us`),
+  and `event_id` is namespaced `oddsapiio:<id>`.
+- **The history therefore contains `onexbet` opens from both providers.** Rows captured
+  before 2026-08-02 came from The Odds API; filter on `regions` if a backtest needs to
+  distinguish them. `load_open_snapshots` takes the earliest `fetched_at` per fixture, so
+  pre-cutover fixtures keep their original open.
+- `/v3/odds/movements` would have been better still (it returns a real `opening` object
+  with a timestamp, making opens retrievable retroactively). Probed 2026-08-02 across four
+  market/line combinations: **404 "No data found"** every time, not 403 — the movements
+  store has no data for 1xbet on this league. Re-probe if the plan is ever upgraded.
+- `/v3/historical/odds` **is** free-tier accessible and returns 1xBet prices for settled
+  matches, but its `updatedAt` sits ~1 minute before kickoff — that is a **closing** line,
+  not an opening one. Useless for backfilling opens; potentially the missing input for
+  roadmap #3 (close/CLV), which has never had a data source.
 
 ## Validation Guidance
-- There is no dedicated test suite in the repository root.
+- The repository has a small test suite under `tests/` (no pytest required — each file is
+  runnable directly, e.g. `python tests/test_oddsapi_io.py`).
 - Practical validation is usually done by running the relevant entry point and checking the expected CSV/JSON outputs.
 - For model experimentation, use:
   - `DC_CHN.py`
