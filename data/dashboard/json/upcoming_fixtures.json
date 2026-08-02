@@ -2,18 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T07:10:04+01:00"
+    "updated_at": "2026-08-02T11:10:48+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-21-2026-08-02-qingdao-west-coast-qingdao-hainiu",
-      "round": 21,
-      "match_date": "2026-08-02",
-      "match_time": "10:00",
-      "kickoff_at": "2026-08-02T11:00:00+01:00",
-      "home_team": "Qingdao West Coast",
-      "away_team": "Qingdao Hainiu"
-    },
     {
       "fixture_id": "CSL-2026-21-2026-08-02-liaoning-tieren-shanghai-shenhua",
       "round": 21,
