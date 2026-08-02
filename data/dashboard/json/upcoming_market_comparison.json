@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T11:43:30+01:00"
+    "updated_at": "2026-08-02T12:21:49+01:00"
   },
   "rows": [
     {
@@ -99,6 +99,25 @@
       "signal_state": null,
       "onexbet_open_last_update": "2026-08-01T14:08:20Z",
       "fetched_at": "2026-08-02T10:43:26Z"
+    },
+    {
+      "home_team": "Henan Songshan Longmen",
+      "away_team": "Qingdao West Coast",
+      "match_time": "11:00",
+      "home_win_prob": 0.5641700642281452,
+      "draw_prob": 0.2176808615899836,
+      "away_win_prob": 0.2181490741818711,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": null,
+      "onexbet_open_draw_odds": null,
+      "onexbet_open_away_odds": null,
+      "onexbet_open_home_ev": null,
+      "onexbet_open_draw_ev": null,
+      "onexbet_open_away_ev": null,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": null,
+      "fetched_at": null
     }
   ]
 }
