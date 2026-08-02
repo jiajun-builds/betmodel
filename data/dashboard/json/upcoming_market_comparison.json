@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T12:31:46+01:00"
+    "updated_at": "2026-08-02T12:39:21+01:00"
   },
   "rows": [
     {
@@ -47,19 +47,19 @@
       "home_team": "Dalian Yingbo",
       "away_team": "Liaoning Tieren",
       "match_time": "11:35",
-      "home_win_prob": 0.5248957448245911,
-      "draw_prob": 0.2254558762343496,
-      "away_win_prob": 0.2496483789410593,
-      "debias_method": "delta",
-      "onexbet_open_home_odds": null,
-      "onexbet_open_draw_odds": null,
-      "onexbet_open_away_odds": null,
-      "onexbet_open_home_ev": null,
-      "onexbet_open_draw_ev": null,
-      "onexbet_open_away_ev": null,
-      "signal_pick": null,
-      "signal_state": null,
-      "onexbet_open_last_update": null,
+      "home_win_prob": 0.5400334087129672,
+      "draw_prob": 0.2031185097613189,
+      "away_win_prob": 0.2568480815257137,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": 1.59,
+      "onexbet_open_draw_odds": 4.58,
+      "onexbet_open_away_odds": 5.04,
+      "onexbet_open_home_ev": -0.141346880146382,
+      "onexbet_open_draw_ev": -0.069717225293159,
+      "onexbet_open_away_ev": 0.2945143308895974,
+      "signal_pick": "away",
+      "signal_state": "bet",
+      "onexbet_open_last_update": "2026-08-02T11:36:39Z",
       "fetched_at": "2026-08-02T10:43:26Z"
     },
     {
