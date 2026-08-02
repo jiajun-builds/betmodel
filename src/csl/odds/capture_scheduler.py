@@ -65,7 +65,7 @@ from csl.odds.snapshot_store import DEDUP_KEY, HISTORY_CSV, append_snapshots, lo
 # opens, which is the point. A late open costs ~1 credit per 10-min tick until it
 # posts, so the bound stays finite rather than running to kickoff; anything later than
 # 12h (or missed while the 10-min workflow was cron-throttled, or a fixture with no
-# schedulable anchor) is caught quota-free by the 3h Now-refresh fallback
+# schedulable anchor) is caught quota-free by the 12h Now-refresh fallback
 # (csl.odds.backfill_open). opening_calendar caps open_to at kickoff either way.
 DEFAULT_CAPTURE_WINDOW_HOURS = 12.0
 

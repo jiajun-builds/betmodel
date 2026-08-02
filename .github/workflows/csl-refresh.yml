@@ -3,15 +3,28 @@ name: CSL Refresh
 # Dual-mode refresh (AGENTS.md roadmap: intraday odds + daily model).
 #   full  -> ./scripts/csl.sh all            (data + model + odds + dashboard + site)
 #   odds  -> ./scripts/csl.sh odds + publish  (re-fetch the "Now" line + rebuild site)
-# The daily 09:17 London cron runs `full`; the every-3h UTC cron runs `odds`. Both
+# The daily 09:17 London cron runs `full`; the every-12h UTC cron runs `odds`. Both
 # share the cached conda env and one commit/push path. Pages redeploys after either
 # mode via deploy-pages.yml's workflow_run chain (keyed on this workflow's name).
 #
 # The odds mode's Now-line fetch also runs a zero-quota fallback open backfill
 # (csl.odds.backfill_open): any fixture with a Now line but no captured open whose
-# 10-min capture window has closed gets its current line stored as a fallback open.
-# So the odds mode CAN append to the history CSV (append-only, dedup-guarded) — it is
-# no longer strictly capture-odds.yml-only. See AGENTS.md roadmap #2/#3/#6.
+# capture window has closed gets its current line stored as a fallback open. So the
+# odds mode CAN append to the history CSV (append-only, dedup-guarded) — it is not
+# strictly capture-odds.yml-only. See AGENTS.md roadmap #2/#3/#6.
+#
+# CADENCE: 3h -> 12h (2026-08-02), freeing ~180 of 500 Odds-API requests/month for the
+# new pinnacle_close capture. The 3h cron was ~70% of the monthly spend and, of the four
+# things the odds mode does, three had become redundant:
+#   * the Now line itself      -> dashboard v2.7 dropped the Now/Move columns; it is
+#                                 archive data only, not a betting basis;
+#   * run_onexbet_open         -> capture-odds.yml runs the 1xBet capture every ~10min;
+#   * publish / site rebuild   -> capture-odds.yml's gated publish job already rebuilds
+#                                 on every capture, and `full` rebuilds daily.
+# Only backfill_open is load-bearing: it is the safety net for a Pinnacle open whose
+# 12h capture window closed unfilled, and Pinnacle's open is the model's lambda anchor.
+# Two runs/day is ample for a window that wide. The mode-resolution step below matches
+# on the literal cron string, so changing the schedule means changing it there too.
 
 on:
   workflow_dispatch:
@@ -24,7 +37,7 @@ on:
   schedule:
     - cron: "17 9 * * *"    # daily full (model) refresh
       timezone: "Europe/London"
-    - cron: "0 */3 * * *"   # every 3h odds-only "Now" refresh (UTC)
+    - cron: "0 */12 * * *"  # every 12h odds-only refresh (UTC) — see the note above
 
 permissions:
   contents: write
@@ -59,7 +72,7 @@ jobs:
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             MODE="${{ github.event.inputs.mode }}"
-          elif [ "${{ github.event.schedule }}" = "0 */3 * * *" ]; then
+          elif [ "${{ github.event.schedule }}" = "0 */12 * * *" ]; then
             MODE="odds"
           else
             MODE="full"
@@ -138,7 +151,7 @@ jobs:
                     data/raw_data/CHN_pinnacle_spreads_history.csv \
                     data/output_data/CHN_upcoming_market_comparison.csv \
                     data/dashboard
-            MSG="chore(odds): 3h Now-line refresh"
+            MSG="chore(odds): 12h Now-line refresh"
           else
             git add data/raw_data data/output_data data/dashboard
             MSG="chore(data): automated dashboard refresh"

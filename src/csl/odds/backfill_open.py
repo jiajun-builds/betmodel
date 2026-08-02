@@ -1,4 +1,4 @@
-"""Fallback opening-line capture from the 3h Now-line refresh (roadmap #6/#8 gap fix).
+"""Fallback opening-line capture from the 12h Now-line refresh (roadmap #6/#8 gap fix).
 
 The 10-min ``capture_scheduler`` grabs a fixture's opening line only while "now" is
 inside its predicted window ``[anchor, min(anchor + capture-window, kickoff)]``. Three
@@ -12,7 +12,7 @@ things can still leave a fixture with a Now line but **no** captured open:
 
 All three used to surface as "dashboard shows current odds but no opening odds".
 
-This module is the safety net. It runs inside the every-3h Now-line refresh — which
+This module is the safety net. It runs inside the every-12h Now-line refresh — which
 already fetches the whole capture slate (all CAPTURE_BOOKMAKERS), so it costs **zero
 extra quota** — and, for each of ``REQUIRED_OPEN_BOOKS``, records the current line as a
 fallback ``open`` for any fixture that has a Now line but no captured open for that book

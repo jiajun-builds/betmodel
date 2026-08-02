@@ -153,27 +153,61 @@ Three workflows in `.github/workflows/` (scheduled workflows only run from `main
   trigger (cron string / `workflow_dispatch` `mode` input):
   - `full` — daily `17 9` Europe/London cron → `./scripts/csl.sh all` (data + model +
     odds + dashboard + site). Runs the model, so it (re)writes `CHN_model_meta.json`.
-  - `odds` — every-3h `0 */3` UTC cron → `./scripts/csl.sh odds && ./scripts/csl.sh publish`
+  - `odds` — every-12h `0 */12` UTC cron → `./scripts/csl.sh odds && ./scripts/csl.sh publish`
     (re-fetch the "Now" line + rebuild the site). Has a pre-spend `/sports` quota guard
-    (skips if remaining < 50) and **never writes the history CSV** or the model sidecar.
+    (skips if remaining < 50) and does not write the model sidecar. It **does** write the
+    history CSV, via the zero-quota `backfill_open` fallback.
+    **Cadence 3h → 12h (2026-08-02)**, freeing ~180 req/month for `pinnacle_close`. Three
+    of the four things this mode did had become redundant — the Now line is not on the
+    page since dashboard v2.7, `run_onexbet_open` is now done every ~10min by
+    `capture-odds.yml`, and the site rebuild is covered by that workflow's gated `publish`
+    plus the daily `full`. Only `backfill_open` is load-bearing (safety net for a Pinnacle
+    open whose 12h capture window closed unfilled — the model's λ anchor), and two
+    runs/day is ample for a window that wide.
+    ⚠️ The "Resolve mode" step matches on the **literal cron string**, so changing this
+    schedule requires changing it there too or the odds cron silently resolves to `full`.
   Uses a cached conda env (`use-mamba` + `actions/cache` on the pkgs dir); kept
   `conda-incubator/setup-miniconda` because `scripts/common.sh` needs the `conda` command.
-- **`capture-odds.yml`** — every-10-min opening-line capture tick; independent concurrency
-  group. Two jobs: `capture` (lightweight pandas+requests) appends opening lines to the
-  history CSV and exposes an `appended` output; `publish` runs **only when `appended == 'true'`**
-  — it sets up the conda env, runs `./scripts/csl.sh republish` (rebuild comparison + site
-  from the existing Now-line + updated history, **no `/odds` spend**), commits the dashboard
-  artifacts, and deploys Pages itself (job-level `concurrency: pages` to serialize with
-  `deploy-pages.yml`). This surfaces a fresh open line on the site within one tick instead of
-  waiting up to ~3h for the next `odds` refresh, while idle ticks skip the publish job entirely.
+- **`capture-odds.yml`** — every-10-min capture tick; independent concurrency group.
+  **Three capture jobs plus a gated `publish`** (restructured 2026-08-02), each capture
+  running lightweight pandas+requests and exposing an `appended` output:
+
+  | # | Job | Line | Book | Provider | Budget | Gate |
+  | - | --- | ---- | ---- | -------- | ------ | ---- |
+  | 1 | `onexbet_open` | opening | 1xBet | odds-api.io | ~500/**day** | none — every tick, capped by `--max-requests 2` |
+  | 2 | `pinnacle_open` | opening | Pinnacle (+recon) | The Odds API | ~500/**month** | predicted open window `[anchor, anchor+12h]` |
+  | 3 | `pinnacle_close` | **closing** | Pinnacle (+recon) | The Odds API | ~500/**month** | pre-kickoff `[KO-60m, KO)`, target `T-5m` |
+
+  The three are **chained sequentially** (`needs:` + `if: always()`), not parallel: all
+  three append to the end of the same history CSV, and two same-tick appends at EOF do
+  **not** auto-merge, so parallel jobs would hit genuine rebase conflicts on push. The
+  chain gives one writer at a time while keeping per-capture logs and failure isolation
+  (`always()` means a failed or `only`-skipped job never blocks the next). Runner minutes
+  are free on this public repo, so the extra checkouts cost nothing. The shared
+  commit/rebase/retry block lives in the local composite action
+  `.github/actions/capture-commit`.
+
+  `publish` runs **only when job 1 or 2 appended** — it sets up the conda env, runs
+  `./scripts/csl.sh republish` (rebuild comparison + site from the existing Now-line +
+  updated history, **no `/odds` spend**), commits the dashboard artifacts, and deploys
+  Pages itself (job-level `concurrency: pages` to serialize with `deploy-pages.yml`).
+  `pinnacle_close` is deliberately **not** in that gate: closing lines are CLV archive
+  data and do not surface on the dashboard, so a close-only tick commits and stops rather
+  than triggering a no-op redeploy.
+
+  Manual `workflow_dispatch` takes an `only` input (`all` / `onexbet-open` /
+  `pinnacle-open` / `pinnacle-close`) to run a single leg, plus `dry_run`.
 - **`deploy-pages.yml`** — builds + deploys Pages; `push` is path-filtered, and it chains
   off the `CSL Refresh` `workflow_run` (so both `full` and `odds` runs redeploy). The
   capture-driven redeploy above is done inside `capture-odds.yml`, not here.
 
 All writer workflows push with a rebase+retry loop to survive the push race between the
-3h refresh, the daily refresh, and the 10-min capture tick.
+12h refresh, the daily refresh, and the 10-min capture tick.
 
-Free Odds-API budget ≈ 290–310 of 500 requests/month (30 daily + 240 for 3h + ~20–40 capture).
+Free Odds-API budget ≈ 150–210 of 500 requests/month (2026-08-02): 30 daily `full` + 60
+for the 12h `odds` cron + ~20–40 `pinnacle_open` + ~40–80 `pinnacle_close`. Was ~330–390
+before the 3h→12h cut; the freed ~180 is what pays for the new closing-line capture, and
+headroom went from ~25% to ~60%.
 
 ### Dashboard refresh behaviour (two independent update streams)
 The page updates via **two streams** with different cadences/triggers — reason about them
@@ -183,19 +217,22 @@ and present in the Odds API feed.
 
 | Stream   | Page columns it drives                         | Driven by      | Cadence / trigger                                   | Spends `/odds`?          |
 | -------- | ---------------------------------------------- | -------------- | --------------------------------------------------- | ------------------------ |
-| **Now**  | "Now" line/odds, model EV, Move-arrow baseline | `CSL Refresh`  | odds every 3h (UTC `0 */3`) + daily `full` 09:17 LDN | 1 per run                |
+| **Now**  | *none since v2.7 — archive + `backfill_open` only* | `CSL Refresh`  | odds every 12h (UTC `0 */12`) + daily `full` 09:17 LDN | 1 per run             |
 | **Open** | "Open" line/odds (the opening line)            | `capture-odds` | 10-min tick; in-window + uncaptured + present-in-feed | 1 only when it captures |
+| **Close**| *none — CLV archive only, not on the page*     | `capture-odds` | 10-min tick; `[KO-60m, KO)` until a close lands at `T-5m` | 1 per tick with a pending fixture |
 
-Scenario matrix (behaviour reflects the gated `publish` job + 6h capture window, roadmap #6):
+Scenario matrix (gated `publish` job + 12h capture window + 12h odds cron, as of 2026-08-02):
 
 | Situation                          | `capture-odds` tick                                   | `CSL Refresh`             | What the page shows                                      |
 | ---------------------------------- | ----------------------------------------------------- | ------------------------- | ------------------------------------------------------- |
-| **Outside any capture window**     | idle (0 req, no commit, no rebuild)                   | Now refresh every 3h      | Now cols update 3-hourly; Open cols static              |
-| **In window, feed has the fixture**| captures → append → gated `publish` rebuild + deploy  | 3h refresh continues      | Open cols appear within ~1 tick; Now every 3h           |
-| **In window, feed lacks it yet**   | nothing this tick; retries each tick (6h window)      | 3h refresh continues      | Open cols blank until the feed lists it (arrives in waves) |
-| **Fixture already captured**       | skipped (an `open` row exists)                        | 3h refresh continues      | Open locked to the true opening line; Move tracks Now vs Open |
-| **Quota < 50 remaining**           | capture aborts (`min-remaining` guard)                | odds refresh skips fetch  | Both streams pause until the monthly quota reset        |
-| **Manual dispatch**                | `Capture Odds` (optional `dry_run`)                   | `CSL Refresh` `mode=full`/`odds` | Forces the corresponding refresh                 |
+| **Outside any window**             | 1xBet job may still capture; Pinnacle jobs idle (0 req) | odds refresh every 12h  | static unless a 1xBet open lands                        |
+| **In open window, feed has it**    | captures → append → gated `publish` rebuild + deploy  | 12h refresh continues     | Open/bet-price cols appear within ~1 tick                |
+| **In open window, feed lacks it**  | nothing this tick; retries each tick (12h window)     | 12h refresh continues     | cols blank until the feed lists it (arrives in waves)    |
+| **Fixture already captured**       | skipped (an `open` row exists)                        | 12h refresh continues     | Open locked to the true opening line                     |
+| **In close window `[KO-60m, KO)`** | `pinnacle_close` captures each tick until `T-5m` lands | 12h refresh continues    | **nothing** — close is archive data, not a page column   |
+| **Kickoff passes**                 | fixture drops out of every pending set                | —                         | fixture leaves the board on the next rebuild (`is_upcoming`, cadence-independent since 2026-08-02) |
+| **Quota < 50 remaining**           | Pinnacle jobs abort (`min-remaining`); 1xBet unaffected (other provider) | odds refresh skips fetch | 1xBet signal keeps updating; Pinnacle streams pause until the monthly reset |
+| **Manual dispatch**                | `Capture Odds` with `only` + `dry_run` inputs         | `CSL Refresh` `mode=full`/`odds` | Forces the corresponding refresh                  |
 
 ## Key Source Modules
 - Fixtures/results ingestion: `src/csl/fixtures/chn_fixture_v5.py`
@@ -220,7 +257,7 @@ Scenario matrix (behaviour reflects the gated `publish` job + 6h capture window,
 - odds-capture history store (append-only): `src/csl/odds/snapshot_store.py`
 - single-shot snapshot capture: `src/csl/odds/capture_snapshot.py` (`python -m csl.odds.capture_snapshot`)
 - scheduler tick (captures **Pinnacle** opening lines in-window; 1xBet moved off it 2026-08-02): `src/csl/odds/capture_scheduler.py` (`python -m csl.odds.capture_scheduler`)
-- fallback open backfill (zero-quota safety net in the 3h refresh — records a missed open from the current Now line; Pinnacle only since 1xBet left The Odds API): `src/csl/odds/backfill_open.py` (`python -m csl.odds.backfill_open --dry-run`)
+- fallback open backfill (zero-quota safety net in the 12h refresh — records a missed open from the current Now line; Pinnacle only since 1xBet left The Odds API): `src/csl/odds/backfill_open.py` (`python -m csl.odds.backfill_open --dry-run`)
 - odds-api.io client (1xBet only — base URL, key, rate-limit headers, row mapping):
   `src/csl/odds/oddsapi_io.py`
 - **1xBet opening-line capture, no predicted window**: `src/csl/odds/fetch_onexbet_open.py`
@@ -514,6 +551,45 @@ less beats predicting better.** See roadmap #8.
    (2023–24 only; 2025 close lines empty) — **no rule beats the close** once the ~1pp/side
    open-vs-close vig headwind is counted; model picks +0.69pp CLV but net-negative. See the
    2026-07-13 findings above and `backtest/backtest.md` §9.6. Superseded in priority by #8.
+
+   **Capture side — DONE (2026-08-02), on user go-ahead.** `csl.odds.capture_close` is the
+   third job in `capture-odds.yml`; before this the only close lines on file were manually
+   entered ones (2023–24 AH), so no live source produced the CLV benchmark. Design:
+   - **Target `T-5m`, window `[KO-60m, KO)`.** The user asked for the line 5 minutes before
+     kickoff. A literal 5-minute window does not survive this repo's tick cadence — measured
+     over 299 runs the inter-tick gap is median 10min but p75 74min, **p90 137min**, max
+     232min — and a missed close is unrecoverable (the fixture leaves the pre-match feed at
+     kickoff). So the window opens an hour out and **re-captures every tick, keeping the
+     latest price**; once a Pinnacle close is on file with `fetched_at >= KO - 5m` the
+     fixture goes **final** and stops spending. Healthy cadence ⇒ the stored close is the
+     `T-5m` line; degraded cadence ⇒ still a usable close instead of none.
+   - **Read side:** a fixture accrues several `close` rows as the line moves. The closing
+     line is the row with the **latest** `fetched_at` (mirroring open = earliest);
+     `capture_close.latest_close_rows()` is the canonical reader — do not re-derive it.
+   - **Cost** is per tick, not per fixture (one `/odds` covers the slate; the `bookmakers`
+     filter is free so recon books ride along): ~1–6 credits per kickoff wave, ~40–80/month.
+     Guarded by the same `--min-remaining` pre-spend check.
+   - **Not wired to the dashboard.** Closing lines are archive/CLV data; `pinnacle_close` is
+     excluded from the `publish` gate. Building the actual CLV join (the original #3) is
+     still open — it now has real input data for fixtures going forward.
+
+   **3h → 12h `odds` cron — DONE (2026-08-02).** Funded the close capture above. Since
+   dashboard v2.7 the Now line is not on the page at all (`DASHBOARD_COLUMNS` has no
+   Pinnacle Now odds, no Move) and `capture-odds.yml` runs the 1xBet capture itself every
+   ~10min, so of the four things that cron did only `backfill_open` is load-bearing. Freed
+   ~180 req/month. Shipped together with the board-staleness fix below, which it required.
+
+   **Board staleness fix (same change).** `build_base_frame` used to keep any fixture with
+   a Now-line `event_id` *without* the `is_upcoming` gate, justified by "Now-line fixtures
+   come from the live feed and are inherently upcoming". That premise holds only at *fetch*
+   time (the request sends `commenceTimeFrom=now`); `CHN_pinnacle_spreads.csv` is a disk
+   snapshot whose "inherently upcoming" property decays with exactly the refresh interval,
+   and `upcoming_fixtures.csv` is not kickoff-filtered either — so this gate was the only
+   thing trimming finished matches. At 3h the bug was capped at ~3h of lingering; at 12h it
+   would have been half a day of kicked-off matches on the board. Now `keep = (has_now |
+   has_pin_open | has_bet_open) & is_upcoming`, gating on the repo's own `kickoff_at`, so
+   **the board no longer depends on the odds-fetch cadence at all**. Verified a no-op on
+   current data (byte-identical export) and correct on synthetic stale-Now input.
 4. **Validation ladder for the edge** (before trusting it): paired Wilcoxon on per-fixture
    RPS (ZIP vs Poisson), and per-segment calibration / reliability diagrams (by handicap
    line, favourite vs underdog) — bet only in well-calibrated segments.
@@ -558,7 +634,7 @@ less beats predicting better.** See roadmap #8.
      never-captured fixture stops being "pending" at kickoff instead of burning a credit per
      tick afterward. Widening is ~free normally (a fixture is captured ~1h after anchor and
      drops out; the wider bound only keeps polling genuinely-late opens).
-     (b) *Zero-quota safety net* — `csl.odds.backfill_open`, run inside the every-3h Now-line
+     (b) *Zero-quota safety net* — `csl.odds.backfill_open`, run inside the every-12h Now-line
      refresh (`scripts/csl.sh odds`/`all`, reusing the fetch already made), records the
      current Pinnacle line as a fallback `open` for any fixture with a Now line but no
      captured open **whose capture window has already closed** (or that has no anchor). The

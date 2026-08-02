@@ -323,19 +323,30 @@ def build_base_frame(
     merged = merged.merge(
         onexbet_opens, on=["home_team", "away_team"], how="left", validate="one_to_one"
     )
-    # Keep a fixture if it has a Pinnacle Now line (event_id) OR a captured opening
-    # line from either book. Open-only fixtures — captured before they appeared in a
-    # Now-line fetch — are shown rather than dropped, so a freshly captured 1xBet open
-    # surfaces immediately. Now-line fixtures come from the live feed and are inherently
-    # upcoming; open-only fixtures are gated to a future kickoff so already-kicked-off
-    # matches don't linger on the board until the daily upcoming CSV trims them.
+    # Keep a fixture if it has a Pinnacle Now line (event_id) OR a captured opening line
+    # from either book — open-only fixtures, captured before they appeared in a Now-line
+    # fetch, are shown rather than dropped so a freshly captured 1xBet open surfaces
+    # immediately — AND its kickoff is still ahead.
+    #
+    # The `is_upcoming` gate applies to Now-line fixtures too (2026-08-02). It used to be
+    # skipped for them, on the premise that "Now-line fixtures come from the live feed and
+    # are inherently upcoming". That premise holds only at *fetch* time: the request sends
+    # commenceTimeFrom=now, so the API can't return a kicked-off fixture — but
+    # CHN_pinnacle_spreads.csv is a snapshot on disk, and the property decays with exactly
+    # the refresh interval. `upcoming_fixtures.csv` is not kickoff-filtered either (it is
+    # rebuilt daily), so this gate was the only thing trimming finished matches, and
+    # Now-line fixtures bypassed it. That capped the staleness bug at ~3h under the old 3h
+    # odds cron; when that cron dropped to 12h it would have become a half-day of
+    # kicked-off matches lingering on the board. Gating on kickoff_at — the repo's own
+    # schedule data — makes the board independent of the odds-fetch cadence.
     now = now or pd.Timestamp.now(tz="UTC")
     kickoff = pd.to_datetime(merged["kickoff_at"], utc=True, errors="coerce")
+    # A fixture with no parseable kickoff is kept: absent data must not silently hide it.
     is_upcoming = kickoff.isna() | (kickoff >= now)
     has_now = merged["event_id"].notna()
     has_pin_open = merged["open_home_odds"].notna()
     has_bet_open = merged["onexbet_open_home_odds"].notna()
-    keep = has_now | ((has_pin_open | has_bet_open) & is_upcoming)
+    keep = (has_now | has_pin_open | has_bet_open) & is_upcoming
     return merged[keep].copy()
 
 

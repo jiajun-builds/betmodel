@@ -122,7 +122,7 @@ run_notify() {
 # Warn on Telegram when the home Mac's xG feed has gone stale. xG is fetched outside CI
 # (residential IP — see scripts/LOCAL_XG_SETUP.md) and the merge is no-erase, so a dead
 # fetcher is otherwise completely silent: every step below it rebuilds green on frozen
-# data. Wired into `all` only — the every-3h odds refresh never touches xG, and one
+# data. Wired into `all` only — the every-12h odds refresh never touches xG, and one
 # message a day is the right volume for an outage that needs a human at another machine.
 # Fail-open like run_notify: the module exits 0 on any error, `|| true` is belt-and-braces.
 run_xg_freshness() {
@@ -136,7 +136,7 @@ run_publish() {
 }
 
 # Rebuild the market comparison + site WITHOUT re-fetching odds. Mirrors what the
-# every-3h `odds` refresh publishes, minus the `/odds` spend: the comparison export
+# every-12h `odds` refresh publishes, minus the `/odds` spend: the comparison export
 # re-reads the existing Now-line CSV joined to the (freshly captured) opening-line
 # history, so a just-captured open line surfaces on the dashboard immediately. Used
 # by capture-odds.yml's gated publish job.
