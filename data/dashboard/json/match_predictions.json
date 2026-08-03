@@ -2,39 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-02T17:03:11+01:00",
+    "updated_at": "2026-08-03T02:46:14+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-21-2026-08-02-liaoning-tieren-shanghai-shenhua",
-      "round": 21,
-      "match_date": "2026-08-02",
-      "kickoff_at": "2026-08-02T12:35:00+01:00",
-      "home_team": "Liaoning Tieren",
-      "away_team": "Shanghai Shenhua",
-      "home_win_prob": 0.273169,
-      "draw_prob": 0.21215,
-      "away_win_prob": 0.514681,
-      "home_win_fair_odds": 3.6607,
-      "draw_fair_odds": 4.7136,
-      "away_win_fair_odds": 1.943
-    },
-    {
-      "fixture_id": "CSL-2026-21-2026-08-02-shenzhen-xinpengcheng-chongqing-tonglianglong",
-      "round": 21,
-      "match_date": "2026-08-02",
-      "kickoff_at": "2026-08-02T13:00:00+01:00",
-      "home_team": "Shenzhen Xinpengcheng",
-      "away_team": "Chongqing Tonglianglong",
-      "home_win_prob": 0.379395,
-      "draw_prob": 0.297995,
-      "away_win_prob": 0.322611,
-      "home_win_fair_odds": 2.6358,
-      "draw_fair_odds": 3.3558,
-      "away_win_fair_odds": 3.0997
-    },
     {
       "fixture_id": "CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng",
       "round": 22,

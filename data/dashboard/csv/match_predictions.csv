@@ -1,6 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-21-2026-08-02-liaoning-tieren-shanghai-shenhua,21,2026-08-02,2026-08-02T12:35:00+01:00,Liaoning Tieren,Shanghai Shenhua,0.273169,0.21215,0.514681,3.6607,4.7136,1.943
-CSL-2026-21-2026-08-02-shenzhen-xinpengcheng-chongqing-tonglianglong,21,2026-08-02,2026-08-02T13:00:00+01:00,Shenzhen Xinpengcheng,Chongqing Tonglianglong,0.379395,0.297995,0.322611,2.6358,3.3558,3.0997
 CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng,22,2026-08-07,2026-08-07T12:35:00+01:00,Beijing Guoan,Shenzhen Xinpengcheng,0.758257,0.144716,0.097027,1.3188,6.9101,10.3064
 CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua,22,2026-08-08,2026-08-08T12:00:00+01:00,Qingdao Hainiu,Shanghai Shenhua,0.245115,0.210145,0.54474,4.0797,4.7586,1.8357
 CSL-2026-22-2026-08-08-dalian-yingbo-liaoning-tieren,22,2026-08-08,2026-08-08T12:35:00+01:00,Dalian Yingbo,Liaoning Tieren,0.524896,0.225456,0.249648,1.9051,4.4355,4.0056
