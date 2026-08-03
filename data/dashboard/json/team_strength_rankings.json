@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-03T12:47:24+01:00"
+    "updated_at": "2026-08-03T15:13:39+01:00"
   },
   "rows": [
     {
@@ -10,7 +10,7 @@
       "team": "Chengdu Rongcheng",
       "attack_rating": 2.052913690367147,
       "defense_rating": 1.0408745224062492,
-      "overall_rating": 0.67268667249574,
+      "overall_rating": 0.6726866724957402,
       "attack_rank": 2,
       "defense_rank": 1,
       "form": "D,D,D,D,D",
@@ -40,7 +40,7 @@
       "team": "Beijing Guoan",
       "attack_rating": 2.011125094267159,
       "defense_rating": 1.2577105265880382,
-      "overall_rating": 0.4886997527733523,
+      "overall_rating": 0.4886997527733526,
       "attack_rank": 3,
       "defense_rank": 3,
       "form": "W,D,D,W,W",
@@ -85,7 +85,7 @@
       "team": "Henan Songshan Longmen",
       "attack_rating": 1.6120500914031517,
       "defense_rating": 1.298149658215005,
-      "overall_rating": 0.2123906948490083,
+      "overall_rating": 0.2123906948490085,
       "attack_rank": 6,
       "defense_rank": 5,
       "form": "D,W,W,L,L",
@@ -250,7 +250,7 @@
       "team": "Meizhou Hakka",
       "attack_rating": 1.2614051999864275,
       "defense_rating": 2.161447812831889,
-      "overall_rating": -0.5624564939413403,
+      "overall_rating": -0.5624564939413405,
       "attack_rank": 15,
       "defense_rank": 18,
       "form": "L,D,L,L,L",
