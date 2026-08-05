@@ -32,6 +32,7 @@ import pandas as pd
 from ligamx import paths
 from ligamx.models.dc import DEFAULT_TARGET, TRAINING_WINDOW_MONTHS, fit_production_model
 from ligamx.eval.rps_backtest import RESULT_IDX
+from ligamx.date_utils import parse_date_only_series
 
 warnings.filterwarnings("ignore")
 
@@ -46,6 +47,14 @@ def _devig(odds):
     return [x / s for x in inv]
 
 
+# A pre-kickoff 3-way close never resolves an outcome. When one does, the stored
+# "close" is a post-kickoff or settled price and carries the result -- pure
+# look-ahead that inflates both CLV and ROI@close. Two Polymarket rows trip this
+# (Tijuana-Mazatlan 2026-02-22 priced 0.999 on the draw it finished as; America-
+# Tigres 2026-03-01 priced 0.000 on the home side while 1-4 down).
+DEGENERATE_LO, DEGENERATE_HI = 0.01, 0.95
+
+
 def _triplet(row, prefix):
     """Return [h, d, a] decimal odds for a venue prefix, or None if incomplete."""
     try:
@@ -55,9 +64,17 @@ def _triplet(row, prefix):
     return vals if all(np.isfinite(v) and v > 1.0 for v in vals) else None
 
 
+def _is_prekickoff(odds):
+    """False when a 3-way price has already resolved (in-play/settled leakage)."""
+    if odds is None:
+        return False
+    p = _devig(odds)
+    return min(p) >= DEGENERATE_LO and max(p) <= DEGENERATE_HI
+
+
 def _load():
     df = pd.read_csv(paths.ligamx_data_csv())
-    df["Date"] = pd.to_datetime(df["Date"], format="%Y/%m/%d", errors="coerce")
+    df["Date"] = parse_date_only_series(df["Date"])
     df = df.dropna(subset=["Date", "Home", "Away"])
     df["Home"] = df["Home"].astype(str)
     df["Away"] = df["Away"].astype(str)
@@ -96,26 +113,45 @@ def _model_probs(df, test_start, min_train=80):
     return out
 
 
-def _records(df, probs):
-    """Assemble per-match records carrying model probs, open, and both closes."""
+def _records(df, probs, keep: set | None = None, open_key: str = "polymarket_open",
+             close_keys=("polymarket_close", "pinnacle_close")):
+    """Assemble per-match records carrying model probs, the open, and each close.
+
+    ``keep`` restricts to fixtures whose Polymarket open was a real book (see
+    odds/price_quality): the store seeds untraded events near 0.50 per outcome, and
+    CLV measured from a placeholder is manufactured, not observed.
+
+    ``open_key`` is the price you actually bet into, so the same harness scores an
+    attack on any venue's opener (polymarket_open, betano_open, ...) as long as the
+    schema carries its h/d/a triplet.
+    """
     recs = []
     for idx, mp in probs.items():
-        row = df.loc[idx]
-        pm_open = _triplet(row, "polymarket_open")
-        if pm_open is None:
+        if keep is not None and idx not in keep:
             continue
-        recs.append({
-            "m": mp,
-            "open": pm_open,
-            "polymarket_close": _triplet(row, "polymarket_close"),
-            "pinnacle_close": _triplet(row, "pinnacle_close"),
-            "res": RESULT_IDX[row["Res"]],
-        })
+        row = df.loc[idx]
+        open_odds = _triplet(row, open_key)
+        if open_odds is None:
+            continue
+        rec = {"m": mp, "open": open_odds, "res": RESULT_IDX[row["Res"]],
+               "date": row["Date"]}
+        for ck in close_keys:
+            close = _triplet(row, ck)
+            rec[ck] = close if _is_prekickoff(close) else None
+        recs.append(rec)
     return recs
 
 
+MIN_DRIFT_HISTORY = 20  # prior matches needed before a walk-forward baseline is usable
+
+
 def _drift(recs, close_key):
-    """Same-outcome mean (close - open) devigged prob movement across the sample."""
+    """Same-outcome mean (close - open) devigged prob movement across the sample.
+
+    FULL-SAMPLE, so it peeks: a bet placed in October is scored against a baseline
+    that includes the following May. Fine as a descriptive statistic, not fine as a
+    backtest input -- use _walk_forward_drift for that.
+    """
     sample = [r for r in recs if r[close_key]]
     mov = np.zeros(3)
     for r in sample:
@@ -124,17 +160,43 @@ def _drift(recs, close_key):
     return mov / len(sample) if sample else mov
 
 
-def analyze(recs, close_key: str, drop_draw: bool = False):
+def _walk_forward_drift(recs, close_key):
+    """Per-record drift baseline computed only from STRICTLY EARLIER matches.
+
+    The excess-CLV metric subtracts the market's average movement on that outcome,
+    because the market drifts every season and a naive pick inherits that for free.
+    Estimating it on the whole sample means a bet is scored against movement that
+    had not happened yet. This returns {id(record): drift vector} built from an
+    expanding window of prior matches only; records without ``MIN_DRIFT_HISTORY``
+    predecessors get None and are dropped by the caller rather than scored against
+    a baseline that does not exist yet.
+    """
+    sample = sorted((r for r in recs if r[close_key]), key=lambda r: r["date"])
+    out, running, n = {}, np.zeros(3), 0
+    for r in sample:
+        out[id(r)] = (running / n).copy() if n >= MIN_DRIFT_HISTORY else None
+        po, pc = _devig(r["open"]), _devig(r[close_key])
+        running += np.array(pc) - np.array(po)
+        n += 1
+    return out
+
+
+def analyze(recs, close_key: str, drop_draw: bool = False, wf_drift: bool = True):
     sample = [r for r in recs if r[close_key]]
     drift = _drift(recs, close_key)  # per-outcome baseline line movement
+    wf = _walk_forward_drift(recs, close_key) if wf_drift else None
+    if wf is not None:
+        sample = [r for r in sample if wf[id(r)] is not None]
     tag = "  [DRAW DROPPED: pick home/away only]" if drop_draw else ""
+    mode = "walk-forward (prior matches only)" if wf_drift else "FULL SAMPLE (peeks)"
     print(f"\n{'='*88}\nBENCHMARK: {close_key}   |   matches with open+close = {len(sample)}"
-          f"   |   drift[H/D/A] = {100*drift[0]:+.2f}/{100*drift[1]:+.2f}/{100*drift[2]:+.2f} pp{tag}\n{'='*88}")
-    header = f"{'EV_thr':>7}{'nbets':>7}{'hit%':>7}{'ROI@open':>10}{'CLV_raw':>9}{'CLV_exc':>9}{'gap_pp':>8}{'ROI@close':>10}"
+          f"   |   drift baseline: {mode}\n"
+          f"   full-sample drift[H/D/A] = {100*drift[0]:+.2f}/{100*drift[1]:+.2f}/{100*drift[2]:+.2f} pp{tag}\n{'='*88}")
+    header = (f"{'EV_thr':>7}{'nbets':>7}{'hit%':>7}{'ROI@open':>10}{'CLV_raw':>9}"
+              f"{'CLV_exc':>9}{'t_exc':>7}{'95% CI on CLV_exc':>21}{'gap_pp':>8}{'ROI@close':>10}")
     print(header)
     for thr in THRESHOLDS:
-        n = hit = 0
-        clv = clv_exc = gap = roi_open = roi_close = 0.0
+        clv_l, exc_l, gap_l, ropen_l, rclose_l, wins = [], [], [], [], [], 0
         for r in sample:
             po, pc = _devig(r["open"]), _devig(r[close_key])
             ev = [r["m"][i] * r["open"][i] - 1 for i in range(3)]
@@ -143,35 +205,61 @@ def analyze(recs, close_key: str, drop_draw: bool = False):
             pick = int(np.argmax(ev))
             if ev[pick] <= thr:
                 continue
-            n += 1
             win = (r["res"] == pick)
-            hit += win
-            clv += (pc[pick] - po[pick]) * 100
-            clv_exc += (pc[pick] - po[pick] - drift[pick]) * 100
-            gap += (r["m"][pick] - pc[pick]) * 100
-            roi_open += (r["open"][pick] - 1) if win else -1
-            roi_close += (r[close_key][pick] - 1) if win else -1
+            wins += win
+            base = drift if wf is None else wf[id(r)]
+            clv_l.append((pc[pick] - po[pick]) * 100)
+            exc_l.append((pc[pick] - po[pick] - base[pick]) * 100)
+            gap_l.append((r["m"][pick] - pc[pick]) * 100)
+            ropen_l.append((r["open"][pick] - 1) if win else -1)
+            rclose_l.append((r[close_key][pick] - 1) if win else -1)
+        n = len(clv_l)
         if n == 0:
-            print(f"{thr:>7.2f}{0:>7}{'-':>7}{'-':>10}{'-':>9}{'-':>9}{'-':>8}{'-':>10}")
+            print(f"{thr:>7.2f}{0:>7}{'-':>7}{'-':>10}{'-':>9}{'-':>9}{'-':>7}{'-':>21}{'-':>8}{'-':>10}")
             continue
-        print(f"{thr:>7.2f}{n:>7}{100*hit/n:>6.1f}%{roi_open/n*100:>9.2f}%"
-              f"{clv/n:>9.2f}{clv_exc/n:>9.2f}{gap/n:>8.2f}{roi_close/n*100:>9.2f}%")
+        exc = np.array(exc_l)
+        # Standard error over bets. The drift baseline is estimated on the same
+        # sample, so this slightly understates uncertainty -- it is an upper bound
+        # on how much the number can be trusted, not a lower one.
+        se = exc.std(ddof=1) / np.sqrt(n) if n > 1 else np.nan
+        t = exc.mean() / se if n > 1 and se > 0 else np.nan
+        lo, hi = (exc.mean() - 1.96 * se, exc.mean() + 1.96 * se) if n > 1 else (np.nan, np.nan)
+        print(f"{thr:>7.2f}{n:>7}{100*wins/n:>6.1f}%{np.mean(ropen_l)*100:>9.2f}%"
+              f"{np.mean(clv_l):>9.2f}{exc.mean():>9.2f}{t:>7.2f}"
+              f"{f'[{lo:+.2f}, {hi:+.2f}]':>21}"
+              f"{np.mean(gap_l):>8.2f}{np.mean(rclose_l)*100:>9.2f}%")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--test-start", default="2025-10-01")
     ap.add_argument("--drop-draw", action="store_true", help="pick home/away only (section 13 fix)")
+    ap.add_argument("--traded-only", action="store_true",
+                    help="drop fixtures whose Polymarket open was a pre-trading placeholder")
+    ap.add_argument("--open-source", default="polymarket_open",
+                    help="schema prefix of the price bet into (e.g. betano_open)")
+    ap.add_argument("--benchmarks", default="polymarket_close,pinnacle_close",
+                    help="comma-separated closing benchmarks to score against")
+    ap.add_argument("--full-sample-drift", action="store_true",
+                    help="score against a drift baseline fitted on the WHOLE sample "
+                         "(peeks at the future; walk-forward is the default)")
     args = ap.parse_args()
 
+    close_keys = tuple(k.strip() for k in args.benchmarks.split(",") if k.strip())
     df = _load()
     probs = _model_probs(df, args.test_start)
-    recs = _records(df, probs)
-    print(f"Test matches with model prob + polymarket_open: {len(recs)}  (test-start {args.test_start})")
+    keep = None
+    if args.traded_only:
+        from ligamx.odds import price_quality
+        keep = price_quality.traded_open_rows(df)
+    recs = _records(df, probs, keep, args.open_source, close_keys)
+    print(f"Test matches with model prob + {args.open_source}: {len(recs)}  (test-start {args.test_start})"
+          + ("  [real books only]" if args.traded_only else ""))
     print("CLV_raw/exc = devigged (close-open) pp on picked side, raw & excess-over-drift.")
     print("gap_pp = model_prob - close_prob on picks. ROI = mean unit P/L at that price.")
-    for close_key in ("polymarket_close", "pinnacle_close"):
-        analyze(recs, close_key, drop_draw=args.drop_draw)
+    for close_key in close_keys:
+        analyze(recs, close_key, drop_draw=args.drop_draw,
+                wf_drift=not args.full_sample_drift)
 
 
 if __name__ == "__main__":

@@ -29,6 +29,7 @@ from ligamx import paths
 from ligamx.models.dc import MODEL_XI, SHRINKAGE_K, TRAINING_WINDOW_MONTHS, fit_production_model
 from ligamx.xg.xg_calculator import XGCalculator
 from ligamx.eval.rps_backtest import RESULT_IDX, _market_probs, log_loss, rps
+from ligamx.date_utils import parse_date_only_series
 
 warnings.filterwarnings("ignore")
 
@@ -42,7 +43,7 @@ DEFAULT_K = SHRINKAGE_K
 
 def _load_raw() -> pd.DataFrame:
     df = pd.read_csv(paths.ligamx_data_csv())
-    df["Date"] = pd.to_datetime(df["Date"], format="mixed", errors="coerce")
+    df["Date"] = parse_date_only_series(df["Date"])
     df = df.dropna(subset=["Date", "Home", "Away"])
     df["Home"] = df["Home"].astype(str)
     df["Away"] = df["Away"].astype(str)

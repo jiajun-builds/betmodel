@@ -16,6 +16,9 @@ data/output_data/
 # Regenerable odds caches (raw store rebuilds via backfill; h2h is a live snapshot)
 data/odds_snapshots.csv
 data/MEX_pinnacle_h2h.csv
+data/polymarket_price_quality.csv
+data/polymarket_trades.csv
+data/oddsapi_io_closes.csv
 
 AGENTS.md
 CLAUDE.md

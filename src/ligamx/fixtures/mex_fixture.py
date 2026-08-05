@@ -21,6 +21,7 @@ import pandas as pd
 from ligamx import config, paths
 from ligamx.sofascore_client import SofascoreClient, event_goals, round_label
 from ligamx.xg.data_updater import DataUpdater
+from ligamx.date_utils import parse_date_only_series
 
 # Tournaments that make up a Liga MX year (each has its own SofaScore season ids).
 TOURNAMENTS = [
@@ -47,7 +48,7 @@ def _max_existing_date():
     """Latest cached match date (a date), or None if unavailable."""
     try:
         df = pd.read_csv(paths.ligamx_data_csv())
-        parsed = pd.to_datetime(df["Date"], format="mixed", errors="coerce")
+        parsed = parse_date_only_series(df["Date"])
         m = parsed.max()
         return None if pd.isna(m) else m.date()
     except Exception as e:

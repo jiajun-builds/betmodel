@@ -35,6 +35,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from ligamx import config, paths
+from ligamx.date_utils import parse_date_only_series
 from ligamx.sofascore_client import (
     REGULATION_PERIODS,
     SofascoreClient,
@@ -162,7 +163,7 @@ def _meta_equal(have: str, want: str) -> bool:
 def reconcile(records: list, tol: float = 0.05) -> dict:
     """Compare SofaScore records against the CSV; return categorized discrepancies."""
     df = pd.read_csv(paths.ligamx_data_csv(), dtype=str, keep_default_na=False)
-    df["_d"] = pd.to_datetime(df["Date"], format="mixed", errors="coerce").dt.strftime("%Y-%m-%d")
+    df["_d"] = parse_date_only_series(df["Date"]).dt.strftime("%Y-%m-%d")
     # index CSV rows by (home, away) -> list of (row_index, date, hxg, axg, hg, ag)
     csv_by_pair = {}
     for i, r in df.iterrows():
@@ -292,7 +293,7 @@ def apply_fix(res: dict, add_missing: bool = True, correct_xg: bool = False,
             stats["added"] = len(new_rows)
 
     # Sort by date to keep the history ordered, then write drift-free.
-    df["_sort"] = pd.to_datetime(df["Date"], format="mixed", errors="coerce")
+    df["_sort"] = parse_date_only_series(df["Date"])
     df = df.sort_values("_sort", kind="stable").drop(columns=["_sort"]).reset_index(drop=True)
     df.to_csv(paths.ligamx_data_csv(), index=False)
     return stats
