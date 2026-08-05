@@ -19,6 +19,7 @@ from penaltyblog.models import dixon_coles_weights
 
 from ligamx import paths
 from ligamx.models.continuous_poisson import fit_continuous_poisson
+from ligamx.date_utils import parse_date_only_series
 
 # Dixon-Coles time-decay parameter (higher => older matches down-weighted faster).
 # Centralized here so every fit uses the same value.
@@ -143,7 +144,7 @@ def run_goals_model(input_csv_path, output_csv_path):
 
     # Convert Date explicitly using the known format (more reliable than
     # parse_dates in read_csv, which can silently fall back to strings).
-    df["Date"] = pd.to_datetime(df["Date"], format="%Y/%m/%d")
+    df["Date"] = parse_date_only_series(df["Date"])
 
     # Drop rows where 'Home' or 'Away' teams are missing
     df = df.dropna(subset=["Home", "Away"])

@@ -47,6 +47,37 @@ def market_comparison_csv() -> str:
     return os.path.join(data_output_dir(), "MEX_upcoming_market_comparison.csv")
 
 
+def polymarket_price_quality_csv() -> str:
+    """Per-snapshot tradedness flags for Polymarket (companion to the snapshot store).
+
+    Derived, regenerable, and deliberately NOT part of the append-only store's
+    schema: it exists to tell the CLV layer which stored prices were real traded
+    prices rather than pre-trading placeholders. See odds/price_quality.
+    """
+    return os.path.join(data_dir(), "polymarket_price_quality.csv")
+
+
+def oddsapi_io_closes_csv() -> str:
+    """Cached odds-api.io historical closing lines (long format, one row per line).
+
+    Regenerable by re-pulling, and quota-limited rather than free, so it is cached
+    beside the snapshot store instead of inside it: the store is a poll time-series
+    while this endpoint only ever returns a single close per market.
+    See odds/oddsapi_io.
+    """
+    return os.path.join(data_dir(), "oddsapi_io_closes.csv")
+
+
+def polymarket_trades_csv() -> str:
+    """Tick-level Polymarket trade tape, normalized to Yes-space aggressor terms.
+
+    Derived and regenerable (re-pull with odds/polymarket_trades), so it is cached
+    beside the snapshot store rather than inside it: the store is one row per poll
+    per match, while this is one row per print. See odds/polymarket_trades.
+    """
+    return os.path.join(data_dir(), "polymarket_trades.csv")
+
+
 # --- raw / input data -------------------------------------------------------
 
 def ligamx_data_csv() -> str:

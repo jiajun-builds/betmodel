@@ -23,6 +23,7 @@ import pandas as pd
 import requests
 
 from ligamx import config, paths
+from ligamx.date_utils import parse_date_only_series
 
 FOOTBALL_DATA_URL = "https://www.football-data.co.uk/new/MEX.csv"
 
@@ -80,7 +81,7 @@ def load_enriched(refresh_first: bool = False) -> pd.DataFrame:
     keep_cols = [c for c in FD_CLOSE_COLS if c in fd.columns]
 
     mx = pd.read_csv(paths.ligamx_data_csv())
-    mx["Date"] = pd.to_datetime(mx["Date"], format=config.CSV_DATE_FORMAT, errors="coerce")
+    mx["Date"] = parse_date_only_series(mx["Date"])
 
     rows = []
     for _, r in mx.iterrows():

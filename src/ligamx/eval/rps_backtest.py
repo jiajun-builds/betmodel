@@ -25,6 +25,7 @@ import penaltyblog as pb
 from penaltyblog.models import dixon_coles_weights
 
 from ligamx import paths
+from ligamx.date_utils import parse_date_only_series
 from ligamx.models.dc import (
     MODEL_XI,
     SHRINKAGE_K,
@@ -112,7 +113,7 @@ def _market_probs(row):
 def _load_played(target: str):
     gh, ga = ("HExpG+", "AExpG+") if target == "xG" else ("HG", "AG")
     df = pd.read_csv(paths.ligamx_data_csv())
-    df["Date"] = pd.to_datetime(df["Date"], format="mixed", errors="coerce")
+    df["Date"] = parse_date_only_series(df["Date"])
     df = df.dropna(subset=["Date", "Home", "Away"])
     df["Home"] = df["Home"].astype(str)
     df["Away"] = df["Away"].astype(str)

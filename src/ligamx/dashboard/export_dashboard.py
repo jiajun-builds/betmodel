@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 import pandas as pd
 
 from ligamx import paths
+from ligamx.date_utils import parse_date_only_series
 
 COMPETITION_CODE = "MEX"
 COMPETITION_NAME = "Liga MX"
@@ -85,7 +86,7 @@ def _read_model_updated_at(default: str) -> str:
 
 def _form_map(matches: pd.DataFrame) -> dict:
     played = matches.copy()
-    played["_d"] = pd.to_datetime(played["Date"], format="mixed", errors="coerce")
+    played["_d"] = parse_date_only_series(played["Date"])
     played["Res"] = played["Res"].astype(str).str.strip()
     played = played[played["_d"].notna() & played["Res"].isin(["H", "D", "A"])]
     played = played.sort_values("_d")
@@ -113,7 +114,7 @@ def run() -> None:
         season = str(upcoming["Season"].mode().iloc[0])
     else:
         m = matches.copy()
-        m["_d"] = pd.to_datetime(m["Date"], format="mixed", errors="coerce")
+        m["_d"] = parse_date_only_series(m["Date"])
         season = str(m.sort_values("_d").iloc[-1]["Season"])
 
     now_utc = datetime.now(timezone.utc)
@@ -200,7 +201,7 @@ def run() -> None:
     current_round = int(up_rounds.min()) if not up_rounds.empty else total_rounds
 
     m2 = matches.copy()
-    m2["_d"] = pd.to_datetime(m2["Date"], format="mixed", errors="coerce")
+    m2["_d"] = parse_date_only_series(m2["Date"])
     last_completed = m2["_d"].max()
     next_fixture_date = up_rows[0]["match_date"] if up_rows else None
 
