@@ -2,25 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-07T13:38:20+01:00",
+    "updated_at": "2026-08-08T01:46:26+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-22-2026-08-07-beijing-guoan-shenzhen-xinpengcheng",
-      "round": 22,
-      "match_date": "2026-08-07",
-      "kickoff_at": "2026-08-07T12:35:00+01:00",
-      "home_team": "Beijing Guoan",
-      "away_team": "Shenzhen Xinpengcheng",
-      "home_win_prob": 0.755325,
-      "draw_prob": 0.145706,
-      "away_win_prob": 0.098969,
-      "home_win_fair_odds": 1.3239,
-      "draw_fair_odds": 6.8631,
-      "away_win_fair_odds": 10.1042
-    },
     {
       "fixture_id": "CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua",
       "round": 22,
