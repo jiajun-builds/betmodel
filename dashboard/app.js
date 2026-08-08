@@ -160,7 +160,9 @@ function renderSignals(rows) {
     if (row.onexbet_open_last_update > openMax) openMax = row.onexbet_open_last_update;
 
     const tr = outs.map((o, i) => {
-      const timeCell = i === 0 ? `<td class="sig-time" rowspan="3">${esc(row.match_time)}</td>` : "";
+      // match_time on the market rows is UTC; kickoff_at (joined from fixtures in
+      // bootstrap) is what fmtTime renders in DISPLAY_TZ, as every other view does.
+      const timeCell = i === 0 ? `<td class="sig-time" rowspan="3">${esc(fmtTime(row.kickoff_at, row.match_time))}</td>` : "";
       const isPick = isBet && row.signal_pick === o.key;
       const nameCls = "sig-name" + (isPick ? " is-pick" : "");
       const probCls = "sig-prob" + (isPick ? " is-pick" : "");
