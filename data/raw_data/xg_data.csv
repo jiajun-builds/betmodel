@@ -168,11 +168,11 @@ match_id,round,date,home_team,away_team,home_score,away_score,home_xg,away_xg,st
 15552599,21,2026-08-02,Liaoning Tieren,Shanghai Shenhua,3,1,1.88,1.59,Ended
 15552598,21,2026-08-02,Qingdao West Coast,Qingdao Hainiu,2,0,1.11,0.18,Ended
 15552595,21,2026-08-02,Shenzhen Xinpengcheng,Chongqing Tonglianglong,2,0,1.59,0.57,Ended
-15552600,22,2026-08-07,Beijing Guoan,Shenzhen Xinpengcheng,,,,,Not started
-15552602,22,2026-08-08,Dalian Yingbo,Liaoning Tieren,,,,,Not started
-15552601,22,2026-08-08,Qingdao Hainiu,Shanghai Shenhua,,,,,Not started
-15552604,22,2026-08-08,Yunnan Yukun,Chengdu Rongcheng,,,,,Not started
-15552603,22,2026-08-08,Zhejiang Professional,Wuhan Three Towns,,,,,Not started
+15552600,22,2026-08-07,Beijing Guoan,Shenzhen Xinpengcheng,4,0,4.28,1.5,Ended
+15552602,22,2026-08-08,Dalian Yingbo,Liaoning Tieren,1,0,0.0,0.0,Ended
+15552601,22,2026-08-08,Qingdao Hainiu,Shanghai Shenhua,0,1,0.0,0.0,Ended
+15552604,22,2026-08-08,Yunnan Yukun,Chengdu Rongcheng,1,0,0.0,0.0,Ended
+15552603,22,2026-08-08,Zhejiang Professional,Wuhan Three Towns,,,,,Postponed
 15552606,22,2026-08-09,Chongqing Tonglianglong,Shanghai Port,,,,,Not started
 15552605,22,2026-08-09,Henan Songshan Longmen,Qingdao West Coast,,,,,Not started
 15552609,22,2026-08-09,Shandong Taishan,Tianjin Jinmen Tiger,,,,,Not started
