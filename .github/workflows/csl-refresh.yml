@@ -18,7 +18,7 @@ name: CSL Refresh
 # things the odds mode does, three had become redundant:
 #   * the Now line itself      -> dashboard v2.7 dropped the Now/Move columns; it is
 #                                 archive data only, not a betting basis;
-#   * run_onexbet_open         -> capture-odds.yml runs the 1xBet capture every ~10min;
+#   * run_oddsapiio_opens      -> capture-odds.yml runs the open capture every ~10min;
 #   * publish / site rebuild   -> capture-odds.yml's gated publish job already rebuilds
 #                                 on every capture, and `full` rebuilds daily.
 # Only backfill_open is load-bearing: it is the safety net for a Pinnacle open whose
@@ -105,7 +105,7 @@ jobs:
       - name: Run refresh (${{ steps.mode.outputs.mode }})
         env:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
-          # 1xBet opens (csl.sh run_onexbet_open, reached by both `odds` and `all`).
+          # 1xBet + Duel opens (csl.sh run_oddsapiio_opens, reached by `odds` and `all`).
           # Unset -> that step skips itself; it never fails the refresh.
           ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           PYTHONPATH: src

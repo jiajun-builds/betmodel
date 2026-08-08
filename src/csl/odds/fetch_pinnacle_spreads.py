@@ -56,7 +56,7 @@ DEFAULT_REGIONS = "us"
 # at <= 10 entries or the cost doubles.
 #
 # `onexbet` was REMOVED 2026-08-02: 1xBet's opening line now comes from odds-api.io
-# (`csl.odds.fetch_onexbet_open`), whose ~500-requests/DAY free tier can poll without a
+# (`csl.odds.fetch_oddsapiio_opens`), whose ~500-requests/DAY free tier can poll without a
 # predicted window — the window this module's captures depend on is what lost the
 # Shandong Taishan vs Tianjin Jinmen Tiger open. Dropping it costs nothing here (still
 # 1 credit) and, via REQUIRED_OPEN_BOOKS in capture_scheduler, actively saves The Odds

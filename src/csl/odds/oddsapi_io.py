@@ -1,4 +1,4 @@
-"""Thin odds-api.io client — the 1xBet opening-line source (replaces The Odds API for that book).
+"""Thin odds-api.io client — the opening-line source for every book this plan entitles.
 
 Why a second provider at all
 ----------------------------
@@ -18,12 +18,24 @@ odds-api.io breaks the deadlock because its free tier is ~500 requests **per day
 enough to poll the whole slate every 15 minutes all day, so there is no window to
 expire — a late-posting line is picked up within one tick of appearing.
 
+Which books (re-probed 2026-08-08)
+----------------------------------
+The plan allows **two** books and they are ``1xbet`` + ``Duel`` — both captured, at the
+same priority and on the same tick, by ``fetch_oddsapiio_opens``. ``bookmakers=1xbet,Duel``
+returns both in ONE ``/odds/multi`` request, so the second book costs **zero** extra
+quota; see ``CAPTURE_BOOKS``.
+
+⚠️ ``/bookmakers/selected`` is STALE — it still reports ``{"bookmakers":["1xbet"],"count":1}``
+while both books answer with data. The authoritative entitlement is the 403 body from
+``/odds/multi``: ``"Access denied. You're allowed max 2 bookmakers. Allowed: 1xbet, Duel"``.
+Do not re-probe with ``/bookmakers/selected`` and conclude a book is unavailable.
+
 What this module is NOT
 -----------------------
-It does not fetch Pinnacle. odds-api.io's free tier carries recreational books only
-(this account has exactly one book selected: ``1xbet``); sharp books are a paid add-on.
-Pinnacle's open — the λ de-bias anchor — stays on The Odds API via
-``fetch_pinnacle_spreads`` / ``capture_scheduler``.
+It does not fetch Pinnacle. odds-api.io's free tier carries recreational books only;
+sharp books are a paid add-on, and Pinnacle/Betfair/Matchbook are not even valid
+``bookmakers`` values here (they 400, not 403). Pinnacle's open — the λ de-bias anchor —
+stays on The Odds API via ``fetch_pinnacle_spreads`` / ``capture_scheduler``.
 
 ``/odds/movements`` was the preferred design (it returns an ``opening`` object with a
 real timestamp, which would make opening lines retrievable retroactively). Probed
@@ -34,11 +46,13 @@ ever upgraded; movements would let this module drop the polling entirely.
 
 Vocabulary note
 ---------------
-Rows are written with ``bookmaker="onexbet"`` — The Odds API's key for 1xBet, not
+1xBet rows are written with ``bookmaker="onexbet"`` — The Odds API's key, not
 odds-api.io's ``"1xbet"``. This is deliberate: it keeps
 ``export_upcoming_market_comparison.BET_BOOKMAKER`` and every downstream consumer
-(dashboard JSON fields, signal alerts, ``app.js``) working unchanged. The provider is
-recorded in the ``regions`` column instead (see ``PROVIDER_TAG``).
+(dashboard JSON fields, signal alerts, ``app.js``) working unchanged. Duel has no
+The-Odds-API key to inherit (that feed carries ``fanduel`` only, a different book), so
+it takes the lowercase ``"duel"`` in the same style. The provider is recorded in the
+``regions`` column for both (see ``PROVIDER_TAG``).
 """
 
 from __future__ import annotations
@@ -46,6 +60,7 @@ from __future__ import annotations
 import logging
 import os
 import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
@@ -66,13 +81,39 @@ API_KEY_ENV = "ODDS_API_IO_KEY"
 SPORT = "football"
 LEAGUE_SLUG = "china-chinese-super-league"
 
-# odds-api.io's own name for the book (its `bookmakers` params take display names,
-# not slugs). Confirmed against GET /v3/bookmakers and /v3/bookmakers/selected,
-# which reports this account's selection as {"bookmakers": ["1xbet"], "count": 1}.
-BOOKMAKER_NAME = "1xbet"
 
-# The key written to the history store. See the module docstring's vocabulary note.
-TARGET_BOOKMAKER_KEY = "onexbet"
+@dataclass(frozen=True)
+class Book:
+    """One capturable bookmaker: how odds-api.io names it vs how we store it.
+
+    ``provider_name`` is what goes in the ``bookmakers=`` query param **and** what comes
+    back as the key of an event's ``bookmakers`` object — the two are the same string,
+    including case ("1xbet" lowercase, "Duel" capitalised), so it is used for both.
+    ``stored_key`` is the ``bookmaker`` value written to the capture history.
+    """
+
+    provider_name: str
+    stored_key: str
+
+
+# The two books this plan entitles. Names verified against GET /v3/bookmakers (274 books,
+# which also lists a separate "FanDuel" — NOT this one) and against live /odds/multi
+# responses. Ordering is presentation only: neither book is an anchor or a fallback for
+# the other, they are captured at equal priority on the same tick.
+ONEXBET = Book(provider_name="1xbet", stored_key="onexbet")
+DUEL = Book(provider_name="Duel", stored_key="duel")
+
+# Requested together in a SINGLE /odds/multi call — `bookmakers` takes a comma-separated
+# list and the request bills as one regardless of how many books it names. That is the
+# whole reason Duel could join the loop without touching the cadence or the budget.
+# Adding a third book here is free on quota but WILL 403 the whole request unless the
+# plan's 2-book entitlement is raised first (see the module docstring).
+CAPTURE_BOOKS: tuple[Book, ...] = (ONEXBET, DUEL)
+
+# Back-compat aliases: 1xBet was the only book until 2026-08-08 and these names are
+# still referenced by tests and docs. New code should take a `Book`.
+BOOKMAKER_NAME = ONEXBET.provider_name
+TARGET_BOOKMAKER_KEY = ONEXBET.stored_key
 
 # Stored in the `regions` column, which is a The-Odds-API billing concept with no
 # odds-api.io equivalent. Reusing it as a provenance tag means the history CSV keeps
@@ -108,7 +149,7 @@ def read_rate_limit(response: requests.Response) -> tuple[int | None, int | None
     Semantics mirror ``capture_snapshot.read_quota`` so callers can log a spend guard
     the same way. Note these headers describe the **hourly** window (100/hour on the
     free tier); the ~500/day cap is not exposed by any header, so the daily budget is
-    enforced structurally instead — see ``fetch_onexbet_open``'s request cap.
+    enforced structurally instead — see ``fetch_oddsapiio_opens``'s request cap.
     """
     def _int(name: str) -> int | None:
         raw = response.headers.get(name)
@@ -173,8 +214,13 @@ def list_events(api_key: str, *, from_dt: datetime, to_dt: datetime, limit: int 
     return events
 
 
-def fetch_multi_odds(api_key: str, event_ids: list[str]) -> list[dict]:
-    """Odds for up to ``MULTI_BATCH_SIZE`` events in ONE request.
+def fetch_multi_odds(
+    api_key: str, event_ids: list[str], *, books: tuple[Book, ...] = CAPTURE_BOOKS
+) -> list[dict]:
+    """Odds for up to ``MULTI_BATCH_SIZE`` events, for every book in ``books``, in ONE request.
+
+    Both the event list and the book list are batched into the same single request, so
+    cost is ``1`` no matter how many of either it names.
 
     Raises ``ValueError`` rather than silently truncating: a caller that overfills the
     batch would otherwise lose fixtures without any signal.
@@ -187,23 +233,26 @@ def fetch_multi_odds(api_key: str, event_ids: list[str]) -> list[dict]:
         )
     response = _request(
         api_key, "/odds/multi",
-        eventIds=",".join(event_ids), bookmakers=BOOKMAKER_NAME,
+        eventIds=",".join(event_ids),
+        bookmakers=",".join(b.provider_name for b in books),
     )
     payload = response.json()
     return payload if isinstance(payload, list) else []
 
 
-def extract_ml(event: dict) -> tuple[float, float, float, str] | None:
-    """``(home, draw, away, updated_at)`` from an event's 1xBet ML market, or None.
+def extract_ml(event: dict, book: Book = ONEXBET) -> tuple[float, float, float, str] | None:
+    """``(home, draw, away, updated_at)`` from ``book``'s ML market on ``event``, or None.
 
-    Returns None — never raises — when the book has not posted a 1X2 price yet. That
+    Returns None — never raises — when that book has not posted a 1X2 price yet. That
     is the normal "line not open" state and the whole point of polling: the fixture
-    simply stays pending until a price appears.
+    simply stays pending until a price appears. It is also how a multi-book response is
+    read: ``/odds/multi`` includes only the books that actually quote the event, so one
+    book answering and the other not is routine, not an error.
     """
     books = event.get("bookmakers")
     if not isinstance(books, dict):
         return None
-    markets = books.get(BOOKMAKER_NAME)
+    markets = books.get(book.provider_name)
     if not isinstance(markets, list):
         return None
 
@@ -231,6 +280,7 @@ def event_to_row(
     mapping: TeamMapping,
     *,
     fetched_at: str,
+    book: Book = ONEXBET,
 ) -> dict[str, Any] | None:
     """Build one history row (exactly ``OUTPUT_COLUMNS``' 14 keys), or None if unmappable.
 
@@ -252,7 +302,8 @@ def event_to_row(
     home_odds, draw_odds, away_odds, updated_at = prices
     return {
         # Namespaced so odds-api.io ids can never collide with The Odds API's in the
-        # dedup key (event_id, bookmaker, last_update, snapshot_type).
+        # dedup key (event_id, bookmaker, last_update, snapshot_type). Both books share
+        # one odds-api.io event id; `bookmaker` is what separates their rows in that key.
         "event_id": f"{PROVIDER_TAG}:{event.get('id')}",
         "commence_time": event.get("date") or "",
         "api_home_team": api_home,
@@ -262,7 +313,7 @@ def event_to_row(
         "home_odds": home_odds,
         "draw_odds": draw_odds,
         "away_odds": away_odds,
-        "bookmaker": TARGET_BOOKMAKER_KEY,
+        "bookmaker": book.stored_key,
         "market": MARKET_LABEL,
         "regions": PROVIDER_TAG,
         "last_update": updated_at,

@@ -9,6 +9,7 @@ from typing import Any
 
 import pandas as pd
 
+from csl.odds.books import BET_BOOKS
 from csl.paths import data_dashboard_csv_dir, data_dashboard_json_dir
 
 logging.basicConfig(
@@ -65,10 +66,19 @@ class ExportPaths:
         return os.path.join(self.json_dir, "upcoming_market_comparison.json")
 
 
-# Dashboard v2.7 market-comparison contract: model probabilities + 1xBet opening
-# line/EV + betting signal. No Pinnacle "Now" line — the board is the 1xBet-open
-# signal surface (backtest.md §13.4). Order is significant: the JSON validator
-# requires each row's keys to equal this list exactly.
+# Dashboard v2.8 market-comparison contract: model probabilities + EVERY bet book's
+# opening line/EV + the best-price layer + betting signal. No Pinnacle "Now" line —
+# the board is the opening-line signal surface (backtest.md §13.4). Order is
+# significant: the JSON validator requires each row's keys to equal this list exactly.
+#
+# Generated from BET_BOOKS rather than written out, so adding a third book is a
+# registry edit and not a hand-sync of three column lists. `books` is stdlib-only, so
+# this import stays cheap.
+#
+# Per-book AND best-price fields both ship: app.js renders one odds column per book
+# (with the best highlighted) and drives EV, the badge and the logos off the best
+# layer. `signal_books` is a "|"-joined STRING — never a list, which would raise in
+# _clean_scalar's pd.isna.
 MARKET_COMPARISON_FIELDS = [
     "home_team",
     "away_team",
@@ -77,15 +87,22 @@ MARKET_COMPARISON_FIELDS = [
     "draw_prob",
     "away_win_prob",
     "debias_method",
-    "onexbet_open_home_odds",
-    "onexbet_open_draw_odds",
-    "onexbet_open_away_odds",
-    "onexbet_open_home_ev",
-    "onexbet_open_draw_ev",
-    "onexbet_open_away_ev",
+    *[
+        col
+        for book in BET_BOOKS
+        for col in (
+            book.odds_col("home"), book.odds_col("draw"), book.odds_col("away"),
+            book.ev_col("home"), book.ev_col("draw"), book.ev_col("away"),
+        )
+    ],
+    *[f"best_open_{side}_{kind}"
+      for kind in ("odds", "ev", "book")
+      for side in ("home", "draw", "away")],
     "signal_pick",
     "signal_state",
-    "onexbet_open_last_update",
+    "signal_book",
+    "signal_books",
+    *[book.last_update_col for book in BET_BOOKS],
     "fetched_at",
 ]
 

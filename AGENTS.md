@@ -159,7 +159,7 @@ Three workflows in `.github/workflows/` (scheduled workflows only run from `main
     history CSV, via the zero-quota `backfill_open` fallback.
     **Cadence 3h → 12h (2026-08-02)**, freeing ~180 req/month for `pinnacle_close`. Three
     of the four things this mode did had become redundant — the Now line is not on the
-    page since dashboard v2.7, `run_onexbet_open` is now done every ~10min by
+    page since dashboard v2.7, `run_oddsapiio_opens` is now done every ~10min by
     `capture-odds.yml`, and the site rebuild is covered by that workflow's gated `publish`
     plus the daily `full`. Only `backfill_open` is load-bearing (safety net for a Pinnacle
     open whose 12h capture window closed unfilled — the model's λ anchor), and two
@@ -174,7 +174,7 @@ Three workflows in `.github/workflows/` (scheduled workflows only run from `main
 
   | # | Job | Line | Book | Provider | Budget | Gate |
   | - | --- | ---- | ---- | -------- | ------ | ---- |
-  | 1 | `onexbet_open` | opening | 1xBet | odds-api.io | ~500/**day** | none — every tick, capped by `--max-requests 2` |
+  | 1 | `oddsapiio_opens` | opening | **1xBet + Duel** | odds-api.io | ~500/**day** | none — every tick, capped by `--max-requests 2` |
   | 2 | `pinnacle_open` | opening | Pinnacle (+recon) | The Odds API | ~500/**month** | predicted open window `[anchor, anchor+12h]` |
   | 3 | `pinnacle_close` | **closing** | Pinnacle (+recon) | The Odds API | ~500/**month** | pre-kickoff `[KO-60m, KO)`, target `T-5m` |
 
@@ -195,7 +195,7 @@ Three workflows in `.github/workflows/` (scheduled workflows only run from `main
   data and do not surface on the dashboard, so a close-only tick commits and stops rather
   than triggering a no-op redeploy.
 
-  Manual `workflow_dispatch` takes an `only` input (`all` / `onexbet-open` /
+  Manual `workflow_dispatch` takes an `only` input (`all` / `oddsapiio-opens` /
   `pinnacle-open` / `pinnacle-close`) to run a single leg, plus `dry_run`.
 - **`deploy-pages.yml`** — builds + deploys Pages; `push` is path-filtered, and it chains
   off the `CSL Refresh` `workflow_run` (so both `full` and `odds` runs redeploy). The
@@ -258,11 +258,19 @@ Scenario matrix (gated `publish` job + 12h capture window + 12h odds cron, as of
 - single-shot snapshot capture: `src/csl/odds/capture_snapshot.py` (`python -m csl.odds.capture_snapshot`)
 - scheduler tick (captures **Pinnacle** opening lines in-window; 1xBet moved off it 2026-08-02): `src/csl/odds/capture_scheduler.py` (`python -m csl.odds.capture_scheduler`)
 - fallback open backfill (zero-quota safety net in the 12h refresh — records a missed open from the current Now line; Pinnacle only since 1xBet left The Odds API): `src/csl/odds/backfill_open.py` (`python -m csl.odds.backfill_open --dry-run`)
-- odds-api.io client (1xBet only — base URL, key, rate-limit headers, row mapping):
-  `src/csl/odds/oddsapi_io.py`
-- **1xBet opening-line capture, no predicted window**: `src/csl/odds/fetch_onexbet_open.py`
-  (`python -m csl.odds.fetch_onexbet_open --dry-run`). Polls odds-api.io and records the
-  first 1X2 price it sees per fixture. See "Two odds providers" below for why.
+- odds-api.io client (base URL, key, rate-limit headers, row mapping, and the `Book`
+  registry / `CAPTURE_BOOKS`): `src/csl/odds/oddsapi_io.py`
+- **Opening-line capture, no predicted window**: `src/csl/odds/fetch_oddsapiio_opens.py`
+  (`python -m csl.odds.fetch_oddsapiio_opens --dry-run`). Polls odds-api.io and records
+  the first 1X2 price it sees per **(fixture, book)** — 1xBet and Duel, equal priority,
+  same tick, one request. See "Two odds providers" below for why.
+  - **Pending is per (fixture, book) and must stay that way.** A fixture is requested
+    while *any* book still owes an open, but only the books in `PendingFixture.missing`
+    may write one. Collapse that back to per-fixture and a fixture with a banked 1xBet
+    open but no Duel open would overwrite the banked opening line with 1xBet's *current*
+    price — silently, since nothing downstream validates it.
+  - Pending is ordered soonest-kickoff-first so a set larger than the 10-fixture batch
+    always covers the next round (8 fixtures) in full.
 - canonical path helpers: `src/csl/paths.py`
 
 ## Important Data Paths
@@ -302,16 +310,16 @@ Scenario matrix (gated `publish` job + 12h capture window + 12h odds cron, as of
 - `csl.fixtures.chn_fixture_v5` depends on TheSportsDB
 - `csl.xg.xg_pipeline` depends on the official SofaScore API via `curl_cffi` browser impersonation (no key); the merge lets fresh values win (xG tracks SofaScore's latest) but a blank scrape never erases an xG already in the cache
 - `csl.odds.fetch_pinnacle_spreads` depends on The Odds API (`THE_ODDS_API_KEY`)
-- `csl.odds.fetch_onexbet_open` depends on odds-api.io (`ODDS_API_IO_KEY`)
+- `csl.odds.fetch_oddsapiio_opens` depends on odds-api.io (`ODDS_API_IO_KEY`)
 
-### Two odds providers, and why (2026-08-02)
+### Two odds providers, and why (2026-08-02, books updated 2026-08-08)
 
 | | The Odds API | odds-api.io |
 |---|---|---|
-| books | Pinnacle (λ anchor) + betfair/matchbook recon | **1xBet only** (free tier = recreational books; sharp books are paid) |
+| books | Pinnacle (λ anchor) + betfair/matchbook recon | **1xBet + Duel** (free tier = recreational books; sharp books are paid) |
 | free quota | ~500 requests / **month** | ~500 / **day**, 100/hour |
 | capture style | window-gated (`[anchor, anchor+12h]`) | **no window** — poll until a price appears |
-| league/book keys | `soccer_china_superleague`, `pinnacle`/`onexbet` | `china-chinese-super-league`, `1xbet` |
+| league/book keys | `soccer_china_superleague`, `pinnacle`/`onexbet` | `china-chinese-super-league`, `1xbet`/`Duel` |
 
 The split exists because the window-gated design **loses opening lines**. Verified case:
 Shandong Taishan vs Tianjin Jinmen Tiger (round 22). Its window ran 2026-08-01 11:35→23:35
@@ -321,11 +329,33 @@ after the anchor and the open was gone for good. The window cannot simply be wid
 1 request per 10-min tick, a monthly budget of ~500 makes a 48h window cost ~288 requests
 on one stubborn fixture. odds-api.io's *daily* budget removes that constraint entirely.
 
+**Which books odds-api.io will actually serve (re-probed 2026-08-08).** The plan allows
+**two**, and they are `1xbet` + `Duel`. `bookmakers=1xbet,Duel` returns both in ONE
+`/odds/multi` request, so capturing the second book costs zero extra quota and runs on
+the same tick at the same priority — neither is an anchor or a fallback for the other.
+- ⚠️ **`/bookmakers/selected` is stale and lies.** It still reports
+  `{"bookmakers":["1xbet"],"count":1}` while both books answer with data. The
+  authoritative entitlement is the 403 body from `/odds/multi`:
+  `"Access denied. You're allowed max 2 bookmakers. Allowed: 1xbet, Duel"`. Never
+  conclude from `/selected` that a book is unavailable.
+- Sharp books are not merely paid, they are not valid names here: `Pinnacle`, `Betfair`
+  and `Matchbook` return **400** (unknown bookmaker), not 403. `FanDuel` exists in the
+  274-book catalogue and is a *different book from `Duel`*; it 403s on the 2-book cap.
+- Duel screened at **3.00% mean CSL overround** vs 1xBet's 5.41% (Now lines, 6/16 vs
+  7/16 fixtures priced, 2026-08-08) — the cheapest traditional book this project has
+  measured. That is a **Now** snapshot: opening overrounds are wider, so do not quote
+  3.00% as an opening figure, and Duel pricing fewer fixtures may mean it posts later.
+  Both need confirming from captured opens before Duel displaces 1xBet as the bet price.
+
 Notes for anyone touching this:
-- Rows from odds-api.io are written with `bookmaker="onexbet"` — The Odds API's key, not
-  `"1xbet"` — precisely so `export_upcoming_market_comparison` and every downstream
-  consumer need no change. The provider is recorded in `regions` (`oddsapiio` vs `us`),
-  and `event_id` is namespaced `oddsapiio:<id>`.
+- 1xBet rows are written with `bookmaker="onexbet"` — The Odds API's key, not `"1xbet"` —
+  precisely so `export_upcoming_market_comparison` and every downstream consumer need no
+  change. Duel has no The-Odds-API key to inherit (that feed carries only the unrelated
+  `fanduel`), so it stores as `"duel"`. The provider is recorded in `regions`
+  (`oddsapiio` vs `us`), and `event_id` is namespaced `oddsapiio:<id>` — **shared by both
+  books**, which is why `bookmaker` is part of the store's dedup key.
+- **Duel became a live bet book on 2026-08-08** (dashboard v2.8) — see "Two bet books"
+  below. It is no longer inert; it enters EV, the BET signal and the Telegram alert.
 - **The history therefore contains `onexbet` opens from both providers.** Rows captured
   before 2026-08-02 came from The Odds API; filter on `regions` if a backtest needs to
   distinguish them. `load_open_snapshots` takes the earliest `fetched_at` per fixture, so
@@ -338,6 +368,52 @@ Notes for anyone touching this:
   matches, but its `updatedAt` sits ~1 minute before kickoff — that is a **closing** line,
   not an opening one. Useless for backfilling opens; potentially the missing input for
   roadmap #3 (close/CLV), which has never had a data source.
+
+### Two bet books, and why it is "best price" not "the cheaper book" (2026-08-08, v2.8)
+
+The registry is `src/csl/odds/books.py` (`BetBook`, `BET_BOOKS`, `BOOK_BY_KEY`) — a
+**stdlib-only** module so `signal_alert` can import it without dragging in pandas and
+the Dixon-Coles fitter. `export_upcoming_market_comparison` re-exports it.
+
+**EV is scored against `max(odds)` across books, per outcome.** Choosing one book by its
+headline overround would be wrong, and measurably so. On the three fixtures both books
+quoted the day Duel was wired in, Duel's overround was ~2.4pp lower on *every* fixture,
+yet:
+
+| side | best price wins |
+| ---- | --------------- |
+| home | Duel 2 – 1xBet 1 |
+| **draw** | **Duel 3 – 1xBet 0** |
+| away | Duel 1 – 1xBet 2 |
+
+Duel's cheapness is almost entirely in the **draw**, which `SIGNAL_ALLOW_DRAW = False`
+means we never bet. On home/away it is 3–3. Per-outcome best price was worth **+2.06%
+mean** (max +5.66%) on those sides — near breakeven, roughly +2pp of EV against the
+2.61pp vig wall.
+
+Invariants worth not breaking:
+- **Per-book columns are retained** (`onexbet_open_*`, `duel_open_*`) alongside the
+  `best_open_*` layer, so 1xBet-only performance stays reconstructible by column
+  selection. ⚠️ `SIGNAL_EV_MIN = 0.20` was calibrated on 1xBet **alone** (backtest.md
+  §13.4) and a max over books is upward-biased, so best-of-two fires strictly more
+  signals at the same threshold. Re-derive it from those columns before trusting the
+  new firing rate — there is no Duel backtest at all.
+- **Tie-break is `BET_BOOKS` order** (1xBet first, strict `>` while scanning). It must
+  stay deterministic: `signal_book` is part of the Telegram dedup key, so a tie-break
+  that could flip would re-alert every run.
+- **`signal_books` is emitted only when `signal_state == "bet"`.** State is decided on
+  the best price but `signal_books` per book, so they can disagree; suppressing it on a
+  greyed row keeps "every logo shown is a bet you should place" true. Accepted cost:
+  adding a book can *remove* a bet 1xBet alone would have fired (best price over the
+  odds cap while the other book's is under it). Rare — 1 of 68 captured home/away opens
+  ever exceeded odds 7. Pinned by `tests/test_two_book_ev.py`.
+- **Logo assets are `dashboard/assets/{book.key}.png`, lowercase.** macOS resolves any
+  case locally but GitHub Pages serves from Linux — a capitalised stem 404s **in
+  production only**. Verify with `git ls-files dashboard/assets`, never `ls`.
+- **`signal_alert`'s dedup baseline is `git show HEAD:<csv>`**, not a state file. Rows
+  from a baseline written before `signal_book` existed are treated as a wildcard ("any
+  book already alerted"), which is what stops the migration itself from blasting every
+  firing signal. Same guard protects any future key change.
 
 ## Validation Guidance
 - The repository has a small test suite under `tests/` (no pytest required — each file is
@@ -575,7 +651,7 @@ less beats predicting better.** See roadmap #8.
 
    **3h → 12h `odds` cron — DONE (2026-08-02).** Funded the close capture above. Since
    dashboard v2.7 the Now line is not on the page at all (`DASHBOARD_COLUMNS` has no
-   Pinnacle Now odds, no Move) and `capture-odds.yml` runs the 1xBet capture itself every
+   Pinnacle Now odds, no Move) and `capture-odds.yml` runs the open capture itself every
    ~10min, so of the four things that cron did only `backfill_open` is load-bearing. Freed
    ~180 req/month. Shipped together with the board-staleness fix below, which it required.
 

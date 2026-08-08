@@ -10,8 +10,32 @@
 
 const DATA_BASES = ["./data", "../data/dashboard/json"];
 const DISPLAY_TZ = "Europe/London";
-const ONEXBET_LEAGUE_URL = "https://1xbetjap.com/en/line/football/58043-china-super-league";
 const SIGNAL_ODDS_CAP = 7;
+
+/* The books we bet into. Mirrors src/csl/odds/books.py — same keys, same order.
+ * Order drives the left-to-right odds columns; the Python side additionally uses it
+ * as the best-price tie-break, so keep the two in sync.
+ *
+ * `key` is the single identity: it is the column-name root (`${key}_open_...`), the
+ * token inside signal_book / signal_books, and the logo filename stem. Logo files
+ * MUST stay lowercase — macOS resolves any case locally but GitHub Pages serves from
+ * Linux and 404s, so a capitalised stem breaks in production only. */
+const BOOKS = [
+  {
+    key: "onexbet",
+    label: "1xBet",
+    logo: "./assets/onexbet.png",
+    url: "https://1xbetjap.com/en/line/football/58043-china-super-league",
+  },
+  {
+    key: "duel",
+    label: "Duel",
+    logo: "./assets/duel.png",
+    url: "https://duel.com/sports?bt-path=/soccer/china/chinese-super-league-1669818818899349504",
+  },
+];
+const BOOK_BY_KEY = new Map(BOOKS.map((b) => [b.key, b]));
+const oddsCol = (key, side) => `${key}_open_${side}_odds`;
 
 const el = {
   overviewHero: document.getElementById("overview-hero"),
@@ -63,6 +87,29 @@ function clock() {
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
+/* ---------- books ---------- */
+/* signal_books is a "|"-joined string, and null on every non-firing row — hence the
+ * String(v || "") coercion. Unknown keys are dropped rather than rendered broken, so a
+ * third book shipped in the JSON ahead of this file degrades to a missing logo instead
+ * of a broken page. */
+function bookList(v) {
+  return String(v || "").split("|").filter(Boolean)
+    .map((k) => BOOK_BY_KEY.get(k)).filter(Boolean);
+}
+function bookLogo(b) {
+  if (!b) return "";
+  return `<span class="booklogo"><img src="${esc(b.logo)}" alt="${esc(b.label)}" title="${esc(b.label)}" loading="lazy" /></span>`;
+}
+/* Each logo is itself the link — clicking a book's mark opens that book's league page. */
+function bookLogoLink(b) {
+  if (!b) return "";
+  return `<a class="booklink" href="${esc(b.url)}" target="_blank" rel="noopener noreferrer" title="${esc(b.label)} ↗">${bookLogo(b)}</a>`;
+}
+function bookLogoLinks(v) {
+  const bs = bookList(v);
+  return bs.length ? `<span class="booklogos">${bs.map(bookLogoLink).join("")}</span>` : "";
+}
+
 /* ---------- OVERVIEW (best-bet hero + firing signals) ---------- */
 function renderOverview(market) {
   const bets = market
@@ -73,8 +120,11 @@ function renderOverview(market) {
       match: `${r.home_team} vs ${r.away_team}`,
       team: r.signal_pick === "home" ? r.home_team : r.signal_pick === "away" ? r.away_team : "Draw",
       key: r.signal_pick,
-      odds: r[`onexbet_open_${r.signal_pick}_odds`],
-      ev: r[`onexbet_open_${r.signal_pick}_ev`],
+      // Best price across books — the line we would actually take.
+      odds: r[`best_open_${r.signal_pick}_odds`],
+      ev: r[`best_open_${r.signal_pick}_ev`],
+      book: r.signal_book,
+      books: r.signal_books,
     }))
     .sort((a, b) => b.ev - a.ev);
 
@@ -92,9 +142,9 @@ function renderOverview(market) {
     <td class="ov-time">${fmtTime(b.kickoff_at, b.time)}</td>
     <td class="ov-match">${esc(b.match)}</td>
     <td class="ov-pick">${esc(b.team)} <span class="ov-side">(${sideLetter(b.key)})</span></td>
-    <td class="num ov-odds">${odds(b.odds)}</td>
+    <td class="num ov-odds"><span class="ov-odds-v">${odds(b.odds)}</span>${bookLogo(BOOK_BY_KEY.get(b.book))}</td>
     <td class="num ov-ev${b.ev >= 0.2 ? " strong" : ""}">${ev(b.ev)}</td>
-    <td class="ov-sig"><span class="badge">● BET</span> <a class="sig-link" href="${ONEXBET_LEAGUE_URL}" target="_blank" rel="noopener noreferrer">Link ↗</a></td>
+    <td class="ov-sig"><span class="badge">● BET</span>${bookLogoLinks(b.books)}</td>
   </tr>`).join("");
 }
 
@@ -107,11 +157,14 @@ function renderHero(bets, market) {
   if (!pick) {
     market.forEach((r) => {
       ["home", "draw", "away"].forEach((k) => {
-        const e = r[`onexbet_open_${k}_ev`];
+        const e = r[`best_open_${k}_ev`];
         if (e == null) return;
         if (!pick || e > pick.ev) {
           pick = {
-            ev: e, odds: r[`onexbet_open_${k}_odds`], key: k,
+            ev: e, odds: r[`best_open_${k}_odds`], key: k,
+            // No signal fired here, so signal_book is empty — name the book holding
+            // the best price instead, so the tile still says where the price is.
+            book: r[`best_open_${k}_book`], books: "",
             team: k === "home" ? r.home_team : k === "away" ? r.away_team : "Draw",
             match: `${r.home_team} vs ${r.away_team}`, time: r.match_time, kickoff_at: r.kickoff_at,
           };
@@ -128,7 +181,7 @@ function renderHero(bets, market) {
 
   const when = fmtTime(pick.kickoff_at, pick.time);
   const cta = firing
-    ? `<span class="badge">● BET</span><a class="sig-link" href="${ONEXBET_LEAGUE_URL}" target="_blank" rel="noopener noreferrer">1xBet ↗</a>`
+    ? `<span class="badge">● BET</span>${bookLogoLinks(pick.books)}`
     : `<span class="badge badge--cap">BELOW THRESHOLD</span>`;
 
   el.overviewHero.className = "hero" + (firing ? " hero--bet" : " hero--flat");
@@ -142,7 +195,7 @@ function renderHero(bets, market) {
       <span class="hero__ctx">${esc(pick.match)}${when ? ` · ${when}` : ""}</span>
     </div>
     <div class="hero__metrics">
-      <div class="hero__metric"><span class="hero__metric-k">1XBET OPEN</span><span class="hero__metric-v">${odds(pick.odds)}</span></div>
+      <div class="hero__metric"><span class="hero__metric-k">BEST OPEN</span><span class="hero__metric-v">${odds(pick.odds)}${bookLogo(BOOK_BY_KEY.get(pick.book))}</span></div>
       <div class="hero__metric"><span class="hero__metric-k">EDGE (EV)</span><span class="hero__metric-v ${evClass(pick.ev)}">${ev(pick.ev)}</span></div>
       <div class="hero__cta">${cta}</div>
     </div>`;
@@ -152,13 +205,25 @@ function renderHero(bets, market) {
 function renderSignals(rows) {
   let openMax = "";
   el.signalBody.innerHTML = rows.map((row) => {
+    // One entry per outcome; `byBook` carries every book's raw price so the table can
+    // show them side by side, while EV is driven by the best of them.
     const outs = [
-      { key: "home", label: row.home_team, prob: row.home_win_prob, odds: row.onexbet_open_home_odds, ev: row.onexbet_open_home_ev },
-      { key: "draw", label: "Draw", prob: row.draw_prob, odds: row.onexbet_open_draw_odds, ev: row.onexbet_open_draw_ev },
-      { key: "away", label: row.away_team, prob: row.away_win_prob, odds: row.onexbet_open_away_odds, ev: row.onexbet_open_away_ev },
-    ];
+      { key: "home", label: row.home_team, prob: row.home_win_prob },
+      { key: "draw", label: "Draw", prob: row.draw_prob },
+      { key: "away", label: row.away_team, prob: row.away_win_prob },
+    ].map((o) => ({
+      ...o,
+      byBook: BOOKS.map((b) => ({ book: b, odds: row[oddsCol(b.key, o.key)] })),
+      bestBook: row[`best_open_${o.key}_book`],
+      ev: row[`best_open_${o.key}_ev`],
+    }));
     const isBet = row.signal_state === "bet";
-    if (row.onexbet_open_last_update > openMax) openMax = row.onexbet_open_last_update;
+    // The board's "open as of" stamp is now a max across books — they do not open
+    // together, so either one can be the most recent.
+    BOOKS.forEach((b) => {
+      const u = row[`${b.key}_open_last_update`];
+      if (u && u > openMax) openMax = u;
+    });
 
     const tr = outs.map((o, i) => {
       // match_time on the market rows is UTC; kickoff_at (joined from fixtures in
@@ -170,15 +235,28 @@ function renderSignals(rows) {
       const evStrong = o.ev != null && o.ev >= 0.2 ? " strong" : "";
       let action = "";
       if (row.signal_pick === o.key && row.signal_state === "bet") {
-        action = `<span class="sig-action"><span class="badge">● BET</span><a class="sig-link" href="${ONEXBET_LEAGUE_URL}" target="_blank" rel="noopener noreferrer">Link ↗</a></span>`;
+        // Logos are the links: one per book that independently clears both bars.
+        action = `<span class="sig-action"><span class="badge">● BET</span>${bookLogoLinks(row.signal_books)}</span>`;
       } else if (row.signal_pick === o.key && row.signal_state === "odds_cap") {
         action = `<span class="badge badge--cap">ODDS &gt; ${SIGNAL_ODDS_CAP}</span>`;
       }
+      // One cell per book. Only the FIRST carries c-grp — that class draws the group's
+      // left border, and on the second it would read as a section break between the
+      // two books rather than around them. A book with no line renders a dim placeholder
+      // rather than an empty cell, so "hasn't opened yet" is distinguishable from a
+      // rendering fault (relevant: the books do not open together, and Duel's coverage
+      // is permanently sparser — it has no backfill_open safety net).
+      const oddsCells = o.byBook.map(({ book, odds: v }, j) => {
+        const cls = ["num", j === 0 ? "c-grp" : "", "sig-odds",
+                     book.key === o.bestBook ? "is-best" : "",
+                     v == null ? "sig-odds--none" : ""].filter(Boolean).join(" ");
+        return `<td class="${cls}">${v == null ? "" : Number(v).toFixed(2)}</td>`;
+      }).join("");
       return `<tr>
         ${timeCell}
         <td class="${nameCls}">${esc(o.label)}</td>
         <td class="num ${probCls}">${pct(o.prob)}</td>
-        <td class="num c-grp sig-odds">${odds(o.odds)}</td>
+        ${oddsCells}
         <td class="num sig-ev ${evClass(o.ev)}${evStrong}">${ev(o.ev)}</td>
         <td class="c-grp">${action}</td>
       </tr>`;
@@ -304,7 +382,7 @@ function renderHeader(meta, fixtures, predictions, strength, market, openMax) {
   setText("round-label", `${meta.current_round}/${meta.total_rounds}`);
   if (el.roundFill) el.roundFill.style.width = `${Math.round((meta.current_round / meta.total_rounds) * 100)}%`;
 
-  setText("panel-signal-meta", `Model ${fmtStamp(meta.model_updated_at)} · 1XBET OPEN ${fmtStamp(openMax)}`);
+  setText("panel-signal-meta", `Model ${fmtStamp(meta.model_updated_at)} · OPENS ${fmtStamp(openMax)}`);
   // renderMarket owns panel-market-meta now (it appends the filtered-count prefix).
   marketMetaSuffix = meta.model_name || "";
   renderMarket();

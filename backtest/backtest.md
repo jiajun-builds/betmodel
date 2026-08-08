@@ -783,6 +783,22 @@ staking, confirm the edge survives as *realized* ROI over more than one season.
 
 ### 13.4 Deep-dive: the strategy grid, the odds cap, and the recommended config (2026-07-17)
 
+> ⚠️ **The deployed strategy no longer matches this section (2026-08-08).** Production
+> now prices EV on the **best of 1xBet and Duel** per outcome, not on 1xBet alone
+> (`csl.odds.books`, dashboard v2.8). Everything below — including the `thr > 0.20`
+> recommendation — was fitted on 1xBet's opening price in isolation.
+>
+> `max` over two books is a **selection operator**: it is upward-biased for the true
+> fair price, so best-of-two fires strictly more signals at the same threshold, and the
+> extra ones concentrate exactly where a book posted an outlier line. **The threshold
+> has not been re-derived.** No Duel backtest exists at all — its history began the day
+> it was wired in, so best-of-two cannot be tested retrospectively, only forward.
+>
+> The per-book EV columns (`onexbet_open_*_ev`, `duel_open_*_ev`) are retained in the
+> archive CSV precisely so 1xBet-only can be reconstructed and this grid re-run once
+> enough two-book rounds have accumulated. Until then, read the live firing rate as
+> *unvalidated*, not as this section's result.
+
 §13.1–13.3 established row 7 as the one live result. This section drills into *which
 cell* of it to actually bet, by sweeping the full grid (6 model variants × with/no-draw
 × EV thr ∈ {0.10…0.40}) on the cached walk-forward predictions and stress-testing the

@@ -22,7 +22,7 @@ the window is still live; only genuine misses are backfilled.
 
 Scope note (2026-08-02): ``REQUIRED_OPEN_BOOKS`` is now Pinnacle alone, so this fallback
 covers the λ anchor only. 1xBet's open is no longer sourced from The Odds API at all —
-``csl.odds.fetch_onexbet_open`` polls odds-api.io for it without any window, so there is
+``csl.odds.fetch_oddsapiio_opens`` polls odds-api.io for it without any window, so there is
 no window to miss and nothing here to back-fill for that book.
 
 The recorded price is the line as it stands at this refresh — the best opening proxy
