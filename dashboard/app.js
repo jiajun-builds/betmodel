@@ -18,6 +18,7 @@ const el = {
   overviewBody: document.getElementById("overview-body"),
   signalBody: document.getElementById("signal-body"),
   marketBody: document.getElementById("market-body"),
+  marketFilter: document.getElementById("market-filter"),
   strengthBody: document.getElementById("strength-body"),
   contextBody: document.getElementById("context-body"),
   roundFill: document.getElementById("round-fill"),
@@ -190,8 +191,51 @@ function renderSignals(rows) {
 }
 
 /* ---------- SCHEDULE ---------- */
+let marketRows = [];
+let marketFilterKey = "all";
+let marketMetaSuffix = "";
+
+function dayKey(r) { return fmtDay(r.kickoff_at, r.match_date); }
+function todayKey() { return fmtDay(new Date()); }
+function offsetKey(n) { const d = new Date(); d.setDate(d.getDate() + n); return fmtDay(d); }
+function dayChipLabel(key) {
+  const d = new Date(`${key}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return key;
+  return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "2-digit", month: "short", timeZone: "UTC" })
+    .format(d).replace(",", "").toUpperCase();
+}
+
+function renderMarketFilter() {
+  if (!el.marketFilter) return;
+  const counts = new Map();
+  marketRows.forEach((r) => { const k = dayKey(r); counts.set(k, (counts.get(k) || 0) + 1); });
+  const keys = [...counts.keys()].sort();
+  const today = todayKey();
+  const tomorrow = offsetKey(1);
+
+  const chips = [{ key: "all", label: "ALL", n: marketRows.length }].concat(
+    keys.map((k) => ({
+      key: k,
+      label: k === today ? "TODAY" : k === tomorrow ? "TOMORROW" : dayChipLabel(k),
+      n: counts.get(k),
+    }))
+  );
+  if (!chips.some((c) => c.key === marketFilterKey)) marketFilterKey = "all";
+
+  el.marketFilter.innerHTML = chips.map((c) => `<button type="button" class="dchip${c.key === marketFilterKey ? " dchip--active" : ""}" data-day="${esc(c.key)}" aria-pressed="${c.key === marketFilterKey}">${esc(c.label)}<span class="dchip__n">${c.n}</span></button>`).join("");
+}
+
 function renderMarket(rows) {
-  el.marketBody.innerHTML = rows.map((r) => {
+  if (rows) marketRows = rows;
+  renderMarketFilter();
+  const view = marketFilterKey === "all" ? marketRows : marketRows.filter((r) => dayKey(r) === marketFilterKey);
+  const label = marketFilterKey === "all" ? `${marketRows.length} matches` : `${view.length} of ${marketRows.length} matches`;
+  setText("panel-market-meta", marketMetaSuffix ? `${label} · ${marketMetaSuffix}` : label);
+  if (!view.length) {
+    el.marketBody.innerHTML = `<tr><td class="mk-empty" colspan="7">No matches on this date.</td></tr>`;
+    return;
+  }
+  el.marketBody.innerHTML = view.map((r) => {
     const trio = [
       { k: "home", v: r.home_win_prob, f: r.home_win_fair_odds },
       { k: "draw", v: r.draw_prob, f: r.draw_fair_odds },
@@ -261,7 +305,9 @@ function renderHeader(meta, fixtures, predictions, strength, market, openMax) {
   if (el.roundFill) el.roundFill.style.width = `${Math.round((meta.current_round / meta.total_rounds) * 100)}%`;
 
   setText("panel-signal-meta", `Model ${fmtStamp(meta.model_updated_at)} · 1XBET OPEN ${fmtStamp(openMax)}`);
-  setText("panel-market-meta", `${predictions.length} matches · ${meta.model_name}`);
+  // renderMarket owns panel-market-meta now (it appends the filtered-count prefix).
+  marketMetaSuffix = meta.model_name || "";
+  renderMarket();
   // Count the league, not the table: the model's 18-month window straddles two
   // seasons, so relegated clubs are listed (greyed) but must not inflate this.
   const inLeague = strength.filter((t) => t.in_current_season !== false);
@@ -285,6 +331,16 @@ function renderHeader(meta, fixtures, predictions, strength, market, openMax) {
 }
 
 /* ---------- nav + clock + boot ---------- */
+function initMarketFilter() {
+  if (!el.marketFilter) return;
+  el.marketFilter.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-day]");
+    if (!btn) return;
+    marketFilterKey = btn.dataset.day;
+    renderMarket();
+  });
+}
+
 function initNav() {
   const links = Array.from(document.querySelectorAll("[data-view-target]"));
   const views = Array.from(document.querySelectorAll("[data-view]"));
@@ -349,4 +405,5 @@ async function bootstrap() {
 }
 
 initNav();
+initMarketFilter();
 bootstrap();
