@@ -80,7 +80,7 @@ REFERENCE_BOOKMAKER = BOOKMAKER
 # Pinnacle only, since 2026-08-02. 1xBet used to be required here too (P0-1), because
 # its open is the dashboard's bet price / EV basis and a line posting later than
 # Pinnacle's would otherwise be lost. That whole problem now belongs to a different
-# provider: 1xBet's open comes from odds-api.io via ``csl.odds.fetch_onexbet_open``,
+# provider: 1xBet's open comes from odds-api.io via ``csl.odds.fetch_oddsapiio_opens``,
 # which polls without any predicted window (~500 requests/DAY there vs ~500/MONTH here).
 #
 # Reverting to Pinnacle-only is a quota *win*, not a regression: a fixture now stops

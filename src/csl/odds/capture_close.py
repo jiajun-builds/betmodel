@@ -3,7 +3,7 @@
 The third leg of the capture pipeline (AGENTS.md roadmap #3), alongside:
 
     capture_scheduler     Pinnacle OPEN, The Odds API, predicted open window.
-    fetch_onexbet_open    1xBet   OPEN, odds-api.io, no window.
+    fetch_oddsapiio_opens    1xBet   OPEN, odds-api.io, no window.
     this module           Pinnacle CLOSE, The Odds API, pre-kickoff window.
 
 Why the close matters: it is the CLV benchmark. Every edge claim in
@@ -68,7 +68,7 @@ import requests
 
 from csl.odds.capture_scheduler import _norm
 from csl.odds.capture_snapshot import DEFAULT_MIN_REMAINING, read_quota
-from csl.odds.fetch_onexbet_open import Fixture, load_upcoming
+from csl.odds.fetch_oddsapiio_opens import Fixture, load_upcoming
 from csl.odds.fetch_pinnacle_spreads import (
     BOOKMAKER,
     CAPTURE_BOOKMAKERS,

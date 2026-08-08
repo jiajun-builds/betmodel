@@ -4,20 +4,26 @@ name: Capture Odds
 # (data/raw_data/CHN_pinnacle_spreads_history.csv); one gated publish job rebuilds the
 # dashboard when any of them appended something.
 #
-#   job                | line     | book     | provider      | budget      | gate
-#   -------------------|----------|----------|---------------|-------------|-------------------------
-#   1. onexbet-open    | OPENING  | 1xBet    | odds-api.io   | ~500/DAY    | none — every tick, capped
-#                      |          |          |               |             | by --max-requests
-#   2. pinnacle-open   | OPENING  | Pinnacle | The Odds API  | ~500/MONTH  | predicted open window
-#                      |          | (+recon) |               |             | [anchor, anchor+12h]
-#   3. pinnacle-close  | CLOSING  | Pinnacle | The Odds API  | ~500/MONTH  | pre-kickoff window
-#                      |          | (+recon) |               |             | [KO-60m, KO), target KO-5m
+#   job                | line     | book        | provider      | budget     | gate
+#   -------------------|----------|-------------|---------------|------------|----------------------
+#   1. oddsapiio-opens | OPENING  | 1xBet + Duel| odds-api.io   | ~500/DAY   | none — every tick,
+#                      |          |             |               |            | capped by --max-requests
+#   2. pinnacle-open   | OPENING  | Pinnacle    | The Odds API  | ~500/MONTH | predicted open window
+#                      |          | (+recon)    |               |            | [anchor, anchor+12h]
+#   3. pinnacle-close  | CLOSING  | Pinnacle    | The Odds API  | ~500/MONTH | pre-kickoff window
+#                      |          | (+recon)    |               |            | [KO-60m, KO), target KO-5m
 #
-# Why 1xBet's open is its own job on its own provider: The Odds API stopped carrying
+# Why these opens are their own job on their own provider: The Odds API stopped carrying
 # 1xBet opens (2026-08-02), and odds-api.io's ~500/DAY budget is what lets it poll with
 # no predicted window at all — which is the fix for opens lost when a fixture reaches
 # the feed after its window closed. It runs first because the dashboard's bet price, EV
-# and BET signal all key off this book.
+# and BET signal all key off 1xBet.
+#
+# Job 1 captures BOTH entitled books at equal priority on the same tick (2026-08-08).
+# Duel joined for free: `bookmakers=1xbet,Duel` is one /odds/multi request, so the cost
+# model, the cadence and --max-requests below are all unchanged. Duel's rows are stored
+# under `bookmaker=duel` and are inert downstream — `load_open_snapshots` filters by
+# book, so nothing on the dashboard moves until a consumer opts in.
 #
 # Why the jobs are SEQUENTIAL, not parallel: all three append rows to the end of the
 # same CSV. Two same-tick appends at EOF do not auto-merge, so parallel jobs would hit
@@ -42,7 +48,7 @@ on:
       only:
         description: "Which capture to run (manual runs only)"
         type: choice
-        options: [all, onexbet-open, pinnacle-open, pinnacle-close]
+        options: [all, oddsapiio-opens, pinnacle-open, pinnacle-close]
         default: all
       dry_run:
         description: "Decide only: report what would be captured, spend/write nothing"
@@ -65,7 +71,7 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # 1. 1xBet OPENING lines — odds-api.io, no window, runs on every tick.
+  # 1. OPENING lines, 1xBet + Duel — odds-api.io, no window, runs on every tick.
   # ---------------------------------------------------------------------------
   # Deliberately unthrottled. An earlier version gated this to ~2 runs/hour on a minute
   # band, assuming this workflow ticks a reliable 144 times/day. Measured over 299 real
@@ -78,9 +84,19 @@ jobs:
   # about cadence: 2 requests (1 /events + 1 /odds/multi, i.e. up to 10 fixtures) x even
   # a fully-recovered 144 runs/day = 288/day, inside the ~500/day free tier. Overflow
   # past 10 pending fixtures waits for the next tick. Idle runs cost zero.
-  onexbet_open:
-    name: "1. 1xBet opening lines"
-    if: ${{ (github.event.inputs.only || 'all') == 'all' || github.event.inputs.only == 'onexbet-open' }}
+  #
+  # --max-requests stays at 2 now that two books are captured: one /odds/multi names both
+  # books and still bills once. What DID change is the pending set — a fixture stays
+  # pending until BOTH books have opened, so it now routinely exceeds one batch (measured
+  # 16 pending on 2026-08-08). That is safe because the fetcher orders pending by soonest
+  # kickoff and a CSL round is 8 fixtures, comfortably inside the 10-fixture batch: the
+  # next round to open is always fully covered, and the overflow left waiting a tick is
+  # fixtures a week or more out, whose lines have not opened yet by construction.
+  # Raising this to 3 would put the theoretical worst case (144 runs/day) at 432/day,
+  # uncomfortably close to the ~500/day cap, for no capture-latency gain.
+  oddsapiio_opens:
+    name: "1. Opening lines (1xBet + Duel)"
+    if: ${{ (github.event.inputs.only || 'all') == 'all' || github.event.inputs.only == 'oddsapiio-opens' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -102,7 +118,7 @@ jobs:
         # the full conda environment for a fast, cheap run.
         run: pip install "pandas>=2.0" "requests>=2.28"
 
-      - name: Capture 1xBet opening lines
+      - name: Capture opening lines (1xBet + Duel)
         env:
           ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           PYTHONPATH: src
@@ -116,14 +132,14 @@ jobs:
           if [ "$DRY_RUN" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           # Fail-open: a supplementary provider must never fail the tick or block the
           # Pinnacle jobs chained behind it.
-          python -m csl.odds.fetch_onexbet_open $ARGS || \
+          python -m csl.odds.fetch_oddsapiio_opens $ARGS || \
             echo "WARNING: odds-api.io capture failed; continuing."
 
       - name: Commit captured snapshot
         id: commit
         uses: ./.github/actions/capture-commit
         with:
-          message: "chore(odds): capture 1xBet opening lines"
+          message: "chore(odds): capture opening lines (1xBet + Duel)"
 
   # ---------------------------------------------------------------------------
   # 2. Pinnacle OPENING lines — The Odds API, predicted open window.
@@ -137,7 +153,7 @@ jobs:
   # captured at most once, so a single landed tick per window suffices.
   pinnacle_open:
     name: "2. Pinnacle opening lines"
-    needs: onexbet_open
+    needs: oddsapiio_opens
     # always(): job 1 is a supplementary source on a different provider. Its failure
     # (or its being skipped by the `only` input) must not stop the Pinnacle captures.
     if: ${{ always() && ((github.event.inputs.only || 'all') == 'all' || github.event.inputs.only == 'pinnacle-open') }}
@@ -245,8 +261,8 @@ jobs:
   # roadmap #3), so pinnacle-close is intentionally NOT part of this gate — a close-only
   # tick commits its rows and stops there rather than triggering a no-op redeploy.
   publish:
-    needs: [onexbet_open, pinnacle_open, pinnacle_close]
-    if: ${{ always() && (needs.onexbet_open.outputs.appended == 'true' || needs.pinnacle_open.outputs.appended == 'true') }}
+    needs: [oddsapiio_opens, pinnacle_open, pinnacle_close]
+    if: ${{ always() && (needs.oddsapiio_opens.outputs.appended == 'true' || needs.pinnacle_open.outputs.appended == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
