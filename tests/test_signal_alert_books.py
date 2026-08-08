@@ -126,6 +126,18 @@ def test_message_omits_alternates_when_only_one_book_clears() -> None:
     assert "备选" not in format_message(_row())
 
 
+def test_message_labels_1_over_p_as_fair_odds_not_a_betting_floor() -> None:
+    """1/p is the zero-EV fair price, and the label must not imply it is a bet-down-to line.
+
+    The signal fired at EV > 0.20, so the tradeable price is ~1.20/p — well above 1/p.
+    The old "底线赔率 (≥ 才下注)" wording invited betting the band between the two, which
+    the backtest never validated and which §11.7's vig wall says loses.
+    """
+    msg = format_message(_row())          # p(away) = 0.218 -> fair odds 4.59
+    assert "Fair odds" in msg and "4.59" in msg
+    assert "底线" not in msg and "才下注" not in msg
+
+
 def test_message_uses_the_best_price_not_a_single_book() -> None:
     msg = format_message(_row(signal_book="duel", signal_books="onexbet|duel",
                               onexbet_open_away_odds="5.58",

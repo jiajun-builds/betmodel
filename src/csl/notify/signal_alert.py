@@ -16,8 +16,8 @@ Dedup baseline = the *previously committed* comparison CSV. Each workflow commit
 ``CHN_upcoming_market_comparison.csv`` every run, so ``git show HEAD:<csv>`` is the last
 published signal set; a fixture+pick+book that was already a "bet" there is NOT
 re-notified. A price that merely moved on an already-notified pick is likewise not
-re-sent (dedup ignores odds) — that's what the terminal's bottom-line-odds guard is for
-at execution time.
+re-sent (dedup ignores odds) — the quoted price and the fair odds in the message are what
+let the user judge a moved line at execution time.
 
 ⚠️ Baselines written before ``signal_book`` existed are treated as a **wildcard**: any
 book counts as already-alerted for that fixture+pick. Without this, the first run after
@@ -171,7 +171,7 @@ def _esc(text) -> str:
 
 
 def format_message(row: dict) -> str:
-    """One-glance bet instruction: match, side, book, price, EV, bottom line, kickoff.
+    """One-glance bet instruction: match, side, book, price, EV, fair odds, kickoff.
 
     The price quoted is the BEST across books and the book named is where to get it —
     those two must never be separated, or the user takes the right side at the wrong
@@ -187,7 +187,13 @@ def format_message(row: dict) -> str:
         odds = _f(row.get(f"onexbet_open_{pick}_odds"))
         evv = _f(row.get(f"onexbet_open_{pick}_ev"))
     prob = _f(row.get({"home": "home_win_prob", "draw": "draw_prob", "away": "away_win_prob"}[pick]))
-    bottom = (1.0 / prob) if prob and prob > 0 else None
+    # 1/p — the model's no-vig fair price for this outcome, i.e. the odds at which
+    # EV is exactly zero. Shown as a reference point against the quoted price, NOT as a
+    # betting floor: the signal itself required EV > SIGNAL_EV_MIN, which is a
+    # materially higher bar (at p=0.2175 that is 5.52, against fair odds of 4.60).
+    # Labelling it a floor implied the band between the two was bettable; it is a slice
+    # the backtest never validated, and §11.7's vig wall says EV > 0 alone loses.
+    fair_odds = (1.0 / prob) if prob and prob > 0 else None
 
     match = f"{row.get('home_team', '')} vs {row.get('away_team', '')}".strip()
     kickoff = _fmt_kickoff(row.get("kickoff_at", ""), row.get("match_time", ""))
@@ -199,7 +205,7 @@ def format_message(row: dict) -> str:
         f"方向: <b>{_esc(_pick_cn(row))}</b>",
         f"{_esc(label)} 开盘价: <b>{odds:.2f}</b>" if odds is not None else f"{_esc(label)} 开盘价: --",
         f"EV: <b>{evv:+.3f}</b>" if evv is not None else "EV: --",
-        f"底线赔率 (≥ 才下注): <b>{bottom:.2f}</b>" if bottom is not None else "底线赔率: --",
+        f"Fair odds (模型): <b>{fair_odds:.2f}</b>" if fair_odds is not None else "Fair odds (模型): --",
         f"开赛: {_esc(kickoff)}",
     ]
 
