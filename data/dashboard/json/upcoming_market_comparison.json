@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-08T19:28:06+01:00"
+    "updated_at": "2026-08-08T19:33:55+01:00"
   },
   "rows": [
     {
@@ -241,27 +241,27 @@
       "onexbet_open_home_ev": -0.056576912817233,
       "onexbet_open_draw_ev": -0.0295715244272614,
       "onexbet_open_away_ev": -0.0604130198683401,
-      "duel_open_home_odds": null,
-      "duel_open_draw_odds": null,
-      "duel_open_away_odds": null,
-      "duel_open_home_ev": null,
-      "duel_open_draw_ev": null,
-      "duel_open_away_ev": null,
-      "best_open_home_odds": 2.12,
-      "best_open_draw_odds": 3.8,
+      "duel_open_home_odds": 2.24,
+      "duel_open_draw_odds": 4,
+      "duel_open_away_odds": 2.98,
+      "duel_open_home_ev": -0.0031756059955669,
+      "duel_open_draw_ev": 0.0215036584976195,
+      "duel_open_away_ev": -0.1071526783187671,
+      "best_open_home_odds": 2.24,
+      "best_open_draw_odds": 4,
       "best_open_away_odds": 3.136,
-      "best_open_home_ev": -0.056576912817233,
-      "best_open_draw_ev": -0.0295715244272614,
+      "best_open_home_ev": -0.0031756059955669,
+      "best_open_draw_ev": 0.0215036584976195,
       "best_open_away_ev": -0.0604130198683401,
-      "best_open_home_book": "onexbet",
-      "best_open_draw_book": "onexbet",
+      "best_open_home_book": "duel",
+      "best_open_draw_book": "duel",
       "best_open_away_book": "onexbet",
       "signal_pick": null,
       "signal_state": null,
       "signal_book": null,
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-08T14:52:38.782Z",
-      "duel_open_last_update": null,
+      "duel_open_last_update": "2026-08-08T14:09:26.904Z",
       "fetched_at": null
     }
   ]
