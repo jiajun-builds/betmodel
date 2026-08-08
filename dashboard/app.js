@@ -96,9 +96,14 @@ function bookList(v) {
   return String(v || "").split("|").filter(Boolean)
     .map((k) => BOOK_BY_KEY.get(k)).filter(Boolean);
 }
+/* NO loading="lazy" here, deliberately. Every view except the active one is display:none,
+ * and a lazy image inside a display:none ancestor is never fetched — switching to the EV
+ * Bet tab left its logos as blank 14px boxes indefinitely (measured). The two PNGs total
+ * ~12 KB and are already in cache from the Overview render, so lazy buys nothing and only
+ * introduces that hazard. */
 function bookLogo(b) {
   if (!b) return "";
-  return `<span class="booklogo"><img src="${esc(b.logo)}" alt="${esc(b.label)}" title="${esc(b.label)}" loading="lazy" /></span>`;
+  return `<span class="booklogo"><img src="${esc(b.logo)}" alt="${esc(b.label)}" title="${esc(b.label)}" /></span>`;
 }
 /* Each logo is itself the link — clicking a book's mark opens that book's league page. */
 function bookLogoLink(b) {
