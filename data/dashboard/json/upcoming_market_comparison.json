@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-08T13:24:08+01:00"
+    "updated_at": "2026-08-08T13:49:42+01:00"
   },
   "rows": [
     {
@@ -66,10 +66,10 @@
       "home_team": "Liaoning Tieren",
       "away_team": "Shenzhen Xinpengcheng",
       "match_time": "11:00",
-      "home_win_prob": 0.5749605624303666,
-      "draw_prob": 0.2083389468424288,
-      "away_win_prob": 0.2167004907272046,
-      "debias_method": "delta",
+      "home_win_prob": 0.5407405550865341,
+      "draw_prob": 0.2554563472748442,
+      "away_win_prob": 0.2038030976386218,
+      "debias_method": "market_anchor",
       "onexbet_open_home_odds": null,
       "onexbet_open_draw_odds": null,
       "onexbet_open_away_odds": null,
@@ -80,6 +80,25 @@
       "signal_state": null,
       "onexbet_open_last_update": null,
       "fetched_at": "2026-08-08T12:24:03Z"
+    },
+    {
+      "home_team": "Zhejiang Professional",
+      "away_team": "Chengdu Rongcheng",
+      "match_time": "11:35",
+      "home_win_prob": 0.2574237272557065,
+      "draw_prob": 0.2565160322520157,
+      "away_win_prob": 0.4860602404922779,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": null,
+      "onexbet_open_draw_odds": null,
+      "onexbet_open_away_odds": null,
+      "onexbet_open_home_ev": null,
+      "onexbet_open_draw_ev": null,
+      "onexbet_open_away_ev": null,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": null,
+      "fetched_at": null
     },
     {
       "home_team": "Shanghai Shenhua",
@@ -98,6 +117,25 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-07-28T11:17:41.867Z",
+      "fetched_at": null
+    },
+    {
+      "home_team": "Yunnan Yukun",
+      "away_team": "Dalian Yingbo",
+      "match_time": "12:00",
+      "home_win_prob": 0.4450108901805504,
+      "draw_prob": 0.2553759146244049,
+      "away_win_prob": 0.2996131951950446,
+      "debias_method": "market_anchor",
+      "onexbet_open_home_odds": null,
+      "onexbet_open_draw_odds": null,
+      "onexbet_open_away_odds": null,
+      "onexbet_open_home_ev": null,
+      "onexbet_open_draw_ev": null,
+      "onexbet_open_away_ev": null,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": null,
       "fetched_at": null
     }
   ]
