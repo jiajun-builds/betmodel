@@ -145,7 +145,7 @@ b { font-weight: 600; }
 /* TABLES */
 .tbl { width: 100%; border-collapse: collapse; }
 .tbl--overview { min-width: 720px; }
-.tbl--signals { min-width: 860px; }
+.tbl--signals { min-width: 960px; }  /* +1 odds column since Duel joined */
 .tbl--market { min-width: 840px; }
 .tbl--strength { min-width: 700px; }
 .tbl thead tr { background: var(--panel-3); }
@@ -160,6 +160,10 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 /* column widths */
 .c-time { width: 66px; } .c-outcome { min-width: 220px; }
 .c-prob { width: 88px; } .tbl--signals .c-grp:not(.c-signal) { width: 104px; }
+/* Second and later book columns: same width, but NO c-grp — that class draws the
+   group's left border, and repeating it would read as a divider between the books
+   rather than around the group. */
+.c-book { width: 104px; }
 .c-ev { width: 88px; } .c-signal { width: 150px; text-align: left; }
 .tbl--overview .c-match { min-width: 240px; } .c-pick { width: 210px; } .c-odds { width: 104px; }
 .c-rnd { width: 52px; } .c-date { width: 104px; } .c-mtime { width: 66px; }
@@ -172,6 +176,13 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 .sig-prob { font: 400 12px/1.3 var(--mono); color: var(--dim-2); }
 .sig-prob.is-pick { color: var(--accent); font-weight: 600; }
 .sig-odds { font: 400 12px/1.3 var(--mono); color: var(--text-2); }
+/* Best price of the row — deliberately the same treatment as .sig-name.is-pick, so
+   "highlighted = the number that matters" reads consistently across the table. */
+.sig-odds.is-best { color: var(--accent); font-weight: 600; }
+/* A book with no line yet. The dot distinguishes "hasn't opened" from a blank cell
+   caused by a rendering fault — the two books do not open together, and Duel has no
+   backfill safety net, so empty cells are normal and permanent for some fixtures. */
+.sig-odds--none::before { content: "·"; color: var(--dim); }
 .sig-ev { font: 500 12px/1.3 var(--mono); }
 .sig-ev.pos { color: var(--pos); } .sig-ev.neg { color: var(--neg); } .sig-ev.zero { color: var(--dim); }
 .sig-ev.strong { font-weight: 700; }
@@ -182,6 +193,30 @@ td.c-grp { border-left: 1px solid var(--border-2); }
 .badge { background: var(--pos); color: #06120b; font: 700 10px/1 var(--mono); padding: 3px 8px; border-radius: 3px; letter-spacing: .08em; }
 .badge--cap { background: transparent; border: 1px solid rgba(125,127,134,.6); color: var(--dim); font-weight: 600; }
 .sig-link { font: 600 11px/1 var(--mono); color: var(--cyan); }
+
+/* BOOK LOGOS — mirrors .cmd__glyph's approach (object-fit: contain) so marks with
+   different aspect ratios sit on one baseline without cropping. inline-grid, not
+   grid, so they nest inside table cells and badge rows. */
+/* Both brand PNGs are fully opaque with their own dark backgrounds baked in (1xBet
+   #1e1e1e, Duel #0a102d) — no alpha to key out. Framing them as a rounded chip with a
+   hairline makes that read as an intentional badge rather than a stray tile, and gives
+   two marks with different background colours a single consistent shape. */
+.booklogos { display: inline-flex; align-items: center; gap: 5px; }
+.booklogo { width: 20px; height: 20px; display: inline-grid; place-items: center;
+  overflow: hidden; flex: 0 0 auto; vertical-align: middle;
+  border-radius: 3px; border: 1px solid var(--hair-strong); }
+.booklogo img { width: 100%; height: 100%; object-fit: contain; }
+.booklink { display: inline-grid; place-items: center; border-radius: 3px; opacity: .9;
+  transition: opacity .12s ease; }
+.booklink:hover { opacity: 1; }
+.booklink:hover .booklogo { border-color: var(--accent); }
+/* Overview odds cell: number then the mark of the book quoting it. They must never be
+   separated — a price without its book is not actionable. */
+.ov-odds { white-space: nowrap; }
+.ov-odds .booklogo { margin-left: 6px; }
+.hero__metric-v .booklogo { margin-left: 8px; }
+/* Legend swatch for the best-price highlight. */
+.is-best-key { color: var(--accent); font: 600 12px/1 var(--mono); }
 
 /* OVERVIEW TABLE */
 .ov-time { font: 500 12px/1.3 var(--mono); color: var(--accent); white-space: nowrap; }

@@ -174,7 +174,7 @@ Three workflows in `.github/workflows/` (scheduled workflows only run from `main
 
   | # | Job | Line | Book | Provider | Budget | Gate |
   | - | --- | ---- | ---- | -------- | ------ | ---- |
-  | 1 | `onexbet_open` | opening | 1xBet | odds-api.io | ~500/**day** | none — every tick, capped by `--max-requests 2` |
+  | 1 | `oddsapiio_opens` | opening | **1xBet + Duel** | odds-api.io | ~500/**day** | none — every tick, capped by `--max-requests 2` |
   | 2 | `pinnacle_open` | opening | Pinnacle (+recon) | The Odds API | ~500/**month** | predicted open window `[anchor, anchor+12h]` |
   | 3 | `pinnacle_close` | **closing** | Pinnacle (+recon) | The Odds API | ~500/**month** | pre-kickoff `[KO-60m, KO)`, target `T-5m` |
 
@@ -354,9 +354,8 @@ Notes for anyone touching this:
   `fanduel`), so it stores as `"duel"`. The provider is recorded in `regions`
   (`oddsapiio` vs `us`), and `event_id` is namespaced `oddsapiio:<id>` — **shared by both
   books**, which is why `bookmaker` is part of the store's dedup key.
-- **Duel rows are inert downstream.** `load_open_snapshots` filters by book, so nothing
-  on the dashboard, in the EV/BET signal, or in any backtest changes until a consumer
-  opts in. Capturing it now is purely so the history exists when that decision is made.
+- **Duel became a live bet book on 2026-08-08** (dashboard v2.8) — see "Two bet books"
+  below. It is no longer inert; it enters EV, the BET signal and the Telegram alert.
 - **The history therefore contains `onexbet` opens from both providers.** Rows captured
   before 2026-08-02 came from The Odds API; filter on `regions` if a backtest needs to
   distinguish them. `load_open_snapshots` takes the earliest `fetched_at` per fixture, so
@@ -369,6 +368,52 @@ Notes for anyone touching this:
   matches, but its `updatedAt` sits ~1 minute before kickoff — that is a **closing** line,
   not an opening one. Useless for backfilling opens; potentially the missing input for
   roadmap #3 (close/CLV), which has never had a data source.
+
+### Two bet books, and why it is "best price" not "the cheaper book" (2026-08-08, v2.8)
+
+The registry is `src/csl/odds/books.py` (`BetBook`, `BET_BOOKS`, `BOOK_BY_KEY`) — a
+**stdlib-only** module so `signal_alert` can import it without dragging in pandas and
+the Dixon-Coles fitter. `export_upcoming_market_comparison` re-exports it.
+
+**EV is scored against `max(odds)` across books, per outcome.** Choosing one book by its
+headline overround would be wrong, and measurably so. On the three fixtures both books
+quoted the day Duel was wired in, Duel's overround was ~2.4pp lower on *every* fixture,
+yet:
+
+| side | best price wins |
+| ---- | --------------- |
+| home | Duel 2 – 1xBet 1 |
+| **draw** | **Duel 3 – 1xBet 0** |
+| away | Duel 1 – 1xBet 2 |
+
+Duel's cheapness is almost entirely in the **draw**, which `SIGNAL_ALLOW_DRAW = False`
+means we never bet. On home/away it is 3–3. Per-outcome best price was worth **+2.06%
+mean** (max +5.66%) on those sides — near breakeven, roughly +2pp of EV against the
+2.61pp vig wall.
+
+Invariants worth not breaking:
+- **Per-book columns are retained** (`onexbet_open_*`, `duel_open_*`) alongside the
+  `best_open_*` layer, so 1xBet-only performance stays reconstructible by column
+  selection. ⚠️ `SIGNAL_EV_MIN = 0.20` was calibrated on 1xBet **alone** (backtest.md
+  §13.4) and a max over books is upward-biased, so best-of-two fires strictly more
+  signals at the same threshold. Re-derive it from those columns before trusting the
+  new firing rate — there is no Duel backtest at all.
+- **Tie-break is `BET_BOOKS` order** (1xBet first, strict `>` while scanning). It must
+  stay deterministic: `signal_book` is part of the Telegram dedup key, so a tie-break
+  that could flip would re-alert every run.
+- **`signal_books` is emitted only when `signal_state == "bet"`.** State is decided on
+  the best price but `signal_books` per book, so they can disagree; suppressing it on a
+  greyed row keeps "every logo shown is a bet you should place" true. Accepted cost:
+  adding a book can *remove* a bet 1xBet alone would have fired (best price over the
+  odds cap while the other book's is under it). Rare — 1 of 68 captured home/away opens
+  ever exceeded odds 7. Pinned by `tests/test_two_book_ev.py`.
+- **Logo assets are `dashboard/assets/{book.key}.png`, lowercase.** macOS resolves any
+  case locally but GitHub Pages serves from Linux — a capitalised stem 404s **in
+  production only**. Verify with `git ls-files dashboard/assets`, never `ls`.
+- **`signal_alert`'s dedup baseline is `git show HEAD:<csv>`**, not a state file. Rows
+  from a baseline written before `signal_book` existed are treated as a wildcard ("any
+  book already alerted"), which is what stops the migration itself from blasting every
+  firing signal. Same guard protects any future key change.
 
 ## Validation Guidance
 - The repository has a small test suite under `tests/` (no pytest required — each file is
@@ -606,7 +651,7 @@ less beats predicting better.** See roadmap #8.
 
    **3h → 12h `odds` cron — DONE (2026-08-02).** Funded the close capture above. Since
    dashboard v2.7 the Now line is not on the page at all (`DASHBOARD_COLUMNS` has no
-   Pinnacle Now odds, no Move) and `capture-odds.yml` runs the 1xBet capture itself every
+   Pinnacle Now odds, no Move) and `capture-odds.yml` runs the open capture itself every
    ~10min, so of the four things that cron did only `backfill_open` is load-bearing. Freed
    ~180 req/month. Shipped together with the board-staleness fix below, which it required.
 

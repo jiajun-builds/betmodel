@@ -1,18 +1,34 @@
 """
-Export upcoming CSL fixtures as a **1xBet-open bet-signal board** (dashboard
-v2.7). Each fixture carries de-biased model 1X2 probabilities, the 1xBet OPENING
-1X2 price (the line we actually bet), model EV against that price, and a betting
-signal flag per the backtest.md §13.4 recommended config.
+Export upcoming CSL fixtures as an **opening-line bet-signal board** (dashboard
+v2.8). Each fixture carries de-biased model 1X2 probabilities, every bet book's
+OPENING 1X2 price, model EV against each, and a betting signal flag priced on the
+**best** of them, per the backtest.md §13.4 recommended config.
 
-Two books, two distinct roles (they are NOT the same book):
+Three books, two distinct roles (they are NOT interchangeable):
 
-  * **Pinnacle open — the de-bias anchor** (never displayed). Pinnacle is the
-    sharp reference; its opening no-vig draw is the target the draw shrinks
+  * **Pinnacle open — the de-bias anchor** (never displayed, never bet). Pinnacle
+    is the sharp reference; its opening no-vig draw is the target the draw shrinks
     toward. This keeps the model probability identical to the all-pairs
     prediction surface (one coherent prob per fixture).
-  * **1xBet open — the bet price.** Cheaper book (~4.9% open overround vs
-    Pinnacle's ~7.5%, backtest.md §13), so the same edge can clear the vig wall.
-    EV, the displayed Open odds, and the signal are all on this line.
+  * **1xBet + Duel opens — the bet prices** (``books.BET_BOOKS``). Cheap books
+    (~4.9% and ~3.0% open overround vs Pinnacle's ~7.5%, backtest.md §13), so the
+    same edge can clear the vig wall. EV, the displayed Open odds and the signal
+    all live here.
+
+Best price, not "the cheaper book" (2026-08-08)
+----------------------------------------------
+EV is scored against ``max(odds)`` across ``BET_BOOKS`` per outcome, because that is
+the price we would actually take. Choosing one book by its headline overround would
+be wrong: measured the day Duel was wired in, its overround was ~2.4pp lower than
+1xBet's on *every* fixture, yet 1xBet still held the better price on a third of
+outcomes. Duel's advantage sits almost entirely in the **draw**, which
+``SIGNAL_ALLOW_DRAW = False`` means we never bet; on home/away the two books split
+evenly. Per-outcome best price was worth +2.06% mean on those sides.
+
+⚠️ ``SIGNAL_EV_MIN`` was calibrated on 1xBet **alone** (§13.4), and a max over books
+is upward-biased, so best-of-two fires strictly more signals at the same threshold.
+The per-book EV columns are retained precisely so 1xBet-only can be reconstructed
+and the threshold re-derived; see ``BET_OPEN_COLUMNS``.
 
 Draw de-bias is hybrid (AGENTS.md roadmap #10, validated in backtest.md §12):
 
@@ -30,14 +46,17 @@ model contributes only the home/away split; see §15.4 for why 1.0 rather than t
 measured argmax of 1.25.
 
 The ``debias_method`` column records which path produced each row's
-probabilities ("market_anchor" or "delta"). EV is computed against the 1xBet
-opening price: ``onexbet_open_EV_k = p'_k * onexbet_open_odds_k - 1``.
+probabilities ("market_anchor" or "delta"). EV is computed per book against that
+book's opening price, ``{prefix}_EV_k = p'_k * {prefix}_odds_k - 1``, and again
+against the best price as ``best_open_{k}_ev``.
 
 Signal (backtest.md §13.4, §15.4): pick = argmax EV over ``SIGNAL_SIDES`` —
 **{home, away} only**, draws cannot fire (``SIGNAL_ALLOW_DRAW = False``) — priced on
-the 1xBet open; ``signal_state`` is "bet" when that pick's EV > ``SIGNAL_EV_MIN``
-and its 1xBet odds <= ``SIGNAL_ODDS_CAP``, "odds_cap" when the EV clears but the
-long-shot cap does not, "" otherwise.
+the **best** open; ``signal_state`` is "bet" when that pick's EV > ``SIGNAL_EV_MIN``
+and its odds <= ``SIGNAL_ODDS_CAP``, "odds_cap" when the EV clears but the
+long-shot cap does not, "" otherwise. ``signal_book`` names the book to bet;
+``signal_books`` lists every book independently clearing both bars (the board's
+logos) and is populated only on a "bet" row — see ``attach_signals``.
 
 Usage (仓库根目录，PYTHONPATH=src):
     python -m csl.odds.export_upcoming_market_comparison
@@ -54,20 +73,32 @@ import logging
 import os
 import sys
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Mapping
 
 import numpy as np
 import pandas as pd
 
 from csl.models.dc import fit_dixon_coles_model_from_csv
+from csl.odds.books import (  # re-exported: the registry's canonical home is books.py
+    BET_BOOKS,
+    BOOK_BY_KEY,
+    DUEL_BOOK,
+    ONEXBET_BOOK,
+    SIDES,
+    BetBook,
+)
 from csl.odds.fetch_pinnacle_spreads import BOOKMAKER as ANCHOR_BOOKMAKER
 from csl.odds.snapshot_store import HISTORY_CSV, load_history
 from csl.paths import data_dashboard_csv_dir, data_output_dir, data_raw_dir
 
-# The cheap book we bet into; its opening 1X2 is the displayed line, the EV
-# basis, and the signal price (backtest.md §13). Distinct from ANCHOR_BOOKMAKER
-# (Pinnacle), whose open only feeds the λ draw anchor and is never shown.
-BET_BOOKMAKER = "onexbet"
+# The books we bet into. Each one's OPENING 1X2 is a displayed line and an EV basis;
+# the *best* price across them is the signal price (backtest.md §13, extended to two
+# books 2026-08-08). All are distinct from ANCHOR_BOOKMAKER (Pinnacle), whose open
+# only feeds the λ draw anchor and is never shown or bet.
+#
+# Back-compat alias: `BET_BOOKMAKER` was the single-book world's name for this. Kept
+# because it is referenced in prose across AGENTS.md and oddsapi_io's docstring.
+BET_BOOKMAKER = ONEXBET_BOOK.key
 
 logging.basicConfig(
     level=logging.INFO,
@@ -112,18 +143,38 @@ SIGNAL_ODDS_CAP = 7.0
 SIGNAL_ALLOW_DRAW = False
 SIGNAL_SIDES = ("home", "draw", "away") if SIGNAL_ALLOW_DRAW else ("home", "away")
 
-# 1xBet opening-price columns joined from the capture history (snapshot_type=open,
-# bookmaker=onexbet). These are the displayed line, the EV basis, and the signal
-# price. Blank for fixtures whose 1xBet open has not been captured yet.
-ONEXBET_OPEN_COLUMNS = [
-    "onexbet_open_home_odds",
-    "onexbet_open_draw_odds",
-    "onexbet_open_away_odds",
-    "onexbet_open_home_ev",
-    "onexbet_open_draw_ev",
-    "onexbet_open_away_ev",
-    "onexbet_open_last_update",
-]
+# Each outcome paired with the probability column it is scored against. One definition
+# so the EV loop and the best-price layer can never disagree about that pairing.
+_SIDE_PROB_COLS = (
+    ("home", "home_win_prob"),
+    ("draw", "draw_prob"),
+    ("away", "away_win_prob"),
+)
+
+# Per-book opening-price columns joined from the capture history (snapshot_type=open,
+# bookmaker=<book.key>): 3 odds, 3 EV and a last_update per book. Blank for fixtures
+# whose open that book has not posted yet — which is normal and permanent for some,
+# since the two books do not open together and Duel has no `backfill_open` safety net.
+#
+# These stay PER BOOK rather than collapsing into the best-price layer so 1xBet-only
+# performance remains reconstructible by column selection alone. That is the
+# instrument that makes deploying best-of-two auditable: SIGNAL_EV_MIN was calibrated
+# on 1xBet in isolation (backtest.md §13.4) and taking a max over books is upward
+# biased, so the threshold has to be re-derivable from what actually shipped.
+BET_OPEN_COLUMNS = [col for book in BET_BOOKS for col in book.columns]
+
+# Back-compat alias for the single-book world.
+ONEXBET_OPEN_COLUMNS = ONEXBET_BOOK.columns
+
+# The best price available across BET_BOOKS, per outcome — the EV basis and the
+# signal price. `_book` names which book quotes it, which is what the board's logo
+# and the Telegram alert's "where to bet" both key off. "" when nobody has priced
+# that side.
+BEST_OPEN_COLUMNS = (
+    [f"best_open_{side}_odds" for side in SIDES]
+    + [f"best_open_{side}_ev" for side in SIDES]
+    + [f"best_open_{side}_book" for side in SIDES]
+)
 
 # Pinnacle opening odds — the λ draw anchor only, never surfaced. Retained in the
 # full archive CSV for reproducibility of debias_method.
@@ -134,7 +185,13 @@ PINNACLE_OPEN_COLUMNS = [
     "open_last_update",
 ]
 
-SIGNAL_COLUMNS = ["signal_pick", "signal_state"]
+# signal_book  — the single book whose price to actually take (== best_open_{pick}_book).
+# signal_books — "|"-joined keys of EVERY book that independently clears both bars for
+#                the picked side; this is what drives the logos on the board. Emitted
+#                only when signal_state == "bet" (see attach_signals).
+# Both are always STRINGS, never lists: a list reaching a JSON row value raises inside
+# export_dashboard_json._clean_scalar's pd.isna.
+SIGNAL_COLUMNS = ["signal_pick", "signal_state", "signal_book", "signal_books"]
 
 FULL_COLUMNS = [
     "fixture_id",
@@ -158,13 +215,15 @@ FULL_COLUMNS = [
     "regions",
     "last_update",
     "fetched_at",
-    *ONEXBET_OPEN_COLUMNS,
+    *BET_OPEN_COLUMNS,
+    *BEST_OPEN_COLUMNS,
     *PINNACLE_OPEN_COLUMNS,
     *SIGNAL_COLUMNS,
 ]
 
-# Dashboard contract: probabilities + 1xBet open line/EV + signal. No Pinnacle
-# Now line, no Move — the board is the 1xBet-open signal surface only.
+# Dashboard contract: probabilities + every book's open line/EV + the best-price layer
+# + signal. No Pinnacle Now line, no Move — the board is the opening-line signal
+# surface only.
 DASHBOARD_COLUMNS = [
     "fixture_id",
     "match_date",
@@ -175,7 +234,8 @@ DASHBOARD_COLUMNS = [
     "draw_prob",
     "away_win_prob",
     "debias_method",
-    *ONEXBET_OPEN_COLUMNS,
+    *BET_OPEN_COLUMNS,
+    *BEST_OPEN_COLUMNS,
     *SIGNAL_COLUMNS,
     "fetched_at",
 ]
@@ -307,10 +367,15 @@ def build_base_frame(
     upcoming: pd.DataFrame,
     pinnacle: pd.DataFrame,
     pinnacle_opens: pd.DataFrame,
-    onexbet_opens: pd.DataFrame,
+    bet_opens: Mapping[str, pd.DataFrame],
     *,
     now: pd.Timestamp | None = None,
 ) -> pd.DataFrame:
+    """Join fixtures to the Now line, the Pinnacle open anchor and every bet book's open.
+
+    ``bet_opens`` maps ``book.key`` -> that book's opens frame (as produced by
+    ``load_open_snapshots`` with the book's own ``prefix``).
+    """
     merged = upcoming.merge(
         pinnacle,
         on=["home_team", "away_team"],
@@ -320,12 +385,29 @@ def build_base_frame(
     merged = merged.merge(
         pinnacle_opens, on=["home_team", "away_team"], how="left", validate="one_to_one"
     )
-    merged = merged.merge(
-        onexbet_opens, on=["home_team", "away_team"], how="left", validate="one_to_one"
-    )
+    # Iterate BET_BOOKS, not bet_opens: column order stays deterministic regardless of
+    # mapping order, and a book missing from the mapping raises here instead of quietly
+    # vanishing from the output schema.
+    for book in BET_BOOKS:
+        merged = merged.merge(
+            bet_opens[book.key], on=["home_team", "away_team"], how="left",
+            validate="one_to_one",
+        )
+
+    # Force numeric dtypes on every book's odds. load_open_snapshots coerces only on its
+    # non-empty path; the empty-frame path returns object dtype, which is exactly the
+    # state of a book that has not captured an open yet (all of Duel, until its first
+    # capture lands). Normalizing once here means the best-price scan, the validators and
+    # the written CSV all see float64 instead of object-dtype comparisons.
+    for book in BET_BOOKS:
+        for side in SIDES:
+            merged[book.odds_col(side)] = pd.to_numeric(
+                merged[book.odds_col(side)], errors="coerce"
+            )
+
     # Keep a fixture if it has a Pinnacle Now line (event_id) OR a captured opening line
-    # from either book — open-only fixtures, captured before they appeared in a Now-line
-    # fetch, are shown rather than dropped so a freshly captured 1xBet open surfaces
+    # from any bet book — open-only fixtures, captured before they appeared in a Now-line
+    # fetch, are shown rather than dropped so a freshly captured open surfaces
     # immediately — AND its kickoff is still ahead.
     #
     # The `is_upcoming` gate applies to Now-line fixtures too (2026-08-02). It used to be
@@ -345,7 +427,10 @@ def build_base_frame(
     is_upcoming = kickoff.isna() | (kickoff >= now)
     has_now = merged["event_id"].notna()
     has_pin_open = merged["open_home_odds"].notna()
-    has_bet_open = merged["onexbet_open_home_odds"].notna()
+    # Any book having posted an open is enough. Checking the `home` column alone is
+    # safe: a book's open is all-three-or-nothing (oddsapi_io.extract_ml returns None
+    # unless home, draw AND away parse), so a priced side implies a priced fixture.
+    has_bet_open = merged[[b.odds_col("home") for b in BET_BOOKS]].notna().any(axis=1)
     keep = (has_now | has_pin_open | has_bet_open) & is_upcoming
     return merged[keep].copy()
 
@@ -417,52 +502,136 @@ def attach_model_probabilities(
     out["away_win_prob"] = probs_a
     out["debias_method"] = methods
 
-    # EV per outcome against the 1xBet OPENING price (the line we bet). The
-    # de-biased probabilities are the same ones anchored on Pinnacle's open above,
-    # so EV isolates the model's disagreement with 1xBet's cheaper line.
-    for side, prob_col in (("home", "home_win_prob"), ("draw", "draw_prob"), ("away", "away_win_prob")):
-        bet_odds = pd.to_numeric(out[f"onexbet_open_{side}_odds"], errors="coerce")
-        out[f"onexbet_open_{side}_ev"] = np.where(bet_odds.notna(), out[prob_col] * bet_odds - 1.0, nan)
+    # EV per outcome against each book's OPENING price. The de-biased probabilities are
+    # the same ones anchored on Pinnacle's open above, so EV isolates the model's
+    # disagreement with each cheap book's line. The signal uses the BEST of these
+    # (attach_best_prices); the per-book values are retained for reconstruction.
+    for book in BET_BOOKS:
+        for side, prob_col in _SIDE_PROB_COLS:
+            bet_odds = pd.to_numeric(out[book.odds_col(side)], errors="coerce")
+            out[book.ev_col(side)] = np.where(
+                bet_odds.notna(), out[prob_col] * bet_odds - 1.0, nan
+            )
 
     return out
 
 
-def attach_signals(frame: pd.DataFrame) -> pd.DataFrame:
-    """Flag the max-EV 1xBet-open pick per fixture (backtest.md §13.4).
+def attach_best_prices(frame: pd.DataFrame) -> pd.DataFrame:
+    """Best available price per outcome across ``BET_BOOKS``, and who quotes it.
 
-    ``signal_pick`` is the outcome with the highest EV among the ``SIGNAL_SIDES``
-    that have a 1xBet opening price — home/away only by default, see
+    This is the execution layer: for a given fixture and side we would take whichever
+    book pays more, so that is the price EV must be computed against. It is *not* a
+    "pick the cheaper book" rule — book-level overround and per-outcome price are
+    different things. Measured 2026-08-08: Duel's overround was 2.4pp lower than
+    1xBet's on every fixture, yet 1xBet held the better price on a third of outcomes
+    and on the away side specifically 2 times in 3. Duel's cheapness lives almost
+    entirely in the draw, which SIGNAL_ALLOW_DRAW excludes from betting.
+
+    Tie-break: books are scanned in ``BET_BOOKS`` order with a strict ``>``, so an
+    exact tie goes to the earlier book (1xBet). That determinism is load-bearing —
+    ``signal_book`` derives from this and forms part of the Telegram dedup key, so a
+    tie-break that could flip would re-alert every run.
+
+    Sides nobody has priced get ``NaN`` odds/EV and ``""`` for the book: never
+    ``-inf``, never ``0``, so downstream ``notna()`` gates behave exactly as they did
+    for an uncaptured fixture in the single-book world.
+    """
+    out = frame.copy()
+    for side, prob_col in _SIDE_PROB_COLS:
+        odds_by_book = [
+            (book, pd.to_numeric(out[book.odds_col(side)], errors="coerce"))
+            for book in BET_BOOKS
+        ]
+        best_odds = pd.Series(np.nan, index=out.index, dtype=float)
+        best_book = pd.Series("", index=out.index, dtype=object)
+        for book, odds in odds_by_book:
+            # Strict `>` keeps the incumbent on an exact tie; `fillna(-inf)` on the
+            # running max makes the first priced book win against "nothing yet".
+            wins = odds.notna() & (odds > best_odds.fillna(-np.inf))
+            best_odds = best_odds.mask(wins, odds)
+            best_book = best_book.mask(wins, book.key)
+        out[f"best_open_{side}_odds"] = best_odds
+        out[f"best_open_{side}_book"] = best_book
+        out[f"best_open_{side}_ev"] = np.where(
+            best_odds.notna(), out[prob_col] * best_odds - 1.0, np.nan
+        )
+    return out
+
+
+def attach_signals(frame: pd.DataFrame) -> pd.DataFrame:
+    """Flag the max-EV best-price pick per fixture (backtest.md §13.4).
+
+    ``signal_pick`` is the outcome with the highest **best-price** EV among the
+    ``SIGNAL_SIDES`` that any book has priced — home/away only by default, see
     ``SIGNAL_ALLOW_DRAW``; ``signal_state`` is:
 
       * "bet"      — pick EV > SIGNAL_EV_MIN and pick odds <= SIGNAL_ODDS_CAP.
       * "odds_cap" — pick EV > SIGNAL_EV_MIN but odds over the long-shot cap
                      (surfaced, greyed, not a bet — §13.4b).
-      * ""         — no pick clears the EV floor (or no 1xBet open captured).
+      * ""         — no pick clears the EV floor (or no book has opened).
+
+    ``signal_book`` is the book quoting that best price — the one to actually bet.
+    ``signal_books`` is every book that *independently* clears both bars on the picked
+    side, "|"-joined in ``BET_BOOKS`` order; it drives the logos on the board.
+
+    Why ``signal_books`` is emitted ONLY when state == "bet"
+    -------------------------------------------------------
+    State is decided on the best price, ``signal_books`` on each book separately, so
+    they can disagree: if the best price is over the odds cap while a second book's
+    price is under it and still clears EV, the row is greyed "do not bet" — and
+    showing a bettable book's logo on it would be incoherent. Emitting nothing there
+    keeps one invariant true everywhere: state == "bet" iff signal_books is non-empty,
+    and every displayed logo is a bet you should actually place.
+
+    The cost, recorded deliberately: adding a second book can therefore *remove* a bet
+    that 1xBet alone would have fired. This is the same "argmax EV first, then apply
+    the cap" ordering the single-book version already used (§13.4b treats the odds>7
+    tail as the least-edge slice), now applied to a cross-book price. Measured rarity:
+    1 of 68 captured home/away opens ever exceeded odds 7, and the divergence needs a
+    stricter conjunction than that.
     """
     out = frame.copy()
     picks: list[str] = []
     states: list[str] = []
+    books: list[str] = []
+    book_lists: list[str] = []
     for row in out.itertuples(index=False):
         best_key = ""
         best_ev = float("-inf")
         for side in SIGNAL_SIDES:
-            odds = getattr(row, f"onexbet_open_{side}_odds")
-            ev = getattr(row, f"onexbet_open_{side}_ev")
+            odds = getattr(row, f"best_open_{side}_odds")
+            ev = getattr(row, f"best_open_{side}_ev")
             if pd.isna(odds) or pd.isna(ev):
                 continue
             if float(ev) > best_ev:
                 best_ev = float(ev)
                 best_key = side
         if best_key and best_ev > SIGNAL_EV_MIN:
-            pick_odds = float(getattr(row, f"onexbet_open_{best_key}_odds"))
+            pick_odds = float(getattr(row, f"best_open_{best_key}_odds"))
             state = "bet" if pick_odds <= SIGNAL_ODDS_CAP else "odds_cap"
             picks.append(best_key)
             states.append(state)
+            books.append(str(getattr(row, f"best_open_{best_key}_book") or ""))
+            if state == "bet":
+                clearing = [
+                    book.key for book in BET_BOOKS
+                    if not pd.isna(getattr(row, book.odds_col(best_key)))
+                    and not pd.isna(getattr(row, book.ev_col(best_key)))
+                    and float(getattr(row, book.ev_col(best_key))) > SIGNAL_EV_MIN
+                    and float(getattr(row, book.odds_col(best_key))) <= SIGNAL_ODDS_CAP
+                ]
+                book_lists.append("|".join(clearing))
+            else:
+                book_lists.append("")
         else:
             picks.append("")
             states.append("")
+            books.append("")
+            book_lists.append("")
     out["signal_pick"] = picks
     out["signal_state"] = states
+    out["signal_book"] = books
+    out["signal_books"] = book_lists
     return out
 
 
@@ -482,26 +651,118 @@ def validate_model_probabilities(frame: pd.DataFrame) -> None:
         ].to_dict("records")
         raise ValueError(f"Model 1X2 probabilities out of (0, 1): {bad}")
 
-    # 1xBet-open EVs must exist exactly where a 1xBet opening price does.
-    for side in ("home", "draw", "away"):
-        odds_col = f"onexbet_open_{side}_odds"
-        ev_col = f"onexbet_open_{side}_ev"
-        has_odds = frame[odds_col].notna()
-        missing = has_odds & frame[ev_col].isna()
-        if missing.any():
-            bad = frame.loc[missing, ["fixture_id", "home_team", "away_team"]].to_dict("records")
-            raise ValueError(f"Missing EV in {ev_col} where {odds_col} present: {bad}")
+    ident = ["fixture_id", "home_team", "away_team"]
 
-    # A fired signal ("bet"/"odds_cap") must name an outcome that actually has a
-    # 1xBet open price; an empty state must have an empty pick.
+    # Every book's EV must exist exactly where that book's opening price does.
+    for book in BET_BOOKS:
+        for side in SIDES:
+            has_odds = frame[book.odds_col(side)].notna()
+            missing = has_odds & frame[book.ev_col(side)].isna()
+            if missing.any():
+                bad = frame.loc[missing, ident].to_dict("records")
+                raise ValueError(
+                    f"Missing EV in {book.ev_col(side)} where "
+                    f"{book.odds_col(side)} present: {bad}"
+                )
+
+    # Best-price layer coherence. Each of these catches a distinct silent corruption:
+    # a book key that no longer matches the capture vocabulary, a max that is not a
+    # max, or an EV computed against a different price than the one displayed.
+    for side, prob_col in _SIDE_PROB_COLS:
+        best_odds = frame[f"best_open_{side}_odds"]
+        best_book = frame[f"best_open_{side}_book"].fillna("").astype(str)
+        best_ev = frame[f"best_open_{side}_ev"]
+        any_priced = frame[[b.odds_col(side) for b in BET_BOOKS]].notna().any(axis=1)
+
+        if not best_odds.notna().equals(any_priced):
+            bad = frame.loc[best_odds.notna() != any_priced, ident].to_dict("records")
+            raise ValueError(f"best_open_{side}_odds disagrees with book coverage: {bad}")
+        if not (best_book != "").equals(best_odds.notna()):
+            bad = frame.loc[(best_book != "") != best_odds.notna(), ident].to_dict("records")
+            raise ValueError(f"best_open_{side}_book set without a price (or vice versa): {bad}")
+
+        named = best_book != ""
+        unknown = named & ~best_book.isin([b.key for b in BET_BOOKS])
+        if unknown.any():
+            raise ValueError(
+                f"best_open_{side}_book names an unknown book: "
+                f"{frame.loc[unknown, ident].to_dict('records')}"
+            )
+        # The named book's own price must BE the best price, and no book may beat it.
+        for book in BET_BOOKS:
+            own = pd.to_numeric(frame[book.odds_col(side)], errors="coerce")
+            is_named = named & (best_book == book.key)
+            if is_named.any() and not np.allclose(
+                own[is_named], best_odds[is_named], rtol=0, atol=1e-9
+            ):
+                bad = frame.loc[is_named, ident].to_dict("records")
+                raise ValueError(f"best_open_{side}_book does not quote the best price: {bad}")
+            beats = own.notna() & best_odds.notna() & (own > best_odds + 1e-9)
+            if beats.any():
+                bad = frame.loc[beats, ident].to_dict("records")
+                raise ValueError(f"{book.odds_col(side)} beats best_open_{side}_odds: {bad}")
+
+        priced = best_odds.notna()
+        if (priced & best_ev.isna()).any():
+            bad = frame.loc[priced & best_ev.isna(), ident].to_dict("records")
+            raise ValueError(f"Missing best_open_{side}_ev where a best price exists: {bad}")
+        expected = frame.loc[priced, prob_col] * best_odds[priced] - 1.0
+        if priced.any() and not np.allclose(best_ev[priced], expected, rtol=0, atol=1e-9):
+            bad = frame.loc[priced, ident].to_dict("records")
+            raise ValueError(f"best_open_{side}_ev != p * best odds - 1: {bad}")
+        # EV is monotone in odds for fixed p (and p is strictly in (0,1), asserted
+        # above), so the best price must also carry the best EV.
+        per_book_ev = frame[[b.ev_col(side) for b in BET_BOOKS]].max(axis=1)
+        if priced.any() and not np.allclose(
+            best_ev[priced], per_book_ev[priced], rtol=0, atol=1e-9
+        ):
+            bad = frame.loc[priced, ident].to_dict("records")
+            raise ValueError(f"best_open_{side}_ev is not the max of per-book EV: {bad}")
+
+    valid_keys = {b.key for b in BET_BOOKS}
+    order = [b.key for b in BET_BOOKS]
+    # A fired signal ("bet"/"odds_cap") must name an outcome that actually has a best
+    # price; an empty state must have an empty pick, book and book list.
     for row in frame.itertuples(index=False):
         state = getattr(row, "signal_state")
         pick = getattr(row, "signal_pick")
+        book = str(getattr(row, "signal_book") or "")
+        listed = str(getattr(row, "signal_books") or "")
+        where = f"{row.home_team} vs {row.away_team}"
+
+        if state not in ("", "bet", "odds_cap"):
+            raise ValueError(f"Unknown signal_state '{state}': {where}")
+
         if state in ("bet", "odds_cap"):
-            if pick not in ("home", "draw", "away") or pd.isna(getattr(row, f"onexbet_open_{pick}_odds")):
-                raise ValueError(f"Signal {state} without a priced pick: {row.home_team} vs {row.away_team}")
-        elif pick:
-            raise ValueError(f"Empty signal_state with non-empty pick '{pick}': {row.home_team} vs {row.away_team}")
+            if pick not in SIDES or pd.isna(getattr(row, f"best_open_{pick}_odds")):
+                raise ValueError(f"Signal {state} without a priced pick: {where}")
+            if book != str(getattr(row, f"best_open_{pick}_book") or ""):
+                raise ValueError(f"signal_book is not the best-price book: {where}")
+            if book not in valid_keys:
+                raise ValueError(f"signal_book '{book}' is not a known book: {where}")
+        elif pick or book or listed:
+            raise ValueError(
+                f"Empty signal_state with non-empty pick/book/books: {where}"
+            )
+
+        # signal_books is non-empty exactly when state == "bet" (see attach_signals).
+        if state == "odds_cap" and listed:
+            raise ValueError(f"signal_books set on an odds_cap row: {where}")
+        if state == "bet":
+            if not listed:
+                raise ValueError(f"signal_state 'bet' with no clearing book: {where}")
+            keys = listed.split("|")
+            if len(set(keys)) != len(keys) or not set(keys) <= valid_keys:
+                raise ValueError(f"signal_books malformed: '{listed}' — {where}")
+            if keys != [k for k in order if k in set(keys)]:
+                raise ValueError(f"signal_books not in BET_BOOKS order: '{listed}' — {where}")
+            if book not in keys:
+                raise ValueError(f"signal_book '{book}' missing from signal_books: {where}")
+            for key in keys:
+                b = BOOK_BY_KEY[key]
+                if not (float(getattr(row, b.ev_col(pick))) > SIGNAL_EV_MIN
+                        and float(getattr(row, b.odds_col(pick))) <= SIGNAL_ODDS_CAP):
+                    raise ValueError(f"signal_books lists '{key}' which clears neither bar: {where}")
 
 
 def write_csv(df: pd.DataFrame, path: str) -> None:
@@ -525,15 +786,27 @@ def run(
     pinnacle = load_pinnacle(pinnacle_csv)
 
     pinnacle_opens = load_open_snapshots(history_csv, ANCHOR_BOOKMAKER, prefix="open")
-    onexbet_opens = load_open_snapshots(history_csv, BET_BOOKMAKER, prefix="onexbet_open")
-    base = build_base_frame(upcoming, pinnacle, pinnacle_opens, onexbet_opens)
+    bet_opens = {
+        book.key: load_open_snapshots(history_csv, book.key, prefix=book.prefix)
+        for book in BET_BOOKS
+    }
+    base = build_base_frame(upcoming, pinnacle, pinnacle_opens, bet_opens)
     n_now = int(base["event_id"].notna().sum())
     n_pin_open = int(base["open_home_odds"].notna().sum())
-    n_bet_open = int(base["onexbet_open_home_odds"].notna().sum())
     log.info(
-        "Comparison fixtures: %d of %d upcoming (%d Now line, %d Pinnacle open anchor, %d 1xBet open bet-price)",
-        len(base), len(upcoming), n_now, n_pin_open, n_bet_open,
+        "Comparison fixtures: %d of %d upcoming (%d Now line, %d Pinnacle open anchor)",
+        len(base), len(upcoming), n_now, n_pin_open,
     )
+    # Per-book counts, warning on zero. A book contributing nothing is either genuinely
+    # un-opened (normal, and expected for Duel until its first capture lands) or a
+    # `key`/`stored_key` mismatch against the capture vocabulary — which produces an
+    # all-NaN column and raises nothing anywhere else. Making it a warning is what turns
+    # that silent failure into something visible in the workflow log.
+    for book in BET_BOOKS:
+        n = int(base[book.odds_col("home")].notna().sum()) if not base.empty else 0
+        (log.info if n else log.warning)(
+            "%s opening lines joined: %d", book.label, n
+        )
 
     if base.empty:
         log.info("No fixtures matched with Pinnacle odds; writing empty outputs and skipping model fit")
@@ -544,6 +817,7 @@ def run(
         return full_df, dashboard_df
 
     enriched = attach_model_probabilities(base, matches_csv, xi, lam)
+    enriched = attach_best_prices(enriched)
     enriched = attach_signals(enriched)
     validate_model_probabilities(enriched)
     log.info(
@@ -553,11 +827,19 @@ def run(
         int((enriched["debias_method"] == "delta").sum()),
     )
     log.info(
-        "Signals: %d bet, %d odds_cap (EV>%.2f, cap odds<=%.0f, sides=%s)",
+        "Signals: %d bet, %d odds_cap (EV>%.2f, cap odds<=%.0f, sides=%s, best of %s)",
         int((enriched["signal_state"] == "bet").sum()),
         int((enriched["signal_state"] == "odds_cap").sum()),
         SIGNAL_EV_MIN, SIGNAL_ODDS_CAP, "/".join(SIGNAL_SIDES),
+        "/".join(b.label for b in BET_BOOKS),
     )
+    fired = enriched[enriched["signal_state"] == "bet"]
+    if not fired.empty:
+        log.info(
+            "Bet price by book: %s",
+            ", ".join(f"{BOOK_BY_KEY[k].label} {v}"
+                      for k, v in fired["signal_book"].value_counts().items()),
+        )
 
     full_df = enriched[FULL_COLUMNS].copy()
     dashboard_df = enriched[DASHBOARD_COLUMNS].copy()

@@ -66,7 +66,7 @@
                       <th class="c-time">TIME</th>
                       <th class="c-match">MATCH</th>
                       <th class="c-pick">MODEL PICK</th>
-                      <th class="num c-odds">1XBET OPEN</th>
+                      <th class="num c-odds">BEST OPEN</th>
                       <th class="num c-ev">EV</th>
                       <th class="c-signal">SIGNAL</th>
                     </tr>
@@ -74,7 +74,7 @@
                   <tbody id="overview-body"></tbody>
                 </table>
               </div>
-              <div class="legend"><span>Ranked by EV · pick is the model’s bet on the 1xBet opening line · <span class="badge">BET</span> clears EV &gt; 0.20 &amp; odds ≤ 7</span></div>
+              <div class="legend"><span>Ranked by EV · pick is the model’s bet at the best of the 1xBet / Duel opening lines · <span class="badge">BET</span> clears EV &gt; 0.20 &amp; odds ≤ 7 · logo = where to bet</span></div>
             </div>
 
             <!-- SIDE TILES -->
@@ -102,11 +102,11 @@
         <section class="view" data-view="ev-bet" aria-label="Bet Signals">
           <div class="panel">
             <div class="panel__bar">
-              <div class="panel__title-wrap"><span class="panel__title">BET SIGNALS</span><span class="panel__kick">1XBET OPENING LINE · MODEL vs FAIR</span></div>
-              <span class="panel__meta" data-bind="panel-signal-meta">Model -- · 1xBet open --</span>
+              <div class="panel__title-wrap"><span class="panel__title">BET SIGNALS</span><span class="panel__kick">OPENING LINES · 1XBET vs DUEL · MODEL vs FAIR</span></div>
+              <span class="panel__meta" data-bind="panel-signal-meta">Model -- · Opens --</span>
             </div>
             <div class="panel__config">
-              <span>λ 0.75</span><span>EV &gt; 0.20</span><span>ODDS ≤ 7</span><span>DRAWS ELIGIBLE</span>
+              <span>λ 1.00</span><span>EV &gt; 0.20</span><span>ODDS ≤ 7</span><span>DRAWS EXCLUDED</span><span>BEST OF 2 BOOKS</span>
             </div>
             <div class="scroll">
               <table class="tbl tbl--signals">
@@ -115,7 +115,8 @@
                     <th class="c-time">TIME</th>
                     <th class="c-outcome">OUTCOME</th>
                     <th class="num c-prob">PROB</th>
-                    <th class="num c-grp">1XBET OPEN</th>
+                    <th class="num c-grp">1XBET</th>
+                    <th class="num c-book">DUEL</th>
                     <th class="num c-ev">EV</th>
                     <th class="c-grp c-signal">SIGNAL</th>
                   </tr>
@@ -125,7 +126,8 @@
             </div>
             <div class="legend">
               <span><b class="pos">+EV</b> value vs model &nbsp; <b class="neg">−EV</b> negative edge</span>
-              <span><span class="badge">BET</span> model pick clears EV &amp; odds filter</span>
+              <span><b class="is-best-key">2.22</b> = best price, drives EV &nbsp; <span class="dim">·</span> = book has no line</span>
+              <span><span class="badge">BET</span> pick clears EV &amp; odds filter — logo = where to bet</span>
               <span><span class="swatch">amber</span> = model pick on a bet-signal fixture</span>
             </div>
           </div>
