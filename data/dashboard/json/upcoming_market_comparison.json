@@ -2,85 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-08T10:03:38+01:00"
+    "updated_at": "2026-08-08T13:24:08+01:00"
   },
   "rows": [
-    {
-      "home_team": "Qingdao Hainiu",
-      "away_team": "Shanghai Shenhua",
-      "match_time": "11:00",
-      "home_win_prob": 0.2444344789283618,
-      "draw_prob": 0.2401932290406784,
-      "away_win_prob": 0.5153722920309598,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 3.6,
-      "onexbet_open_draw_odds": 4.02,
-      "onexbet_open_away_odds": 1.92,
-      "onexbet_open_home_ev": -0.1200358758578974,
-      "onexbet_open_draw_ev": -0.0344232192564728,
-      "onexbet_open_away_ev": -0.0104851993005572,
-      "signal_pick": null,
-      "signal_state": null,
-      "onexbet_open_last_update": "2026-08-02T12:11:53Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
-    },
-    {
-      "home_team": "Dalian Yingbo",
-      "away_team": "Liaoning Tieren",
-      "match_time": "11:35",
-      "home_win_prob": 0.5285935365106916,
-      "draw_prob": 0.2031185097613189,
-      "away_win_prob": 0.2682879537279893,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 1.59,
-      "onexbet_open_draw_odds": 4.58,
-      "onexbet_open_away_odds": 5.04,
-      "onexbet_open_home_ev": -0.1595362769480002,
-      "onexbet_open_draw_ev": -0.069717225293159,
-      "onexbet_open_away_ev": 0.352171286789066,
-      "signal_pick": "away",
-      "signal_state": "bet",
-      "onexbet_open_last_update": "2026-08-02T11:36:39Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
-    },
-    {
-      "home_team": "Zhejiang Professional",
-      "away_team": "Wuhan Three Towns",
-      "match_time": "11:35",
-      "home_win_prob": 0.5567978617630089,
-      "draw_prob": 0.2250186094281487,
-      "away_win_prob": 0.2181835288088422,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 1.71,
-      "onexbet_open_draw_odds": 4.28,
-      "onexbet_open_away_odds": 4.38,
-      "onexbet_open_home_ev": -0.0478756563852547,
-      "onexbet_open_draw_ev": -0.0369203516475232,
-      "onexbet_open_away_ev": -0.0443561438172709,
-      "signal_pick": null,
-      "signal_state": null,
-      "onexbet_open_last_update": "2026-08-01T14:08:20Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
-    },
-    {
-      "home_team": "Yunnan Yukun",
-      "away_team": "Chengdu Rongcheng",
-      "match_time": "12:00",
-      "home_win_prob": 0.2355711150090957,
-      "draw_prob": 0.2404159787009491,
-      "away_win_prob": 0.5240129062899552,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 3.46,
-      "onexbet_open_draw_odds": 4.04,
-      "onexbet_open_away_odds": 1.96,
-      "onexbet_open_home_ev": -0.1849239420685289,
-      "onexbet_open_draw_ev": -0.0287194460481654,
-      "onexbet_open_away_ev": 0.0270652963283122,
-      "signal_pick": null,
-      "signal_state": null,
-      "onexbet_open_last_update": "2026-08-01T14:08:20Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
-    },
     {
       "home_team": "Henan Songshan Longmen",
       "away_team": "Qingdao West Coast",
@@ -98,7 +22,7 @@
       "signal_pick": "away",
       "signal_state": "bet",
       "onexbet_open_last_update": "2026-08-02T11:30:21Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
+      "fetched_at": "2026-08-08T12:24:03Z"
     },
     {
       "home_team": "Chongqing Tonglianglong",
@@ -117,7 +41,7 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-08-02T12:22:34Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
+      "fetched_at": "2026-08-08T12:24:03Z"
     },
     {
       "home_team": "Shandong Taishan",
@@ -136,7 +60,26 @@
       "signal_pick": null,
       "signal_state": null,
       "onexbet_open_last_update": "2026-08-02T13:26:46Z",
-      "fetched_at": "2026-08-08T09:03:34Z"
+      "fetched_at": "2026-08-08T12:24:03Z"
+    },
+    {
+      "home_team": "Liaoning Tieren",
+      "away_team": "Shenzhen Xinpengcheng",
+      "match_time": "11:00",
+      "home_win_prob": 0.5749605624303666,
+      "draw_prob": 0.2083389468424288,
+      "away_win_prob": 0.2167004907272046,
+      "debias_method": "delta",
+      "onexbet_open_home_odds": null,
+      "onexbet_open_draw_odds": null,
+      "onexbet_open_away_odds": null,
+      "onexbet_open_home_ev": null,
+      "onexbet_open_draw_ev": null,
+      "onexbet_open_away_ev": null,
+      "signal_pick": null,
+      "signal_state": null,
+      "onexbet_open_last_update": null,
+      "fetched_at": "2026-08-08T12:24:03Z"
     },
     {
       "home_team": "Shanghai Shenhua",
