@@ -1,8 +1,4 @@
 ﻿Wk,Date,Time,Home,Away
-22,2026-08-08,11:00,Qingdao Hainiu,Shanghai Shenhua
-22,2026-08-08,11:35,Dalian Yingbo,Liaoning Tieren
-22,2026-08-08,11:35,Zhejiang Professional,Wuhan Three Towns
-22,2026-08-08,12:00,Yunnan Yukun,Chengdu Rongcheng
 22,2026-08-09,11:00,Henan Songshan Longmen,Qingdao West Coast
 22,2026-08-09,11:35,Chongqing Tonglianglong,Shanghai Port
 22,2026-08-09,12:00,Shandong Taishan,Tianjin Jinmen Tiger
@@ -19,3 +15,6 @@
 24,2026-08-22,11:35,Shenzhen Xinpengcheng,Zhejiang Professional
 24,2026-08-22,12:00,Beijing Guoan,Yunnan Yukun
 24,2026-08-22,12:00,Qingdao West Coast,Shandong Taishan
+24,2026-08-23,11:00,Liaoning Tieren,Henan Songshan Longmen
+24,2026-08-23,11:35,Shanghai Port,Qingdao Hainiu
+24,2026-08-23,12:00,Chongqing Tonglianglong,Dalian Yingbo

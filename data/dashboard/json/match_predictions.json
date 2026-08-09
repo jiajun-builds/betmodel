@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-09T01:50:19+01:00",
+    "updated_at": "2026-08-09T10:05:24+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
@@ -14,12 +14,12 @@
       "kickoff_at": "2026-08-09T12:00:00+01:00",
       "home_team": "Henan Songshan Longmen",
       "away_team": "Qingdao West Coast",
-      "home_win_prob": 0.551725,
-      "draw_prob": 0.235788,
-      "away_win_prob": 0.212487,
-      "home_win_fair_odds": 1.8125,
-      "draw_fair_odds": 4.2411,
-      "away_win_fair_odds": 4.7062
+      "home_win_prob": 0.553722,
+      "draw_prob": 0.234924,
+      "away_win_prob": 0.211354,
+      "home_win_fair_odds": 1.806,
+      "draw_fair_odds": 4.2567,
+      "away_win_fair_odds": 4.7314
     },
     {
       "fixture_id": "CSL-2026-22-2026-08-09-chongqing-tonglianglong-shanghai-port",
@@ -28,12 +28,12 @@
       "kickoff_at": "2026-08-09T12:35:00+01:00",
       "home_team": "Chongqing Tonglianglong",
       "away_team": "Shanghai Port",
-      "home_win_prob": 0.291888,
-      "draw_prob": 0.281368,
-      "away_win_prob": 0.426744,
-      "home_win_fair_odds": 3.426,
-      "draw_fair_odds": 3.5541,
-      "away_win_fair_odds": 2.3433
+      "home_win_prob": 0.292847,
+      "draw_prob": 0.280888,
+      "away_win_prob": 0.426264,
+      "home_win_fair_odds": 3.4148,
+      "draw_fair_odds": 3.5601,
+      "away_win_fair_odds": 2.346
     },
     {
       "fixture_id": "CSL-2026-22-2026-08-09-shandong-taishan-tianjin-jinmen-tiger",
@@ -42,12 +42,12 @@
       "kickoff_at": "2026-08-09T13:00:00+01:00",
       "home_team": "Shandong Taishan",
       "away_team": "Tianjin Jinmen Tiger",
-      "home_win_prob": 0.591728,
-      "draw_prob": 0.207969,
-      "away_win_prob": 0.200303,
-      "home_win_fair_odds": 1.69,
-      "draw_fair_odds": 4.8084,
-      "away_win_fair_odds": 4.9924
+      "home_win_prob": 0.593755,
+      "draw_prob": 0.207178,
+      "away_win_prob": 0.199067,
+      "home_win_fair_odds": 1.6842,
+      "draw_fair_odds": 4.8268,
+      "away_win_fair_odds": 5.0234
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu",
@@ -56,12 +56,12 @@
       "kickoff_at": "2026-08-14T12:35:00+01:00",
       "home_team": "Shandong Taishan",
       "away_team": "Qingdao Hainiu",
-      "home_win_prob": 0.678158,
-      "draw_prob": 0.168784,
-      "away_win_prob": 0.153058,
-      "home_win_fair_odds": 1.4746,
-      "draw_fair_odds": 5.9247,
-      "away_win_fair_odds": 6.5335
+      "home_win_prob": 0.678841,
+      "draw_prob": 0.168774,
+      "away_win_prob": 0.152386,
+      "home_win_fair_odds": 1.4731,
+      "draw_fair_odds": 5.9251,
+      "away_win_fair_odds": 6.5623
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port",
@@ -70,12 +70,12 @@
       "kickoff_at": "2026-08-14T12:35:00+01:00",
       "home_team": "Wuhan Three Towns",
       "away_team": "Shanghai Port",
-      "home_win_prob": 0.320032,
-      "draw_prob": 0.225356,
-      "away_win_prob": 0.454612,
-      "home_win_fair_odds": 3.1247,
-      "draw_fair_odds": 4.4374,
-      "away_win_fair_odds": 2.1997
+      "home_win_prob": 0.321361,
+      "draw_prob": 0.225347,
+      "away_win_prob": 0.453293,
+      "home_win_fair_odds": 3.1118,
+      "draw_fair_odds": 4.4376,
+      "away_win_fair_odds": 2.2061
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong",
@@ -84,12 +84,12 @@
       "kickoff_at": "2026-08-14T13:00:00+01:00",
       "home_team": "Qingdao West Coast",
       "away_team": "Chongqing Tonglianglong",
-      "home_win_prob": 0.468771,
-      "draw_prob": 0.297611,
-      "away_win_prob": 0.233618,
-      "home_win_fair_odds": 2.1332,
-      "draw_fair_odds": 3.3601,
-      "away_win_fair_odds": 4.2805
+      "home_win_prob": 0.470572,
+      "draw_prob": 0.29652,
+      "away_win_prob": 0.232908,
+      "home_win_fair_odds": 2.1251,
+      "draw_fair_odds": 3.3725,
+      "away_win_fair_odds": 4.2935
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-15-liaoning-tieren-shenzhen-xinpengcheng",
@@ -98,12 +98,12 @@
       "kickoff_at": "2026-08-15T12:00:00+01:00",
       "home_team": "Liaoning Tieren",
       "away_team": "Shenzhen Xinpengcheng",
-      "home_win_prob": 0.574961,
-      "draw_prob": 0.208339,
-      "away_win_prob": 0.2167,
-      "home_win_fair_odds": 1.7392,
-      "draw_fair_odds": 4.7999,
-      "away_win_fair_odds": 4.6147
+      "home_win_prob": 0.579157,
+      "draw_prob": 0.209429,
+      "away_win_prob": 0.211414,
+      "home_win_fair_odds": 1.7266,
+      "draw_fair_odds": 4.7749,
+      "away_win_fair_odds": 4.7301
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-15-tianjin-jinmen-tiger-beijing-guoan",
@@ -112,12 +112,12 @@
       "kickoff_at": "2026-08-15T12:35:00+01:00",
       "home_team": "Tianjin Jinmen Tiger",
       "away_team": "Beijing Guoan",
-      "home_win_prob": 0.300954,
-      "draw_prob": 0.247442,
-      "away_win_prob": 0.451604,
-      "home_win_fair_odds": 3.3228,
-      "draw_fair_odds": 4.0414,
-      "away_win_fair_odds": 2.2143
+      "home_win_prob": 0.298531,
+      "draw_prob": 0.245129,
+      "away_win_prob": 0.456339,
+      "home_win_fair_odds": 3.3497,
+      "draw_fair_odds": 4.0795,
+      "away_win_fair_odds": 2.1914
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-15-zhejiang-professional-chengdu-rongcheng",
@@ -126,12 +126,12 @@
       "kickoff_at": "2026-08-15T12:35:00+01:00",
       "home_team": "Zhejiang Professional",
       "away_team": "Chengdu Rongcheng",
-      "home_win_prob": 0.26631,
-      "draw_prob": 0.23085,
-      "away_win_prob": 0.50284,
-      "home_win_fair_odds": 3.755,
-      "draw_fair_odds": 4.3318,
-      "away_win_fair_odds": 1.9887
+      "home_win_prob": 0.269099,
+      "draw_prob": 0.232055,
+      "away_win_prob": 0.498846,
+      "home_win_fair_odds": 3.7161,
+      "draw_fair_odds": 4.3093,
+      "away_win_fair_odds": 2.0046
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-15-shanghai-shenhua-henan-songshan-longmen",
@@ -140,12 +140,12 @@
       "kickoff_at": "2026-08-15T13:00:00+01:00",
       "home_team": "Shanghai Shenhua",
       "away_team": "Henan Songshan Longmen",
-      "home_win_prob": 0.568317,
-      "draw_prob": 0.212021,
-      "away_win_prob": 0.219662,
-      "home_win_fair_odds": 1.7596,
-      "draw_fair_odds": 4.7165,
-      "away_win_fair_odds": 4.5524
+      "home_win_prob": 0.569179,
+      "draw_prob": 0.21201,
+      "away_win_prob": 0.21881,
+      "home_win_fair_odds": 1.7569,
+      "draw_fair_odds": 4.7168,
+      "away_win_fair_odds": 4.5702
     },
     {
       "fixture_id": "CSL-2026-23-2026-08-15-yunnan-yukun-dalian-yingbo",
@@ -154,12 +154,12 @@
       "kickoff_at": "2026-08-15T13:00:00+01:00",
       "home_team": "Yunnan Yukun",
       "away_team": "Dalian Yingbo",
-      "home_win_prob": 0.456402,
-      "draw_prob": 0.236316,
-      "away_win_prob": 0.307282,
-      "home_win_fair_odds": 2.1911,
-      "draw_fair_odds": 4.2316,
-      "away_win_fair_odds": 3.2543
+      "home_win_prob": 0.459291,
+      "draw_prob": 0.238925,
+      "away_win_prob": 0.301785,
+      "home_win_fair_odds": 2.1773,
+      "draw_fair_odds": 4.1854,
+      "away_win_fair_odds": 3.3136
     },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger",
@@ -168,12 +168,12 @@
       "kickoff_at": "2026-08-22T12:00:00+01:00",
       "home_team": "Wuhan Three Towns",
       "away_team": "Tianjin Jinmen Tiger",
-      "home_win_prob": 0.416686,
-      "draw_prob": 0.252007,
-      "away_win_prob": 0.331307,
-      "home_win_fair_odds": 2.3999,
-      "draw_fair_odds": 3.9681,
-      "away_win_fair_odds": 3.0183
+      "home_win_prob": 0.418123,
+      "draw_prob": 0.251769,
+      "away_win_prob": 0.330108,
+      "home_win_fair_odds": 2.3916,
+      "draw_fair_odds": 3.9719,
+      "away_win_fair_odds": 3.0293
     },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-chengdu-rongcheng-shanghai-shenhua",
@@ -182,12 +182,12 @@
       "kickoff_at": "2026-08-22T12:35:00+01:00",
       "home_team": "Chengdu Rongcheng",
       "away_team": "Shanghai Shenhua",
-      "home_win_prob": 0.558295,
-      "draw_prob": 0.213229,
-      "away_win_prob": 0.228476,
-      "home_win_fair_odds": 1.7912,
-      "draw_fair_odds": 4.6898,
-      "away_win_fair_odds": 4.3768
+      "home_win_prob": 0.556399,
+      "draw_prob": 0.214532,
+      "away_win_prob": 0.229069,
+      "home_win_fair_odds": 1.7973,
+      "draw_fair_odds": 4.6613,
+      "away_win_fair_odds": 4.3655
     },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-shenzhen-xinpengcheng-zhejiang-professional",
@@ -196,12 +196,12 @@
       "kickoff_at": "2026-08-22T12:35:00+01:00",
       "home_team": "Shenzhen Xinpengcheng",
       "away_team": "Zhejiang Professional",
-      "home_win_prob": 0.345857,
-      "draw_prob": 0.241212,
-      "away_win_prob": 0.412931,
-      "home_win_fair_odds": 2.8914,
-      "draw_fair_odds": 4.1457,
-      "away_win_fair_odds": 2.4217
+      "home_win_prob": 0.342871,
+      "draw_prob": 0.239181,
+      "away_win_prob": 0.417948,
+      "home_win_fair_odds": 2.9165,
+      "draw_fair_odds": 4.1809,
+      "away_win_fair_odds": 2.3926
     },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-beijing-guoan-yunnan-yukun",
@@ -210,12 +210,12 @@
       "kickoff_at": "2026-08-22T13:00:00+01:00",
       "home_team": "Beijing Guoan",
       "away_team": "Yunnan Yukun",
-      "home_win_prob": 0.679724,
-      "draw_prob": 0.169718,
-      "away_win_prob": 0.150558,
-      "home_win_fair_odds": 1.4712,
-      "draw_fair_odds": 5.8921,
-      "away_win_fair_odds": 6.642
+      "home_win_prob": 0.684662,
+      "draw_prob": 0.167418,
+      "away_win_prob": 0.14792,
+      "home_win_fair_odds": 1.4606,
+      "draw_fair_odds": 5.9731,
+      "away_win_fair_odds": 6.7604
     },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-qingdao-west-coast-shandong-taishan",
@@ -224,12 +224,54 @@
       "kickoff_at": "2026-08-22T13:00:00+01:00",
       "home_team": "Qingdao West Coast",
       "away_team": "Shandong Taishan",
-      "home_win_prob": 0.361856,
-      "draw_prob": 0.235962,
-      "away_win_prob": 0.402182,
-      "home_win_fair_odds": 2.7635,
-      "draw_fair_odds": 4.238,
-      "away_win_fair_odds": 2.4864
+      "home_win_prob": 0.362802,
+      "draw_prob": 0.235569,
+      "away_win_prob": 0.401629,
+      "home_win_fair_odds": 2.7563,
+      "draw_fair_odds": 4.245,
+      "away_win_fair_odds": 2.4899
+    },
+    {
+      "fixture_id": "CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen",
+      "round": 24,
+      "match_date": "2026-08-23",
+      "kickoff_at": "2026-08-23T12:00:00+01:00",
+      "home_team": "Liaoning Tieren",
+      "away_team": "Henan Songshan Longmen",
+      "home_win_prob": 0.373124,
+      "draw_prob": 0.240865,
+      "away_win_prob": 0.386011,
+      "home_win_fair_odds": 2.6801,
+      "draw_fair_odds": 4.1517,
+      "away_win_fair_odds": 2.5906
+    },
+    {
+      "fixture_id": "CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu",
+      "round": 24,
+      "match_date": "2026-08-23",
+      "kickoff_at": "2026-08-23T12:35:00+01:00",
+      "home_team": "Shanghai Port",
+      "away_team": "Qingdao Hainiu",
+      "home_win_prob": 0.661095,
+      "draw_prob": 0.182433,
+      "away_win_prob": 0.156472,
+      "home_win_fair_odds": 1.5126,
+      "draw_fair_odds": 5.4815,
+      "away_win_fair_odds": 6.3909
+    },
+    {
+      "fixture_id": "CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo",
+      "round": 24,
+      "match_date": "2026-08-23",
+      "kickoff_at": "2026-08-23T13:00:00+01:00",
+      "home_team": "Chongqing Tonglianglong",
+      "away_team": "Dalian Yingbo",
+      "home_win_prob": 0.354724,
+      "draw_prob": 0.309554,
+      "away_win_prob": 0.335722,
+      "home_win_fair_odds": 2.8191,
+      "draw_fair_odds": 3.2305,
+      "away_win_fair_odds": 2.9787
     }
   ]
 }
