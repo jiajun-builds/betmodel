@@ -2,67 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-08T19:33:55+01:00",
+    "updated_at": "2026-08-09T01:50:19+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-22-2026-08-08-qingdao-hainiu-shanghai-shenhua",
-      "round": 22,
-      "match_date": "2026-08-08",
-      "kickoff_at": "2026-08-08T12:00:00+01:00",
-      "home_team": "Qingdao Hainiu",
-      "away_team": "Shanghai Shenhua",
-      "home_win_prob": 0.252348,
-      "draw_prob": 0.215596,
-      "away_win_prob": 0.532056,
-      "home_win_fair_odds": 3.9628,
-      "draw_fair_odds": 4.6383,
-      "away_win_fair_odds": 1.8795
-    },
-    {
-      "fixture_id": "CSL-2026-22-2026-08-08-dalian-yingbo-liaoning-tieren",
-      "round": 22,
-      "match_date": "2026-08-08",
-      "kickoff_at": "2026-08-08T12:35:00+01:00",
-      "home_team": "Dalian Yingbo",
-      "away_team": "Liaoning Tieren",
-      "home_win_prob": 0.512704,
-      "draw_prob": 0.227073,
-      "away_win_prob": 0.260223,
-      "home_win_fair_odds": 1.9504,
-      "draw_fair_odds": 4.4039,
-      "away_win_fair_odds": 3.8429
-    },
-    {
-      "fixture_id": "CSL-2026-22-2026-08-08-zhejiang-professional-wuhan-three-towns",
-      "round": 22,
-      "match_date": "2026-08-08",
-      "kickoff_at": "2026-08-08T12:35:00+01:00",
-      "home_team": "Zhejiang Professional",
-      "away_team": "Wuhan Three Towns",
-      "home_win_prob": 0.568643,
-      "draw_prob": 0.208533,
-      "away_win_prob": 0.222825,
-      "home_win_fair_odds": 1.7586,
-      "draw_fair_odds": 4.7954,
-      "away_win_fair_odds": 4.4878
-    },
-    {
-      "fixture_id": "CSL-2026-22-2026-08-08-yunnan-yukun-chengdu-rongcheng",
-      "round": 22,
-      "match_date": "2026-08-08",
-      "kickoff_at": "2026-08-08T13:00:00+01:00",
-      "home_team": "Yunnan Yukun",
-      "away_team": "Chengdu Rongcheng",
-      "home_win_prob": 0.242687,
-      "draw_prob": 0.217472,
-      "away_win_prob": 0.539841,
-      "home_win_fair_odds": 4.1205,
-      "draw_fair_odds": 4.5983,
-      "away_win_fair_odds": 1.8524
-    },
     {
       "fixture_id": "CSL-2026-22-2026-08-09-henan-songshan-longmen-qingdao-west-coast",
       "round": 22,
