@@ -1,7 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-22-2026-08-09-henan-songshan-longmen-qingdao-west-coast,22,2026-08-09,2026-08-09T12:00:00+01:00,Henan Songshan Longmen,Qingdao West Coast,0.553722,0.234924,0.211354,1.806,4.2567,4.7314
-CSL-2026-22-2026-08-09-chongqing-tonglianglong-shanghai-port,22,2026-08-09,2026-08-09T12:35:00+01:00,Chongqing Tonglianglong,Shanghai Port,0.292847,0.280888,0.426264,3.4148,3.5601,2.346
-CSL-2026-22-2026-08-09-shandong-taishan-tianjin-jinmen-tiger,22,2026-08-09,2026-08-09T13:00:00+01:00,Shandong Taishan,Tianjin Jinmen Tiger,0.593755,0.207178,0.199067,1.6842,4.8268,5.0234
 CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu,23,2026-08-14,2026-08-14T12:35:00+01:00,Shandong Taishan,Qingdao Hainiu,0.678841,0.168774,0.152386,1.4731,5.9251,6.5623
 CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port,23,2026-08-14,2026-08-14T12:35:00+01:00,Wuhan Three Towns,Shanghai Port,0.321361,0.225347,0.453293,3.1118,4.4376,2.2061
 CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong,23,2026-08-14,2026-08-14T13:00:00+01:00,Qingdao West Coast,Chongqing Tonglianglong,0.470572,0.29652,0.232908,2.1251,3.3725,4.2935
