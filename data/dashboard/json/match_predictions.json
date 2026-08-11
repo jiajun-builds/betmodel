@@ -2,39 +2,11 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-02T21:51:49+00:00",
+    "updated_at": "2026-08-11T22:47:28+00:00",
     "model_name": "Negative Binomial with Dixon-Coles Time Decay",
     "model_version": "v1.0"
   },
   "rows": [
-    {
-      "fixture_id": "MEX-apertura-2026-3-2026-08-02-club-america-santos-laguna",
-      "round": 3,
-      "match_date": "2026-08-02",
-      "kickoff_at": "2026-08-02T23:00:00Z",
-      "home_team": "Club America",
-      "away_team": "Santos Laguna",
-      "home_win_prob": 0.732076,
-      "draw_prob": 0.168868,
-      "away_win_prob": 0.099056,
-      "home_win_fair_odds": 1.366,
-      "draw_fair_odds": 5.9218,
-      "away_win_fair_odds": 10.0953
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-3-2026-08-02-toluca-necaxa",
-      "round": 3,
-      "match_date": "2026-08-02",
-      "kickoff_at": "2026-08-03T01:10:00Z",
-      "home_team": "Toluca",
-      "away_team": "Necaxa",
-      "home_win_prob": 0.677752,
-      "draw_prob": 0.182519,
-      "away_win_prob": 0.139729,
-      "home_win_fair_odds": 1.4755,
-      "draw_fair_odds": 5.4789,
-      "away_win_fair_odds": 7.1567
-    },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-15-atlante-toluca",
       "round": 4,
@@ -42,12 +14,12 @@
       "kickoff_at": "2026-08-15T23:00:00Z",
       "home_team": "Atlante",
       "away_team": "Toluca",
-      "home_win_prob": 0.331261,
-      "draw_prob": 0.242924,
-      "away_win_prob": 0.425814,
-      "home_win_fair_odds": 3.0188,
-      "draw_fair_odds": 4.1165,
-      "away_win_fair_odds": 2.3484
+      "home_win_prob": 0.331674,
+      "draw_prob": 0.242625,
+      "away_win_prob": 0.425701,
+      "home_win_fair_odds": 3.015,
+      "draw_fair_odds": 4.1216,
+      "away_win_fair_odds": 2.3491
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-15-monterrey-fc-juarez",
@@ -56,26 +28,26 @@
       "kickoff_at": "2026-08-16T01:00:00Z",
       "home_team": "Monterrey",
       "away_team": "FC Juarez",
-      "home_win_prob": 0.614161,
-      "draw_prob": 0.200931,
-      "away_win_prob": 0.184908,
-      "home_win_fair_odds": 1.6282,
-      "draw_fair_odds": 4.9768,
-      "away_win_fair_odds": 5.4081
+      "home_win_prob": 0.61428,
+      "draw_prob": 0.200965,
+      "away_win_prob": 0.184756,
+      "home_win_fair_odds": 1.6279,
+      "draw_fair_odds": 4.976,
+      "away_win_fair_odds": 5.4126
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-15-atlas-tigres-uanl",
       "round": 4,
       "match_date": "2026-08-15",
-      "kickoff_at": "2026-08-16T03:00:00Z",
+      "kickoff_at": "2026-08-16T03:10:00Z",
       "home_team": "Atlas",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.291773,
-      "draw_prob": 0.264849,
-      "away_win_prob": 0.443378,
-      "home_win_fair_odds": 3.4273,
-      "draw_fair_odds": 3.7757,
-      "away_win_fair_odds": 2.2554
+      "home_win_prob": 0.291931,
+      "draw_prob": 0.264969,
+      "away_win_prob": 0.4431,
+      "home_win_fair_odds": 3.4255,
+      "draw_fair_odds": 3.774,
+      "away_win_fair_odds": 2.2568
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-16-unam-pumas-queretaro",
@@ -84,12 +56,12 @@
       "kickoff_at": "2026-08-16T18:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Queretaro",
-      "home_win_prob": 0.589663,
-      "draw_prob": 0.227324,
-      "away_win_prob": 0.183013,
-      "home_win_fair_odds": 1.6959,
-      "draw_fair_odds": 4.399,
-      "away_win_fair_odds": 5.4641
+      "home_win_prob": 0.589833,
+      "draw_prob": 0.227321,
+      "away_win_prob": 0.182846,
+      "home_win_fair_odds": 1.6954,
+      "draw_fair_odds": 4.3991,
+      "away_win_fair_odds": 5.4691
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-16-club-america-atletico-san-luis",
@@ -98,12 +70,12 @@
       "kickoff_at": "2026-08-16T23:00:00Z",
       "home_team": "Club America",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.633216,
-      "draw_prob": 0.213117,
-      "away_win_prob": 0.153667,
-      "home_win_fair_odds": 1.5792,
-      "draw_fair_odds": 4.6923,
-      "away_win_fair_odds": 6.5076
+      "home_win_prob": 0.635223,
+      "draw_prob": 0.21236,
+      "away_win_prob": 0.152416,
+      "home_win_fair_odds": 1.5743,
+      "draw_fair_odds": 4.709,
+      "away_win_fair_odds": 6.561
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-16-santos-laguna-guadalajara",
@@ -112,12 +84,12 @@
       "kickoff_at": "2026-08-17T01:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Guadalajara",
-      "home_win_prob": 0.244621,
-      "draw_prob": 0.238601,
-      "away_win_prob": 0.516778,
-      "home_win_fair_odds": 4.088,
-      "draw_fair_odds": 4.1911,
-      "away_win_fair_odds": 1.9351
+      "home_win_prob": 0.243161,
+      "draw_prob": 0.238151,
+      "away_win_prob": 0.518688,
+      "home_win_fair_odds": 4.1125,
+      "draw_fair_odds": 4.199,
+      "away_win_fair_odds": 1.9279
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-16-tijuana-cruz-azul",
@@ -126,12 +98,12 @@
       "kickoff_at": "2026-08-17T03:00:00Z",
       "home_team": "Tijuana",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.342733,
-      "draw_prob": 0.253187,
-      "away_win_prob": 0.40408,
-      "home_win_fair_odds": 2.9177,
-      "draw_fair_odds": 3.9497,
-      "away_win_fair_odds": 2.4748
+      "home_win_prob": 0.34287,
+      "draw_prob": 0.253249,
+      "away_win_prob": 0.403881,
+      "home_win_fair_odds": 2.9166,
+      "draw_fair_odds": 3.9487,
+      "away_win_fair_odds": 2.476
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-17-necaxa-leon",
@@ -140,12 +112,12 @@
       "kickoff_at": "2026-08-18T01:00:00Z",
       "home_team": "Necaxa",
       "away_team": "Leon",
-      "home_win_prob": 0.522631,
-      "draw_prob": 0.232411,
-      "away_win_prob": 0.244958,
-      "home_win_fair_odds": 1.9134,
-      "draw_fair_odds": 4.3027,
-      "away_win_fair_odds": 4.0823
+      "home_win_prob": 0.523013,
+      "draw_prob": 0.231983,
+      "away_win_prob": 0.245004,
+      "home_win_fair_odds": 1.912,
+      "draw_fair_odds": 4.3107,
+      "away_win_fair_odds": 4.0816
     },
     {
       "fixture_id": "MEX-apertura-2026-4-2026-08-17-pachuca-puebla",
@@ -154,12 +126,12 @@
       "kickoff_at": "2026-08-18T03:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Puebla",
-      "home_win_prob": 0.631809,
-      "draw_prob": 0.222177,
-      "away_win_prob": 0.146014,
-      "home_win_fair_odds": 1.5828,
-      "draw_fair_odds": 4.5009,
-      "away_win_fair_odds": 6.8486
+      "home_win_prob": 0.631889,
+      "draw_prob": 0.222194,
+      "away_win_prob": 0.145918,
+      "home_win_fair_odds": 1.5826,
+      "draw_fair_odds": 4.5006,
+      "away_win_fair_odds": 6.8532
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-21-tigres-uanl-atlante",
@@ -168,12 +140,12 @@
       "kickoff_at": "2026-08-22T01:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Atlante",
-      "home_win_prob": 0.540761,
-      "draw_prob": 0.231712,
-      "away_win_prob": 0.227527,
-      "home_win_fair_odds": 1.8492,
-      "draw_fair_odds": 4.3157,
-      "away_win_fair_odds": 4.3951
+      "home_win_prob": 0.540631,
+      "draw_prob": 0.231823,
+      "away_win_prob": 0.227547,
+      "home_win_fair_odds": 1.8497,
+      "draw_fair_odds": 4.3136,
+      "away_win_fair_odds": 4.3947
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-21-fc-juarez-club-america",
@@ -182,12 +154,12 @@
       "kickoff_at": "2026-08-22T03:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Club America",
-      "home_win_prob": 0.254011,
-      "draw_prob": 0.254492,
-      "away_win_prob": 0.491497,
-      "home_win_fair_odds": 3.9368,
-      "draw_fair_odds": 3.9294,
-      "away_win_fair_odds": 2.0346
+      "home_win_prob": 0.252684,
+      "draw_prob": 0.254178,
+      "away_win_prob": 0.493139,
+      "home_win_fair_odds": 3.9575,
+      "draw_fair_odds": 3.9343,
+      "away_win_fair_odds": 2.0278
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-22-queretaro-toluca",
@@ -196,12 +168,12 @@
       "kickoff_at": "2026-08-22T23:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Toluca",
-      "home_win_prob": 0.232341,
-      "draw_prob": 0.24666,
-      "away_win_prob": 0.520999,
-      "home_win_fair_odds": 4.304,
-      "draw_fair_odds": 4.0542,
-      "away_win_fair_odds": 1.9194
+      "home_win_prob": 0.232432,
+      "draw_prob": 0.246293,
+      "away_win_prob": 0.521275,
+      "home_win_fair_odds": 4.3023,
+      "draw_fair_odds": 4.0602,
+      "away_win_fair_odds": 1.9184
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-22-guadalajara-tijuana",
@@ -210,26 +182,12 @@
       "kickoff_at": "2026-08-22T23:07:00Z",
       "home_team": "Guadalajara",
       "away_team": "Tijuana",
-      "home_win_prob": 0.540854,
-      "draw_prob": 0.23792,
-      "away_win_prob": 0.221226,
-      "home_win_fair_odds": 1.8489,
-      "draw_fair_odds": 4.2031,
-      "away_win_fair_odds": 4.5203
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-5-2026-08-22-leon-monterrey",
-      "round": 5,
-      "match_date": "2026-08-22",
-      "kickoff_at": "2026-08-23T01:00:00Z",
-      "home_team": "Leon",
-      "away_team": "Monterrey",
-      "home_win_prob": 0.33779,
-      "draw_prob": 0.244177,
-      "away_win_prob": 0.418034,
-      "home_win_fair_odds": 2.9604,
-      "draw_fair_odds": 4.0954,
-      "away_win_fair_odds": 2.3922
+      "home_win_prob": 0.540986,
+      "draw_prob": 0.237938,
+      "away_win_prob": 0.221076,
+      "home_win_fair_odds": 1.8485,
+      "draw_fair_odds": 4.2028,
+      "away_win_fair_odds": 4.5233
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-22-puebla-santos-laguna",
@@ -238,12 +196,26 @@
       "kickoff_at": "2026-08-23T01:00:00Z",
       "home_team": "Puebla",
       "away_team": "Santos Laguna",
-      "home_win_prob": 0.447368,
-      "draw_prob": 0.255567,
-      "away_win_prob": 0.297065,
-      "home_win_fair_odds": 2.2353,
-      "draw_fair_odds": 3.9129,
-      "away_win_fair_odds": 3.3663
+      "home_win_prob": 0.44971,
+      "draw_prob": 0.255218,
+      "away_win_prob": 0.295072,
+      "home_win_fair_odds": 2.2237,
+      "draw_fair_odds": 3.9182,
+      "away_win_fair_odds": 3.389
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-5-2026-08-22-leon-monterrey",
+      "round": 5,
+      "match_date": "2026-08-22",
+      "kickoff_at": "2026-08-23T01:00:00Z",
+      "home_team": "Leon",
+      "away_team": "Monterrey",
+      "home_win_prob": 0.337955,
+      "draw_prob": 0.244287,
+      "away_win_prob": 0.417758,
+      "home_win_fair_odds": 2.959,
+      "draw_fair_odds": 4.0935,
+      "away_win_fair_odds": 2.3937
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-22-cruz-azul-atlas",
@@ -252,12 +224,12 @@
       "kickoff_at": "2026-08-23T03:00:00Z",
       "home_team": "Cruz Azul",
       "away_team": "Atlas",
-      "home_win_prob": 0.661853,
-      "draw_prob": 0.198711,
-      "away_win_prob": 0.139436,
-      "home_win_fair_odds": 1.5109,
-      "draw_fair_odds": 5.0324,
-      "away_win_fair_odds": 7.1717
+      "home_win_prob": 0.662022,
+      "draw_prob": 0.198675,
+      "away_win_prob": 0.139303,
+      "home_win_fair_odds": 1.5105,
+      "draw_fair_odds": 5.0333,
+      "away_win_fair_odds": 7.1786
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-23-atletico-san-luis-pachuca",
@@ -266,12 +238,12 @@
       "kickoff_at": "2026-08-23T23:00:00Z",
       "home_team": "Atletico San Luis",
       "away_team": "Pachuca",
-      "home_win_prob": 0.373576,
-      "draw_prob": 0.263897,
-      "away_win_prob": 0.362528,
-      "home_win_fair_odds": 2.6768,
-      "draw_fair_odds": 3.7894,
-      "away_win_fair_odds": 2.7584
+      "home_win_prob": 0.373687,
+      "draw_prob": 0.26398,
+      "away_win_prob": 0.362334,
+      "home_win_fair_odds": 2.676,
+      "draw_fair_odds": 3.7882,
+      "away_win_fair_odds": 2.7599
     },
     {
       "fixture_id": "MEX-apertura-2026-5-2026-08-23-unam-pumas-necaxa",
@@ -280,12 +252,12 @@
       "kickoff_at": "2026-08-24T01:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Necaxa",
-      "home_win_prob": 0.561067,
-      "draw_prob": 0.220596,
-      "away_win_prob": 0.218338,
-      "home_win_fair_odds": 1.7823,
-      "draw_fair_odds": 4.5332,
-      "away_win_fair_odds": 4.5801
+      "home_win_prob": 0.562108,
+      "draw_prob": 0.220015,
+      "away_win_prob": 0.217877,
+      "home_win_fair_odds": 1.779,
+      "draw_fair_odds": 4.5451,
+      "away_win_fair_odds": 4.5897
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-28-necaxa-cruz-azul",
@@ -294,12 +266,12 @@
       "kickoff_at": "2026-08-29T01:00:00Z",
       "home_team": "Necaxa",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.306959,
-      "draw_prob": 0.243067,
-      "away_win_prob": 0.449974,
-      "home_win_fair_odds": 3.2578,
-      "draw_fair_odds": 4.1141,
-      "away_win_fair_odds": 2.2224
+      "home_win_prob": 0.306987,
+      "draw_prob": 0.242628,
+      "away_win_prob": 0.450386,
+      "home_win_fair_odds": 3.2575,
+      "draw_fair_odds": 4.1215,
+      "away_win_fair_odds": 2.2203
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-28-atlante-leon",
@@ -308,12 +280,12 @@
       "kickoff_at": "2026-08-29T01:00:00Z",
       "home_team": "Atlante",
       "away_team": "Leon",
-      "home_win_prob": 0.585221,
-      "draw_prob": 0.215906,
-      "away_win_prob": 0.198873,
-      "home_win_fair_odds": 1.7088,
-      "draw_fair_odds": 4.6316,
-      "away_win_fair_odds": 5.0283
+      "home_win_prob": 0.585571,
+      "draw_prob": 0.21586,
+      "away_win_prob": 0.198569,
+      "home_win_fair_odds": 1.7077,
+      "draw_fair_odds": 4.6326,
+      "away_win_fair_odds": 5.036
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-28-tijuana-unam-pumas",
@@ -322,12 +294,12 @@
       "kickoff_at": "2026-08-29T03:00:00Z",
       "home_team": "Tijuana",
       "away_team": "UNAM Pumas",
-      "home_win_prob": 0.421751,
-      "draw_prob": 0.250359,
-      "away_win_prob": 0.32789,
-      "home_win_fair_odds": 2.3711,
-      "draw_fair_odds": 3.9943,
-      "away_win_fair_odds": 3.0498
+      "home_win_prob": 0.421843,
+      "draw_prob": 0.250417,
+      "away_win_prob": 0.32774,
+      "home_win_fair_odds": 2.3706,
+      "draw_fair_odds": 3.9933,
+      "away_win_fair_odds": 3.0512
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-pachuca-guadalajara",
@@ -336,12 +308,12 @@
       "kickoff_at": "2026-08-29T23:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Guadalajara",
-      "home_win_prob": 0.40465,
-      "draw_prob": 0.274597,
-      "away_win_prob": 0.320753,
-      "home_win_fair_odds": 2.4713,
-      "draw_fair_odds": 3.6417,
-      "away_win_fair_odds": 3.1177
+      "home_win_prob": 0.404838,
+      "draw_prob": 0.274667,
+      "away_win_prob": 0.320495,
+      "home_win_fair_odds": 2.4701,
+      "draw_fair_odds": 3.6408,
+      "away_win_fair_odds": 3.1202
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-atlas-queretaro",
@@ -350,12 +322,12 @@
       "kickoff_at": "2026-08-29T23:00:00Z",
       "home_team": "Atlas",
       "away_team": "Queretaro",
-      "home_win_prob": 0.455163,
-      "draw_prob": 0.269201,
-      "away_win_prob": 0.275636,
-      "home_win_fair_odds": 2.197,
-      "draw_fair_odds": 3.7147,
-      "away_win_fair_odds": 3.628
+      "home_win_prob": 0.455286,
+      "draw_prob": 0.269247,
+      "away_win_prob": 0.275468,
+      "home_win_fair_odds": 2.1964,
+      "draw_fair_odds": 3.7141,
+      "away_win_fair_odds": 3.6302
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-club-america-puebla",
@@ -364,12 +336,12 @@
       "kickoff_at": "2026-08-30T01:00:00Z",
       "home_team": "Club America",
       "away_team": "Puebla",
-      "home_win_prob": 0.711733,
-      "draw_prob": 0.188546,
-      "away_win_prob": 0.09972,
-      "home_win_fair_odds": 1.405,
-      "draw_fair_odds": 5.3037,
-      "away_win_fair_odds": 10.0281
+      "home_win_prob": 0.713453,
+      "draw_prob": 0.18769,
+      "away_win_prob": 0.098858,
+      "home_win_fair_odds": 1.4016,
+      "draw_fair_odds": 5.3279,
+      "away_win_fair_odds": 10.1156
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-santos-laguna-tigres-uanl",
@@ -378,12 +350,12 @@
       "kickoff_at": "2026-08-30T03:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.236675,
-      "draw_prob": 0.235894,
-      "away_win_prob": 0.52743,
-      "home_win_fair_odds": 4.2252,
-      "draw_fair_odds": 4.2392,
-      "away_win_fair_odds": 1.896
+      "home_win_prob": 0.235227,
+      "draw_prob": 0.235434,
+      "away_win_prob": 0.529339,
+      "home_win_fair_odds": 4.2512,
+      "draw_fair_odds": 4.2475,
+      "away_win_fair_odds": 1.8891
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-30-toluca-fc-juarez",
@@ -392,12 +364,12 @@
       "kickoff_at": "2026-08-31T00:00:00Z",
       "home_team": "Toluca",
       "away_team": "FC Juarez",
-      "home_win_prob": 0.717967,
-      "draw_prob": 0.16735,
-      "away_win_prob": 0.114683,
-      "home_win_fair_odds": 1.3928,
-      "draw_fair_odds": 5.9755,
-      "away_win_fair_odds": 8.7197
+      "home_win_prob": 0.718779,
+      "draw_prob": 0.166831,
+      "away_win_prob": 0.114389,
+      "home_win_fair_odds": 1.3912,
+      "draw_fair_odds": 5.9941,
+      "away_win_fair_odds": 8.7421
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-30-monterrey-atletico-san-luis",
@@ -406,12 +378,12 @@
       "kickoff_at": "2026-08-31T02:00:00Z",
       "home_team": "Monterrey",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.573212,
-      "draw_prob": 0.213011,
-      "away_win_prob": 0.213777,
-      "home_win_fair_odds": 1.7446,
-      "draw_fair_odds": 4.6946,
-      "away_win_fair_odds": 4.6778
+      "home_win_prob": 0.573376,
+      "draw_prob": 0.21304,
+      "away_win_prob": 0.213583,
+      "home_win_fair_odds": 1.7441,
+      "draw_fair_odds": 4.6939,
+      "away_win_fair_odds": 4.682
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-04-puebla-toluca",
@@ -420,12 +392,12 @@
       "kickoff_at": "2026-09-05T01:00:00Z",
       "home_team": "Puebla",
       "away_team": "Toluca",
-      "home_win_prob": 0.181254,
-      "draw_prob": 0.225852,
-      "away_win_prob": 0.592894,
-      "home_win_fair_odds": 5.5171,
-      "draw_fair_odds": 4.4277,
-      "away_win_fair_odds": 1.6866
+      "home_win_prob": 0.181292,
+      "draw_prob": 0.225479,
+      "away_win_prob": 0.593229,
+      "home_win_fair_odds": 5.516,
+      "draw_fair_odds": 4.435,
+      "away_win_fair_odds": 1.6857
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-04-fc-juarez-pachuca",
@@ -434,26 +406,12 @@
       "kickoff_at": "2026-09-05T03:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Pachuca",
-      "home_win_prob": 0.338682,
-      "draw_prob": 0.262559,
-      "away_win_prob": 0.398759,
-      "home_win_fair_odds": 2.9526,
-      "draw_fair_odds": 3.8087,
-      "away_win_fair_odds": 2.5078
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-7-2026-09-05-atletico-san-luis-guadalajara",
-      "round": 7,
-      "match_date": "2026-09-05",
-      "kickoff_at": "2026-09-05T23:00:00Z",
-      "home_team": "Atletico San Luis",
-      "away_team": "Guadalajara",
-      "home_win_prob": 0.334445,
-      "draw_prob": 0.256711,
-      "away_win_prob": 0.408845,
-      "home_win_fair_odds": 2.99,
-      "draw_fair_odds": 3.8954,
-      "away_win_fair_odds": 2.4459
+      "home_win_prob": 0.338814,
+      "draw_prob": 0.26266,
+      "away_win_prob": 0.398526,
+      "home_win_fair_odds": 2.9515,
+      "draw_fair_odds": 3.8072,
+      "away_win_fair_odds": 2.5092
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-05-queretaro-monterrey",
@@ -462,12 +420,26 @@
       "kickoff_at": "2026-09-05T23:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Monterrey",
-      "home_win_prob": 0.332688,
-      "draw_prob": 0.255318,
-      "away_win_prob": 0.411994,
-      "home_win_fair_odds": 3.0058,
-      "draw_fair_odds": 3.9167,
-      "away_win_fair_odds": 2.4272
+      "home_win_prob": 0.332841,
+      "draw_prob": 0.255437,
+      "away_win_prob": 0.411722,
+      "home_win_fair_odds": 3.0044,
+      "draw_fair_odds": 3.9149,
+      "away_win_fair_odds": 2.4288
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-7-2026-09-05-atletico-san-luis-guadalajara",
+      "round": 7,
+      "match_date": "2026-09-05",
+      "kickoff_at": "2026-09-05T23:00:00Z",
+      "home_team": "Atletico San Luis",
+      "away_team": "Guadalajara",
+      "home_win_prob": 0.334618,
+      "draw_prob": 0.256794,
+      "away_win_prob": 0.408588,
+      "home_win_fair_odds": 2.9885,
+      "draw_fair_odds": 3.8942,
+      "away_win_fair_odds": 2.4475
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-05-club-america-tijuana",
@@ -476,12 +448,12 @@
       "kickoff_at": "2026-09-06T01:00:00Z",
       "home_team": "Club America",
       "away_team": "Tijuana",
-      "home_win_prob": 0.581605,
-      "draw_prob": 0.233791,
-      "away_win_prob": 0.184604,
-      "home_win_fair_odds": 1.7194,
-      "draw_fair_odds": 4.2773,
-      "away_win_fair_odds": 5.417
+      "home_win_prob": 0.583642,
+      "draw_prob": 0.233132,
+      "away_win_prob": 0.183226,
+      "home_win_fair_odds": 1.7134,
+      "draw_fair_odds": 4.2894,
+      "away_win_fair_odds": 5.4577
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-05-tigres-uanl-necaxa",
@@ -490,12 +462,12 @@
       "kickoff_at": "2026-09-06T01:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Necaxa",
-      "home_win_prob": 0.60032,
-      "draw_prob": 0.215436,
-      "away_win_prob": 0.184244,
-      "home_win_fair_odds": 1.6658,
-      "draw_fair_odds": 4.6418,
-      "away_win_fair_odds": 5.4276
+      "home_win_prob": 0.601304,
+      "draw_prob": 0.214839,
+      "away_win_prob": 0.183857,
+      "home_win_fair_odds": 1.6631,
+      "draw_fair_odds": 4.6547,
+      "away_win_fair_odds": 5.439
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-05-atlas-atlante",
@@ -504,12 +476,12 @@
       "kickoff_at": "2026-09-06T03:00:00Z",
       "home_team": "Atlas",
       "away_team": "Atlante",
-      "home_win_prob": 0.362806,
-      "draw_prob": 0.254487,
-      "away_win_prob": 0.382706,
-      "home_win_fair_odds": 2.7563,
-      "draw_fair_odds": 3.9295,
-      "away_win_fair_odds": 2.613
+      "home_win_prob": 0.362749,
+      "draw_prob": 0.254567,
+      "away_win_prob": 0.382684,
+      "home_win_fair_odds": 2.7567,
+      "draw_fair_odds": 3.9282,
+      "away_win_fair_odds": 2.6131
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-06-unam-pumas-leon",
@@ -518,12 +490,12 @@
       "kickoff_at": "2026-09-06T18:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Leon",
-      "home_win_prob": 0.602901,
-      "draw_prob": 0.214969,
-      "away_win_prob": 0.182131,
-      "home_win_fair_odds": 1.6586,
-      "draw_fair_odds": 4.6518,
-      "away_win_fair_odds": 5.4906
+      "home_win_prob": 0.603085,
+      "draw_prob": 0.214957,
+      "away_win_prob": 0.181959,
+      "home_win_fair_odds": 1.6581,
+      "draw_fair_odds": 4.6521,
+      "away_win_fair_odds": 5.4957
     },
     {
       "fixture_id": "MEX-apertura-2026-7-2026-09-06-cruz-azul-santos-laguna",
@@ -532,12 +504,12 @@
       "kickoff_at": "2026-09-07T02:00:00Z",
       "home_team": "Cruz Azul",
       "away_team": "Santos Laguna",
-      "home_win_prob": 0.747475,
-      "draw_prob": 0.153919,
-      "away_win_prob": 0.098607,
-      "home_win_fair_odds": 1.3378,
-      "draw_fair_odds": 6.4969,
-      "away_win_fair_odds": 10.1413
+      "home_win_prob": 0.74957,
+      "draw_prob": 0.15292,
+      "away_win_prob": 0.09751,
+      "home_win_fair_odds": 1.3341,
+      "draw_fair_odds": 6.5394,
+      "away_win_fair_odds": 10.2554
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-11-necaxa-puebla",
@@ -546,11 +518,11 @@
       "kickoff_at": "2026-09-12T01:00:00Z",
       "home_team": "Necaxa",
       "away_team": "Puebla",
-      "home_win_prob": 0.585571,
-      "draw_prob": 0.224237,
-      "away_win_prob": 0.190192,
-      "home_win_fair_odds": 1.7077,
-      "draw_fair_odds": 4.4596,
+      "home_win_prob": 0.586037,
+      "draw_prob": 0.223775,
+      "away_win_prob": 0.190188,
+      "home_win_fair_odds": 1.7064,
+      "draw_fair_odds": 4.4688,
       "away_win_fair_odds": 5.2579
     },
     {
@@ -560,12 +532,12 @@
       "kickoff_at": "2026-09-12T03:00:00Z",
       "home_team": "Atlante",
       "away_team": "Pachuca",
-      "home_win_prob": 0.441875,
-      "draw_prob": 0.255332,
-      "away_win_prob": 0.302793,
-      "home_win_fair_odds": 2.2631,
-      "draw_fair_odds": 3.9165,
-      "away_win_fair_odds": 3.3026
+      "home_win_prob": 0.442215,
+      "draw_prob": 0.255382,
+      "away_win_prob": 0.302404,
+      "home_win_fair_odds": 2.2613,
+      "draw_fair_odds": 3.9157,
+      "away_win_fair_odds": 3.3068
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-11-tijuana-queretaro",
@@ -574,12 +546,12 @@
       "kickoff_at": "2026-09-12T03:00:00Z",
       "home_team": "Tijuana",
       "away_team": "Queretaro",
-      "home_win_prob": 0.545495,
-      "draw_prob": 0.241377,
-      "away_win_prob": 0.213128,
-      "home_win_fair_odds": 1.8332,
-      "draw_fair_odds": 4.1429,
-      "away_win_fair_odds": 4.692
+      "home_win_prob": 0.545606,
+      "draw_prob": 0.2414,
+      "away_win_prob": 0.212994,
+      "home_win_fair_odds": 1.8328,
+      "draw_fair_odds": 4.1425,
+      "away_win_fair_odds": 4.695
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-12-cruz-azul-club-america",
@@ -588,12 +560,12 @@
       "kickoff_at": "2026-09-12T06:00:00Z",
       "home_team": "Cruz Azul",
       "away_team": "Club America",
-      "home_win_prob": 0.438207,
-      "draw_prob": 0.267853,
-      "away_win_prob": 0.29394,
-      "home_win_fair_odds": 2.282,
-      "draw_fair_odds": 3.7334,
-      "away_win_fair_odds": 3.4021
+      "home_win_prob": 0.436632,
+      "draw_prob": 0.26806,
+      "away_win_prob": 0.295308,
+      "home_win_fair_odds": 2.2903,
+      "draw_fair_odds": 3.7305,
+      "away_win_fair_odds": 3.3863
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-12-toluca-atlas",
@@ -602,12 +574,12 @@
       "kickoff_at": "2026-09-12T06:00:00Z",
       "home_team": "Toluca",
       "away_team": "Atlas",
-      "home_win_prob": 0.696307,
-      "draw_prob": 0.183147,
-      "away_win_prob": 0.120547,
-      "home_win_fair_odds": 1.4361,
-      "draw_fair_odds": 5.4601,
-      "away_win_fair_odds": 8.2955
+      "home_win_prob": 0.697144,
+      "draw_prob": 0.182594,
+      "away_win_prob": 0.120262,
+      "home_win_fair_odds": 1.4344,
+      "draw_fair_odds": 5.4766,
+      "away_win_fair_odds": 8.3152
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-12-leon-atletico-san-luis",
@@ -616,26 +588,12 @@
       "kickoff_at": "2026-09-12T23:00:00Z",
       "home_team": "Leon",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.422672,
-      "draw_prob": 0.250361,
-      "away_win_prob": 0.326967,
-      "home_win_fair_odds": 2.3659,
-      "draw_fair_odds": 3.9942,
-      "away_win_fair_odds": 3.0584
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-8-2026-09-13-santos-laguna-fc-juarez",
-      "round": 8,
-      "match_date": "2026-09-13",
-      "kickoff_at": "2026-09-14T00:00:00Z",
-      "home_team": "Santos Laguna",
-      "away_team": "FC Juarez",
-      "home_win_prob": 0.40425,
-      "draw_prob": 0.242904,
-      "away_win_prob": 0.352846,
-      "home_win_fair_odds": 2.4737,
-      "draw_fair_odds": 4.1169,
-      "away_win_fair_odds": 2.8341
+      "home_win_prob": 0.422882,
+      "draw_prob": 0.250405,
+      "away_win_prob": 0.326712,
+      "home_win_fair_odds": 2.3647,
+      "draw_fair_odds": 3.9935,
+      "away_win_fair_odds": 3.0608
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-13-guadalajara-unam-pumas",
@@ -644,12 +602,26 @@
       "kickoff_at": "2026-09-14T00:00:00Z",
       "home_team": "Guadalajara",
       "away_team": "UNAM Pumas",
-      "home_win_prob": 0.497833,
-      "draw_prob": 0.246983,
-      "away_win_prob": 0.255184,
-      "home_win_fair_odds": 2.0087,
-      "draw_fair_odds": 4.0489,
-      "away_win_fair_odds": 3.9187
+      "home_win_prob": 0.497889,
+      "draw_prob": 0.247034,
+      "away_win_prob": 0.255077,
+      "home_win_fair_odds": 2.0085,
+      "draw_fair_odds": 4.048,
+      "away_win_fair_odds": 3.9204
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-8-2026-09-13-santos-laguna-fc-juarez",
+      "round": 8,
+      "match_date": "2026-09-13",
+      "kickoff_at": "2026-09-14T00:00:00Z",
+      "home_team": "Santos Laguna",
+      "away_team": "FC Juarez",
+      "home_win_prob": 0.402372,
+      "draw_prob": 0.242952,
+      "away_win_prob": 0.354677,
+      "home_win_fair_odds": 2.4853,
+      "draw_fair_odds": 4.116,
+      "away_win_fair_odds": 2.8195
     },
     {
       "fixture_id": "MEX-apertura-2026-8-2026-09-13-monterrey-tigres-uanl",
@@ -658,12 +630,12 @@
       "kickoff_at": "2026-09-14T02:00:00Z",
       "home_team": "Monterrey",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.414925,
-      "draw_prob": 0.249198,
-      "away_win_prob": 0.335877,
-      "home_win_fair_odds": 2.4101,
-      "draw_fair_odds": 4.0129,
-      "away_win_fair_odds": 2.9773
+      "home_win_prob": 0.415098,
+      "draw_prob": 0.249301,
+      "away_win_prob": 0.335601,
+      "home_win_fair_odds": 2.4091,
+      "draw_fair_odds": 4.0112,
+      "away_win_fair_odds": 2.9797
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-18-puebla-atlante",
@@ -672,12 +644,12 @@
       "kickoff_at": "2026-09-19T01:00:00Z",
       "home_team": "Puebla",
       "away_team": "Atlante",
-      "home_win_prob": 0.286688,
-      "draw_prob": 0.25255,
-      "away_win_prob": 0.460763,
-      "home_win_fair_odds": 3.4881,
-      "draw_fair_odds": 3.9596,
-      "away_win_fair_odds": 2.1703
+      "home_win_prob": 0.286698,
+      "draw_prob": 0.252631,
+      "away_win_prob": 0.460671,
+      "home_win_fair_odds": 3.488,
+      "draw_fair_odds": 3.9583,
+      "away_win_fair_odds": 2.1707
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-18-fc-juarez-tigres-uanl",
@@ -686,12 +658,12 @@
       "kickoff_at": "2026-09-19T03:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.291706,
-      "draw_prob": 0.250885,
-      "away_win_prob": 0.457409,
-      "home_win_fair_odds": 3.4281,
-      "draw_fair_odds": 3.9859,
-      "away_win_fair_odds": 2.1862
+      "home_win_prob": 0.29188,
+      "draw_prob": 0.251011,
+      "away_win_prob": 0.457109,
+      "home_win_fair_odds": 3.4261,
+      "draw_fair_odds": 3.9839,
+      "away_win_fair_odds": 2.1877
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-19-atlas-unam-pumas",
@@ -700,12 +672,12 @@
       "kickoff_at": "2026-09-19T23:00:00Z",
       "home_team": "Atlas",
       "away_team": "UNAM Pumas",
-      "home_win_prob": 0.336538,
-      "draw_prob": 0.260141,
-      "away_win_prob": 0.403321,
-      "home_win_fair_odds": 2.9714,
-      "draw_fair_odds": 3.8441,
-      "away_win_fair_odds": 2.4794
+      "home_win_prob": 0.336638,
+      "draw_prob": 0.260221,
+      "away_win_prob": 0.403141,
+      "home_win_fair_odds": 2.9706,
+      "draw_fair_odds": 3.8429,
+      "away_win_fair_odds": 2.4805
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-19-atletico-san-luis-necaxa",
@@ -714,12 +686,12 @@
       "kickoff_at": "2026-09-19T23:00:00Z",
       "home_team": "Atletico San Luis",
       "away_team": "Necaxa",
-      "home_win_prob": 0.464887,
-      "draw_prob": 0.237584,
-      "away_win_prob": 0.297529,
-      "home_win_fair_odds": 2.1511,
-      "draw_fair_odds": 4.209,
-      "away_win_fair_odds": 3.361
+      "home_win_prob": 0.465702,
+      "draw_prob": 0.237108,
+      "away_win_prob": 0.29719,
+      "home_win_fair_odds": 2.1473,
+      "draw_fair_odds": 4.2175,
+      "away_win_fair_odds": 3.3649
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-19-monterrey-cruz-azul",
@@ -728,12 +700,12 @@
       "kickoff_at": "2026-09-20T01:00:00Z",
       "home_team": "Monterrey",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.386652,
-      "draw_prob": 0.243814,
-      "away_win_prob": 0.369534,
-      "home_win_fair_odds": 2.5863,
-      "draw_fair_odds": 4.1015,
-      "away_win_fair_odds": 2.7061
+      "home_win_prob": 0.386811,
+      "draw_prob": 0.243898,
+      "away_win_prob": 0.369291,
+      "home_win_fair_odds": 2.5852,
+      "draw_fair_odds": 4.1001,
+      "away_win_fair_odds": 2.7079
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-19-club-america-guadalajara",
@@ -742,12 +714,12 @@
       "kickoff_at": "2026-09-20T03:00:00Z",
       "home_team": "Club America",
       "away_team": "Guadalajara",
-      "home_win_prob": 0.493557,
-      "draw_prob": 0.265075,
-      "away_win_prob": 0.241368,
-      "home_win_fair_odds": 2.0261,
-      "draw_fair_odds": 3.7725,
-      "away_win_fair_odds": 4.1431
+      "home_win_prob": 0.495571,
+      "draw_prob": 0.264632,
+      "away_win_prob": 0.239797,
+      "home_win_fair_odds": 2.0179,
+      "draw_fair_odds": 3.7788,
+      "away_win_fair_odds": 4.1702
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-20-pachuca-tijuana",
@@ -756,12 +728,12 @@
       "kickoff_at": "2026-09-21T00:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Tijuana",
-      "home_win_prob": 0.489988,
-      "draw_prob": 0.254552,
-      "away_win_prob": 0.25546,
-      "home_win_fair_odds": 2.0409,
-      "draw_fair_odds": 3.9285,
-      "away_win_fair_odds": 3.9145
+      "home_win_prob": 0.490162,
+      "draw_prob": 0.254587,
+      "away_win_prob": 0.255251,
+      "home_win_fair_odds": 2.0401,
+      "draw_fair_odds": 3.9279,
+      "away_win_fair_odds": 3.9177
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-20-toluca-santos-laguna",
@@ -770,12 +742,12 @@
       "kickoff_at": "2026-09-21T00:00:00Z",
       "home_team": "Toluca",
       "away_team": "Santos Laguna",
-      "home_win_prob": 0.779384,
-      "draw_prob": 0.137813,
-      "away_win_prob": 0.082803,
-      "home_win_fair_odds": 1.2831,
-      "draw_fair_odds": 7.2562,
-      "away_win_fair_odds": 12.0768
+      "home_win_prob": 0.782024,
+      "draw_prob": 0.136337,
+      "away_win_prob": 0.081639,
+      "home_win_fair_odds": 1.2787,
+      "draw_fair_odds": 7.3348,
+      "away_win_fair_odds": 12.249
     },
     {
       "fixture_id": "MEX-apertura-2026-9-2026-09-20-queretaro-leon",
@@ -784,12 +756,12 @@
       "kickoff_at": "2026-09-21T02:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Leon",
-      "home_win_prob": 0.45036,
-      "draw_prob": 0.263799,
-      "away_win_prob": 0.285842,
-      "home_win_fair_odds": 2.2204,
-      "draw_fair_odds": 3.7908,
-      "away_win_fair_odds": 3.4984
+      "home_win_prob": 0.450512,
+      "draw_prob": 0.263841,
+      "away_win_prob": 0.285648,
+      "home_win_fair_odds": 2.2197,
+      "draw_fair_odds": 3.7902,
+      "away_win_fair_odds": 3.5008
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-25-atlante-monterrey",
@@ -798,12 +770,12 @@
       "kickoff_at": "2026-09-26T01:00:00Z",
       "home_team": "Atlante",
       "away_team": "Monterrey",
-      "home_win_prob": 0.456818,
-      "draw_prob": 0.231957,
-      "away_win_prob": 0.311225,
-      "home_win_fair_odds": 2.1891,
-      "draw_fair_odds": 4.3111,
-      "away_win_fair_odds": 3.2131
+      "home_win_prob": 0.457187,
+      "draw_prob": 0.232015,
+      "away_win_prob": 0.310797,
+      "home_win_fair_odds": 2.1873,
+      "draw_fair_odds": 4.3101,
+      "away_win_fair_odds": 3.2175
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-25-tijuana-atlas",
@@ -812,12 +784,12 @@
       "kickoff_at": "2026-09-26T03:00:00Z",
       "home_team": "Tijuana",
       "away_team": "Atlas",
-      "home_win_prob": 0.541877,
-      "draw_prob": 0.238216,
-      "away_win_prob": 0.219907,
-      "home_win_fair_odds": 1.8454,
-      "draw_fair_odds": 4.1979,
-      "away_win_fair_odds": 4.5474
+      "home_win_prob": 0.54202,
+      "draw_prob": 0.23823,
+      "away_win_prob": 0.219751,
+      "home_win_fair_odds": 1.845,
+      "draw_fair_odds": 4.1976,
+      "away_win_fair_odds": 4.5506
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-26-guadalajara-queretaro",
@@ -826,12 +798,12 @@
       "kickoff_at": "2026-09-26T23:07:00Z",
       "home_team": "Guadalajara",
       "away_team": "Queretaro",
-      "home_win_prob": 0.614036,
-      "draw_prob": 0.225307,
-      "away_win_prob": 0.160657,
-      "home_win_fair_odds": 1.6286,
-      "draw_fair_odds": 4.4384,
-      "away_win_fair_odds": 6.2244
+      "home_win_prob": 0.614109,
+      "draw_prob": 0.225327,
+      "away_win_prob": 0.160563,
+      "home_win_fair_odds": 1.6284,
+      "draw_fair_odds": 4.438,
+      "away_win_fair_odds": 6.2281
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-26-tigres-uanl-puebla",
@@ -840,12 +812,12 @@
       "kickoff_at": "2026-09-27T01:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Puebla",
-      "home_win_prob": 0.690341,
-      "draw_prob": 0.193212,
-      "away_win_prob": 0.116446,
-      "home_win_fair_odds": 1.4486,
-      "draw_fair_odds": 5.1757,
-      "away_win_fair_odds": 8.5876
+      "home_win_prob": 0.690371,
+      "draw_prob": 0.193242,
+      "away_win_prob": 0.116388,
+      "home_win_fair_odds": 1.4485,
+      "draw_fair_odds": 5.1749,
+      "away_win_fair_odds": 8.592
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-26-santos-laguna-pachuca",
@@ -854,12 +826,12 @@
       "kickoff_at": "2026-09-27T01:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Pachuca",
-      "home_win_prob": 0.281046,
-      "draw_prob": 0.253221,
-      "away_win_prob": 0.465733,
-      "home_win_fair_odds": 3.5581,
-      "draw_fair_odds": 3.9491,
-      "away_win_fair_odds": 2.1472
+      "home_win_prob": 0.279472,
+      "draw_prob": 0.252899,
+      "away_win_prob": 0.467629,
+      "home_win_fair_odds": 3.5782,
+      "draw_fair_odds": 3.9541,
+      "away_win_fair_odds": 2.1384
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-26-cruz-azul-toluca",
@@ -868,12 +840,12 @@
       "kickoff_at": "2026-09-27T03:00:00Z",
       "home_team": "Cruz Azul",
       "away_team": "Toluca",
-      "home_win_prob": 0.431152,
-      "draw_prob": 0.25002,
-      "away_win_prob": 0.318828,
-      "home_win_fair_odds": 2.3194,
-      "draw_fair_odds": 3.9997,
-      "away_win_fair_odds": 3.1365
+      "home_win_prob": 0.431546,
+      "draw_prob": 0.249642,
+      "away_win_prob": 0.318812,
+      "home_win_fair_odds": 2.3172,
+      "draw_fair_odds": 4.0057,
+      "away_win_fair_odds": 3.1366
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-27-unam-pumas-atletico-san-luis",
@@ -882,12 +854,12 @@
       "kickoff_at": "2026-09-27T18:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.566274,
-      "draw_prob": 0.221623,
-      "away_win_prob": 0.212103,
-      "home_win_fair_odds": 1.7659,
-      "draw_fair_odds": 4.5122,
-      "away_win_fair_odds": 4.7147
+      "home_win_prob": 0.56651,
+      "draw_prob": 0.221611,
+      "away_win_prob": 0.211878,
+      "home_win_fair_odds": 1.7652,
+      "draw_fair_odds": 4.5124,
+      "away_win_fair_odds": 4.7197
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-27-leon-fc-juarez",
@@ -896,12 +868,12 @@
       "kickoff_at": "2026-09-28T01:00:00Z",
       "home_team": "Leon",
       "away_team": "FC Juarez",
-      "home_win_prob": 0.461852,
-      "draw_prob": 0.245588,
-      "away_win_prob": 0.29256,
-      "home_win_fair_odds": 2.1652,
-      "draw_fair_odds": 4.0719,
-      "away_win_fair_odds": 3.4181
+      "home_win_prob": 0.462032,
+      "draw_prob": 0.245628,
+      "away_win_prob": 0.292341,
+      "home_win_fair_odds": 2.1644,
+      "draw_fair_odds": 4.0712,
+      "away_win_fair_odds": 3.4207
     },
     {
       "fixture_id": "MEX-apertura-2026-10-2026-09-27-necaxa-club-america",
@@ -910,12 +882,12 @@
       "kickoff_at": "2026-09-28T03:00:00Z",
       "home_team": "Necaxa",
       "away_team": "Club America",
-      "home_win_prob": 0.292544,
-      "draw_prob": 0.259246,
-      "away_win_prob": 0.44821,
-      "home_win_fair_odds": 3.4183,
-      "draw_fair_odds": 3.8573,
-      "away_win_fair_odds": 2.2311
+      "home_win_prob": 0.291011,
+      "draw_prob": 0.25847,
+      "away_win_prob": 0.450519,
+      "home_win_fair_odds": 3.4363,
+      "draw_fair_odds": 3.8689,
+      "away_win_fair_odds": 2.2197
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-09-puebla-leon",
@@ -924,12 +896,12 @@
       "kickoff_at": "2026-10-10T01:00:00Z",
       "home_team": "Puebla",
       "away_team": "Leon",
-      "home_win_prob": 0.381805,
-      "draw_prob": 0.269644,
-      "away_win_prob": 0.348551,
-      "home_win_fair_odds": 2.6191,
-      "draw_fair_odds": 3.7086,
-      "away_win_fair_odds": 2.869
+      "home_win_prob": 0.381995,
+      "draw_prob": 0.269698,
+      "away_win_prob": 0.348306,
+      "home_win_fair_odds": 2.6178,
+      "draw_fair_odds": 3.7078,
+      "away_win_fair_odds": 2.871
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-09-queretaro-atlante",
@@ -938,12 +910,12 @@
       "kickoff_at": "2026-10-10T01:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Atlante",
-      "home_win_prob": 0.351481,
-      "draw_prob": 0.259434,
-      "away_win_prob": 0.389085,
-      "home_win_fair_odds": 2.8451,
-      "draw_fair_odds": 3.8545,
-      "away_win_fair_odds": 2.5701
+      "home_win_prob": 0.351446,
+      "draw_prob": 0.25952,
+      "away_win_prob": 0.389035,
+      "home_win_fair_odds": 2.8454,
+      "draw_fair_odds": 3.8533,
+      "away_win_fair_odds": 2.5705
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-09-tigres-uanl-toluca",
@@ -952,12 +924,12 @@
       "kickoff_at": "2026-10-10T03:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Toluca",
-      "home_win_prob": 0.395059,
-      "draw_prob": 0.259237,
-      "away_win_prob": 0.345704,
-      "home_win_fair_odds": 2.5313,
-      "draw_fair_odds": 3.8575,
-      "away_win_fair_odds": 2.8926
+      "home_win_prob": 0.395348,
+      "draw_prob": 0.258887,
+      "away_win_prob": 0.345765,
+      "home_win_fair_odds": 2.5294,
+      "draw_fair_odds": 3.8627,
+      "away_win_fair_odds": 2.8921
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-10-fc-juarez-tijuana",
@@ -966,12 +938,12 @@
       "kickoff_at": "2026-10-10T23:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Tijuana",
-      "home_win_prob": 0.380019,
-      "draw_prob": 0.24939,
-      "away_win_prob": 0.370591,
-      "home_win_fair_odds": 2.6314,
-      "draw_fair_odds": 4.0098,
-      "away_win_fair_odds": 2.6984
+      "home_win_prob": 0.380204,
+      "draw_prob": 0.249458,
+      "away_win_prob": 0.370337,
+      "home_win_fair_odds": 2.6302,
+      "draw_fair_odds": 4.0087,
+      "away_win_fair_odds": 2.7002
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-10-atlas-guadalajara",
@@ -980,12 +952,12 @@
       "kickoff_at": "2026-10-11T01:00:00Z",
       "home_team": "Atlas",
       "away_team": "Guadalajara",
-      "home_win_prob": 0.300031,
-      "draw_prob": 0.266495,
-      "away_win_prob": 0.433474,
-      "home_win_fair_odds": 3.333,
-      "draw_fair_odds": 3.7524,
-      "away_win_fair_odds": 2.3069
+      "home_win_prob": 0.300205,
+      "draw_prob": 0.266593,
+      "away_win_prob": 0.433202,
+      "home_win_fair_odds": 3.3311,
+      "draw_fair_odds": 3.751,
+      "away_win_fair_odds": 2.3084
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-10-club-america-monterrey",
@@ -994,12 +966,12 @@
       "kickoff_at": "2026-10-11T03:00:00Z",
       "home_team": "Club America",
       "away_team": "Monterrey",
-      "home_win_prob": 0.554876,
-      "draw_prob": 0.233809,
-      "away_win_prob": 0.211315,
-      "home_win_fair_odds": 1.8022,
-      "draw_fair_odds": 4.277,
-      "away_win_fair_odds": 4.7323
+      "home_win_prob": 0.556919,
+      "draw_prob": 0.233283,
+      "away_win_prob": 0.209799,
+      "home_win_fair_odds": 1.7956,
+      "draw_fair_odds": 4.2866,
+      "away_win_fair_odds": 4.7665
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-11-pachuca-necaxa",
@@ -1008,12 +980,12 @@
       "kickoff_at": "2026-10-11T23:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Necaxa",
-      "home_win_prob": 0.537532,
-      "draw_prob": 0.238032,
-      "away_win_prob": 0.224436,
-      "home_win_fair_odds": 1.8604,
-      "draw_fair_odds": 4.2011,
-      "away_win_fair_odds": 4.4556
+      "home_win_prob": 0.538498,
+      "draw_prob": 0.237452,
+      "away_win_prob": 0.224051,
+      "home_win_fair_odds": 1.857,
+      "draw_fair_odds": 4.2114,
+      "away_win_fair_odds": 4.4633
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-11-atletico-san-luis-santos-laguna",
@@ -1022,12 +994,12 @@
       "kickoff_at": "2026-10-11T23:00:00Z",
       "home_team": "Atletico San Luis",
       "away_team": "Santos Laguna",
-      "home_win_prob": 0.584488,
-      "draw_prob": 0.212873,
-      "away_win_prob": 0.202639,
-      "home_win_fair_odds": 1.7109,
-      "draw_fair_odds": 4.6976,
-      "away_win_fair_odds": 4.9349
+      "home_win_prob": 0.586899,
+      "draw_prob": 0.212161,
+      "away_win_prob": 0.20094,
+      "home_win_fair_odds": 1.7039,
+      "draw_fair_odds": 4.7134,
+      "away_win_fair_odds": 4.9766
     },
     {
       "fixture_id": "MEX-apertura-2026-11-2026-10-11-unam-pumas-cruz-azul",
@@ -1036,12 +1008,12 @@
       "kickoff_at": "2026-10-12T01:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.385274,
-      "draw_prob": 0.252913,
-      "away_win_prob": 0.361813,
-      "home_win_fair_odds": 2.5956,
-      "draw_fair_odds": 3.9539,
-      "away_win_fair_odds": 2.7639
+      "home_win_prob": 0.385483,
+      "draw_prob": 0.252968,
+      "away_win_prob": 0.361549,
+      "home_win_fair_odds": 2.5941,
+      "draw_fair_odds": 3.9531,
+      "away_win_fair_odds": 2.7659
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-16-necaxa-atlas",
@@ -1050,26 +1022,12 @@
       "kickoff_at": "2026-10-17T01:00:00Z",
       "home_team": "Necaxa",
       "away_team": "Atlas",
-      "home_win_prob": 0.50779,
-      "draw_prob": 0.24068,
-      "away_win_prob": 0.25153,
-      "home_win_fair_odds": 1.9693,
-      "draw_fair_odds": 4.1549,
-      "away_win_fair_odds": 3.9757
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-12-2026-10-16-tijuana-puebla",
-      "round": 12,
-      "match_date": "2026-10-16",
-      "kickoff_at": "2026-10-17T03:00:00Z",
-      "home_team": "Tijuana",
-      "away_team": "Puebla",
-      "home_win_prob": 0.616634,
-      "draw_prob": 0.218537,
-      "away_win_prob": 0.16483,
-      "home_win_fair_odds": 1.6217,
-      "draw_fair_odds": 4.5759,
-      "away_win_fair_odds": 6.0669
+      "home_win_prob": 0.508187,
+      "draw_prob": 0.240236,
+      "away_win_prob": 0.251577,
+      "home_win_fair_odds": 1.9678,
+      "draw_fair_odds": 4.1626,
+      "away_win_fair_odds": 3.9749
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-16-atlante-unam-pumas",
@@ -1078,12 +1036,26 @@
       "kickoff_at": "2026-10-17T03:00:00Z",
       "home_team": "Atlante",
       "away_team": "UNAM Pumas",
-      "home_win_prob": 0.44612,
-      "draw_prob": 0.241272,
-      "away_win_prob": 0.312608,
-      "home_win_fair_odds": 2.2416,
-      "draw_fair_odds": 4.1447,
-      "away_win_fair_odds": 3.1989
+      "home_win_prob": 0.446451,
+      "draw_prob": 0.241313,
+      "away_win_prob": 0.312236,
+      "home_win_fair_odds": 2.2399,
+      "draw_fair_odds": 4.144,
+      "away_win_fair_odds": 3.2027
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-12-2026-10-16-tijuana-puebla",
+      "round": 12,
+      "match_date": "2026-10-16",
+      "kickoff_at": "2026-10-17T03:00:00Z",
+      "home_team": "Tijuana",
+      "away_team": "Puebla",
+      "home_win_prob": 0.616714,
+      "draw_prob": 0.218547,
+      "away_win_prob": 0.164739,
+      "home_win_fair_odds": 1.6215,
+      "draw_fair_odds": 4.5757,
+      "away_win_fair_odds": 6.0702
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-17-santos-laguna-queretaro",
@@ -1092,12 +1064,12 @@
       "kickoff_at": "2026-10-17T23:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Queretaro",
-      "home_win_prob": 0.399562,
-      "draw_prob": 0.260248,
-      "away_win_prob": 0.34019,
-      "home_win_fair_odds": 2.5027,
-      "draw_fair_odds": 3.8425,
-      "away_win_fair_odds": 2.9395
+      "home_win_prob": 0.397789,
+      "draw_prob": 0.260301,
+      "away_win_prob": 0.34191,
+      "home_win_fair_odds": 2.5139,
+      "draw_fair_odds": 3.8417,
+      "away_win_fair_odds": 2.9247
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-17-guadalajara-tigres-uanl",
@@ -1106,26 +1078,12 @@
       "kickoff_at": "2026-10-17T23:07:00Z",
       "home_team": "Guadalajara",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.44248,
-      "draw_prob": 0.264283,
-      "away_win_prob": 0.293236,
-      "home_win_fair_odds": 2.26,
-      "draw_fair_odds": 3.7838,
-      "away_win_fair_odds": 3.4102
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-12-2026-10-17-leon-club-america",
-      "round": 12,
-      "match_date": "2026-10-17",
-      "kickoff_at": "2026-10-18T01:00:00Z",
-      "home_team": "Leon",
-      "away_team": "Club America",
-      "home_win_prob": 0.249616,
-      "draw_prob": 0.260747,
-      "away_win_prob": 0.489637,
-      "home_win_fair_odds": 4.0062,
-      "draw_fair_odds": 3.8351,
-      "away_win_fair_odds": 2.0423
+      "home_win_prob": 0.442604,
+      "draw_prob": 0.264351,
+      "away_win_prob": 0.293045,
+      "home_win_fair_odds": 2.2594,
+      "draw_fair_odds": 3.7829,
+      "away_win_fair_odds": 3.4124
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-17-toluca-atletico-san-luis",
@@ -1134,12 +1092,26 @@
       "kickoff_at": "2026-10-18T01:00:00Z",
       "home_team": "Toluca",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.681444,
-      "draw_prob": 0.182841,
-      "away_win_prob": 0.135715,
-      "home_win_fair_odds": 1.4675,
-      "draw_fair_odds": 5.4692,
-      "away_win_fair_odds": 7.3684
+      "home_win_prob": 0.682285,
+      "draw_prob": 0.182315,
+      "away_win_prob": 0.1354,
+      "home_win_fair_odds": 1.4657,
+      "draw_fair_odds": 5.485,
+      "away_win_fair_odds": 7.3855
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-12-2026-10-17-leon-club-america",
+      "round": 12,
+      "match_date": "2026-10-17",
+      "kickoff_at": "2026-10-18T01:00:00Z",
+      "home_team": "Leon",
+      "away_team": "Club America",
+      "home_win_prob": 0.248342,
+      "draw_prob": 0.260419,
+      "away_win_prob": 0.491238,
+      "home_win_fair_odds": 4.0267,
+      "draw_fair_odds": 3.84,
+      "away_win_fair_odds": 2.0357
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-17-cruz-azul-fc-juarez",
@@ -1148,12 +1120,12 @@
       "kickoff_at": "2026-10-18T03:00:00Z",
       "home_team": "Cruz Azul",
       "away_team": "FC Juarez",
-      "home_win_prob": 0.683161,
-      "draw_prob": 0.182948,
-      "away_win_prob": 0.133891,
-      "home_win_fair_odds": 1.4638,
-      "draw_fair_odds": 5.466,
-      "away_win_fair_odds": 7.4687
+      "home_win_prob": 0.683315,
+      "draw_prob": 0.18292,
+      "away_win_prob": 0.133765,
+      "home_win_fair_odds": 1.4635,
+      "draw_fair_odds": 5.4669,
+      "away_win_fair_odds": 7.4758
     },
     {
       "fixture_id": "MEX-apertura-2026-12-2026-10-18-monterrey-pachuca",
@@ -1162,12 +1134,12 @@
       "kickoff_at": "2026-10-19T01:00:00Z",
       "home_team": "Monterrey",
       "away_team": "Pachuca",
-      "home_win_prob": 0.465976,
-      "draw_prob": 0.249329,
-      "away_win_prob": 0.284694,
-      "home_win_fair_odds": 2.146,
-      "draw_fair_odds": 4.0108,
-      "away_win_fair_odds": 3.5125
+      "home_win_prob": 0.466092,
+      "draw_prob": 0.249417,
+      "away_win_prob": 0.284491,
+      "home_win_fair_odds": 2.1455,
+      "draw_fair_odds": 4.0094,
+      "away_win_fair_odds": 3.515
     },
     {
       "fixture_id": "MEX-apertura-2026-13-2026-10-20-atletico-san-luis-queretaro",
@@ -1176,12 +1148,12 @@
       "kickoff_at": "2026-10-21T01:00:00Z",
       "home_team": "Atletico San Luis",
       "away_team": "Queretaro",
-      "home_win_prob": 0.500443,
-      "draw_prob": 0.249402,
-      "away_win_prob": 0.250155,
-      "home_win_fair_odds": 1.9982,
-      "draw_fair_odds": 4.0096,
-      "away_win_fair_odds": 3.9975
+      "home_win_prob": 0.500553,
+      "draw_prob": 0.249439,
+      "away_win_prob": 0.250008,
+      "home_win_fair_odds": 1.9978,
+      "draw_fair_odds": 4.009,
+      "away_win_fair_odds": 3.9999
     },
     {
       "fixture_id": "MEX-apertura-2026-13-2026-10-20-fc-juarez-atlante",
@@ -1190,12 +1162,12 @@
       "kickoff_at": "2026-10-21T01:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Atlante",
-      "home_win_prob": 0.364924,
-      "draw_prob": 0.242109,
-      "away_win_prob": 0.392968,
-      "home_win_fair_odds": 2.7403,
-      "draw_fair_odds": 4.1304,
-      "away_win_fair_odds": 2.5447
+      "home_win_prob": 0.364871,
+      "draw_prob": 0.242192,
+      "away_win_prob": 0.392937,
+      "home_win_fair_odds": 2.7407,
+      "draw_fair_odds": 4.129,
+      "away_win_fair_odds": 2.5449
     },
     {
       "fixture_id": "MEX-apertura-2026-13-2026-10-20-tigres-uanl-leon",
@@ -1204,12 +1176,68 @@
       "kickoff_at": "2026-10-21T03:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Leon",
-      "home_win_prob": 0.638572,
-      "draw_prob": 0.208215,
-      "away_win_prob": 0.153214,
-      "home_win_fair_odds": 1.566,
-      "draw_fair_odds": 4.8027,
-      "away_win_fair_odds": 6.5268
+      "home_win_prob": 0.638642,
+      "draw_prob": 0.208241,
+      "away_win_prob": 0.153117,
+      "home_win_fair_odds": 1.5658,
+      "draw_fair_odds": 4.8021,
+      "away_win_fair_odds": 6.5309
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-13-2026-10-20-guadalajara-necaxa",
+      "round": 13,
+      "match_date": "2026-10-20",
+      "kickoff_at": "2026-10-21T03:07:00Z",
+      "home_team": "Guadalajara",
+      "away_team": "Necaxa",
+      "home_win_prob": 0.590737,
+      "draw_prob": 0.218405,
+      "away_win_prob": 0.190857,
+      "home_win_fair_odds": 1.6928,
+      "draw_fair_odds": 4.5786,
+      "away_win_fair_odds": 5.2395
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-13-2026-10-21-atlas-club-america",
+      "round": 13,
+      "match_date": "2026-10-21",
+      "kickoff_at": "2026-10-22T01:00:00Z",
+      "home_team": "Atlas",
+      "away_team": "Club America",
+      "home_win_prob": 0.253702,
+      "draw_prob": 0.269296,
+      "away_win_prob": 0.477002,
+      "home_win_fair_odds": 3.9416,
+      "draw_fair_odds": 3.7134,
+      "away_win_fair_odds": 2.0964
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-13-2026-10-21-puebla-monterrey",
+      "round": 13,
+      "match_date": "2026-10-21",
+      "kickoff_at": "2026-10-22T01:00:00Z",
+      "home_team": "Puebla",
+      "away_team": "Monterrey",
+      "home_win_prob": 0.269059,
+      "draw_prob": 0.246056,
+      "away_win_prob": 0.484886,
+      "home_win_fair_odds": 3.7167,
+      "draw_fair_odds": 4.0641,
+      "away_win_fair_odds": 2.0623
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-13-2026-10-21-toluca-tijuana",
+      "round": 13,
+      "match_date": "2026-10-21",
+      "kickoff_at": "2026-10-22T01:00:00Z",
+      "home_team": "Toluca",
+      "away_team": "Tijuana",
+      "home_win_prob": 0.629395,
+      "draw_prob": 0.204046,
+      "away_win_prob": 0.166559,
+      "home_win_fair_odds": 1.5888,
+      "draw_fair_odds": 4.9009,
+      "away_win_fair_odds": 6.0039
     },
     {
       "fixture_id": "MEX-apertura-2026-13-2026-10-21-pachuca-cruz-azul",
@@ -1218,12 +1246,12 @@
       "kickoff_at": "2026-10-22T03:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.370646,
-      "draw_prob": 0.268314,
-      "away_win_prob": 0.36104,
-      "home_win_fair_odds": 2.698,
-      "draw_fair_odds": 3.727,
-      "away_win_fair_odds": 2.7698
+      "home_win_prob": 0.370799,
+      "draw_prob": 0.268386,
+      "away_win_prob": 0.360815,
+      "home_win_fair_odds": 2.6969,
+      "draw_fair_odds": 3.726,
+      "away_win_fair_odds": 2.7715
     },
     {
       "fixture_id": "MEX-apertura-2026-13-2026-10-21-santos-laguna-unam-pumas",
@@ -1232,12 +1260,12 @@
       "kickoff_at": "2026-10-22T03:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "UNAM Pumas",
-      "home_win_prob": 0.277298,
-      "draw_prob": 0.236976,
-      "away_win_prob": 0.485726,
-      "home_win_fair_odds": 3.6062,
-      "draw_fair_odds": 4.2198,
-      "away_win_fair_odds": 2.0588
+      "home_win_prob": 0.275617,
+      "draw_prob": 0.236609,
+      "away_win_prob": 0.487774,
+      "home_win_fair_odds": 3.6282,
+      "draw_fair_odds": 4.2264,
+      "away_win_fair_odds": 2.0501
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-23-necaxa-fc-juarez",
@@ -1246,12 +1274,12 @@
       "kickoff_at": "2026-10-24T01:00:00Z",
       "home_team": "Necaxa",
       "away_team": "FC Juarez",
-      "home_win_prob": 0.524051,
-      "draw_prob": 0.22704,
-      "away_win_prob": 0.248909,
-      "home_win_fair_odds": 1.9082,
-      "draw_fair_odds": 4.4045,
-      "away_win_fair_odds": 4.0175
+      "home_win_prob": 0.52443,
+      "draw_prob": 0.226632,
+      "away_win_prob": 0.248938,
+      "home_win_fair_odds": 1.9068,
+      "draw_fair_odds": 4.4124,
+      "away_win_fair_odds": 4.0171
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-23-atlante-atletico-san-luis",
@@ -1260,12 +1288,12 @@
       "kickoff_at": "2026-10-24T03:00:00Z",
       "home_team": "Atlante",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.546924,
-      "draw_prob": 0.221742,
-      "away_win_prob": 0.231335,
-      "home_win_fair_odds": 1.8284,
-      "draw_fair_odds": 4.5098,
-      "away_win_fair_odds": 4.3227
+      "home_win_prob": 0.547335,
+      "draw_prob": 0.221705,
+      "away_win_prob": 0.23096,
+      "home_win_fair_odds": 1.827,
+      "draw_fair_odds": 4.5105,
+      "away_win_fair_odds": 4.3298
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-24-leon-toluca",
@@ -1274,12 +1302,12 @@
       "kickoff_at": "2026-10-24T23:00:00Z",
       "home_team": "Leon",
       "away_team": "Toluca",
-      "home_win_prob": 0.233394,
-      "draw_prob": 0.234671,
-      "away_win_prob": 0.531935,
-      "home_win_fair_odds": 4.2846,
-      "draw_fair_odds": 4.2613,
-      "away_win_fair_odds": 1.8799
+      "home_win_prob": 0.233475,
+      "draw_prob": 0.234321,
+      "away_win_prob": 0.532204,
+      "home_win_fair_odds": 4.2831,
+      "draw_fair_odds": 4.2676,
+      "away_win_fair_odds": 1.879
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-24-monterrey-guadalajara",
@@ -1288,12 +1316,12 @@
       "kickoff_at": "2026-10-25T01:00:00Z",
       "home_team": "Monterrey",
       "away_team": "Guadalajara",
-      "home_win_prob": 0.424787,
-      "draw_prob": 0.248827,
-      "away_win_prob": 0.326386,
-      "home_win_fair_odds": 2.3541,
-      "draw_fair_odds": 4.0189,
-      "away_win_fair_odds": 3.0639
+      "home_win_prob": 0.424983,
+      "draw_prob": 0.248907,
+      "away_win_prob": 0.32611,
+      "home_win_fair_odds": 2.353,
+      "draw_fair_odds": 4.0176,
+      "away_win_fair_odds": 3.0665
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-24-unam-pumas-tigres-uanl",
@@ -1302,12 +1330,12 @@
       "kickoff_at": "2026-10-25T03:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.412264,
-      "draw_prob": 0.258476,
-      "away_win_prob": 0.329261,
-      "home_win_fair_odds": 2.4256,
-      "draw_fair_odds": 3.8688,
-      "away_win_fair_odds": 3.0371
+      "home_win_prob": 0.412489,
+      "draw_prob": 0.258547,
+      "away_win_prob": 0.328963,
+      "home_win_fair_odds": 2.4243,
+      "draw_fair_odds": 3.8678,
+      "away_win_fair_odds": 3.0399
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-25-club-america-pachuca",
@@ -1316,12 +1344,12 @@
       "kickoff_at": "2026-10-26T00:00:00Z",
       "home_team": "Club America",
       "away_team": "Pachuca",
-      "home_win_prob": 0.529267,
-      "draw_prob": 0.261213,
-      "away_win_prob": 0.20952,
-      "home_win_fair_odds": 1.8894,
-      "draw_fair_odds": 3.8283,
-      "away_win_fair_odds": 4.7728
+      "home_win_prob": 0.531184,
+      "draw_prob": 0.260687,
+      "away_win_prob": 0.208129,
+      "home_win_fair_odds": 1.8826,
+      "draw_fair_odds": 3.836,
+      "away_win_fair_odds": 4.8047
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-25-atlas-puebla",
@@ -1330,12 +1358,12 @@
       "kickoff_at": "2026-10-26T00:00:00Z",
       "home_team": "Atlas",
       "away_team": "Puebla",
-      "home_win_prob": 0.524873,
-      "draw_prob": 0.254013,
-      "away_win_prob": 0.221114,
-      "home_win_fair_odds": 1.9052,
-      "draw_fair_odds": 3.9368,
-      "away_win_fair_odds": 4.5226
+      "home_win_prob": 0.524966,
+      "draw_prob": 0.254039,
+      "away_win_prob": 0.220995,
+      "home_win_fair_odds": 1.9049,
+      "draw_fair_odds": 3.9364,
+      "away_win_fair_odds": 4.525
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-25-queretaro-cruz-azul",
@@ -1344,12 +1372,12 @@
       "kickoff_at": "2026-10-26T02:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.258523,
-      "draw_prob": 0.256188,
-      "away_win_prob": 0.485289,
-      "home_win_fair_odds": 3.8681,
-      "draw_fair_odds": 3.9034,
-      "away_win_fair_odds": 2.0606
+      "home_win_prob": 0.258668,
+      "draw_prob": 0.256288,
+      "away_win_prob": 0.485044,
+      "home_win_fair_odds": 3.866,
+      "draw_fair_odds": 3.9019,
+      "away_win_fair_odds": 2.0617
     },
     {
       "fixture_id": "MEX-apertura-2026-14-2026-10-25-tijuana-santos-laguna",
@@ -1358,12 +1386,12 @@
       "kickoff_at": "2026-10-26T03:00:00Z",
       "home_team": "Tijuana",
       "away_team": "Santos Laguna",
-      "home_win_prob": 0.630974,
-      "draw_prob": 0.200602,
-      "away_win_prob": 0.168424,
-      "home_win_fair_odds": 1.5849,
-      "draw_fair_odds": 4.985,
-      "away_win_fair_odds": 5.9374
+      "home_win_prob": 0.633319,
+      "draw_prob": 0.199774,
+      "away_win_prob": 0.166907,
+      "home_win_fair_odds": 1.579,
+      "draw_fair_odds": 5.0057,
+      "away_win_fair_odds": 5.9913
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-30-atletico-san-luis-atlas",
@@ -1372,12 +1400,12 @@
       "kickoff_at": "2026-10-31T02:00:00Z",
       "home_team": "Atletico San Luis",
       "away_team": "Atlas",
-      "home_win_prob": 0.495891,
-      "draw_prob": 0.245869,
-      "away_win_prob": 0.25824,
-      "home_win_fair_odds": 2.0166,
-      "draw_fair_odds": 4.0672,
-      "away_win_fair_odds": 3.8724
+      "home_win_prob": 0.496032,
+      "draw_prob": 0.245899,
+      "away_win_prob": 0.258069,
+      "home_win_fair_odds": 2.016,
+      "draw_fair_odds": 4.0667,
+      "away_win_fair_odds": 3.8749
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-30-fc-juarez-queretaro",
@@ -1386,12 +1414,12 @@
       "kickoff_at": "2026-10-31T02:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Queretaro",
-      "home_win_prob": 0.463067,
-      "draw_prob": 0.255771,
-      "away_win_prob": 0.281162,
-      "home_win_fair_odds": 2.1595,
-      "draw_fair_odds": 3.9097,
-      "away_win_fair_odds": 3.5567
+      "home_win_prob": 0.463198,
+      "draw_prob": 0.255821,
+      "away_win_prob": 0.280981,
+      "home_win_fair_odds": 2.1589,
+      "draw_fair_odds": 3.909,
+      "away_win_fair_odds": 3.559
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-30-puebla-unam-pumas",
@@ -1400,12 +1428,12 @@
       "kickoff_at": "2026-10-31T03:00:00Z",
       "home_team": "Puebla",
       "away_team": "UNAM Pumas",
-      "home_win_prob": 0.264715,
-      "draw_prob": 0.255312,
-      "away_win_prob": 0.479973,
-      "home_win_fair_odds": 3.7776,
-      "draw_fair_odds": 3.9168,
-      "away_win_fair_odds": 2.0835
+      "home_win_prob": 0.264858,
+      "draw_prob": 0.255416,
+      "away_win_prob": 0.479726,
+      "home_win_fair_odds": 3.7756,
+      "draw_fair_odds": 3.9152,
+      "away_win_fair_odds": 2.0845
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-31-pachuca-tigres-uanl",
@@ -1414,12 +1442,12 @@
       "kickoff_at": "2026-11-01T00:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Tigres UANL",
-      "home_win_prob": 0.395703,
-      "draw_prob": 0.274819,
-      "away_win_prob": 0.329477,
-      "home_win_fair_odds": 2.5271,
-      "draw_fair_odds": 3.6388,
-      "away_win_fair_odds": 3.0351
+      "home_win_prob": 0.395868,
+      "draw_prob": 0.274914,
+      "away_win_prob": 0.329217,
+      "home_win_fair_odds": 2.5261,
+      "draw_fair_odds": 3.6375,
+      "away_win_fair_odds": 3.0375
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-31-monterrey-tijuana",
@@ -1428,12 +1456,12 @@
       "kickoff_at": "2026-11-01T02:00:00Z",
       "home_team": "Monterrey",
       "away_team": "Tijuana",
-      "home_win_prob": 0.517046,
-      "draw_prob": 0.228617,
-      "away_win_prob": 0.254336,
-      "home_win_fair_odds": 1.9341,
-      "draw_fair_odds": 4.3741,
-      "away_win_fair_odds": 3.9318
+      "home_win_prob": 0.517217,
+      "draw_prob": 0.228663,
+      "away_win_prob": 0.254121,
+      "home_win_fair_odds": 1.9334,
+      "draw_fair_odds": 4.3733,
+      "away_win_fair_odds": 3.9351
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-31-guadalajara-atlante",
@@ -1442,12 +1470,12 @@
       "kickoff_at": "2026-11-01T02:07:00Z",
       "home_team": "Guadalajara",
       "away_team": "Atlante",
-      "home_win_prob": 0.530063,
-      "draw_prob": 0.234581,
-      "away_win_prob": 0.235356,
-      "home_win_fair_odds": 1.8866,
-      "draw_fair_odds": 4.2629,
-      "away_win_fair_odds": 4.2489
+      "home_win_prob": 0.52994,
+      "draw_prob": 0.234676,
+      "away_win_prob": 0.235385,
+      "home_win_fair_odds": 1.887,
+      "draw_fair_odds": 4.2612,
+      "away_win_fair_odds": 4.2484
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-10-31-club-america-toluca",
@@ -1456,12 +1484,12 @@
       "kickoff_at": "2026-11-01T04:00:00Z",
       "home_team": "Club America",
       "away_team": "Toluca",
-      "home_win_prob": 0.429808,
-      "draw_prob": 0.266893,
-      "away_win_prob": 0.303299,
-      "home_win_fair_odds": 2.3266,
-      "draw_fair_odds": 3.7468,
-      "away_win_fair_odds": 3.2971
+      "home_win_prob": 0.432042,
+      "draw_prob": 0.266227,
+      "away_win_prob": 0.301731,
+      "home_win_fair_odds": 2.3146,
+      "draw_fair_odds": 3.7562,
+      "away_win_fair_odds": 3.3142
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-11-01-santos-laguna-necaxa",
@@ -1470,12 +1498,12 @@
       "kickoff_at": "2026-11-01T23:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Necaxa",
-      "home_win_prob": 0.358254,
-      "draw_prob": 0.240475,
-      "away_win_prob": 0.401271,
-      "home_win_fair_odds": 2.7913,
-      "draw_fair_odds": 4.1584,
-      "away_win_fair_odds": 2.4921
+      "home_win_prob": 0.356867,
+      "draw_prob": 0.239916,
+      "away_win_prob": 0.403217,
+      "home_win_fair_odds": 2.8022,
+      "draw_fair_odds": 4.1681,
+      "away_win_fair_odds": 2.4801
     },
     {
       "fixture_id": "MEX-apertura-2026-15-2026-11-01-cruz-azul-leon",
@@ -1484,12 +1512,12 @@
       "kickoff_at": "2026-11-02T01:00:00Z",
       "home_team": "Cruz Azul",
       "away_team": "Leon",
-      "home_win_prob": 0.678558,
-      "draw_prob": 0.18833,
-      "away_win_prob": 0.133112,
-      "home_win_fair_odds": 1.4737,
-      "draw_fair_odds": 5.3098,
-      "away_win_fair_odds": 7.5125
+      "home_win_prob": 0.678706,
+      "draw_prob": 0.188299,
+      "away_win_prob": 0.132994,
+      "home_win_fair_odds": 1.4734,
+      "draw_fair_odds": 5.3107,
+      "away_win_fair_odds": 7.5191
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-06-necaxa-tijuana",
@@ -1498,12 +1526,12 @@
       "kickoff_at": "2026-11-07T02:00:00Z",
       "home_team": "Necaxa",
       "away_team": "Tijuana",
-      "home_win_prob": 0.428797,
-      "draw_prob": 0.244503,
-      "away_win_prob": 0.326701,
-      "home_win_fair_odds": 2.3321,
-      "draw_fair_odds": 4.0899,
-      "away_win_fair_odds": 3.0609
+      "home_win_prob": 0.42906,
+      "draw_prob": 0.244087,
+      "away_win_prob": 0.326853,
+      "home_win_fair_odds": 2.3307,
+      "draw_fair_odds": 4.0969,
+      "away_win_fair_odds": 3.0595
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-06-atletico-san-luis-fc-juarez",
@@ -1512,12 +1540,12 @@
       "kickoff_at": "2026-11-07T02:00:00Z",
       "home_team": "Atletico San Luis",
       "away_team": "FC Juarez",
-      "home_win_prob": 0.511793,
-      "draw_prob": 0.232135,
-      "away_win_prob": 0.256072,
-      "home_win_fair_odds": 1.9539,
-      "draw_fair_odds": 4.3078,
-      "away_win_fair_odds": 3.9051
+      "home_win_prob": 0.511928,
+      "draw_prob": 0.232168,
+      "away_win_prob": 0.255904,
+      "home_win_fair_odds": 1.9534,
+      "draw_fair_odds": 4.3072,
+      "away_win_fair_odds": 3.9077
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-06-atlante-santos-laguna",
@@ -1526,26 +1554,12 @@
       "kickoff_at": "2026-11-07T04:00:00Z",
       "home_team": "Atlante",
       "away_team": "Santos Laguna",
-      "home_win_prob": 0.659612,
-      "draw_prob": 0.186135,
-      "away_win_prob": 0.154253,
-      "home_win_fair_odds": 1.516,
-      "draw_fair_odds": 5.3724,
-      "away_win_fair_odds": 6.4828
-    },
-    {
-      "fixture_id": "MEX-apertura-2026-16-2026-11-07-atlas-pachuca",
-      "round": 16,
-      "match_date": "2026-11-07",
-      "kickoff_at": "2026-11-07T23:00:00Z",
-      "home_team": "Atlas",
-      "away_team": "Pachuca",
-      "home_win_prob": 0.336306,
-      "draw_prob": 0.27646,
-      "away_win_prob": 0.387234,
-      "home_win_fair_odds": 2.9735,
-      "draw_fair_odds": 3.6172,
-      "away_win_fair_odds": 2.5824
+      "home_win_prob": 0.662174,
+      "draw_prob": 0.185196,
+      "away_win_prob": 0.15263,
+      "home_win_fair_odds": 1.5102,
+      "draw_fair_odds": 5.3997,
+      "away_win_fair_odds": 6.5518
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-07-tigres-uanl-cruz-azul",
@@ -1554,12 +1568,26 @@
       "kickoff_at": "2026-11-08T00:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.426968,
-      "draw_prob": 0.258919,
-      "away_win_prob": 0.314113,
-      "home_win_fair_odds": 2.3421,
-      "draw_fair_odds": 3.8622,
-      "away_win_fair_odds": 3.1836
+      "home_win_prob": 0.42708,
+      "draw_prob": 0.25898,
+      "away_win_prob": 0.31394,
+      "home_win_fair_odds": 2.3415,
+      "draw_fair_odds": 3.8613,
+      "away_win_fair_odds": 3.1853
+    },
+    {
+      "fixture_id": "MEX-apertura-2026-16-2026-11-07-atlas-pachuca",
+      "round": 16,
+      "match_date": "2026-11-07",
+      "kickoff_at": "2026-11-08T00:00:00Z",
+      "home_team": "Atlas",
+      "away_team": "Pachuca",
+      "home_win_prob": 0.336425,
+      "draw_prob": 0.276555,
+      "away_win_prob": 0.38702,
+      "home_win_fair_odds": 2.9724,
+      "draw_fair_odds": 3.6159,
+      "away_win_fair_odds": 2.5838
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-07-toluca-monterrey",
@@ -1568,12 +1596,12 @@
       "kickoff_at": "2026-11-08T02:00:00Z",
       "home_team": "Toluca",
       "away_team": "Monterrey",
-      "home_win_prob": 0.600612,
-      "draw_prob": 0.206794,
-      "away_win_prob": 0.192594,
-      "home_win_fair_odds": 1.665,
-      "draw_fair_odds": 4.8357,
-      "away_win_fair_odds": 5.1923
+      "home_win_prob": 0.601325,
+      "draw_prob": 0.20637,
+      "away_win_prob": 0.192305,
+      "home_win_fair_odds": 1.663,
+      "draw_fair_odds": 4.8457,
+      "away_win_fair_odds": 5.2001
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-07-unam-pumas-club-america",
@@ -1582,12 +1610,12 @@
       "kickoff_at": "2026-11-08T03:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Club America",
-      "home_win_prob": 0.36474,
-      "draw_prob": 0.270979,
-      "away_win_prob": 0.364282,
-      "home_win_fair_odds": 2.7417,
-      "draw_fair_odds": 3.6903,
-      "away_win_fair_odds": 2.7451
+      "home_win_prob": 0.363256,
+      "draw_prob": 0.270997,
+      "away_win_prob": 0.365746,
+      "home_win_fair_odds": 2.7529,
+      "draw_fair_odds": 3.6901,
+      "away_win_fair_odds": 2.7341
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-08-queretaro-puebla",
@@ -1596,12 +1624,12 @@
       "kickoff_at": "2026-11-09T01:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Puebla",
-      "home_win_prob": 0.509982,
-      "draw_prob": 0.262384,
-      "away_win_prob": 0.227634,
-      "home_win_fair_odds": 1.9609,
-      "draw_fair_odds": 3.8112,
-      "away_win_fair_odds": 4.393
+      "home_win_prob": 0.510093,
+      "draw_prob": 0.262412,
+      "away_win_prob": 0.227496,
+      "home_win_fair_odds": 1.9604,
+      "draw_fair_odds": 3.8108,
+      "away_win_fair_odds": 4.3957
     },
     {
       "fixture_id": "MEX-apertura-2026-16-2026-11-08-leon-guadalajara",
@@ -1610,12 +1638,12 @@
       "kickoff_at": "2026-11-09T03:00:00Z",
       "home_team": "Leon",
       "away_team": "Guadalajara",
-      "home_win_prob": 0.2947,
-      "draw_prob": 0.258724,
-      "away_win_prob": 0.446576,
-      "home_win_fair_odds": 3.3933,
-      "draw_fair_odds": 3.8651,
-      "away_win_fair_odds": 2.2393
+      "home_win_prob": 0.2949,
+      "draw_prob": 0.258826,
+      "away_win_prob": 0.446274,
+      "home_win_fair_odds": 3.391,
+      "draw_fair_odds": 3.8636,
+      "away_win_fair_odds": 2.2408
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-20-puebla-atletico-san-luis",
@@ -1624,12 +1652,12 @@
       "kickoff_at": "2026-11-21T02:00:00Z",
       "home_team": "Puebla",
       "away_team": "Atletico San Luis",
-      "home_win_prob": 0.345464,
-      "draw_prob": 0.263133,
-      "away_win_prob": 0.391403,
-      "home_win_fair_odds": 2.8947,
-      "draw_fair_odds": 3.8004,
-      "away_win_fair_odds": 2.5549
+      "home_win_prob": 0.345693,
+      "draw_prob": 0.263207,
+      "away_win_prob": 0.3911,
+      "home_win_fair_odds": 2.8927,
+      "draw_fair_odds": 3.7993,
+      "away_win_fair_odds": 2.5569
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-20-fc-juarez-atlas",
@@ -1638,12 +1666,12 @@
       "kickoff_at": "2026-11-21T04:00:00Z",
       "home_team": "FC Juarez",
       "away_team": "Atlas",
-      "home_win_prob": 0.457901,
-      "draw_prob": 0.251811,
-      "away_win_prob": 0.290288,
-      "home_win_fair_odds": 2.1839,
-      "draw_fair_odds": 3.9712,
-      "away_win_fair_odds": 3.4449
+      "home_win_prob": 0.458064,
+      "draw_prob": 0.251855,
+      "away_win_prob": 0.290081,
+      "home_win_fair_odds": 2.1831,
+      "draw_fair_odds": 3.9705,
+      "away_win_fair_odds": 3.4473
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-20-tijuana-atlante",
@@ -1652,12 +1680,12 @@
       "kickoff_at": "2026-11-21T04:00:00Z",
       "home_team": "Tijuana",
       "away_team": "Atlante",
-      "home_win_prob": 0.452223,
-      "draw_prob": 0.241461,
-      "away_win_prob": 0.306316,
-      "home_win_fair_odds": 2.2113,
-      "draw_fair_odds": 4.1415,
-      "away_win_fair_odds": 3.2646
+      "home_win_prob": 0.452139,
+      "draw_prob": 0.241541,
+      "away_win_prob": 0.306321,
+      "home_win_fair_odds": 2.2117,
+      "draw_fair_odds": 4.1401,
+      "away_win_fair_odds": 3.2645
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-21-pachuca-toluca",
@@ -1666,12 +1694,12 @@
       "kickoff_at": "2026-11-21T23:00:00Z",
       "home_team": "Pachuca",
       "away_team": "Toluca",
-      "home_win_prob": 0.340502,
-      "draw_prob": 0.265555,
-      "away_win_prob": 0.393943,
-      "home_win_fair_odds": 2.9368,
-      "draw_fair_odds": 3.7657,
-      "away_win_fair_odds": 2.5384
+      "home_win_prob": 0.340759,
+      "draw_prob": 0.265198,
+      "away_win_prob": 0.394043,
+      "home_win_fair_odds": 2.9346,
+      "draw_fair_odds": 3.7708,
+      "away_win_fair_odds": 2.5378
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-21-santos-laguna-leon",
@@ -1680,12 +1708,12 @@
       "kickoff_at": "2026-11-22T00:00:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Leon",
-      "home_win_prob": 0.405311,
-      "draw_prob": 0.248863,
-      "away_win_prob": 0.345826,
-      "home_win_fair_odds": 2.4672,
-      "draw_fair_odds": 4.0183,
-      "away_win_fair_odds": 2.8916
+      "home_win_prob": 0.403462,
+      "draw_prob": 0.248914,
+      "away_win_prob": 0.347624,
+      "home_win_fair_odds": 2.4785,
+      "draw_fair_odds": 4.0175,
+      "away_win_fair_odds": 2.8767
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-21-unam-pumas-monterrey",
@@ -1694,12 +1722,12 @@
       "kickoff_at": "2026-11-22T02:00:00Z",
       "home_team": "UNAM Pumas",
       "away_team": "Monterrey",
-      "home_win_prob": 0.478815,
-      "draw_prob": 0.234511,
-      "away_win_prob": 0.286674,
-      "home_win_fair_odds": 2.0885,
-      "draw_fair_odds": 4.2642,
-      "away_win_fair_odds": 3.4883
+      "home_win_prob": 0.479003,
+      "draw_prob": 0.234572,
+      "away_win_prob": 0.286425,
+      "home_win_fair_odds": 2.0877,
+      "draw_fair_odds": 4.2631,
+      "away_win_fair_odds": 3.4913
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-21-tigres-uanl-club-america",
@@ -1708,12 +1736,12 @@
       "kickoff_at": "2026-11-22T04:00:00Z",
       "home_team": "Tigres UANL",
       "away_team": "Club America",
-      "home_win_prob": 0.403081,
-      "draw_prob": 0.278789,
-      "away_win_prob": 0.31813,
-      "home_win_fair_odds": 2.4809,
-      "draw_fair_odds": 3.5869,
-      "away_win_fair_odds": 3.1434
+      "home_win_prob": 0.40151,
+      "draw_prob": 0.27895,
+      "away_win_prob": 0.31954,
+      "home_win_fair_odds": 2.4906,
+      "draw_fair_odds": 3.5849,
+      "away_win_fair_odds": 3.1295
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-22-guadalajara-cruz-azul",
@@ -1722,12 +1750,12 @@
       "kickoff_at": "2026-11-23T00:07:00Z",
       "home_team": "Guadalajara",
       "away_team": "Cruz Azul",
-      "home_win_prob": 0.41693,
-      "draw_prob": 0.260208,
-      "away_win_prob": 0.322862,
-      "home_win_fair_odds": 2.3985,
-      "draw_fair_odds": 3.8431,
-      "away_win_fair_odds": 3.0973
+      "home_win_prob": 0.417042,
+      "draw_prob": 0.260254,
+      "away_win_prob": 0.322704,
+      "home_win_fair_odds": 2.3978,
+      "draw_fair_odds": 3.8424,
+      "away_win_fair_odds": 3.0988
     },
     {
       "fixture_id": "MEX-apertura-2026-17-2026-11-22-queretaro-necaxa",
@@ -1736,12 +1764,12 @@
       "kickoff_at": "2026-11-23T02:00:00Z",
       "home_team": "Queretaro",
       "away_team": "Necaxa",
-      "home_win_prob": 0.407551,
-      "draw_prob": 0.259285,
-      "away_win_prob": 0.333165,
-      "home_win_fair_odds": 2.4537,
-      "draw_fair_odds": 3.8568,
-      "away_win_fair_odds": 3.0015
+      "home_win_prob": 0.408306,
+      "draw_prob": 0.25881,
+      "away_win_prob": 0.332884,
+      "home_win_fair_odds": 2.4491,
+      "draw_fair_odds": 3.8638,
+      "away_win_fair_odds": 3.004
     }
   ]
 }
