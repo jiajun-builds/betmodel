@@ -30,9 +30,19 @@ DISPLAY_TZ = "America/Mexico_City"
 MARKET_FIELDS = [
     "home_team", "away_team", "round", "match_time", "kickoff_at",
     "home_win_prob", "draw_prob", "away_win_prob",
+    # The bettable price: best of Betano UK / Duel per outcome, with the book
+    # that supplied it. EV is computed against this, not against Pinnacle.
     "home_odds", "draw_odds", "away_odds",
+    "home_book", "draw_book", "away_book",
     "home_ev", "draw_ev", "away_ev",
-    "signal_pick", "signal_state", "bookmaker", "last_update", "fetched_at",
+    "signal_pick", "signal_state", "bookmaker",
+    # Pinnacle as the low-vig reference, so a reader can tell a model edge from a
+    # soft book simply being soft.
+    "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
+    # These are opening prices, captured once and never refreshed, so how old the
+    # quote is decides whether it is still gettable.
+    "price_captured_at", "price_age_h",
+    "last_update", "fetched_at",
 ]
 
 

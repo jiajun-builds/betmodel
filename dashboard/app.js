@@ -7,7 +7,13 @@
  *   team_strength_rankings.json, upcoming_market_comparison.json
  * from ./data (built site) or ../data/dashboard/json (repo run).
  *
- * EV surface is 1X2 / match odds (Pinnacle). EV values are percentages.
+ * EV surface is 1X2 / match odds. EV values are percentages.
+ *
+ * The quoted price is the best of Betano UK / Duel per outcome -- the price you
+ * can actually bet -- not Pinnacle. Pinnacle is carried alongside as a low-vig
+ * reference so a reader can tell a model edge from a soft book being soft.
+ * These are OPENING prices, captured once and never refreshed, so `price_age_h`
+ * says how stale the quote is and therefore whether it is still gettable.
  * ------------------------------------------------------------------ */
 
 const DATA_BASES = ["./data", "../data/dashboard/json"];
@@ -64,9 +70,9 @@ function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({
 /* ---------- 1X2 market outcomes (home / draw / away) ---------- */
 function marketOutcomes(r) {
   return [
-    { key: "home", label: r.home_team, prob: r.home_win_prob, odds: r.home_odds, ev: r.home_ev },
-    { key: "draw", label: "Draw", prob: r.draw_prob, odds: r.draw_odds, ev: r.draw_ev },
-    { key: "away", label: r.away_team, prob: r.away_win_prob, odds: r.away_odds, ev: r.away_ev },
+    { key: "home", label: r.home_team, prob: r.home_win_prob, odds: r.home_odds, ev: r.home_ev, book: r.home_book, ref: r.pinnacle_home_odds },
+    { key: "draw", label: "Draw", prob: r.draw_prob, odds: r.draw_odds, ev: r.draw_ev, book: r.draw_book, ref: r.pinnacle_draw_odds },
+    { key: "away", label: r.away_team, prob: r.away_win_prob, odds: r.away_odds, ev: r.away_ev, book: r.away_book, ref: r.pinnacle_away_odds },
   ];
 }
 function outcomeByKey(r, key) { return marketOutcomes(r).find((o) => o.key === key); }
@@ -238,7 +244,10 @@ function renderHeader(meta, fixtures, predictions, strength, market, marketFetch
   setText("round-label", `${meta.current_round}/${meta.total_rounds}`);
   if (el.roundFill) el.roundFill.style.width = `${Math.round((meta.current_round / meta.total_rounds) * 100)}%`;
 
-  setText("panel-signal-meta", `Model ${fmtStamp(meta.model_updated_at)} · Pinnacle ${fmtStamp(marketFetched)}`);
+  const ages = market.map((r) => r.price_age_h).filter((h) => h != null);
+  const oldest = ages.length ? Math.max(...ages) : null;
+  setText("panel-signal-meta",
+    `Model ${fmtStamp(meta.model_updated_at)} · Betano/Duel open${oldest == null ? "" : ` · quote up to ${Math.round(oldest)}h old`}`);
   setText("panel-market-meta", `${predictions.length} matches · ${meta.model_name}`);
   setText("panel-strength-meta", `${strength.length} clubs · recent 5 form`);
 
