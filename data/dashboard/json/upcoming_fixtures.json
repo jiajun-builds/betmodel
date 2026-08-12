@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-12T01:59:30+01:00"
+    "updated_at": "2026-08-12T10:34:32+01:00"
   },
   "rows": [
     {
@@ -75,6 +75,24 @@
       "match_time": "12:00",
       "kickoff_at": "2026-08-15T13:00:00+01:00",
       "home_team": "Yunnan Yukun",
+      "away_team": "Dalian Yingbo"
+    },
+    {
+      "fixture_id": "CSL-2026-18-2026-08-18-shanghai-shenhua-beijing-guoan",
+      "round": 18,
+      "match_date": "2026-08-18",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-18T12:35:00+01:00",
+      "home_team": "Shanghai Shenhua",
+      "away_team": "Beijing Guoan"
+    },
+    {
+      "fixture_id": "CSL-2026-18-2026-08-19-shanghai-port-dalian-yingbo",
+      "round": 18,
+      "match_date": "2026-08-19",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-19T12:35:00+01:00",
+      "home_team": "Shanghai Port",
       "away_team": "Dalian Yingbo"
     },
     {
