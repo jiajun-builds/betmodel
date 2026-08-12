@@ -101,7 +101,9 @@ jobs:
       - name: Install lightweight deps
         # The tick needs only pandas + requests (no model, no curl_cffi, no conda),
         # which is what keeps a close capture ~45s from dispatch to API call.
-        run: pip install "pandas>=2.0" "requests>=2.28"
+        # python-dotenv is needed because ligamx.config imports it unconditionally
+        # (it is a local-dev convenience there; in CI the values come from secrets).
+        run: pip install "pandas>=2.0" "requests>=2.28" "python-dotenv>=1.0"
 
       - name: Capture opening lines
         env:
@@ -115,10 +117,11 @@ jobs:
           fi
           ARGS="--max-requests 3"
           if [ "$DRY_RUN" = "true" ]; then ARGS="$ARGS --dry-run"; fi
-          # Fail-open: the opener has no deadline, so a bad tick must never fail the
-          # run or block the Pinnacle close chained behind it.
-          python -m ligamx.odds.fetch_oddsapiio_opens $ARGS || \
-            echo "WARNING: odds-api.io capture failed; continuing."
+          # Deliberately NOT `|| echo WARNING`. Isolating the close from this job's
+          # failure is already job 2's `if: always()`, so swallowing the exit code
+          # here buys nothing and costs the only failure signal there is -- it
+          # reported this job green for a run that crashed on a missing import.
+          python -m ligamx.odds.fetch_oddsapiio_opens $ARGS
 
       - name: Commit captured snapshot
         id: commit
@@ -170,7 +173,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install lightweight deps
-        run: pip install "pandas>=2.0" "requests>=2.28"
+        # python-dotenv is needed because ligamx.config imports it unconditionally
+        # (it is a local-dev convenience there; in CI the values come from secrets).
+        run: pip install "pandas>=2.0" "requests>=2.28" "python-dotenv>=1.0"
 
       - name: Capture Pinnacle closing lines
         env:
