@@ -244,7 +244,7 @@ DASHBOARD_COLUMNS = [
 @dataclass(frozen=True)
 class ExportPaths:
     upcoming_csv: str = os.path.join(data_dashboard_csv_dir(), "upcoming_fixtures.csv")
-    pinnacle_csv: str = os.path.join(data_raw_dir(), "CHN_pinnacle_spreads.csv")
+    pinnacle_csv: str = os.path.join(data_raw_dir(), "CHN_pinnacle_now.csv")
     matches_csv: str = os.path.join(data_raw_dir(), "CHN_Super League.csv")
     history_csv: str = HISTORY_CSV
     full_out_csv: str = os.path.join(data_output_dir(), "CHN_upcoming_market_comparison.csv")
@@ -293,7 +293,7 @@ def load_pinnacle(path: str) -> pd.DataFrame:
             "last_update",
             "fetched_at",
         ],
-        "CHN_pinnacle_spreads.csv",
+        "CHN_pinnacle_now.csv",
     ).copy()
     df["home_team"] = df["home_team"].astype(str).str.strip()
     df["away_team"] = df["away_team"].astype(str).str.strip()
@@ -414,7 +414,7 @@ def build_base_frame(
     # skipped for them, on the premise that "Now-line fixtures come from the live feed and
     # are inherently upcoming". That premise holds only at *fetch* time: the request sends
     # commenceTimeFrom=now, so the API can't return a kicked-off fixture — but
-    # CHN_pinnacle_spreads.csv is a snapshot on disk, and the property decays with exactly
+    # CHN_pinnacle_now.csv is a snapshot on disk, and the property decays with exactly
     # the refresh interval. `upcoming_fixtures.csv` is not kickoff-filtered either (it is
     # rebuilt daily), so this gate was the only thing trimming finished matches, and
     # Now-line fixtures bypassed it. That capped the staleness bug at ~3h under the old 3h
@@ -855,7 +855,7 @@ def main() -> None:
         description="Export upcoming CSL fixtures with de-biased model 1X2 probabilities and Pinnacle h2h comparison"
     )
     parser.add_argument("--upcoming", default=paths.upcoming_csv, help="Path to upcoming_fixtures.csv")
-    parser.add_argument("--pinnacle", default=paths.pinnacle_csv, help="Path to CHN_pinnacle_spreads.csv")
+    parser.add_argument("--pinnacle", default=paths.pinnacle_csv, help="Path to CHN_pinnacle_now.csv")
     parser.add_argument("--matches", default=paths.matches_csv, help="Path to CHN_Super League.csv")
     parser.add_argument("--history", default=paths.history_csv, help="Path to CHN_pinnacle_spreads_history.csv")
     parser.add_argument("--out", default=paths.full_out_csv, help="Path to full comparison CSV output")

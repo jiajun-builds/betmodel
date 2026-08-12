@@ -113,7 +113,7 @@ Run:
 ```
 
 Default output:
-- `data/raw_data/CHN_pinnacle_spreads.csv`
+- `data/raw_data/CHN_pinnacle_now.csv`
 - `data/output_data/CHN_upcoming_market_comparison.csv`
 - `data/dashboard/csv/upcoming_market_comparison.csv`
 
@@ -281,7 +281,7 @@ Scenario matrix (gated `publish` job + 12h capture window + 12h odds cron, as of
 - upcoming fixtures for dashboard/export: `data/raw_data/chn_upcoming_fixtures.csv`
 - xG data: `data/raw_data/xg_data.csv`
 - Pinnacle 1X2 odds (single current snapshot, overwritten each run; legacy "spreads"
-  filename): `data/raw_data/CHN_pinnacle_spreads.csv`
+  filename): `data/raw_data/CHN_pinnacle_now.csv`
 - Pinnacle 1X2 capture history (append-only, tracked in git so the GitHub capture
   workflow can persist it; `market=moneyline` since roadmap #10, old spreads rows replaced
   by the user's manual opening-1X2 backfill): `data/raw_data/CHN_pinnacle_spreads_history.csv`
@@ -658,7 +658,7 @@ less beats predicting better.** See roadmap #8.
    **Board staleness fix (same change).** `build_base_frame` used to keep any fixture with
    a Now-line `event_id` *without* the `is_upcoming` gate, justified by "Now-line fixtures
    come from the live feed and are inherently upcoming". That premise holds only at *fetch*
-   time (the request sends `commenceTimeFrom=now`); `CHN_pinnacle_spreads.csv` is a disk
+   time (the request sends `commenceTimeFrom=now`); `CHN_pinnacle_now.csv` is a disk
    snapshot whose "inherently upcoming" property decays with exactly the refresh interval,
    and `upcoming_fixtures.csv` is not kickoff-filtered either — so this gate was the only
    thing trimming finished matches. At 3h the bug was capped at ~3h of lingering; at 12h it
@@ -882,7 +882,7 @@ less beats predicting better.** See roadmap #8.
     **What shipped (branch `docs/roadmap-10-market-anchored-debias`):**
     - Fetch/capture: h2h parsing in `fetch_pinnacle_spreads.extract_rows` (Draw outcome
       required), `snapshot_store`/`capture_snapshot`/`capture_scheduler` unchanged in logic
-      (schema derives from `OUTPUT_COLUMNS`). `CHN_pinnacle_spreads.csv` reset to a
+      (schema derives from `OUTPUT_COLUMNS`). `CHN_pinnacle_now.csv` reset to a
       new-schema header — repopulated by the first post-merge 3h refresh.
     - Export: `export_upcoming_market_comparison` rewritten — 1X2 columns, hybrid λ/δ
       probs (`DrawCalibratedModel.predict_raw` added to `dc.py` so λ starts from the

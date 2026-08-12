@@ -147,7 +147,7 @@ jobs:
             # Stage the intraday odds outputs, plus the history CSV — the odds mode now
             # runs the zero-quota fallback open backfill, which may append opening-line
             # rows (append-only + dedup, so it rebases cleanly against capture-odds.yml).
-            git add data/raw_data/CHN_pinnacle_spreads.csv \
+            git add data/raw_data/CHN_pinnacle_now.csv \
                     data/raw_data/CHN_pinnacle_spreads_history.csv \
                     data/output_data/CHN_upcoming_market_comparison.csv \
                     data/dashboard

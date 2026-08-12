@@ -16,7 +16,7 @@ Usage (仓库根目录，PYTHONPATH=src):
     python -m csl.odds.fetch_pinnacle_spreads
 
 Default output:
-    data/raw_data/CHN_pinnacle_spreads.csv
+    data/raw_data/CHN_pinnacle_now.csv
 """
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ DEFAULT_REGIONS = "us"
 CAPTURE_BOOKMAKERS = (BOOKMAKER, "betfair_ex_eu", "betfair_ex_uk", "matchbook")
 API_KEY_ENV = "THE_ODDS_API_KEY"
 
-DEFAULT_OUTPUT_CSV = os.path.join(data_raw_dir(), "CHN_pinnacle_spreads.csv")
+DEFAULT_OUTPUT_CSV = os.path.join(data_raw_dir(), "CHN_pinnacle_now.csv")
 # All-book "Now" snapshot written alongside the Pinnacle-only CSV: same 1-credit
 # fetch (bookmakers filter is free), every CAPTURE_BOOKMAKERS row retained. This is
 # the source the zero-quota fallback (backfill_open) reads to record a missed 1xBet
