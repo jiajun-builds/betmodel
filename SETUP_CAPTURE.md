@@ -9,7 +9,14 @@ The capture loop collects two prices this repo could not otherwise get:
 
 Everything lands in `data/MEX_odds_capture_history.csv` (tracked in git — the
 capture runs in CI and has to commit what it collects) and reaches
-`MEX_ligamx.csv` via `reduce_capture_history`.
+`MEX_ligamx.csv` via `reduce_capture_history`, which runs as a step of
+`./scripts/ligamx.sh update`.
+
+**Nothing has to be run by hand for a captured price to become usable.** The
+reduce step lives in `update` rather than in the capture tick because it writes
+into `MEX_ligamx.csv`, and that file has no row for a fixture until the fixture
+has been played — so captured prices wait in the history until the post-matchday
+`update` creates their row.
 
 ---
 
@@ -141,6 +148,10 @@ PYTHONPATH=src python -m ligamx.odds.fetch_oddsapiio_opens --dry-run
 PYTHONPATH=src python -m ligamx.odds.capture_close --dry-run
 PYTHONPATH=src python -m ligamx.odds.reduce_capture_history --dry-run
 ```
+
+`capture` is only useful by hand with `--dry-run`, to see what the next CI tick
+would spend — the Worker is already running the real thing. `reduce_capture_history`
+likewise runs inside `update`; invoke it directly only to inspect what it would do.
 
 ---
 
