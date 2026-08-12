@@ -79,13 +79,23 @@ run_pipeline() {
 
 # --- commands ---------------------------------------------------------------
 
-# Fetch fixtures/results/upcoming + xG from SofaScore, then blend HExpG+/AExpG+.
+# Fetch fixtures/results/upcoming + xG from SofaScore, then blend HExpG+/AExpG+,
+# then drain the odds-capture history into the newly-arrived rows.
 # Incremental and forward-only: matches at or before the newest cached date are
 # never revisited, so run `verify-xg` periodically to catch what it missed.
+#
+# The reduce step belongs here and nowhere else. The capture loop runs every few
+# minutes in CI, but it can only ever append to MEX_odds_capture_history.csv:
+# reducing writes into MEX_ligamx.csv, which has no row for a fixture until it has
+# been played. So the openers and closes sit in the history until mex_fixture
+# creates their row, and this is the moment right after that happens. Offline and
+# idempotent -- it fills blanks only, so re-running it costs nothing and can never
+# overwrite the hand-entered openers or the repaired Pinnacle closes.
 cmd_update() {
   run_pipeline "Liga MX data update" \
     "$PYTHON -m ligamx.fixtures.mex_fixture" \
-    "$PYTHON -m ligamx.xg.compute_expg"
+    "$PYTHON -m ligamx.xg.compute_expg" \
+    "$PYTHON -m ligamx.odds.reduce_capture_history"
 }
 
 # Recompute HExpG+/AExpG+ and normalize the Date column WITHOUT re-fetching from
@@ -153,6 +163,7 @@ cmd_all() {
   run_pipeline "Full Liga MX workflow" \
     "$PYTHON -m ligamx.fixtures.mex_fixture" \
     "$PYTHON -m ligamx.xg.compute_expg" \
+    "$PYTHON -m ligamx.odds.reduce_capture_history" \
     "$PYTHON -m ligamx.models.dc" \
     "$PYTHON -m ligamx.odds.fetch_pinnacle_h2h" \
     "$PYTHON -m ligamx.odds.export_upcoming_market_comparison" \
@@ -167,7 +178,8 @@ show_help() {
 Usage: ./scripts/ligamx.sh <command> [args]
 
 Commands:
-  update     Fetch new fixtures/results/xG from SofaScore, recompute ExpG+
+  update     Fetch new fixtures/results/xG from SofaScore, recompute ExpG+,
+             fold captured openers/closes into the newly-played rows
   recompute  Recompute ExpG+ and fix dates from the local CSV
   verify-xg  Audit the CSV against SofaScore; add --fix to repair
   model      Run the goals model
