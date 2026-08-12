@@ -71,7 +71,7 @@ COLUMNS = [
     "betano_home_odds", "betano_draw_odds", "betano_away_odds",
     "duel_home_odds", "duel_draw_odds", "duel_away_odds",
     "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
-    "pinnacle_last_update", "pinnacle_captured_at",
+    "pinnacle_last_update", "pinnacle_fetched_at",
     "bookmaker", "price_captured_at", "price_age_h", "last_update", "fetched_at",
 ]
 
@@ -257,10 +257,13 @@ def run() -> list:
             "pinnacle_draw_odds": ref.get("draw"),
             "pinnacle_away_odds": ref.get("away"),
             # The anchor's own clocks, so a consumer can date the reference price the
-            # same way it dates the bettable one. Rolling, not banked -- see
-            # load_pinnacle_reference.
+            # same way it dates the bettable one. Named `fetched_at` and not
+            # `captured_at` on purpose: `price_captured_at` below is a banked opener,
+            # pulled once and then immutable, while this is simply the last time we read
+            # Pinnacle -- fetch_pinnacle_h2h overwrites its file on every run. Matching
+            # the opener's name would have implied a permanence this value does not have.
             "pinnacle_last_update": _text(ref.get("last_update")),
-            "pinnacle_captured_at": _text(ref.get("fetched_at")),
+            "pinnacle_fetched_at": _text(ref.get("fetched_at")),
             "bookmaker": signal_book or "+".join(sorted(books)),
             "price_captured_at": captured.strftime("%Y-%m-%dT%H:%M:%SZ") if captured is not None else "",
             # How stale the quoted price is. These are openers, captured once and

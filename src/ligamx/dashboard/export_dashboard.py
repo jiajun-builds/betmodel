@@ -41,7 +41,7 @@ MARKET_FIELDS = [
     # like any other quote. They roll with every fetch rather than being banked once, so
     # a consumer presenting them as history has to freeze them at the moment it means.
     "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
-    "pinnacle_last_update", "pinnacle_captured_at",
+    "pinnacle_last_update", "pinnacle_fetched_at",
     # These are opening prices, captured once and never refreshed, so how old the
     # quote is decides whether it is still gettable.
     "price_captured_at", "price_age_h",
