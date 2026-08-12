@@ -37,8 +37,11 @@ MARKET_FIELDS = [
     "home_ev", "draw_ev", "away_ev",
     "signal_pick", "signal_state", "bookmaker",
     # Pinnacle as the low-vig reference, so a reader can tell a model edge from a
-    # soft book simply being soft.
+    # soft book simply being soft. Its two clocks ride along so the anchor can be dated
+    # like any other quote. They roll with every fetch rather than being banked once, so
+    # a consumer presenting them as history has to freeze them at the moment it means.
     "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
+    "pinnacle_last_update", "pinnacle_captured_at",
     # These are opening prices, captured once and never refreshed, so how old the
     # quote is decides whether it is still gettable.
     "price_captured_at", "price_age_h",

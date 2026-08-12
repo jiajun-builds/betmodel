@@ -71,6 +71,7 @@ COLUMNS = [
     "betano_home_odds", "betano_draw_odds", "betano_away_odds",
     "duel_home_odds", "duel_draw_odds", "duel_away_odds",
     "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
+    "pinnacle_last_update", "pinnacle_captured_at",
     "bookmaker", "price_captured_at", "price_age_h", "last_update", "fetched_at",
 ]
 
@@ -81,6 +82,19 @@ def _num(value):
     except (TypeError, ValueError):
         return None
     return out if out > 0 else None
+
+
+def _text(value):
+    """A timestamp column as a string, with pandas' missing values flattened to "".
+
+    read_csv turns a blank cell into NaN, which would otherwise reach the export as the
+    literal "NaN" in the CSV and a float in the JSON -- a value a consumer would try to
+    parse as a date. The other absent-timestamp fields here are already "", so this
+    keeps missing meaning the same thing everywhere.
+    """
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return ""
+    return str(value)
 
 
 def load_captured_opens() -> dict:
@@ -135,7 +149,18 @@ def composite(books: dict) -> dict:
 
 
 def load_pinnacle_reference() -> dict:
-    """(home, away) -> current Pinnacle 1X2, standard names. Empty if unavailable."""
+    """(home, away) -> current Pinnacle 1X2 and its clocks, standard names.
+
+    Carries `last_update` (Pinnacle's own, as the odds API reports it) and `fetched_at`
+    (when we pulled it) alongside the prices. Both are already columns in the CSV, so
+    reading them costs no API call. Without them a consumer can say what the anchor is
+    but not when it was true -- which is the whole question for a signal that opened
+    against Pinnacle before any soft book had put a line up.
+
+    Unlike the captured openers these are *rolling*: fetch_pinnacle_h2h overwrites this
+    file on every run, so both clocks move. Anything presenting them as a historical
+    event has to freeze them at the moment it cared about. Empty if unavailable.
+    """
     try:
         df = pd.read_csv(paths.pinnacle_h2h_csv())
     except (OSError, pd.errors.EmptyDataError, pd.errors.ParserError):
@@ -147,6 +172,7 @@ def load_pinnacle_reference() -> dict:
         out[(home, away)] = {
             "home": _num(row.get("home_odds")), "draw": _num(row.get("draw_odds")),
             "away": _num(row.get("away_odds")),
+            "last_update": row.get("last_update"), "fetched_at": row.get("fetched_at"),
         }
     return out
 
@@ -230,6 +256,11 @@ def run() -> list:
             "pinnacle_home_odds": ref.get("home"),
             "pinnacle_draw_odds": ref.get("draw"),
             "pinnacle_away_odds": ref.get("away"),
+            # The anchor's own clocks, so a consumer can date the reference price the
+            # same way it dates the bettable one. Rolling, not banked -- see
+            # load_pinnacle_reference.
+            "pinnacle_last_update": _text(ref.get("last_update")),
+            "pinnacle_captured_at": _text(ref.get("fetched_at")),
             "bookmaker": signal_book or "+".join(sorted(books)),
             "price_captured_at": captured.strftime("%Y-%m-%dT%H:%M:%SZ") if captured is not None else "",
             # How stale the quoted price is. These are openers, captured once and
