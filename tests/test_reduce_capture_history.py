@@ -22,6 +22,7 @@ from unittest import mock
 import pandas as pd
 
 from ligamx.odds.capture_store import append_snapshots
+from ligamx.odds.capture_watch import record_unpriced
 from ligamx.odds.reduce_capture_history import build_records, merge
 
 KICKOFF = datetime(2026, 9, 20, 23, 0, tzinfo=timezone.utc)
@@ -32,6 +33,7 @@ class _Base(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.TemporaryDirectory()
         self.history = os.path.join(self.dir.name, "history.csv")
+        self.watch = os.path.join(self.dir.name, "watch.csv")
         self.table = os.path.join(self.dir.name, "MEX_ligamx.csv")
         cols = {
             "Date": "2026/09/20", "Home": "Atlante", "Away": "Toluca",
@@ -61,7 +63,13 @@ class _Base(unittest.TestCase):
         }]), snapshot_type=snapshot_type, path=self.history)
 
     def _records(self):
-        return build_records(history_path=self.history, lookahead_days=LOOKAHEAD)
+        return build_records(history_path=self.history, lookahead_days=LOOKAHEAD,
+                             watch_path=self.watch)
+
+    def _saw_unpriced(self, book, when):
+        record_unpriced([("Atlante", "Toluca", book)],
+                        observed_at=when.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        path=self.watch)
 
     def _table(self):
         return pd.read_csv(self.table, dtype=str, keep_default_na=False)
@@ -193,3 +201,55 @@ class TestMergeNeverOverwrites(_Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestObservedProof(_Base):
+    """The OBSERVED proof: we watched the fixture carrying no price.
+
+    This is what rescues a fixture that was already inside the lookahead when
+    capture began. Measured 2026-08-12, that was the entire 8/22 round -- nine
+    fixtures, both books unpriced, every one destined to produce a real opener,
+    all of which the WINDOW rule alone would have discarded.
+    """
+
+    def test_seeing_it_unpriced_first_makes_a_late_capture_trustworthy(self):
+        self._saw_unpriced("betano", KICKOFF - timedelta(days=10))
+        self._store(snapshot_type="open", bookmaker="betano",
+                    fetched_at=KICKOFF - timedelta(days=9))
+        rec = self._records()[0]
+        self.assertTrue(rec["open_trusted"])
+        self.assertEqual(rec["open_proof"], "observed")
+        self.assertEqual(rec["open_h"], 2.0)
+
+    def test_observation_after_the_capture_proves_nothing(self):
+        """Ordering is the whole point -- seeing it unpriced later says nothing
+        about whether we were watching before the book posted."""
+        self._store(snapshot_type="open", bookmaker="betano",
+                    fetched_at=KICKOFF - timedelta(days=10))
+        self._saw_unpriced("betano", KICKOFF - timedelta(days=9))
+        rec = self._records()[0]
+        self.assertFalse(rec["open_trusted"])
+
+    def test_evidence_for_one_book_does_not_vouch_for_the_other(self):
+        """Betano and Duel open independently; proof is per (fixture, book)."""
+        self._saw_unpriced("betano", KICKOFF - timedelta(days=10))
+        self._store(snapshot_type="open", bookmaker="betano",
+                    fetched_at=KICKOFF - timedelta(days=9))
+        self._store(snapshot_type="open", bookmaker="duel",
+                    fetched_at=KICKOFF - timedelta(days=9))
+        recs = {r["prefix"]: r for r in self._records()}
+        self.assertTrue(recs["betano"]["open_trusted"])
+        self.assertFalse(recs["duel"]["open_trusted"])
+
+    def test_window_proof_still_works_with_no_observation(self):
+        self._store(snapshot_type="open", bookmaker="betano",
+                    fetched_at=KICKOFF - timedelta(days=30))
+        rec = self._records()[0]
+        self.assertTrue(rec["open_trusted"])
+        self.assertEqual(rec["open_proof"], "window")
+
+    def test_only_the_first_observation_per_pair_is_kept(self):
+        """Otherwise the file grows by every unpriced fixture on every tick."""
+        self._saw_unpriced("betano", KICKOFF - timedelta(days=10))
+        self._saw_unpriced("betano", KICKOFF - timedelta(days=9))
+        self.assertEqual(len(pd.read_csv(self.watch)), 1)

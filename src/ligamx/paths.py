@@ -55,6 +55,20 @@ def odds_capture_history_csv() -> str:
     return os.path.join(data_dir(), "MEX_odds_capture_history.csv")
 
 
+def capture_watch_csv() -> str:
+    """When each (fixture, book) was first *observed without a price*.
+
+    Evidence, not odds. A captured opening line is only provably an opening line
+    if we were watching before the book posted it, and the strongest proof of
+    that is having seen the fixture unpriced at a known moment. The capture loop
+    is the only thing that ever sees this -- an unpriced fixture leaves no trace
+    in the odds history by construction -- and the window to observe it closes
+    the instant the book posts. So it is recorded as it happens, and tracked in
+    git for the same reason the capture history is. See odds/capture_watch.
+    """
+    return os.path.join(data_dir(), "MEX_capture_watch.csv")
+
+
 def market_comparison_csv() -> str:
     """Model-vs-market comparison (drives the dashboard EV view)."""
     return os.path.join(data_output_dir(), "MEX_upcoming_market_comparison.csv")

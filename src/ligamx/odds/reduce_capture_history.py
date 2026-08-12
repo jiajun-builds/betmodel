@@ -16,19 +16,29 @@ the 461 hand-collected Betano openers are the only positive-EV result the projec
 has, and quietly mixing mid-market prices into that series would corrupt it.
 
 A captured "open" is a real opening line only if we were *watching before the book
-priced it*. That is decidable from the data rather than guessed at. A fixture
-enters the pending set at (kickoff - lookahead); if that moment came after we
-started capturing, then nothing about its price can have escaped us and the first
-price we saw is the first price posted. If it came earlier, the book may have
-opened while we were not looking, and the row is a mid-market price wearing an
-opener's label.
+priced it*. Two independent things can establish that, and either is sufficient:
 
-    trustworthy  <=>  (kickoff - lookahead_days) >= first capture we ever made
+  OBSERVED  we saw this (fixture, book) carrying no price at a moment before we
+            captured one, so what we captured is by definition the first price
+            that book posted. Recorded live by the capture loop -- see
+            capture_watch, and note the evidence cannot be reconstructed after
+            the fact because an unpriced fixture leaves no odds row.
 
-This self-calibrates: it needs no assumption about when Betano opens, it widens
-automatically as the history gets older, and on day one it correctly rejects
-everything. Rows that fail it stay in the history -- they are perfectly good
-price observations -- they just never reach MEX_ligamx.csv.
+  WINDOW    (kickoff - lookahead_days) >= the first capture we ever made. The
+            fixture only became observable after capture began, so nothing about
+            its price can have escaped us.
+
+WINDOW alone was the original rule. It is sound but conservative in a way that
+costs real data: it rejects a fixture that was already inside the lookahead when
+capture began even when no book had priced it yet. On 2026-08-12 that was the
+entire 8/22 round -- nine fixtures, both books unpriced, every one destined to
+produce a genuine opener, all of which WINDOW would have thrown away. OBSERVED is
+a proof where WINDOW is a proxy, so it decides those cases.
+
+Both self-calibrate: neither needs an assumption about when any book opens, and on
+day one, with no evidence of either kind, everything is correctly rejected. Rows
+that fail stay in the history -- they are perfectly good price observations -- they
+just never reach MEX_ligamx.csv. `open_proof` records which test passed.
 
 Nothing here overwrites. pinnacle_close_* already holds 856 values assembled from
 three sources and repaired by hand; a reducer that clobbered them would undo work
@@ -47,6 +57,7 @@ import pandas as pd
 from ligamx import config, paths
 from ligamx.date_utils import parse_date_only_series
 from ligamx.odds.capture_store import load_history
+from ligamx.odds.capture_watch import watched_before
 from ligamx.odds.fetch_oddsapiio_opens import DEFAULT_LOOKAHEAD_DAYS
 from ligamx.odds.reduce_open_close import MAX_CLOSE_LEAD_HOURS, _find_row
 
@@ -71,7 +82,8 @@ def _prepared(history_path: str | None = None) -> pd.DataFrame:
 
 def build_records(history_path: str | None = None,
                   lookahead_days: int = DEFAULT_LOOKAHEAD_DAYS,
-                  max_close_lead: float = MAX_CLOSE_LEAD_HOURS) -> list[dict]:
+                  max_close_lead: float = MAX_CLOSE_LEAD_HOURS,
+                  watch_path: str | None = None) -> list[dict]:
     """One record per (fixture, book) carrying whichever of open/close is usable."""
     df = _prepared(history_path)
     if df.empty:
@@ -79,6 +91,7 @@ def build_records(history_path: str | None = None,
 
     # The moment capture began. Everything kicking off less than a lookahead after
     # this could have opened unobserved -- see the module docstring.
+    watched = watched_before(watch_path)
     watching_since = df["_at"].min()
     horizon = pd.Timedelta(days=lookahead_days)
 
@@ -91,14 +104,31 @@ def build_records(history_path: str | None = None,
             "date": kickoff.strftime("%Y/%m/%d"),
             "open_h": None, "open_d": None, "open_a": None, "open_lead_h": None,
             "close_h": None, "close_d": None, "close_a": None, "close_lead_h": None,
-            "open_trusted": False,
+            "open_trusted": False, "open_proof": "",
         }
 
         opens = g[g["snapshot_type"] == "open"]
         if not opens.empty:
             first = opens.loc[opens["_at"].idxmin()]
             rec["open_lead_h"] = (kickoff - first["_at"]).total_seconds() / 3600.0
-            rec["open_trusted"] = bool((kickoff - horizon) >= watching_since)
+
+            # Two independent proofs; either one suffices.
+            #
+            # 1. DIRECT: we saw this (fixture, book) with no price at a moment
+            #    before we captured one, so the price we captured is by definition
+            #    the first that book posted. Strongest, and the only one that
+            #    works for a fixture already inside the lookahead when capture
+            #    began -- which on 2026-08-12 was the whole 8/22 round.
+            seen = watched.get((home, away, str(first.bookmaker)))
+            direct = seen is not None and seen < first["_at"]
+
+            # 2. INFERRED: the fixture only became observable after capture began,
+            #    so nothing about it can have escaped us. Covers fixtures we never
+            #    happened to catch unpriced because the book was already quoting.
+            inferred = bool((kickoff - horizon) >= watching_since)
+
+            rec["open_trusted"] = bool(direct or inferred)
+            rec["open_proof"] = "observed" if direct else ("window" if inferred else "")
             if rec["open_trusted"]:
                 rec.update(open_h=first.home_odds, open_d=first.draw_odds,
                            open_a=first.away_odds)

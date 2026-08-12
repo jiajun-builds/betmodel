@@ -62,6 +62,7 @@ import requests
 from ligamx import paths
 from ligamx.odds import oddsapi_io
 from ligamx.odds.capture_store import append_snapshots, load_history
+from ligamx.odds.capture_watch import record_unpriced
 from ligamx.odds.oddsapi_io import CAPTURE_BOOKS, MULTI_BATCH_SIZE, Book
 
 # Far enough ahead to be pending before any book opens (Betano's median is
@@ -206,7 +207,8 @@ def run(*, now: datetime | None = None, target_path: str | None = None,
         history_path: str | None = None,
         lookahead_days: int = DEFAULT_LOOKAHEAD_DAYS,
         max_requests: int = DEFAULT_MAX_REQUESTS, dry_run: bool = False,
-        books: tuple[Book, ...] = CAPTURE_BOOKS) -> int:
+        books: tuple[Book, ...] = CAPTURE_BOOKS,
+        watch_path: str | None = None) -> int:
     """One capture pass. Returns the number of ``open`` rows appended."""
     now = now or datetime.now(timezone.utc)
 
@@ -275,12 +277,23 @@ def run(*, now: datetime | None = None, target_path: str | None = None,
     # Absent from the response and present-but-unpriced are the same state: that
     # book has not posted yet. Report per book -- silently dropping these is how a
     # coverage gap goes unnoticed, and the two books do NOT open together.
+    #
+    # This is also the ONLY moment anything observes an unpriced fixture, and the
+    # observation is what later proves a captured price was genuinely the opener
+    # (see capture_watch). It cannot be reconstructed afterwards -- an unpriced
+    # fixture leaves no odds row -- so it is recorded here as it happens.
+    observations = []
     for book in books:
-        unpriced = [entry.label for batch in batches for _, entry in batch
+        unpriced = [entry for batch in batches for _, entry in batch
                     if book in entry.missing and (entry.key, book.stored_key) not in priced]
         if unpriced:
             log.info("%s has no 1X2 price yet for %d fixture(s): %s (they stay pending)",
-                     book.provider_name, len(unpriced), ", ".join(unpriced))
+                     book.provider_name, len(unpriced),
+                     ", ".join(e.label for e in unpriced))
+        observations += [(e.fixture.home, e.fixture.away, book.stored_key)
+                         for e in unpriced]
+    if observations:
+        record_unpriced(observations, observed_at=fetched_at, path=watch_path)
     if not rows:
         log.info("No new opening prices this tick; nothing appended.")
         return 0
