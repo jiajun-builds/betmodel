@@ -42,6 +42,19 @@ def odds_snapshots_csv() -> str:
     return os.path.join(data_dir(), "odds_snapshots.csv")
 
 
+def odds_capture_history_csv() -> str:
+    """Append-only history of scheduled captures (opening lines, closing lines).
+
+    Tracked in git, unlike odds_snapshots_csv(): the capture loop runs in GitHub
+    Actions and has to commit what it collects, and an opening line missed is an
+    opening line lost forever. Kept separate from the snapshot store because the
+    two answer different questions -- the store is a dense poll time-series for
+    research (Polymarket curves), this is a sparse, provenance-stamped record of
+    prices captured at a deliberate moment. See odds/capture_store.
+    """
+    return os.path.join(data_dir(), "MEX_odds_capture_history.csv")
+
+
 def market_comparison_csv() -> str:
     """Model-vs-market comparison (drives the dashboard EV view)."""
     return os.path.join(data_output_dir(), "MEX_upcoming_market_comparison.csv")

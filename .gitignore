@@ -22,3 +22,7 @@ data/oddsapi_io_closes.csv
 
 AGENTS.md
 CLAUDE.md
+
+# wrangler local state for tools/capture-timer (account cache, build output)
+.wrangler/
+node_modules/

@@ -113,6 +113,29 @@ cmd_odds() {
   "$PYTHON" -m ligamx.odds.fetch_pinnacle_h2h
 }
 
+# One capture tick, run by hand. Normally this runs in GitHub Actions every
+# 5-15 minutes (see SETUP_CAPTURE.md); locally it is mostly useful with
+# --dry-run to see what the next tick would spend.
+#
+# Both captures self-gate: the opener skips fixtures whose books have already
+# opened, and the close spends nothing outside its 20-minute pre-kickoff window.
+# So running this repeatedly is safe and usually free. Extra args pass through to
+# both (--dry-run being the one worth using).
+cmd_capture() {
+  local rc=0
+  if [ -n "${ODDS_API_IO_KEY:-}" ]; then
+    "$PYTHON" -m ligamx.odds.fetch_oddsapiio_opens "$@" || rc=$?
+  else
+    printf 'ODDS_API_IO_KEY not set; skipping the opening-line capture.\n' >&2
+  fi
+  if [ -n "${THE_ODDS_API_KEY:-}" ]; then
+    "$PYTHON" -m ligamx.odds.capture_close "$@" || rc=$?
+  else
+    printf 'THE_ODDS_API_KEY not set; skipping the closing-line capture.\n' >&2
+  fi
+  return "$rc"
+}
+
 # Fully offline. Rebuilds the exports from what is already on disk, which
 # includes the MODEL OUTPUT (MEX_team_stats.csv, ..._match_simulations.csv), not
 # just MEX_ligamx.csv -- so a CSV edit does not reach the dashboard until `model`
@@ -149,6 +172,7 @@ Commands:
   verify-xg  Audit the CSV against SofaScore; add --fix to repair
   model      Run the goals model
   odds       Fetch Pinnacle 1X2 odds (needs THE_ODDS_API_KEY)
+  capture    One odds-capture tick: openers + pre-kickoff closes
   publish    Rebuild market comparison, dashboard and site/
   all        update -> model -> odds -> publish
   help       Show this message
@@ -158,6 +182,10 @@ When to use what:
   Data looks wrong       verify-xg   (then --fix to repair)
   Hand-edited the CSV    recompute -> model -> publish
   Only rebuilding site/  publish     (offline, spends no odds credit)
+  Checking capture cost  capture --dry-run   (spends nothing)
+
+capture normally runs unattended in GitHub Actions; see SETUP_CAPTURE.md. Both of
+its captures self-gate, so running it by hand is safe and usually free.
 
 publish reuses the last model run. If MEX_ligamx.csv changed, run model first or
 the dashboard will rebuild from stale team strengths.
@@ -170,6 +198,7 @@ case "${1:-help}" in
   verify-xg) shift; cmd_verify_xg "$@" ;;
   model) shift; cmd_model ;;
   odds) shift; cmd_odds ;;
+  capture) shift; cmd_capture "$@" ;;
   publish) shift; cmd_publish ;;
   all) shift; cmd_all ;;
   help | -h | --help) show_help ;;

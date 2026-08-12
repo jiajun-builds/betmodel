@@ -1,0 +1,22 @@
+name = "ligamx-capture-timer"
+main = "src/worker.js"
+compatibility_date = "2026-08-12"
+
+# This Worker is a cron timer. It has no business being reachable over HTTP, and
+# leaving it reachable is expensive: the fetch handler fires repository_dispatch,
+# and each dispatch can spend a credit against a 500-per-MONTH allowance. Anyone
+# who guessed the workers.dev URL could drain it. Cron triggers are unaffected by
+# both of these.
+workers_dev = false
+preview_urls = false
+
+# Two cadences, because the opener and the close have opposite deadlines.
+# The Worker maps */15 -> open-tick and anything else -> close-tick (gated on a
+# fixture actually approaching kickoff). See src/worker.js.
+[triggers]
+crons = ["*/5 * * * *", "*/15 * * * *"]
+
+# GITHUB_PAT is a secret, not a var -- set it with:
+#     wrangler secret put GITHUB_PAT
+# Fine-grained token, this repository only, Repository permissions ->
+# Contents: Read and write (that is what authorises repository_dispatch).

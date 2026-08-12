@@ -41,6 +41,8 @@ ODDS_COLUMNS = [
     "betfair_close_h", "betfair_close_d", "betfair_close_a",
     "polymarket_open_h", "polymarket_open_d", "polymarket_open_a",
     "polymarket_close_h", "polymarket_close_d", "polymarket_close_a",
+    "betano_open_h", "betano_open_d", "betano_open_a",
+    "duel_open_h", "duel_open_d", "duel_open_a",
 ]
 
 # --- Odds capture (poller) --------------------------------------------------
@@ -50,11 +52,16 @@ ODDS_COLUMNS = [
 ODDS_API_REGIONS = "eu,uk"
 ODDS_API_BOOKMAKERS = ["pinnacle", "betfair_ex_eu", "matchbook"]
 # venue key (as stored) -> MEX_ligamx column prefix (None = store-only, no column)
+# betano/duel arrive from odds-api.io (see odds/oddsapi_io.CAPTURE_BOOKS) and are
+# opening-line sources only -- the plan sells no closes for them, so there are no
+# {prefix}_close_* columns to fill.
 VENUE_TO_SCHEMA_PREFIX = {
     "pinnacle": "pinnacle",
     "betfair_ex_eu": "betfair",
     "matchbook": None,
     "polymarket": "polymarket",
+    "betano": "betano",
+    "duel": "duel",
 }
 
 # Polymarket read-only Gamma catalogue API (unauthenticated). Match markets are

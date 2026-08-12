@@ -35,14 +35,18 @@ are dropped rather than stored half-used.
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import time
+from typing import NamedTuple
 
 import pandas as pd
 import requests
 
 from ligamx import config, paths
 from ligamx.date_utils import parse_date_only_series
+
+log = logging.getLogger(__name__)
 
 BASE = "https://api.odds-api.io/v3"
 
@@ -181,6 +185,147 @@ def _standard(name: str) -> str:
     except KeyError as exc:
         raise KeyError(
             f"unmapped odds-api.io team {name!r}; add it to API_TO_STANDARD") from exc
+
+
+def standard_name(name: str) -> str | None:
+    """Like ``_standard`` but logs and returns None instead of raising.
+
+    The two behaviours are deliberate opposites. The historical backfill wants the
+    hard error: it runs once, over a fixed event list, and a silently dropped club
+    would leave a hole nobody notices. Forward capture runs unattended every few
+    minutes, and one unmappable name must not take the tick down and cost every
+    other fixture its opening line.
+    """
+    mapped = API_TO_STANDARD.get(name)
+    if mapped is None:
+        log.warning("unmapped odds-api.io team %r; add it to API_TO_STANDARD "
+                    "(fixture skipped this tick)", name)
+    return mapped
+
+
+# --- forward capture (opening lines) ----------------------------------------
+# The historical endpoints above sell settled closes. Openers are not for sale at
+# any tier, so they have to be caught live: poll the upcoming slate often enough
+# that the first price we see is the first price posted.
+
+
+class Book(NamedTuple):
+    """A bookmaker in two vocabularies: what the API calls it, what we store."""
+
+    provider_name: str   # exactly as odds-api.io spells it in `bookmakers`
+    stored_key: str      # what lands in the history's `bookmaker` column
+
+
+# Verified against the account 2026-08-12. The entitlement is enforced per-key and
+# reported only in the 403 body of /odds/multi:
+#     "You're allowed max 2 bookmakers. Allowed: Betano UK, Duel"
+# /bookmakers/selected is documented as stale, so that error body is the source of
+# truth. Note the provider name is "Betano UK", NOT "Betano" -- the latter 403s.
+BETANO = Book("Betano UK", "betano")
+DUEL = Book("Duel", "duel")
+CAPTURE_BOOKS: tuple[Book, ...] = (BETANO, DUEL)
+
+# Provenance tag written to the history's `regions` column, which has no meaning
+# for this provider. Distinguishes these rows from The Odds API's (regions=eu,uk).
+PROVIDER_TAG = "oddsapiio"
+
+# /odds/multi takes at most 10 event ids per call and bills the call once,
+# regardless of how many bookmakers are named.
+MULTI_BATCH_SIZE = 10
+
+ML_MARKET = "ML"
+
+
+def _season_leagues(when: pd.Timestamp) -> tuple[str, ...]:
+    """The league slugs to try, likeliest first.
+
+    Liga MX splits the year into two tournaments that are separate slugs upstream,
+    and the dormant one reports eventsCount 0. Ordering by month costs nothing and
+    is right all but a few days a year; the other slug is still tried as a fallback
+    so a season rollover degrades to one extra request rather than to silence.
+    """
+    apertura, clausura = "mexico-liga-mx-apertura", "mexico-liga-mx-clausura"
+    return (apertura, clausura) if when.month >= 7 else (clausura, apertura)
+
+
+def list_upcoming_events(client: _Client, from_dt, to_dt) -> list[dict]:
+    """Upcoming Liga MX events in [from_dt, to_dt), newest slug first.
+
+    Dates must be RFC3339 -- a bare YYYY-MM-DD is rejected by the endpoint.
+    """
+    start, end = pd.Timestamp(from_dt), pd.Timestamp(to_dt)
+    for league in _season_leagues(start):
+        events = client.get("events", sport="football", league=league, limit=100,
+                            **{"from": _iso(start), "to": _iso(end)})
+        if events:
+            return list(events)
+    return []
+
+
+def fetch_multi_odds(client: _Client, event_ids, books=CAPTURE_BOOKS) -> list[dict]:
+    """Current odds for up to ``MULTI_BATCH_SIZE`` events across every book in one call.
+
+    Naming several bookmakers costs the same single request as naming one, which is
+    what makes capturing both books on every tick free.
+    """
+    ids = [str(i) for i in event_ids]
+    if len(ids) > MULTI_BATCH_SIZE:
+        raise ValueError(f"at most {MULTI_BATCH_SIZE} event ids per call, got {len(ids)}")
+    if not ids:
+        return []
+    payload = client.get("odds/multi", eventIds=",".join(ids),
+                         bookmakers=",".join(b.provider_name for b in books))
+    return list(payload or [])
+
+
+def extract_ml(quoted: dict, book: Book) -> dict | None:
+    """This book's 1X2 prices from an /odds/multi entry, or None if unpriced.
+
+    Returning None is the normal state, not an error: /odds/multi omits a book (or
+    the whole event) until it posts a market, and "absent" is exactly how "has not
+    opened yet" looks. Measured 2026-08-12, Betano UK priced 6 of 10 upcoming
+    fixtures and Duel 9 of 10, so this path is taken constantly.
+    """
+    markets = (quoted.get("bookmakers") or {}).get(book.provider_name) or []
+    for market in markets:
+        if market.get("name") != ML_MARKET:
+            continue
+        prices = market.get("odds") or []
+        if not prices:
+            continue
+        first = prices[0]
+        if not all(first.get(k) for k in ("home", "draw", "away")):
+            continue
+        return {
+            "home_odds": first["home"],
+            "draw_odds": first["draw"],
+            "away_odds": first["away"],
+            "last_update": market.get("updatedAt", ""),
+        }
+    return None
+
+
+def event_to_row(event: dict, prices: dict, book: Book, fetched_at: str) -> dict | None:
+    """One capture-history row, or None when either club name is unmappable."""
+    api_home, api_away = str(event.get("home") or ""), str(event.get("away") or "")
+    home, away = standard_name(api_home), standard_name(api_away)
+    if home is None or away is None:
+        return None
+    return {
+        # Namespaced so an odds-api.io id can never collide with The Odds API's hex.
+        "event_id": f"{PROVIDER_TAG}:{event.get('id')}",
+        "commence_time": event.get("date", ""),
+        "api_home_team": api_home, "api_away_team": api_away,
+        "home_team": home, "away_team": away,
+        "home_odds": prices["home_odds"],
+        "draw_odds": prices["draw_odds"],
+        "away_odds": prices["away_odds"],
+        "bookmaker": book.stored_key,
+        "market": "h2h",
+        "regions": PROVIDER_TAG,
+        "last_update": prices.get("last_update", ""),
+        "fetched_at": fetched_at,
+    }
 
 
 def event_rows(client: _Client, event: pd.Series, book: str) -> list[dict]:
