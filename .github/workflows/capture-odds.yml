@@ -128,6 +128,14 @@ jobs:
         uses: ./.github/actions/capture-commit
         with:
           message: "chore(odds): capture opening lines (Betano UK + Duel)"
+          # The watch file must be staged too. It records the moment a (fixture,
+          # book) was seen carrying NO price, which is what later proves a captured
+          # price was genuinely the opener. That evidence exists nowhere else -- an
+          # unpriced fixture leaves no odds row -- and the runner is destroyed after
+          # the job, so anything not committed here is gone for good. A tick that
+          # appends no odds but records a new observation is a real change and must
+          # still commit.
+          paths: data/MEX_odds_capture_history.csv data/MEX_capture_watch.csv
 
   # ---------------------------------------------------------------------------
   # 2. Pinnacle CLOSING lines -- The Odds API, [KO-20m, KO) window.
