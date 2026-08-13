@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-12T16:09:35+00:00"
+    "updated_at": "2026-08-12T21:29:14+00:00"
   },
   "rows": [
     {
@@ -29,19 +29,19 @@
       "pinnacle_home_odds": 6.41,
       "pinnacle_draw_odds": 4.57,
       "pinnacle_away_odds": 1.47,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Monterrey",
       "away_team": "FC Juarez",
       "round": 4,
-      "match_time": "19:00",
-      "kickoff_at": "2026-08-16T01:00:00Z",
+      "match_time": "19:10",
+      "kickoff_at": "2026-08-16T01:10:00Z",
       "home_win_prob": 0.614279588171616,
       "draw_prob": 0.2009648813431439,
       "away_win_prob": 0.18475553048524,
@@ -60,12 +60,12 @@
       "pinnacle_home_odds": 1.51,
       "pinnacle_draw_odds": 4.63,
       "pinnacle_away_odds": 5.61,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Atlas",
@@ -91,12 +91,12 @@
       "pinnacle_home_odds": 3.42,
       "pinnacle_draw_odds": 3.26,
       "pinnacle_away_odds": 2.22,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "UNAM Pumas",
@@ -122,12 +122,12 @@
       "pinnacle_home_odds": 1.84,
       "pinnacle_draw_odds": 3.56,
       "pinnacle_away_odds": 4.36,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Club America",
@@ -153,19 +153,19 @@
       "pinnacle_home_odds": 1.53,
       "pinnacle_draw_odds": 4.39,
       "pinnacle_away_odds": 5.71,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": null,
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Santos Laguna",
       "away_team": "Guadalajara",
       "round": 4,
-      "match_time": "19:00",
-      "kickoff_at": "2026-08-17T01:00:00Z",
+      "match_time": "19:10",
+      "kickoff_at": "2026-08-17T01:10:00Z",
       "home_win_prob": 0.2431606795247003,
       "draw_prob": 0.2381508973888896,
       "away_win_prob": 0.5186884230864102,
@@ -184,12 +184,12 @@
       "pinnacle_home_odds": 5.58,
       "pinnacle_draw_odds": 4.54,
       "pinnacle_away_odds": 1.52,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Tijuana",
@@ -215,12 +215,12 @@
       "pinnacle_home_odds": 3.22,
       "pinnacle_draw_odds": 3.37,
       "pinnacle_away_odds": 2.26,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Necaxa",
@@ -246,12 +246,12 @@
       "pinnacle_home_odds": 2.24,
       "pinnacle_draw_odds": 3.52,
       "pinnacle_away_odds": 3.13,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": "2026-08-12T07:54:29.495Z",
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     },
     {
       "home_team": "Pachuca",
@@ -277,12 +277,12 @@
       "pinnacle_home_odds": 1.51,
       "pinnacle_draw_odds": 4.08,
       "pinnacle_away_odds": 6.79,
-      "pinnacle_last_update": "2026-08-11T22:47:00Z",
-      "pinnacle_fetched_at": "2026-08-11T22:47:28Z",
+      "pinnacle_last_update": "2026-08-12T21:29:08Z",
+      "pinnacle_fetched_at": "2026-08-12T21:29:13Z",
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 7.1,
+      "price_age_h": 12.4,
       "last_update": null,
-      "fetched_at": "2026-08-12T16:09:35Z"
+      "fetched_at": "2026-08-12T21:29:13Z"
     }
   ]
 }

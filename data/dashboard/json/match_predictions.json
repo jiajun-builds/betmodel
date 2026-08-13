@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-12T16:09:35+00:00",
+    "updated_at": "2026-08-12T21:29:14+00:00",
     "model_name": "Negative Binomial with Dixon-Coles Time Decay",
     "model_version": "v1.0"
   },
@@ -25,7 +25,7 @@
       "fixture_id": "MEX-apertura-2026-4-2026-08-15-monterrey-fc-juarez",
       "round": 4,
       "match_date": "2026-08-15",
-      "kickoff_at": "2026-08-16T01:00:00Z",
+      "kickoff_at": "2026-08-16T01:10:00Z",
       "home_team": "Monterrey",
       "away_team": "FC Juarez",
       "home_win_prob": 0.61428,
@@ -81,7 +81,7 @@
       "fixture_id": "MEX-apertura-2026-4-2026-08-16-santos-laguna-guadalajara",
       "round": 4,
       "match_date": "2026-08-16",
-      "kickoff_at": "2026-08-17T01:00:00Z",
+      "kickoff_at": "2026-08-17T01:10:00Z",
       "home_team": "Santos Laguna",
       "away_team": "Guadalajara",
       "home_win_prob": 0.243161,
