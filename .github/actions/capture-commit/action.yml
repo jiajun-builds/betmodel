@@ -6,12 +6,21 @@ description: >
 
 inputs:
   message:
-    description: Commit message (a [skip ci] suffix is added automatically).
+    description: Commit message (a [skip ci] suffix is added unless skip_ci is false).
     required: true
   paths:
     description: Space-separated paths to stage.
     required: false
     default: data/MEX_odds_capture_history.csv
+  skip_ci:
+    description: >
+      Append "[skip ci]" to the commit message. True for the capture ticks, whose
+      files no workflow watches, so the suffix only saves a pointless queue entry.
+      Must be FALSE for a commit touching data/dashboard/json/**, which is what
+      deploy-pages.yml triggers on -- with the suffix the JSON lands on main but
+      the published board never rebuilds, and the two silently disagree.
+    required: false
+    default: "true"
 
 outputs:
   appended:
@@ -26,6 +35,7 @@ runs:
       env:
         COMMIT_MESSAGE: ${{ inputs.message }}
         STAGE_PATHS: ${{ inputs.paths }}
+        SKIP_CI: ${{ inputs.skip_ci }}
       run: |
         set -euo pipefail
         # Default false. Flipped to true only after a successful push, so a failed
@@ -53,7 +63,11 @@ runs:
 
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git commit -m "$COMMIT_MESSAGE [skip ci]"
+        if [ "$SKIP_CI" = "true" ]; then
+          git commit -m "$COMMIT_MESSAGE [skip ci]"
+        else
+          git commit -m "$COMMIT_MESSAGE"
+        fi
 
         # main may have moved (an earlier job in this same tick, a data refresh),
         # so rebase this append-only change on top before pushing. The retry loop

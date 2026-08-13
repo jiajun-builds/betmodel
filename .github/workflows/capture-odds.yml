@@ -9,6 +9,11 @@ name: Capture Odds
 #   1. oddsapiio-opens | OPENING | Betano UK + Duel | odds-api.io  | ~500/DAY   | 15 min
 #   2. pinnacle-close  | CLOSING | Pinnacle (+exch) | The Odds API | 500/MONTH  |  5 min
 #
+# A third job then turns whatever landed into signals. It is not a capture: it
+# spends no credits, calls no API and fits no model, it only re-runs the offline
+# export so a price that just arrived becomes a bet (or fails the opener gate)
+# within minutes instead of waiting for the pipeline to be run by hand.
+#
 # The opener has no window at all: a fixture stays pending until the book prices it
 # or it kicks off, so a late tick costs latency and nothing else. Betano opens a
 # median T-293h out, so 15 minutes of slippage is 0.09% of the lead. The close has a
@@ -204,3 +209,74 @@ jobs:
         uses: ./.github/actions/capture-commit
         with:
           message: "chore(odds): capture Pinnacle closing lines"
+
+  # ---------------------------------------------------------------------------
+  # 3. Re-export the signals off the capture that just landed.
+  # ---------------------------------------------------------------------------
+  # Without this the capture loop appends a price and stops: the opener sits in
+  # MEX_odds_capture_history.csv until someone runs the pipeline by hand, and
+  # myevbettracker -- which polls data/dashboard/json/ every 5 minutes -- shows a
+  # days-old board. This is the job its sources.js calls "the one real automation
+  # gap between the two leagues".
+  #
+  # Why it can ride the capture tick at all: the export is OFFLINE and needs only
+  # pandas. Model probabilities come from models/MEX_team_stats_match_simulations.csv,
+  # which is committed, so nothing is re-fitted here and no scipy is installed.
+  # EV is computed against the Betano/Duel composite, never against Pinnacle, so
+  # a stale reference price cannot change a signal. Cost is therefore zero API
+  # credits -- it cannot eat into the 500/month the close capture depends on.
+  #
+  # This does NOT refresh results, xG or the model. That is the daily job's work;
+  # this one only answers "given what we already know, is the price that just
+  # arrived a bet?".
+  republish:
+    name: "3. Re-export signals"
+    needs: [oddsapiio_opens, pinnacle_close]
+    # Only when a capture actually landed rows on main. An idle tick -- which is
+    # most of them -- changes no input, so re-exporting would rewrite the JSON
+    # timestamps and produce an empty-but-not-empty commit every few minutes.
+    # `appended` is already "true" only after a successful push, so this also
+    # cannot run against a commit that never made it.
+    if: >-
+      ${{ always()
+          && (needs.oddsapiio_opens.outputs.appended == 'true'
+              || needs.pinnacle_close.outputs.appended == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # main, not the triggering ref: jobs 1 and 2 have just pushed and this
+          # must export off what they wrote, not off the tick's starting commit.
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        run: pip install "pandas>=2.0" "requests>=2.28" "python-dotenv>=1.0"
+
+      - name: Re-export market comparison and dashboard JSON
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          python -m ligamx.odds.export_upcoming_market_comparison
+          python -m ligamx.dashboard.export_dashboard
+
+      - name: Commit refreshed signals
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(dashboard): re-export signals after capture"
+          # Only the JSON: data/output_data/ is untracked, and the site bundle is
+          # built by deploy-pages from these files rather than committed.
+          paths: data/dashboard/json
+          # MUST stay false. deploy-pages.yml triggers on data/dashboard/json/**,
+          # so [skip ci] here would land new signals on main while leaving the
+          # published board on the old ones.
+          skip_ci: "false"
