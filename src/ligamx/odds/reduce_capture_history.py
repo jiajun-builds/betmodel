@@ -57,7 +57,7 @@ import pandas as pd
 from ligamx import config, paths
 from ligamx.date_utils import parse_date_only_series
 from ligamx.odds.capture_store import load_history
-from ligamx.odds.capture_watch import watched_before
+from ligamx.odds.capture_watch import opener_proof, watched_before
 from ligamx.odds.fetch_oddsapiio_opens import DEFAULT_LOOKAHEAD_DAYS
 from ligamx.odds.reduce_open_close import MAX_CLOSE_LEAD_HOURS, _find_row
 
@@ -112,23 +112,13 @@ def build_records(history_path: str | None = None,
             first = opens.loc[opens["_at"].idxmin()]
             rec["open_lead_h"] = (kickoff - first["_at"]).total_seconds() / 3600.0
 
-            # Two independent proofs; either one suffices.
-            #
-            # 1. DIRECT: we saw this (fixture, book) with no price at a moment
-            #    before we captured one, so the price we captured is by definition
-            #    the first that book posted. Strongest, and the only one that
-            #    works for a fixture already inside the lookahead when capture
-            #    began -- which on 2026-08-12 was the whole 8/22 round.
-            seen = watched.get((home, away, str(first.bookmaker)))
-            direct = seen is not None and seen < first["_at"]
-
-            # 2. INFERRED: the fixture only became observable after capture began,
-            #    so nothing about it can have escaped us. Covers fixtures we never
-            #    happened to catch unpriced because the book was already quoting.
-            inferred = bool((kickoff - horizon) >= watching_since)
-
-            rec["open_trusted"] = bool(direct or inferred)
-            rec["open_proof"] = "observed" if direct else ("window" if inferred else "")
+            # Two independent proofs, either sufficient; see capture_watch.
+            proof = opener_proof(home=home, away=away, bookmaker=first.bookmaker,
+                                 captured_at=first["_at"], kickoff=kickoff,
+                                 watched=watched, watching_since=watching_since,
+                                 horizon=horizon)
+            rec["open_trusted"] = bool(proof)
+            rec["open_proof"] = proof
             if rec["open_trusted"]:
                 rec.update(open_h=first.home_odds, open_d=first.draw_odds,
                            open_a=first.away_odds)

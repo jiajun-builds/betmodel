@@ -111,3 +111,25 @@ def watched_before(path: str | None = None) -> dict:
         if prior is None or row.seen_at < prior:
             out[key] = row.seen_at
     return out
+
+
+def opener_proof(*, home, away, bookmaker, captured_at, kickoff,
+                 watched: dict, watching_since, horizon) -> str:
+    """Why a captured price can be called this book's OPENER: "observed", "window", "".
+
+    The two proofs of the module docstring, in one place because two callers now
+    need the same verdict and a second copy would be free to drift from this one.
+    Either proof suffices; "" means the book may have been quoting before we ever
+    looked, so the price is a first *sighting* and not an opener.
+
+    OBSERVED is the strong one and the only one that covers a fixture already
+    inside the lookahead when capture began. WINDOW covers the reverse case, a
+    fixture that became observable only after capture began, where we may never
+    happen to catch an unpriced tick because the book was already quoting.
+    """
+    seen = watched.get((home, away, str(bookmaker)))
+    if seen is not None and captured_at is not None and seen < captured_at:
+        return "observed"
+    if kickoff is not None and watching_since is not None and (kickoff - horizon) >= watching_since:
+        return "window"
+    return ""

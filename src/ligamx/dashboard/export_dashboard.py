@@ -36,6 +36,11 @@ MARKET_FIELDS = [
     "home_book", "draw_book", "away_book",
     "home_ev", "draw_ev", "away_ev",
     "signal_pick", "signal_state", "bookmaker",
+    # Why the best outcome is or is not a bet. "observed"/"window" mean its price
+    # is a proven opener; "" means a first sighting of a market that was already
+    # quoting, which the signal gate suppresses. Carried so a silent board can say
+    # which of the two it is -- no edge, or no proof.
+    "price_proof",
     # Pinnacle as the low-vig reference, so a reader can tell a model edge from a
     # soft book simply being soft. Its two clocks ride along so the anchor can be dated
     # like any other quote. They roll with every fetch rather than being banked once, so
@@ -203,6 +208,11 @@ def run() -> None:
         for col in MARKET_FIELDS:
             if col not in mc.columns:
                 mc[col] = None
+        # "" is this field's "no proof", and read_csv turns a blank cell into NaN,
+        # which would reach the JSON as null. Two spellings of absent is one more
+        # than a consumer gating a bet on it should have to handle.
+        if "price_proof" in mc.columns:
+            mc["price_proof"] = mc["price_proof"].fillna("")
         market_rows = _records(mc[MARKET_FIELDS])
 
     # ---- round progress + meta --------------------------------------------

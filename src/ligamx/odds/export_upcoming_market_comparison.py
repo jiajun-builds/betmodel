@@ -47,7 +47,9 @@ import pandas as pd
 
 from ligamx import config, paths
 from ligamx.odds.capture_store import load_history
+from ligamx.odds.capture_watch import opener_proof, watched_before
 from ligamx.odds.ev_calculator import EVCalculator
+from ligamx.odds.fetch_oddsapiio_opens import DEFAULT_LOOKAHEAD_DAYS
 from ligamx.odds.prediction_model import PredictionModel
 
 # Books composited into the bet price, in preference order. The order only breaks
@@ -96,7 +98,7 @@ COLUMNS = [
     "home_book", "draw_book", "away_book",
     "home_ev", "draw_ev", "away_ev",
     "home_is_ev", "draw_is_ev", "away_is_ev",
-    "signal_pick", "signal_state",
+    "signal_pick", "signal_state", "price_proof",
     "betano_home_odds", "betano_draw_odds", "betano_away_odds",
     "duel_home_odds", "duel_draw_odds", "duel_away_odds",
     "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
@@ -127,16 +129,20 @@ def _text(value):
 
 
 def load_captured_opens() -> dict:
-    """(home, away) -> {book: {home/draw/away odds, last_update, captured_at}}.
+    """(home, away) -> {book: {home/draw/away odds, last_update, captured_at, proof}}.
 
-    Earliest fetched_at per (fixture, book) -- the first price we ever saw, which
-    is what "opening line" means here.
+    Earliest fetched_at per (fixture, book) -- the first price we ever saw.
 
-    Deliberately NO trust gate, unlike reduce_capture_history. That gate exists to
-    keep prices we may have caught late out of the permanent record in
-    MEX_ligamx.csv, where they would contaminate the backtest series. The
-    dashboard is asking a different question -- "what can I bet right now" -- and
-    for that a price is a price whatever its provenance.
+    Every price is returned, priced or not, whatever its provenance: the dashboard
+    asks "what can I bet right now", and for *display* a price is a price. What
+    provenance decides is narrower and comes later -- whether the row may fire a
+    signal. `proof` carries reduce_capture_history's verdict ("observed" /
+    "window" / "") so that decision has something to stand on.
+
+    The distinction is the whole reason this gate is not the reducer's. The
+    reducer protects MEX_ligamx.csv, where a late-caught price would contaminate
+    the backtest series. Here nothing is contaminated by *showing* a sharp price;
+    the damage is done only by calling it a bet.
     """
     history = load_history()
     if history.empty:
@@ -147,7 +153,16 @@ def load_captured_opens() -> dict:
         return {}
     # No leading underscore: itertuples renames such columns to positional _N.
     opens["captured_at"] = pd.to_datetime(opens["fetched_at"], utc=True, errors="coerce")
+    opens["kickoff"] = pd.to_datetime(opens["commence_time"], utc=True, errors="coerce")
     opens = opens.dropna(subset=["captured_at"]).sort_values("captured_at")
+
+    # The moment capture began, over the WHOLE history rather than the opens alone:
+    # a close tick is also a moment we looked, and taking the min of a subset would
+    # date the start of watching later than it was, wrongly awarding "window".
+    watching_since = pd.to_datetime(history["fetched_at"], utc=True,
+                                    errors="coerce").min()
+    watched = watched_before()
+    horizon = pd.Timedelta(days=DEFAULT_LOOKAHEAD_DAYS)
 
     out: dict = {}
     for row in opens.itertuples(index=False):
@@ -159,6 +174,11 @@ def load_captured_opens() -> dict:
             "home": _num(row.home_odds), "draw": _num(row.draw_odds),
             "away": _num(row.away_odds), "last_update": row.last_update,
             "captured_at": row.captured_at,
+            "proof": opener_proof(home=row.home_team, away=row.away_team,
+                                  bookmaker=row.bookmaker,
+                                  captured_at=row.captured_at,
+                                  kickoff=row.kickoff, watched=watched,
+                                  watching_since=watching_since, horizon=horizon),
         }
     return out
 
@@ -261,8 +281,24 @@ def run() -> list:
         candidates = {s: ev for s, ev in zip(SIDES, (he, de, ae))
                       if best[s] is not None}
         best_pick = max(candidates, key=candidates.get) if candidates else None
-        signal_pick = (best_pick if best_pick
-                       and candidates[best_pick] >= SIGNAL_EV_THRESHOLD else "none")
+        clears = bool(best_pick) and candidates[best_pick] >= SIGNAL_EV_THRESHOLD
+
+        # THE PROVENANCE GATE. Clearing the threshold is necessary, not
+        # sufficient: the 10% was fitted on prices proven to be openers, so a
+        # first sighting of a market that was already quoting is out of sample --
+        # and out of sample in the specific direction that loses money, since an
+        # already-open price is a sharp one and EV against a sharp price is
+        # model-vs-market disagreement.
+        #
+        # Checked on the book that supplies THIS pick's price, not the fixture:
+        # the composite takes each side from whichever book is better, so one
+        # fixture can be a proven Duel opener on the home side and a stale Betano
+        # sighting on the away. Deliberately no fallback to a lower-EV side with a
+        # proven price -- the strategy bets the best outcome or nothing.
+        pick_book = best[f"{best_pick}_book"] if best_pick else None
+        price_proof = (books.get(pick_book) or {}).get("proof", "") if pick_book else ""
+
+        signal_pick = best_pick if clears and price_proof else "none"
 
         captured = min((b["captured_at"] for b in books.values()), default=None)
         ref = pinnacle.get((home, away), {})
@@ -282,6 +318,13 @@ def run() -> list:
             "home_is_ev": he > 0, "draw_is_ev": de > 0, "away_is_ev": ae > 0,
             "signal_pick": signal_pick,
             "signal_state": "bet" if signal_pick != "none" else "none",
+            # Why the best outcome is or is not a bet, which `signal_state` alone
+            # cannot say: "observed"/"window" mean its price is a proven opener,
+            # "" means a first sighting of an already-quoting market. Reported for
+            # the best-EV outcome whether or not it fired, so a silent board is
+            # readable -- an EV of 118pp sitting at "" is the gate working, not a
+            # missing price.
+            "price_proof": price_proof,
             "betano_home_odds": per_book["betano"].get("home"),
             "betano_draw_odds": per_book["betano"].get("draw"),
             "betano_away_odds": per_book["betano"].get("away"),
