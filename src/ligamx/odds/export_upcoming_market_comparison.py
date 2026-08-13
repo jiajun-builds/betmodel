@@ -60,6 +60,35 @@ REFERENCE_BOOK = "pinnacle"
 
 SIDES = ("home", "draw", "away")
 
+# The bar a positive-EV outcome has to clear to fire a signal, as a fraction of
+# stake. NOT zero, and the difference is the whole strategy.
+#
+# Scored on 427 hand-collected Betano openers (2024-03 -> 2026-08, 364 scorable),
+# strict walk-forward, graded against the combined close. `hurdle` is the pp the
+# opener's own margin costs, so only the last column is money:
+#
+#     EV thr   n bets   CLV_exc   t      hurdle   margin
+#     all      364      +1.68     5.29   +1.72    -0.04   <- does not clear its vig
+#     >=10%    147      +3.04     6.19   +1.45    +1.58
+#     >=20%     70      +3.67     4.36   +1.27    +2.39
+#
+# Betting every positive EV is breakeven-to-negative: the edge here is that
+# Betano's OPENER is worse than the close, not that the model predicts well (the
+# same picks settled at the close return ROI -17.89%, z=-2.42). Selectivity is
+# what buys the ~1.6pp, so this threshold is load-bearing, not a display filter.
+#
+# WHAT THIS THRESHOLD DOES NOT DO. It was fitted on Betano openers captured a
+# median T-293h out. It says nothing about a price that is neither Betano's nor an
+# opener, and clearing it is therefore necessary but not sufficient. Measured on
+# the live board 2026-08-13: Duel won the composite on 25 of 27 sides, beat Betano
+# on 15 of 15 sides where both were priced, and sat a mean 0.72% off Pinnacle --
+# i.e. a sharp price, not a soft one. Against a sharp price the EV being measured
+# is model-vs-market disagreement, which this program has separately shown to have
+# NEGATIVE CLV. A provenance gate (proven-opener via MEX_capture_watch.csv, plus a
+# lead-time floor) is the missing half; until it exists, treat a firing row as a
+# candidate rather than a bet, and leave the source `validated: false` downstream.
+SIGNAL_EV_THRESHOLD = 0.10
+
 COLUMNS = [
     "home_team", "away_team", "round", "match_date", "match_time", "kickoff_utc",
     "home_win_prob", "draw_prob", "away_win_prob",
@@ -221,13 +250,19 @@ def run() -> list:
                                         best["home"], best["draw"], best["away"])
         he, de, ae = evs["home_ev"], evs["draw_ev"], evs["away_ev"]
 
-        # Firing signal = best +EV outcome. An outcome with no price cannot fire:
-        # EVCalculator returns 0.0 for missing odds, which is not > 0, but being
+        # Firing signal = the best outcome, and only if it clears
+        # SIGNAL_EV_THRESHOLD. An outcome with no price cannot fire: EVCalculator
+        # returns 0.0 for missing odds, which is below the threshold, but being
         # explicit here keeps a future change to that default from leaking a bet.
+        #
+        # Compared as a fraction. `*_ev` is exported in percentage points (x100
+        # below) and the threshold is not, so comparing against the exported value
+        # would fire on everything above 0.1%.
         candidates = {s: ev for s, ev in zip(SIDES, (he, de, ae))
                       if best[s] is not None}
         best_pick = max(candidates, key=candidates.get) if candidates else None
-        signal_pick = best_pick if best_pick and candidates[best_pick] > 0 else "none"
+        signal_pick = (best_pick if best_pick
+                       and candidates[best_pick] >= SIGNAL_EV_THRESHOLD else "none")
 
         captured = min((b["captured_at"] for b in books.values()), default=None)
         ref = pinnacle.get((home, away), {})
