@@ -2,120 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-14T10:30:10+01:00"
+    "updated_at": "2026-08-14T13:39:16+01:00"
   },
   "rows": [
-    {
-      "home_team": "Shandong Taishan",
-      "away_team": "Qingdao Hainiu",
-      "match_time": "11:35",
-      "home_win_prob": 0.6648096976235149,
-      "draw_prob": 0.1828245018825194,
-      "away_win_prob": 0.1523658004939657,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 1.432,
-      "onexbet_open_draw_odds": 5.1,
-      "onexbet_open_away_odds": 6.2,
-      "onexbet_open_home_ev": -0.0479925130031266,
-      "onexbet_open_draw_ev": -0.0675950403991512,
-      "onexbet_open_away_ev": -0.0553320369374122,
-      "duel_open_home_odds": 1.45,
-      "duel_open_draw_odds": 5.4,
-      "duel_open_away_odds": 6.4,
-      "duel_open_home_ev": -0.0360259384459034,
-      "duel_open_draw_ev": -0.0127476898343952,
-      "duel_open_away_ev": -0.024858876838619,
-      "best_open_home_odds": 1.45,
-      "best_open_draw_odds": 5.4,
-      "best_open_away_odds": 6.4,
-      "best_open_home_ev": -0.0360259384459034,
-      "best_open_draw_ev": -0.0127476898343952,
-      "best_open_away_ev": -0.024858876838619,
-      "best_open_home_book": "duel",
-      "best_open_draw_book": "duel",
-      "best_open_away_book": "duel",
-      "signal_pick": null,
-      "signal_state": null,
-      "signal_book": null,
-      "signal_books": null,
-      "onexbet_open_last_update": "2026-08-09T12:58:22.173Z",
-      "duel_open_last_update": "2026-08-09T12:28:30.09Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
-    },
-    {
-      "home_team": "Wuhan Three Towns",
-      "away_team": "Shanghai Port",
-      "match_time": "11:35",
-      "home_win_prob": 0.3101381490671562,
-      "draw_prob": 0.2610725694430935,
-      "away_win_prob": 0.4287892814897502,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 3.13,
-      "onexbet_open_draw_odds": 3.62,
-      "onexbet_open_away_odds": 2.18,
-      "onexbet_open_home_ev": -0.0292675934198011,
-      "onexbet_open_draw_ev": -0.0549172986160015,
-      "onexbet_open_away_ev": -0.0652393663523444,
-      "duel_open_home_odds": 3.4,
-      "duel_open_draw_odds": 3.7,
-      "duel_open_away_odds": 2.14,
-      "duel_open_home_ev": 0.054469706828331,
-      "duel_open_draw_ev": -0.034031493060554,
-      "duel_open_away_ev": -0.0823909376119343,
-      "best_open_home_odds": 3.4,
-      "best_open_draw_odds": 3.7,
-      "best_open_away_odds": 2.18,
-      "best_open_home_ev": 0.054469706828331,
-      "best_open_draw_ev": -0.034031493060554,
-      "best_open_away_ev": -0.0652393663523444,
-      "best_open_home_book": "duel",
-      "best_open_draw_book": "duel",
-      "best_open_away_book": "onexbet",
-      "signal_pick": null,
-      "signal_state": null,
-      "signal_book": null,
-      "signal_books": null,
-      "onexbet_open_last_update": "2026-08-09T11:54:51.168Z",
-      "duel_open_last_update": "2026-08-09T11:54:21.058Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
-    },
-    {
-      "home_team": "Qingdao West Coast",
-      "away_team": "Chongqing Tonglianglong",
-      "match_time": "12:00",
-      "home_win_prob": 0.4691360563028708,
-      "draw_prob": 0.2842061541656571,
-      "away_win_prob": 0.2466577895314722,
-      "debias_method": "market_anchor",
-      "onexbet_open_home_odds": 2.08,
-      "onexbet_open_draw_odds": 3.34,
-      "onexbet_open_away_odds": 3.64,
-      "onexbet_open_home_ev": -0.0241970028900286,
-      "onexbet_open_draw_ev": -0.0507514450867051,
-      "onexbet_open_away_ev": -0.1021656461054412,
-      "duel_open_home_odds": 2.12,
-      "duel_open_draw_odds": 3.4,
-      "duel_open_away_odds": 3.75,
-      "duel_open_home_ev": -0.0054315606379138,
-      "duel_open_draw_ev": -0.0336990758367657,
-      "duel_open_away_ev": -0.0750332892569792,
-      "best_open_home_odds": 2.12,
-      "best_open_draw_odds": 3.4,
-      "best_open_away_odds": 3.75,
-      "best_open_home_ev": -0.0054315606379138,
-      "best_open_draw_ev": -0.0336990758367657,
-      "best_open_away_ev": -0.0750332892569792,
-      "best_open_home_book": "duel",
-      "best_open_draw_book": "duel",
-      "best_open_away_book": "duel",
-      "signal_pick": null,
-      "signal_state": null,
-      "signal_book": null,
-      "signal_books": null,
-      "onexbet_open_last_update": "2026-08-09T11:57:07.179Z",
-      "duel_open_last_update": "2026-08-09T11:54:21.058Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
-    },
     {
       "home_team": "Liaoning Tieren",
       "away_team": "Shenzhen Xinpengcheng",
@@ -151,7 +40,7 @@
       "signal_books": "duel",
       "onexbet_open_last_update": "2026-08-08T14:52:38.782Z",
       "duel_open_last_update": "2026-08-08T12:07:44.391Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
+      "fetched_at": "2026-08-14T12:39:11Z"
     },
     {
       "home_team": "Tianjin Jinmen Tiger",
@@ -188,7 +77,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-09T12:58:22.173Z",
       "duel_open_last_update": "2026-08-09T12:19:27.654Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
+      "fetched_at": "2026-08-14T12:39:11Z"
     },
     {
       "home_team": "Zhejiang Professional",
@@ -225,7 +114,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-08T14:52:38.782Z",
       "duel_open_last_update": "2026-08-08T13:50:20.808Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
+      "fetched_at": "2026-08-14T12:39:11Z"
     },
     {
       "home_team": "Shanghai Shenhua",
@@ -262,7 +151,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-07-28T11:17:41.867Z",
       "duel_open_last_update": "2026-08-10T07:08:37.177Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
+      "fetched_at": "2026-08-14T12:39:11Z"
     },
     {
       "home_team": "Yunnan Yukun",
@@ -299,7 +188,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-08T14:52:38.782Z",
       "duel_open_last_update": "2026-08-08T14:09:26.904Z",
-      "fetched_at": "2026-08-14T09:30:06Z"
+      "fetched_at": "2026-08-14T12:39:11Z"
     }
   ]
 }
