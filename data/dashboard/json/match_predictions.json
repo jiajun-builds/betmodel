@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-14T01:59:48+01:00",
+    "updated_at": "2026-08-14T10:30:10+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
@@ -258,6 +258,34 @@
       "home_win_fair_odds": 2.7004,
       "draw_fair_odds": 3.3289,
       "away_win_fair_odds": 3.0369
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-28-dalian-yingbo-beijing-guoan",
+      "round": 25,
+      "match_date": "2026-08-28",
+      "kickoff_at": "2026-08-28T12:35:00+01:00",
+      "home_team": "Dalian Yingbo",
+      "away_team": "Beijing Guoan",
+      "home_win_prob": 0.316619,
+      "draw_prob": 0.240584,
+      "away_win_prob": 0.442796,
+      "home_win_fair_odds": 3.1584,
+      "draw_fair_odds": 4.1566,
+      "away_win_fair_odds": 2.2584
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-28-shenzhen-xinpengcheng-shanghai-port",
+      "round": 25,
+      "match_date": "2026-08-28",
+      "kickoff_at": "2026-08-28T13:00:00+01:00",
+      "home_team": "Shenzhen Xinpengcheng",
+      "away_team": "Shanghai Port",
+      "home_win_prob": 0.272875,
+      "draw_prob": 0.223456,
+      "away_win_prob": 0.503669,
+      "home_win_fair_odds": 3.6647,
+      "draw_fair_odds": 4.4752,
+      "away_win_fair_odds": 1.9854
     }
   ]
 }
