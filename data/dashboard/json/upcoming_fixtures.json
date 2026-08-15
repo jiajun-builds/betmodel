@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-15T01:35:34+01:00"
+    "updated_at": "2026-08-15T09:48:03+01:00"
   },
   "rows": [
     {
@@ -157,6 +157,60 @@
       "kickoff_at": "2026-08-28T13:00:00+01:00",
       "home_team": "Shenzhen Xinpengcheng",
       "away_team": "Shanghai Port"
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-29-qingdao-hainiu-wuhan-three-towns",
+      "round": 25,
+      "match_date": "2026-08-29",
+      "match_time": "09:00",
+      "kickoff_at": "2026-08-29T10:00:00+01:00",
+      "home_team": "Qingdao Hainiu",
+      "away_team": "Wuhan Three Towns"
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-29-tianjin-jinmen-tiger-qingdao-west-coast",
+      "round": 25,
+      "match_date": "2026-08-29",
+      "match_time": "11:00",
+      "kickoff_at": "2026-08-29T12:00:00+01:00",
+      "home_team": "Tianjin Jinmen Tiger",
+      "away_team": "Qingdao West Coast"
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-29-zhejiang-professional-yunnan-yukun",
+      "round": 25,
+      "match_date": "2026-08-29",
+      "match_time": "11:00",
+      "kickoff_at": "2026-08-29T12:00:00+01:00",
+      "home_team": "Zhejiang Professional",
+      "away_team": "Yunnan Yukun"
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-29-chengdu-rongcheng-liaoning-tieren",
+      "round": 25,
+      "match_date": "2026-08-29",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-29T12:35:00+01:00",
+      "home_team": "Chengdu Rongcheng",
+      "away_team": "Liaoning Tieren"
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-29-shanghai-shenhua-shandong-taishan",
+      "round": 25,
+      "match_date": "2026-08-29",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-29T12:35:00+01:00",
+      "home_team": "Shanghai Shenhua",
+      "away_team": "Shandong Taishan"
+    },
+    {
+      "fixture_id": "CSL-2026-25-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
+      "round": 25,
+      "match_date": "2026-08-29",
+      "match_time": "12:00",
+      "kickoff_at": "2026-08-29T13:00:00+01:00",
+      "home_team": "Henan Songshan Longmen",
+      "away_team": "Chongqing Tonglianglong"
     }
   ]
 }
