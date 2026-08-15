@@ -1,7 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu,23,2026-08-14,2026-08-14T12:35:00+01:00,Shandong Taishan,Qingdao Hainiu,0.674807,0.170536,0.154657,1.4819,5.8639,6.4659
-CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port,23,2026-08-14,2026-08-14T12:35:00+01:00,Wuhan Three Towns,Shanghai Port,0.325873,0.223583,0.450544,3.0687,4.4726,2.2195
-CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong,23,2026-08-14,2026-08-14T13:00:00+01:00,Qingdao West Coast,Chongqing Tonglianglong,0.463347,0.293039,0.243614,2.1582,3.4125,4.1049
 CSL-2026-23-2026-08-15-liaoning-tieren-shenzhen-xinpengcheng,23,2026-08-15,2026-08-15T12:00:00+01:00,Liaoning Tieren,Shenzhen Xinpengcheng,0.578426,0.209687,0.211887,1.7288,4.769,4.7195
 CSL-2026-23-2026-08-15-tianjin-jinmen-tiger-beijing-guoan,23,2026-08-15,2026-08-15T12:35:00+01:00,Tianjin Jinmen Tiger,Beijing Guoan,0.302312,0.247076,0.450612,3.3078,4.0473,2.2192
 CSL-2026-23-2026-08-15-zhejiang-professional-chengdu-rongcheng,23,2026-08-15,2026-08-15T12:35:00+01:00,Zhejiang Professional,Chengdu Rongcheng,0.269061,0.232131,0.498808,3.7166,4.3079,2.0048

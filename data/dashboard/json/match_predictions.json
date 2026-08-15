@@ -2,53 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-14T13:39:16+01:00",
+    "updated_at": "2026-08-15T01:35:34+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu",
-      "round": 23,
-      "match_date": "2026-08-14",
-      "kickoff_at": "2026-08-14T12:35:00+01:00",
-      "home_team": "Shandong Taishan",
-      "away_team": "Qingdao Hainiu",
-      "home_win_prob": 0.674807,
-      "draw_prob": 0.170536,
-      "away_win_prob": 0.154657,
-      "home_win_fair_odds": 1.4819,
-      "draw_fair_odds": 5.8639,
-      "away_win_fair_odds": 6.4659
-    },
-    {
-      "fixture_id": "CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port",
-      "round": 23,
-      "match_date": "2026-08-14",
-      "kickoff_at": "2026-08-14T12:35:00+01:00",
-      "home_team": "Wuhan Three Towns",
-      "away_team": "Shanghai Port",
-      "home_win_prob": 0.325873,
-      "draw_prob": 0.223583,
-      "away_win_prob": 0.450544,
-      "home_win_fair_odds": 3.0687,
-      "draw_fair_odds": 4.4726,
-      "away_win_fair_odds": 2.2195
-    },
-    {
-      "fixture_id": "CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong",
-      "round": 23,
-      "match_date": "2026-08-14",
-      "kickoff_at": "2026-08-14T13:00:00+01:00",
-      "home_team": "Qingdao West Coast",
-      "away_team": "Chongqing Tonglianglong",
-      "home_win_prob": 0.463347,
-      "draw_prob": 0.293039,
-      "away_win_prob": 0.243614,
-      "home_win_fair_odds": 2.1582,
-      "draw_fair_odds": 3.4125,
-      "away_win_fair_odds": 4.1049
-    },
     {
       "fixture_id": "CSL-2026-23-2026-08-15-liaoning-tieren-shenzhen-xinpengcheng",
       "round": 23,

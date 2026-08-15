@@ -1,7 +1,4 @@
 fixture_id,round,match_date,match_time,kickoff_at,home_team,away_team
-CSL-2026-23-2026-08-14-shandong-taishan-qingdao-hainiu,23,2026-08-14,11:35,2026-08-14T12:35:00+01:00,Shandong Taishan,Qingdao Hainiu
-CSL-2026-23-2026-08-14-wuhan-three-towns-shanghai-port,23,2026-08-14,11:35,2026-08-14T12:35:00+01:00,Wuhan Three Towns,Shanghai Port
-CSL-2026-23-2026-08-14-qingdao-west-coast-chongqing-tonglianglong,23,2026-08-14,12:00,2026-08-14T13:00:00+01:00,Qingdao West Coast,Chongqing Tonglianglong
 CSL-2026-23-2026-08-15-liaoning-tieren-shenzhen-xinpengcheng,23,2026-08-15,11:00,2026-08-15T12:00:00+01:00,Liaoning Tieren,Shenzhen Xinpengcheng
 CSL-2026-23-2026-08-15-tianjin-jinmen-tiger-beijing-guoan,23,2026-08-15,11:35,2026-08-15T12:35:00+01:00,Tianjin Jinmen Tiger,Beijing Guoan
 CSL-2026-23-2026-08-15-zhejiang-professional-chengdu-rongcheng,23,2026-08-15,11:35,2026-08-15T12:35:00+01:00,Zhejiang Professional,Chengdu Rongcheng
