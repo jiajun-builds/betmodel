@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-16T22:47:09+00:00"
+    "updated_at": "2026-08-16T22:51:04+00:00"
   },
   "rows": [
     {
@@ -33,9 +33,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 109.7,
+      "price_age_h": 109.8,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Santos Laguna",
@@ -65,9 +65,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 109.7,
+      "price_age_h": 109.8,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Tijuana",
@@ -97,9 +97,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 109.7,
+      "price_age_h": 109.8,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Necaxa",
@@ -129,9 +129,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 109.7,
+      "price_age_h": 109.8,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Pachuca",
@@ -161,9 +161,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-12T09:03:11Z",
-      "price_age_h": 109.7,
+      "price_age_h": 109.8,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Tigres UANL",
@@ -195,7 +195,7 @@
       "price_captured_at": "2026-08-15T10:31:14Z",
       "price_age_h": 36.3,
       "last_update": "2026-08-15T10:24:36.093Z",
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "FC Juarez",
@@ -227,7 +227,7 @@
       "price_captured_at": "2026-08-15T10:31:14Z",
       "price_age_h": 36.3,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Queretaro",
@@ -259,7 +259,7 @@
       "price_captured_at": "2026-08-15T10:31:14Z",
       "price_age_h": 36.3,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Guadalajara",
@@ -291,7 +291,7 @@
       "price_captured_at": "2026-08-15T10:31:14Z",
       "price_age_h": 36.3,
       "last_update": "2026-08-15T10:29:40.763Z",
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Leon",
@@ -321,9 +321,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 35.5,
+      "price_age_h": 35.6,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Puebla",
@@ -355,7 +355,7 @@
       "price_captured_at": "2026-08-15T10:31:14Z",
       "price_age_h": 36.3,
       "last_update": "2026-08-15T10:09:27.905Z",
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Cruz Azul",
@@ -387,7 +387,7 @@
       "price_captured_at": "2026-08-15T10:31:14Z",
       "price_age_h": 36.3,
       "last_update": "2026-08-15T10:10:28.456Z",
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "Atletico San Luis",
@@ -417,9 +417,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 35.5,
+      "price_age_h": 35.6,
       "last_update": "2026-08-15T10:39:46.641Z",
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     },
     {
       "home_team": "UNAM Pumas",
@@ -449,9 +449,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 35.5,
+      "price_age_h": 35.6,
       "last_update": null,
-      "fetched_at": "2026-08-16T22:47:08Z"
+      "fetched_at": "2026-08-16T22:51:04Z"
     }
   ]
 }
