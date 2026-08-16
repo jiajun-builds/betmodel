@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-16T12:46:24+01:00"
+    "updated_at": "2026-08-16T13:01:57+01:00"
   },
   "rows": [
     {
@@ -188,6 +188,43 @@
       "signal_books": null,
       "onexbet_open_last_update": null,
       "duel_open_last_update": "2026-08-16T11:21:28.077Z",
+      "fetched_at": null
+    },
+    {
+      "home_team": "Shanghai Port",
+      "away_team": "Qingdao Hainiu",
+      "match_time": "11:35",
+      "home_win_prob": 0.6642421490752818,
+      "draw_prob": 0.1803095653001428,
+      "away_win_prob": 0.1554482856245754,
+      "debias_method": "delta",
+      "onexbet_open_home_odds": null,
+      "onexbet_open_draw_odds": null,
+      "onexbet_open_away_odds": null,
+      "onexbet_open_home_ev": null,
+      "onexbet_open_draw_ev": null,
+      "onexbet_open_away_ev": null,
+      "duel_open_home_odds": 1.33,
+      "duel_open_draw_odds": 6,
+      "duel_open_away_odds": 8.8,
+      "duel_open_home_ev": -0.1165579417298752,
+      "duel_open_draw_ev": 0.0818573918008571,
+      "duel_open_away_ev": 0.3679449134962638,
+      "best_open_home_odds": 1.33,
+      "best_open_draw_odds": 6,
+      "best_open_away_odds": 8.8,
+      "best_open_home_ev": -0.1165579417298752,
+      "best_open_draw_ev": 0.0818573918008571,
+      "best_open_away_ev": 0.3679449134962638,
+      "best_open_home_book": "duel",
+      "best_open_draw_book": "duel",
+      "best_open_away_book": "duel",
+      "signal_pick": "away",
+      "signal_state": "odds_cap",
+      "signal_book": "duel",
+      "signal_books": null,
+      "onexbet_open_last_update": null,
+      "duel_open_last_update": "2026-08-16T11:46:35.655Z",
       "fetched_at": null
     }
   ]
