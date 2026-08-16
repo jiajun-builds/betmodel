@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-16T09:50:02+01:00"
+    "updated_at": "2026-08-16T12:46:24+01:00"
   },
   "rows": [
     {
@@ -152,6 +152,43 @@
       "onexbet_open_last_update": "2026-08-15T13:09:29.338Z",
       "duel_open_last_update": "2026-08-15T12:17:27.38Z",
       "fetched_at": "2026-08-16T08:49:57Z"
+    },
+    {
+      "home_team": "Liaoning Tieren",
+      "away_team": "Henan Songshan Longmen",
+      "match_time": "11:00",
+      "home_win_prob": 0.3721831638708753,
+      "draw_prob": 0.2420212115751434,
+      "away_win_prob": 0.3857956245539812,
+      "debias_method": "delta",
+      "onexbet_open_home_odds": null,
+      "onexbet_open_draw_odds": null,
+      "onexbet_open_away_odds": null,
+      "onexbet_open_home_ev": null,
+      "onexbet_open_draw_ev": null,
+      "onexbet_open_away_ev": null,
+      "duel_open_home_odds": 3.05,
+      "duel_open_draw_odds": 3.65,
+      "duel_open_away_odds": 2.32,
+      "duel_open_home_ev": 0.1351586498061696,
+      "duel_open_draw_ev": -0.1166225777507266,
+      "duel_open_away_ev": -0.1049541510347635,
+      "best_open_home_odds": 3.05,
+      "best_open_draw_odds": 3.65,
+      "best_open_away_odds": 2.32,
+      "best_open_home_ev": 0.1351586498061696,
+      "best_open_draw_ev": -0.1166225777507266,
+      "best_open_away_ev": -0.1049541510347635,
+      "best_open_home_book": "duel",
+      "best_open_draw_book": "duel",
+      "best_open_away_book": "duel",
+      "signal_pick": null,
+      "signal_state": null,
+      "signal_book": null,
+      "signal_books": null,
+      "onexbet_open_last_update": null,
+      "duel_open_last_update": "2026-08-16T11:21:28.077Z",
+      "fetched_at": null
     }
   ]
 }
