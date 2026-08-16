@@ -1,9 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-23-2026-08-15-liaoning-tieren-shenzhen-xinpengcheng,23,2026-08-15,2026-08-15T12:00:00+01:00,Liaoning Tieren,Shenzhen Xinpengcheng,0.58046,0.208513,0.211028,1.7228,4.7959,4.7387
-CSL-2026-23-2026-08-15-tianjin-jinmen-tiger-beijing-guoan,23,2026-08-15,2026-08-15T12:35:00+01:00,Tianjin Jinmen Tiger,Beijing Guoan,0.303043,0.246773,0.450184,3.2999,4.0523,2.2213
-CSL-2026-23-2026-08-15-zhejiang-professional-chengdu-rongcheng,23,2026-08-15,2026-08-15T12:35:00+01:00,Zhejiang Professional,Chengdu Rongcheng,0.269588,0.23157,0.498842,3.7094,4.3183,2.0046
-CSL-2026-23-2026-08-15-shanghai-shenhua-henan-songshan-longmen,23,2026-08-15,2026-08-15T13:00:00+01:00,Shanghai Shenhua,Henan Songshan Longmen,0.567207,0.213471,0.219323,1.763,4.6845,4.5595
-CSL-2026-23-2026-08-15-yunnan-yukun-dalian-yingbo,23,2026-08-15,2026-08-15T13:00:00+01:00,Yunnan Yukun,Dalian Yingbo,0.459945,0.238301,0.301753,2.1742,4.1964,3.314
 CSL-2026-18-2026-08-18-shanghai-shenhua-beijing-guoan,18,2026-08-18,2026-08-18T12:35:00+01:00,Shanghai Shenhua,Beijing Guoan,0.488681,0.215977,0.295342,2.0463,4.6301,3.3859
 CSL-2026-18-2026-08-19-shanghai-port-dalian-yingbo,18,2026-08-19,2026-08-19T12:35:00+01:00,Shanghai Port,Dalian Yingbo,0.565108,0.219558,0.215333,1.7696,4.5546,4.644
 CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger,24,2026-08-22,2026-08-22T12:00:00+01:00,Wuhan Three Towns,Tianjin Jinmen Tiger,0.410506,0.255558,0.333936,2.436,3.913,2.9946

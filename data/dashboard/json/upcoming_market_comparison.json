@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-15T14:31:06+01:00"
+    "updated_at": "2026-08-16T01:37:08+01:00"
   },
   "rows": [
     {
@@ -40,7 +40,7 @@
       "signal_books": null,
       "onexbet_open_last_update": null,
       "duel_open_last_update": null,
-      "fetched_at": null
+      "fetched_at": "2026-08-16T00:37:03Z"
     },
     {
       "home_team": "Wuhan Three Towns",
@@ -77,7 +77,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-15T12:41:32.895Z",
       "duel_open_last_update": "2026-08-15T11:49:13.303Z",
-      "fetched_at": "2026-08-15T12:16:19Z"
+      "fetched_at": "2026-08-16T00:37:03Z"
     },
     {
       "home_team": "Shenzhen Xinpengcheng",
@@ -114,34 +114,34 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-15T12:41:32.895Z",
       "duel_open_last_update": "2026-08-15T12:09:24.018Z",
-      "fetched_at": "2026-08-15T12:16:19Z"
+      "fetched_at": "2026-08-16T00:37:03Z"
     },
     {
       "home_team": "Qingdao West Coast",
       "away_team": "Shandong Taishan",
       "match_time": "12:00",
-      "home_win_prob": 0.3575481757626898,
-      "draw_prob": 0.239794884089282,
-      "away_win_prob": 0.4026569401480281,
-      "debias_method": "delta",
+      "home_win_prob": 0.3490667356073445,
+      "draw_prob": 0.2578277944310299,
+      "away_win_prob": 0.3931054699616256,
+      "debias_method": "market_anchor",
       "onexbet_open_home_odds": 2.81,
       "onexbet_open_draw_odds": 3.62,
       "onexbet_open_away_odds": 2.375,
-      "onexbet_open_home_ev": 0.0047103738931584,
-      "onexbet_open_draw_ev": -0.131942519596799,
-      "onexbet_open_away_ev": -0.0436897671484332,
+      "onexbet_open_home_ev": -0.0191224729433618,
+      "onexbet_open_draw_ev": -0.0666633841596717,
+      "onexbet_open_away_ev": -0.0663745088411391,
       "duel_open_home_odds": 2.86,
       "duel_open_draw_odds": 3.95,
       "duel_open_away_odds": 2.32,
-      "duel_open_home_ev": 0.0225877826812928,
-      "duel_open_draw_ev": -0.0528102078473359,
-      "duel_open_away_ev": -0.0658358988565748,
+      "duel_open_home_ev": -0.0016691361629946,
+      "duel_open_draw_ev": 0.018419788002568,
+      "duel_open_away_ev": -0.0879953096890286,
       "best_open_home_odds": 2.86,
       "best_open_draw_odds": 3.95,
       "best_open_away_odds": 2.375,
-      "best_open_home_ev": 0.0225877826812928,
-      "best_open_draw_ev": -0.0528102078473359,
-      "best_open_away_ev": -0.0436897671484332,
+      "best_open_home_ev": -0.0016691361629946,
+      "best_open_draw_ev": 0.018419788002568,
+      "best_open_away_ev": -0.0663745088411391,
       "best_open_home_book": "duel",
       "best_open_draw_book": "duel",
       "best_open_away_book": "onexbet",
@@ -151,7 +151,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-15T13:09:29.338Z",
       "duel_open_last_update": "2026-08-15T12:17:27.38Z",
-      "fetched_at": null
+      "fetched_at": "2026-08-16T00:37:03Z"
     }
   ]
 }
