@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-16T14:31:55+01:00",
+    "updated_at": "2026-08-17T01:35:25+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
