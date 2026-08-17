@@ -1,2 +1,2 @@
 competition_code,competition_name,season,updated_at,model_updated_at,timezone,last_completed_match_date,next_fixture_date,matches_played,current_round,total_rounds,model_name,model_version,league_avg_goals
-CSL,Chinese Super League,2026,2026-08-17T01:35:25+01:00,2026-08-16T09:49:56+01:00,Europe/London,2026-08-15,2026-08-18,179,18,30,Weighted Poisson on xG with Dixon-Coles Time Decay,v2.8,1.473
+CSL,Chinese Super League,2026,2026-08-17T08:34:04+01:00,2026-08-16T09:49:56+01:00,Europe/London,2026-08-15,2026-08-18,179,18,30,Weighted Poisson on xG with Dixon-Coles Time Decay,v2.8,1.473
