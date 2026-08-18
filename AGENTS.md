@@ -938,6 +938,66 @@ less beats predicting better.** See roadmap #8.
       Explicitly NOT chosen (proposed and deferred): the #3 close-capture piggyback
       (persisting the last pre-kickoff 3h Now snapshot as `snapshot_type=close` for a live
       excess-CLV tracker, zero quota) — do not build it without a fresh user go-ahead.
+12. **Move the `capture-tick` timer off the 2015 MBA → Cloudflare Worker — OPEN (agreed
+    2026-08-18, deferred to next session).** The every-~10min `repository_dispatch` that
+    drives `capture-odds.yml` is a launchd job on `Jordans-MacBook-Air-2015` — the same
+    host as the xG fetcher. It is the single most fragile link in the capture loop and
+    nothing in this repo can see it fail.
+
+    **The incident that motivated this (2026-08-16 → 17).** The fine-grained PAT expired.
+    Dispatch stopped at `2026-08-16T06:55Z` and was not noticed for **~41h**. Nothing went
+    red: the `schedule: "*/10"` fallback kept firing, commits kept landing, every workflow
+    stayed green. Only the capture *resolution* degraded — measured landed cadence during
+    the outage was **22–50min, median ~29min**, against a 10min target. A degradation this
+    quiet is worse than an outage: `capture_scheduler`'s open windows are ~1h, so a ~29min
+    tick still mostly works, which is exactly why nobody looks.
+
+    **Second, independent failure mode — and the real reason to move: the host sleeps.**
+    After the PAT was replaced the launchd job was confirmed healthy and on an exact
+    10-min interval (`07:05:12Z`, `07:15:12Z`, `07:25:13Z` — spacing 10m00s / 10m01s).
+    But between the reload tick at `2026-08-17T23:26Z` and the first morning tick at
+    `2026-08-18T07:05Z` there is a **7h39m hole** with zero dispatches, while the machine
+    was closed overnight. That is the whole failure mode in one measurement: the timer is
+    not broken, it is *asleep*, and it will be asleep again every night. Over that window
+    capture fell back to the throttled `schedule` cron (~29min median). A cloud cron cannot
+    produce that shape — which is exactly why this belongs on a Worker. Note this also means
+    a healthy `launchctl list` proves nothing about coverage; only the dispatch timestamps do.
+
+    **Design — copy `ligamxterminal/tools/capture-timer`, then simplify.** That Worker is
+    the working precedent on this account. Differences for this repo:
+    - **One cron, one event type**: `crons = ["*/10 * * * *"]` → POST `capture-tick`.
+      No open/close split and **no fixture-proximity gating** — unlike ligamx, this repo's
+      workflow re-checks every window in Python and spends nothing on a no-op tick, so the
+      Worker stays a dumb timer with no `kickoff_utc` fetch and no fail-open branch.
+    - **Token in `wrangler secret put GITHUB_PAT`**, not a file on someone's laptop. Same
+      scope as today: fine-grained, repo `jiajun-builds/cslmonitor` only, **Contents:
+      Read and write** (that is what authorises `repository_dispatch`).
+    - **`workers_dev = false`, `preview_urls = false`.** A reachable `fetch` handler that
+      fires dispatches is a way for a stranger to spend the odds-API budget.
+    - Keep `capture-odds.yml`'s `schedule` cron as the fallback heartbeat. Unchanged.
+
+    **Do NOT move the xG fetcher.** It is pinned to the MBA by residential IP — SofaScore
+    Cloudflare-blocks datacenter IPs (hence `CSL_SKIP_XG_FETCH: "1"` at `csl-refresh.yml:117`)
+    and the scrape needs `curl_cffi` TLS impersonation, which the Workers V8 runtime has no
+    equivalent for. A Worker would egress from Cloudflare datacenter IPs and be blocked the
+    same way CI is. Only the dispatch timer moves; it is a bare HTTPS POST with no such tie.
+
+    **Repo changes needed: none for the token.** `repository_dispatch` is inbound and the
+    workflow runs on the built-in `GITHUB_TOKEN`; `capture-odds.yml`'s only secrets are
+    `ODDS_API_IO_KEY` / `THE_ODDS_API_KEY` / `TELEGRAM_*`. The Worker source is new files
+    under `tools/capture-timer/` and nothing else in the pipeline changes.
+
+    **Acceptance:** `gh run list --workflow=capture-odds.yml --event repository_dispatch`
+    shows a clean ~10min spacing across a multi-hour span **including a period when the MBA
+    is closed** — that is the whole point of the move. Then decommission the launchd job
+    (`launchctl bootout`, delete the plist) and `rm ~/.config/cslbet/pat`, or the two timers
+    double-fire. Leaving the old job installed but tokenless is the worst outcome: it looks
+    configured and does nothing.
+
+    **Unverified, check at build time:** whether Direct-Upload-style Worker cron invocations
+    count against any free-tier ceiling — `*/10` is ~4,320 invocations/month against the
+    100k/day Workers free limit, so this is almost certainly fine, but it was not confirmed
+    against current docs during planning.
 
 
 ## Agent Tips
