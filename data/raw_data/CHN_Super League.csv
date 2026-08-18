@@ -855,7 +855,7 @@ China,Super League,2026,17,2026-07-05,11:00,Qingdao Hainiu,Chengdu Rongcheng,1.4
 China,Super League,2026,17,2026-07-05,11:35,Shanghai Shenhua,Zhejiang Professional,1.45,1.57,3.0,2.0,1.9149999999999998,1.6989999999999998,H,1.68,4.23,4.12,1.68,4.51,4.41,-0.75,1.87,1.93,,,,1.8,4.17,3.96,1.62,4.51,4.34,2.35,1.94,2.22,1.63,4.88,5.13
 China,Super League,2026,18,2026-07-10,11:35,Shandong Taishan,Yunnan Yukun,2.31,2.54,4.0,3.0,2.817,2.678,H,1.6,4.51,4.44,1.69,4.57,4.3,-1.0,1.96,1.84,-0.75,1.85,2.04,1.6,4.67,4.77,1.68,4.54,3.93,2.22,1.9,2.27,1.74,4.88,4.44
 China,Super League,2026,18,2026-07-11,11:35,Shenzhen Xinpengcheng,Qingdao West Coast,3.37,0.81,3.0,0.0,3.259,0.567,H,2.45,3.31,2.81,1.99,3.59,3.52,0.0,1.78,2.04,-0.5,2.0,1.87,2.49,3.38,2.85,2.02,3.62,3.35,2.22,1.9,2.27,2.25,3.77,3.39
-China,Super League,2026,18,2026-07-11,12:00,Chengdu Rongcheng,Chongqing Tonglianglong,2.43,0.65,1.0,1.0,2.001,0.7549999999999999,D,1.36,4.76,7.52,1.21,6.05,14.65,-1.25,1.83,1.98,-1.75,1.83,2.02,1.45,4.64,6.95,1.22,5.96,12.3,2.22,1.9,2.27,1.32,6.45,11.76
+China,Super League,2026,18,2026-07-11,12:00,Chengdu Rongcheng,Chongqing Tonglianglong,2.53,0.65,1.0,1.0,2.0709999999999997,0.7549999999999999,D,1.36,4.76,7.52,1.21,6.05,14.65,-1.25,1.83,1.98,-1.75,1.83,2.02,1.45,4.64,6.95,1.22,5.96,12.3,2.22,1.9,2.27,1.32,6.45,11.76
 China,Super League,2026,18,2026-07-14,11:35,Zhejiang Professional,Qingdao Hainiu,0.0,0.0,3.0,2.0,0.8999999999999999,0.6,H,1.56,4.33,4.94,,,,,,,,,,1.61,4.39,5.0,1.37,4.99,7.12,2.22,1.94,2.27,1.55,5.13,6.9
 China,Super League,2026,19,2026-07-17,11:00,Qingdao West Coast,Chengdu Rongcheng,0.52,1.17,1.0,1.0,0.6639999999999999,1.119,D,3.98,3.72,1.82,,,,,,,,,,4.28,3.87,1.8,,,,2.06,2.0,2.08,2000.0,1.0,2000.0
 China,Super League,2026,19,2026-07-17,11:35,Beijing Guoan,Liaoning Tieren,2.07,1.73,1.0,1.0,1.7489999999999999,1.511,D,1.37,5.09,6.67,,,,,,,,,,1.4,5.36,6.92,,,,2.2,2.04,2.27,1.44,5.71,7.41
@@ -881,18 +881,18 @@ China,Super League,2026,21,2026-08-01,12:00,Chengdu Rongcheng,Wuhan Three Towns,
 China,Super League,2026,21,2026-08-02,10:00,Qingdao West Coast,Qingdao Hainiu,1.11,0.18,0.0,0.0,0.777,0.126,D,1.7,3.92,4.35,,,,,,,,,,1.72,4.08,4.53,,,,,,,,,
 China,Super League,2026,21,2026-08-02,11:35,Liaoning Tieren,Shanghai Shenhua,1.88,1.59,3.0,1.0,2.2159999999999997,1.413,H,3.45,3.91,1.95,,,,,,,,,,3.48,3.92,1.98,,,,,,,,,
 China,Super League,2026,21,2026-08-02,12:00,Shenzhen Xinpengcheng,Chongqing Tonglianglong,1.59,0.57,2.0,0.0,1.713,0.39899999999999997,H,2.13,3.46,3.25,,,,,,,,,,2.15,3.58,3.32,,,,,,,,,
-China,Super League,2026,22,2026-08-07,11:35,Beijing Guoan,Shenzhen Xinpengcheng,4.28,1.5,4.0,0.0,4.196,1.0499999999999998,H,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,22,2026-08-07,11:35,Beijing Guoan,Shenzhen Xinpengcheng,4.43,1.5,4.0,0.0,4.300999999999999,1.0499999999999998,H,,,,,,,,,,,,,,,,,,,,,,,,
 China,Super League,2026,22,2026-08-08,11:00,Qingdao Hainiu,Shanghai Shenhua,1.57,1.99,0.0,1.0,1.099,1.693,A,,,,,,,,,,,,,,,,,,,,,,,,
 China,Super League,2026,22,2026-08-08,11:35,Dalian Yingbo,Liaoning Tieren,0.53,0.49,1.0,0.0,0.671,0.34299999999999997,H,,,,,,,,,,,,,,,,,,,,,,,,
 China,Super League,2026,22,2026-08-08,12:00,Yunnan Yukun,Chengdu Rongcheng,1.28,1.92,1.0,0.0,1.196,1.3439999999999999,H,,,,,,,,,,,,,,,,,,,,,,,,
 China,Super League,2026,22,2026-08-09,11:00,Henan Songshan Longmen,Qingdao West Coast,1.53,0.3,0.0,0.0,1.071,0.21,D,,,,,,,,,,,,,,,,,,,,,,,,
 China,Super League,2026,22,2026-08-09,11:35,Chongqing Tonglianglong,Shanghai Port,2.47,1.54,2.0,3.0,2.329,1.9779999999999998,A,,,,,,,,,,,,,,,,,,,,,,,,
 China,Super League,2026,22,2026-08-09,12:00,Shandong Taishan,Tianjin Jinmen Tiger,0.81,1.05,2.0,1.0,1.1669999999999998,1.035,H,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-14,11:35,Shandong Taishan,Qingdao Hainiu,3.4,1.23,3.0,1.0,3.28,1.161,H,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-14,11:35,Wuhan Three Towns,Shanghai Port,0.0,0.0,2.0,3.0,0.6,0.8999999999999999,A,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-14,12:00,Qingdao West Coast,Chongqing Tonglianglong,0.0,0.0,0.0,0.0,0.0,0.0,D,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-15,11:00,Liaoning Tieren,Shenzhen Xinpengcheng,,,1.0,2.0,,,A,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-15,11:35,Tianjin Jinmen Tiger,Beijing Guoan,,,2.0,4.0,,,A,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-15,11:35,Zhejiang Professional,Chengdu Rongcheng,,,2.0,3.0,,,A,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-15,12:00,Shanghai Shenhua,Henan Songshan Longmen,,,4.0,1.0,,,H,,,,,,,,,,,,,,,,,,,,,,,,
-China,Super League,2026,23,2026-08-15,12:00,Yunnan Yukun,Dalian Yingbo,,,3.0,1.0,,,H,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-14,11:35,Shandong Taishan,Qingdao Hainiu,3.02,1.2,3.0,1.0,3.014,1.14,H,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-14,11:35,Wuhan Three Towns,Shanghai Port,1.18,2.1,2.0,3.0,1.426,2.37,A,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-14,12:00,Qingdao West Coast,Chongqing Tonglianglong,1.61,1.03,0.0,0.0,1.127,0.721,D,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-15,11:00,Liaoning Tieren,Shenzhen Xinpengcheng,1.61,1.58,1.0,2.0,1.427,1.706,A,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-15,11:35,Tianjin Jinmen Tiger,Beijing Guoan,3.1,2.01,2.0,4.0,2.77,2.6069999999999998,A,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-15,11:35,Zhejiang Professional,Chengdu Rongcheng,2.45,2.31,2.0,3.0,2.315,2.517,A,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-15,12:00,Shanghai Shenhua,Henan Songshan Longmen,2.95,1.95,4.0,1.0,3.2649999999999997,1.665,H,,,,,,,,,,,,,,,,,,,,,,,,
+China,Super League,2026,23,2026-08-15,12:00,Yunnan Yukun,Dalian Yingbo,4.73,0.56,3.0,1.0,4.211,0.692,H,,,,,,,,,,,,,,,,,,,,,,,,
