@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-19T01:35:25+01:00"
+    "updated_at": "2026-08-19T09:57:14+01:00"
   },
   "rows": [
     {
@@ -96,6 +96,15 @@
       "away_team": "Beijing Guoan"
     },
     {
+      "fixture_id": "CSL-2026-25-2026-08-28-shanghai-shenhua-shandong-taishan",
+      "round": 25,
+      "match_date": "2026-08-28",
+      "match_time": "11:35",
+      "kickoff_at": "2026-08-28T12:35:00+01:00",
+      "home_team": "Shanghai Shenhua",
+      "away_team": "Shandong Taishan"
+    },
+    {
       "fixture_id": "CSL-2026-25-2026-08-28-shenzhen-xinpengcheng-shanghai-port",
       "round": 25,
       "match_date": "2026-08-28",
@@ -139,15 +148,6 @@
       "kickoff_at": "2026-08-29T12:35:00+01:00",
       "home_team": "Chengdu Rongcheng",
       "away_team": "Liaoning Tieren"
-    },
-    {
-      "fixture_id": "CSL-2026-25-2026-08-29-shanghai-shenhua-shandong-taishan",
-      "round": 25,
-      "match_date": "2026-08-29",
-      "match_time": "11:35",
-      "kickoff_at": "2026-08-29T12:35:00+01:00",
-      "home_team": "Shanghai Shenhua",
-      "away_team": "Shandong Taishan"
     },
     {
       "fixture_id": "CSL-2026-25-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
