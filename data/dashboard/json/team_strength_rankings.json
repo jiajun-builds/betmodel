@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-19T09:57:14+01:00"
+    "updated_at": "2026-08-19T12:38:45+01:00"
   },
   "rows": [
     {
@@ -25,7 +25,7 @@
       "team": "Beijing Guoan",
       "attack_rating": 2.061877213922883,
       "defense_rating": 1.2544869370894918,
-      "overall_rating": 0.5199932288730924,
+      "overall_rating": 0.5199932288730921,
       "attack_rank": 2,
       "defense_rank": 3,
       "form": "W,W,W,W,D",
@@ -70,7 +70,7 @@
       "team": "Shanghai Port",
       "attack_rating": 1.8506906651222508,
       "defense_rating": 1.406841593020817,
-      "overall_rating": 0.2889702669820633,
+      "overall_rating": 0.2889702669820637,
       "attack_rank": 5,
       "defense_rank": 8,
       "form": "W,W,L,W,D",
@@ -85,7 +85,7 @@
       "team": "Henan Songshan Longmen",
       "attack_rating": 1.6124864548938642,
       "defense_rating": 1.3092772371260046,
-      "overall_rating": 0.2046867565675855,
+      "overall_rating": 0.2046867565675853,
       "attack_rank": 7,
       "defense_rank": 5,
       "form": "L,D,D,W,W",
@@ -115,7 +115,7 @@
       "team": "Yunnan Yukun",
       "attack_rating": 1.6382248565946964,
       "defense_rating": 1.633068594720306,
-      "overall_rating": 0.006942751979657,
+      "overall_rating": 0.0069427519796569,
       "attack_rank": 6,
       "defense_rank": 12,
       "form": "W,W,L,W,D",
@@ -175,7 +175,7 @@
       "team": "Liaoning Tieren",
       "attack_rating": 1.4721165578809343,
       "defense_rating": 1.6708162132309516,
-      "overall_rating": -0.128032102702837,
+      "overall_rating": -0.1280321027028369,
       "attack_rank": 9,
       "defense_rank": 13,
       "form": "L,L,W,L,D",
@@ -265,7 +265,7 @@
       "team": "Changchun Yatai",
       "attack_rating": 0.9215708292487788,
       "defense_rating": 1.6919825791500742,
-      "overall_rating": -0.5652548575365308,
+      "overall_rating": -0.5652548575365309,
       "attack_rank": 18,
       "defense_rank": 14,
       "form": "L,L,D,L,D",
