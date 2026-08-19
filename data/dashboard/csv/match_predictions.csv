@@ -1,5 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-18-2026-08-18-shanghai-shenhua-beijing-guoan,18,2026-08-18,2026-08-18T12:35:00+01:00,Shanghai Shenhua,Beijing Guoan,0.499871,0.211915,0.288214,2.0005,4.7189,3.4696
 CSL-2026-18-2026-08-19-shanghai-port-dalian-yingbo,18,2026-08-19,2026-08-19T12:35:00+01:00,Shanghai Port,Dalian Yingbo,0.5893,0.210712,0.199988,1.6969,4.7458,5.0003
 CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger,24,2026-08-22,2026-08-22T12:00:00+01:00,Wuhan Three Towns,Tianjin Jinmen Tiger,0.408811,0.251436,0.339753,2.4461,3.9772,2.9433
 CSL-2026-24-2026-08-22-chengdu-rongcheng-shanghai-shenhua,24,2026-08-22,2026-08-22T12:35:00+01:00,Chengdu Rongcheng,Shanghai Shenhua,0.55527,0.212581,0.232148,1.8009,4.7041,4.3076
