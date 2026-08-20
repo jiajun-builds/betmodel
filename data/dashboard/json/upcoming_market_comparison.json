@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-19T13:21:58+01:00"
+    "updated_at": "2026-08-20T01:35:14+01:00"
   },
   "rows": [
     {
@@ -40,7 +40,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-15T12:41:32.895Z",
       "duel_open_last_update": "2026-08-15T11:49:13.303Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Chengdu Rongcheng",
@@ -77,7 +77,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-17T10:52:25.063Z",
       "duel_open_last_update": "2026-08-17T10:47:46.804Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Shenzhen Xinpengcheng",
@@ -114,7 +114,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-15T12:41:32.895Z",
       "duel_open_last_update": "2026-08-15T12:09:24.018Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Beijing Guoan",
@@ -151,7 +151,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-17T10:52:25.063Z",
       "duel_open_last_update": "2026-08-17T10:43:45.895Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Qingdao West Coast",
@@ -188,7 +188,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-15T13:09:29.338Z",
       "duel_open_last_update": "2026-08-15T12:17:27.38Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Liaoning Tieren",
@@ -225,7 +225,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-16T12:04:02.64Z",
       "duel_open_last_update": "2026-08-16T11:21:28.077Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Shanghai Port",
@@ -262,7 +262,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-16T12:27:09.553Z",
       "duel_open_last_update": "2026-08-16T11:46:35.655Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     },
     {
       "home_team": "Chongqing Tonglianglong",
@@ -299,7 +299,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-16T12:57:10.586Z",
       "duel_open_last_update": "2026-08-16T12:29:48.518Z",
-      "fetched_at": "2026-08-19T12:21:53Z"
+      "fetched_at": "2026-08-20T00:35:09Z"
     }
   ]
 }

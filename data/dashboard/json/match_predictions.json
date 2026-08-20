@@ -2,25 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-19T13:21:58+01:00",
+    "updated_at": "2026-08-20T01:35:14+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-18-2026-08-19-shanghai-port-dalian-yingbo",
-      "round": 18,
-      "match_date": "2026-08-19",
-      "kickoff_at": "2026-08-19T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Dalian Yingbo",
-      "home_win_prob": 0.589111,
-      "draw_prob": 0.210459,
-      "away_win_prob": 0.20043,
-      "home_win_fair_odds": 1.6975,
-      "draw_fair_odds": 4.7515,
-      "away_win_fair_odds": 4.9893
-    },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger",
       "round": 24,

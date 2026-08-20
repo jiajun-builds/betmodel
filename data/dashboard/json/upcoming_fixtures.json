@@ -2,18 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-19T13:21:58+01:00"
+    "updated_at": "2026-08-20T01:35:14+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-18-2026-08-19-shanghai-port-dalian-yingbo",
-      "round": 18,
-      "match_date": "2026-08-19",
-      "match_time": "11:35",
-      "kickoff_at": "2026-08-19T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Dalian Yingbo"
-    },
     {
       "fixture_id": "CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger",
       "round": 24,
