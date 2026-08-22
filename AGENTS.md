@@ -597,10 +597,19 @@ costs 2.61pp, so the same +2.15pp CLV loses into a 7.55% open and wins into a 4%
 less beats predicting better.** See roadmap #8.
 
 ## Roadmap / Open Tasks
-1. **Verify the dashboard TZ fix at runtime** — run `python -m csl.dashboard.export_dashboard_csv`
-   on the `csl-workflows` env and confirm a summer `kickoff_at` shows the London offset
-   (`+01:00`) and metadata `timezone` reads `Europe/London`. (Fix is logic-checked, not yet
-   run end-to-end.)
+1. **Verify the dashboard TZ fix at runtime — DONE (2026-08-22).** Ran
+   `python -m csl.dashboard.export_dashboard_csv` on the `csl-workflows` env: metadata
+   `timezone` reads `Europe/London`, `updated_at` is `2026-08-22T15:27:17+01:00`, and all 20
+   upcoming fixtures carry the summer offset (`kickoff_at` `2026-08-22T12:00:00+01:00`). The
+   export was otherwise a **no-op** — `team_strength_rankings.csv` differed only in float
+   last digits (~1e-16, identical ranks/ratings/form), so nothing was committed.
+
+   **Note for anyone reading these CSVs:** `match_time` is **UTC** (`11:00`) while
+   `kickoff_at` is **London-local** (`12:00:00+01:00`) — the same row carries both, an hour
+   apart in summer. That is intended, not drift: the raw CSVs store UTC (see the opening-time
+   calendar), and the front-end always reads `fmtTime(kickoff_at, match_time)` with
+   `kickoff_at` first and `match_time` only as a fallback (`site/app.js:234` documents it).
+   Display a bare `match_time` and it will be an hour early half the year.
 2. **Scheduled odds-capture pipeline — DONE (open side; close deferred to #3).**
    Delivered as four modules + a GitHub Actions workflow:
    - `snapshot_store.py` — append-only history CSV (`CHN_pinnacle_spreads_history.csv`),
