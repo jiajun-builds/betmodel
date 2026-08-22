@@ -677,7 +677,18 @@ less beats predicting better.** See roadmap #8.
    (`backtest/calibration_diagnostic.py`) and calibration was attempted (temperature scaling,
    `backtest/backtest_open_ah_calibrated.py`). Calibration does **not** create an edge: the EV
    overstatement is winner's curse, not a fixable miscalibration (see the 2026-07-13 findings).
-   Do not re-attempt "calibrate then bet the opening line" — it is a closed dead end.
+   Do not re-attempt "calibrate then bet the **Pinnacle AH** opening line" — that is a closed
+   dead end.
+
+   ⚠️ **Scope of this dead end — read before quoting it.** What is closed is *calibration as
+   the fix*, on *Pinnacle's AH open*. It is **not** a verdict on betting opening lines in
+   general, and specifically **not** on the live 1xBet/Duel direction (#8, dashboard v2.7,
+   [[onexbet-backtest-crossseason]]), which bets **1X2 opens at a cheaper book** and is the
+   project's only cross-season +EV cell (n=611, thr>0.20, gap positive in 2024/2025/2026
+   independently). The two win or lose for unrelated reasons: #4 tried to *predict better* and
+   the residual was winner's curse, which no recalibration removes; #8 *pays less vig* — the
+   same ~2–3pp signal clears 1xBet's ~1.71pp bar and fails Pinnacle's 2.61pp one. Conflating
+   them reads as "betting opens is dead", which would retire a shipped, validated edge.
 5. **Optional simplification: swap production ZIP → `PoissonGoalsModel` — SUPERSEDED.**
    Production moved ZIP → `NegBinomialGoalModel` + draw de-bias instead (v2.5, roadmap #9).
 6. **Capture-loop hardening — DONE (two gaps found 2026-07-04, field-observed on round 18):**
