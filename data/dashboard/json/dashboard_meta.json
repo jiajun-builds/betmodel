@@ -2,8 +2,8 @@
   "competition_code": "CSL",
   "competition_name": "Chinese Super League",
   "season": "2026",
-  "updated_at": "2026-08-22T01:35:01+01:00",
-  "model_updated_at": "2026-08-21T10:01:05+01:00",
+  "updated_at": "2026-08-22T09:51:30+01:00",
+  "model_updated_at": "2026-08-22T09:51:24+01:00",
   "timezone": "Europe/London",
   "last_completed_match_date": "2026-08-19",
   "next_fixture_date": "2026-08-22",
@@ -12,5 +12,5 @@
   "total_rounds": 30,
   "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
   "model_version": "v2.8",
-  "league_avg_goals": 1.4889
+  "league_avg_goals": 1.4888
 }
