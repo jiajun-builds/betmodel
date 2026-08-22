@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-22T03:00:44+00:00"
+    "updated_at": "2026-08-22T12:45:42+00:00"
   },
   "rows": [
     {
@@ -33,9 +33,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T10:31:14Z",
-      "price_age_h": 160.5,
+      "price_age_h": 170.2,
       "last_update": null,
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Guadalajara",
@@ -65,9 +65,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T10:31:14Z",
-      "price_age_h": 160.5,
+      "price_age_h": 170.2,
       "last_update": "2026-08-15T10:29:40.763Z",
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Leon",
@@ -97,9 +97,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 159.7,
+      "price_age_h": 169.5,
       "last_update": null,
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Puebla",
@@ -129,9 +129,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T10:31:14Z",
-      "price_age_h": 160.5,
+      "price_age_h": 170.2,
       "last_update": "2026-08-15T10:09:27.905Z",
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Cruz Azul",
@@ -161,9 +161,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T10:31:14Z",
-      "price_age_h": 160.5,
+      "price_age_h": 170.2,
       "last_update": "2026-08-15T10:10:28.456Z",
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Atletico San Luis",
@@ -193,9 +193,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 159.7,
+      "price_age_h": 169.5,
       "last_update": "2026-08-15T10:39:46.641Z",
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "UNAM Pumas",
@@ -225,9 +225,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 159.7,
+      "price_age_h": 169.5,
       "last_update": null,
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Necaxa",
@@ -257,9 +257,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-20T02:01:06Z",
-      "price_age_h": 49,
+      "price_age_h": 58.7,
       "last_update": "2026-08-20T01:10:51.534Z",
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Atlante",
@@ -289,9 +289,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-20T01:16:09Z",
-      "price_age_h": 49.7,
+      "price_age_h": 59.5,
       "last_update": "2026-08-20T00:59:48.014Z",
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
     },
     {
       "home_team": "Tijuana",
@@ -321,9 +321,137 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-20T02:01:06Z",
-      "price_age_h": 49,
+      "price_age_h": 58.7,
       "last_update": null,
-      "fetched_at": "2026-08-22T03:00:44Z"
+      "fetched_at": "2026-08-22T12:45:42Z"
+    },
+    {
+      "home_team": "Pachuca",
+      "away_team": "Guadalajara",
+      "round": 6,
+      "match_time": "17:00",
+      "kickoff_at": "2026-08-29T23:00:00Z",
+      "home_win_prob": 0.4048382763210046,
+      "draw_prob": 0.2746672137416645,
+      "away_win_prob": 0.320494509937331,
+      "home_odds": 2.76,
+      "draw_odds": 3.5,
+      "away_odds": 2.56,
+      "home_book": "duel",
+      "draw_book": "duel",
+      "away_book": "duel",
+      "home_ev": 11.735,
+      "draw_ev": -3.866,
+      "away_ev": -17.953,
+      "signal_pick": "home",
+      "signal_state": "bet",
+      "bookmaker": "duel",
+      "price_proof": "observed",
+      "pinnacle_home_odds": null,
+      "pinnacle_draw_odds": null,
+      "pinnacle_away_odds": null,
+      "pinnacle_last_update": null,
+      "pinnacle_fetched_at": null,
+      "price_captured_at": "2026-08-22T12:45:19Z",
+      "price_age_h": 0,
+      "last_update": "2026-08-22T12:27:49.651Z",
+      "fetched_at": "2026-08-22T12:45:42Z"
+    },
+    {
+      "home_team": "Atlas",
+      "away_team": "Queretaro",
+      "round": 6,
+      "match_time": "17:00",
+      "kickoff_at": "2026-08-29T23:00:00Z",
+      "home_win_prob": 0.4552858170665819,
+      "draw_prob": 0.2692466300993675,
+      "away_win_prob": 0.2754675528340506,
+      "home_odds": 2.08,
+      "draw_odds": 3.5,
+      "away_odds": 3.6,
+      "home_book": "duel",
+      "draw_book": "duel",
+      "away_book": "duel",
+      "home_ev": -5.301,
+      "draw_ev": -5.764,
+      "away_ev": -0.832,
+      "signal_pick": "none",
+      "signal_state": "none",
+      "bookmaker": "duel",
+      "price_proof": "observed",
+      "pinnacle_home_odds": null,
+      "pinnacle_draw_odds": null,
+      "pinnacle_away_odds": null,
+      "pinnacle_last_update": null,
+      "pinnacle_fetched_at": null,
+      "price_captured_at": "2026-08-22T12:45:19Z",
+      "price_age_h": 0,
+      "last_update": null,
+      "fetched_at": "2026-08-22T12:45:42Z"
+    },
+    {
+      "home_team": "Santos Laguna",
+      "away_team": "Tigres UANL",
+      "round": 6,
+      "match_time": "21:00",
+      "kickoff_at": "2026-08-30T03:00:00Z",
+      "home_win_prob": 0.2352267571045578,
+      "draw_prob": 0.235434375205668,
+      "away_win_prob": 0.5293388676897741,
+      "home_odds": 4.6,
+      "draw_odds": 3.95,
+      "away_odds": 1.76,
+      "home_book": "duel",
+      "draw_book": "duel",
+      "away_book": "duel",
+      "home_ev": 8.204,
+      "draw_ev": -7.003,
+      "away_ev": -6.836,
+      "signal_pick": "none",
+      "signal_state": "none",
+      "bookmaker": "duel",
+      "price_proof": "observed",
+      "pinnacle_home_odds": null,
+      "pinnacle_draw_odds": null,
+      "pinnacle_away_odds": null,
+      "pinnacle_last_update": null,
+      "pinnacle_fetched_at": null,
+      "price_captured_at": "2026-08-22T12:45:19Z",
+      "price_age_h": 0,
+      "last_update": null,
+      "fetched_at": "2026-08-22T12:45:42Z"
+    },
+    {
+      "home_team": "Toluca",
+      "away_team": "FC Juarez",
+      "round": 6,
+      "match_time": "18:00",
+      "kickoff_at": "2026-08-31T00:00:00Z",
+      "home_win_prob": 0.7187793775162619,
+      "draw_prob": 0.1668313751256565,
+      "away_win_prob": 0.1143892473580816,
+      "home_odds": 1.46,
+      "draw_odds": 4.8,
+      "away_odds": 6.6,
+      "home_book": "duel",
+      "draw_book": "duel",
+      "away_book": "duel",
+      "home_ev": 4.942,
+      "draw_ev": -19.921,
+      "away_ev": -24.503,
+      "signal_pick": "none",
+      "signal_state": "none",
+      "bookmaker": "duel",
+      "price_proof": "observed",
+      "pinnacle_home_odds": null,
+      "pinnacle_draw_odds": null,
+      "pinnacle_away_odds": null,
+      "pinnacle_last_update": null,
+      "pinnacle_fetched_at": null,
+      "price_captured_at": "2026-08-22T12:45:19Z",
+      "price_age_h": 0,
+      "last_update": null,
+      "fetched_at": "2026-08-22T12:45:42Z"
     }
   ]
 }
