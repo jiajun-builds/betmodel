@@ -9,3 +9,6 @@ data/raw_data/backups/
 data/raw_data/CHN_now_all_books.csv
 site/
 src/csl/xg/.xg_venv/
+
+# wrangler account cache, written on deploy
+tools/capture-timer/.wrangler/

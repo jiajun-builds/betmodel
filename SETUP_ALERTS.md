@@ -95,13 +95,34 @@ curl -sS -X POST \
 ```
 A `204 No Content` means it fired. Check `Actions → Capture Odds` for the run.
 
-### 2.3 Where to run the timer (pick one)
-- **cron-job.org** (no server): new cronjob, method POST, the URL + headers + body
-  above, schedule every 10 minutes. Store the PAT in its header field.
-- **Home Mac `launchd`** (already the xG-refresh host): a `.plist` running the curl on
-  a `StartInterval` of 600s. Survives as long as the Mac is awake/online.
-- **Cloudflare Worker Cron Trigger** (free): a Worker with `crons = ["*/10 * * * *"]`
-  doing the same `fetch()`; keep the PAT in a Worker secret.
+### 2.3 Where the timer runs: a Cloudflare Worker
+
+**`tools/capture-timer/`** in this repo — Worker `cslmonitor-capture-timer`, one cron
+`*/10 * * * *`, PAT in `wrangler secret put GITHUB_PAT`, `workers_dev = false` so the
+dispatch endpoint is not reachable by anyone who guesses a URL. Setup and deploy steps
+are in [`tools/capture-timer/README.md`](tools/capture-timer/README.md).
+
+It also pushes a **Telegram alert** (same bot as §1) when a dispatch stops returning 204 —
+an expired PAT is otherwise invisible, because the fallback cron below keeps every workflow
+green while capture resolution quietly degrades.
+
+**It used to be a `launchd` job on the 2015 MacBook Air, and must not go back there.** That
+host sleeps: with the job confirmed healthy on an exact 600s interval there was still an
+11h15m gap in dispatches overnight on 2026-08-21/22, and 7h39m the week before. A healthy
+`launchctl list` proves nothing about coverage — only the dispatch timestamps do:
+
+```bash
+gh run list --workflow=capture-odds.yml --event repository_dispatch -L 100 \
+  --json createdAt -q '.[].createdAt'
+```
+
+Retiring the old launchd job is a separate, MBA-side runbook:
+[`scripts/DECOMMISSION_CAPTURE_TIMER.md`](scripts/DECOMMISSION_CAPTURE_TIMER.md). Do not run
+it until the spacing check above is clean across a period when that Mac was closed.
+
+(Other hosts that would work, for the record: **cron-job.org** — a POST cronjob with the URL,
+headers and body above, PAT in its header field. Any always-on box with `cron`. The
+requirement is simply that it never sleeps.)
 
 ### 2.4 Nothing to change if you skip this
 Without the timer the workflow still runs on its `schedule` cron — just at GitHub's

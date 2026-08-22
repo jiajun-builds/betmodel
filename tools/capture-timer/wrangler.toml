@@ -1,0 +1,31 @@
+name = "cslmonitor-capture-timer"
+main = "src/worker.js"
+compatibility_date = "2026-08-22"
+
+# This Worker is a cron timer. It has no business being reachable over HTTP, and
+# leaving it reachable is expensive: the fetch handler fires repository_dispatch,
+# and a tick can spend credits against The Odds API's ~500-per-MONTH allowance.
+# Anyone who guessed the workers.dev URL could drain it. Cron triggers are
+# unaffected by both of these.
+workers_dev = false
+preview_urls = false
+
+# One cadence, one event type. Unlike the ligamxterminal timer this is a dumb
+# timer with no fixture-proximity gating: capture-odds.yml re-checks every window
+# in Python and an idle tick spends nothing, so there is nothing to gate on.
+[triggers]
+crons = ["*/10 * * * *"]
+
+# So a failing tick is visible in the dashboard and `wrangler tail`, not just in
+# the absence of GitHub runs. The 2026-08-16 outage was invisible for ~41h.
+[observability]
+enabled = true
+
+# Secrets, not vars -- set each with `wrangler secret put <NAME>`:
+#
+#   GITHUB_PAT          Fine-grained token, resource owner + repository access
+#                       limited to jiajun-builds/cslmonitor, Repository
+#                       permissions -> Contents: Read and write. That is what
+#                       authorises repository_dispatch.
+#   TELEGRAM_BOT_TOKEN  Same bot as the repo's Actions secrets. Optional: the
+#   TELEGRAM_CHAT_ID    alert no-ops if either is absent.
