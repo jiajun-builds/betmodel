@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-22T22:47:45+00:00",
+    "updated_at": "2026-08-22T22:50:53+00:00",
     "model_name": "Negative Binomial with Dixon-Coles Time Decay",
     "model_version": "v1.0"
   },
