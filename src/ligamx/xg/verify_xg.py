@@ -177,6 +177,7 @@ def reconcile(records: list, tol: float = 0.05) -> dict:
 
     matched_rows = set()
     missing, xg_diff, score_diff, no_xg = [], [], [], []
+    withdrawn = []
     meta_fill, meta_conflict = [], []
     for rec in records:
         cands = csv_by_pair.get((rec["home"], rec["away"]), [])
@@ -199,6 +200,17 @@ def reconcile(records: list, tol: float = 0.05) -> dict:
         if s_hxg is not None and s_axg is not None:
             if (c_hxg in (None, 0.0) and c_axg in (None, 0.0)) and (s_hxg or s_axg):
                 no_xg.append((hit, rec, c_hxg, c_axg))
+            elif s_hxg == 0.0 and s_axg == 0.0 and (c_hxg or c_axg):
+                # SofaScore serves 0/0 for a match we hold real xG for. Measured
+                # 2026-08-23: 678 of 1057 events, every one of them 2024 or older,
+                # and single spaced re-queries return 0/0 too -- so it is the
+                # source dropping old xG, not a throttled bulk fetch.
+                #
+                # This is NOT a disagreement to reconcile. Reported as its own
+                # category because filing it under XG_DIFF made `--fix-xg-diffs`
+                # an instruction to erase two thirds of the model's input feature
+                # with data that cannot be re-fetched from anywhere.
+                withdrawn.append((hit, rec, c_hxg, c_axg))
             elif c_hxg is not None and c_axg is not None and (
                 abs(c_hxg - s_hxg) > tol or abs(c_axg - s_axg) > tol):
                 xg_diff.append((hit, rec, c_hxg, c_axg))
@@ -223,7 +235,7 @@ def reconcile(records: list, tol: float = 0.05) -> dict:
 
     unverified = [i for i in range(len(df)) if i not in matched_rows]
     return {"df": df, "missing": missing, "xg_diff": xg_diff,
-            "score_diff": score_diff, "no_xg": no_xg,
+            "score_diff": score_diff, "no_xg": no_xg, "withdrawn": withdrawn,
             "meta_fill": meta_fill, "meta_conflict": meta_conflict,
             "unverified": unverified}
 
@@ -244,7 +256,9 @@ def apply_fix(res: dict, add_missing: bool = True, correct_xg: bool = False,
 
     correct_xg is OFF by default because it rewrites the model's input feature in
     bulk: use it to align rows onto the canonical sum-of-periods xG (see
-    ``sofascore_client.event_xg``) as a deliberate, one-off migration.
+    ``sofascore_client.event_xg``) as a deliberate, one-off migration. It will not
+    write a 0/0 over a stored non-zero value under any circumstances -- see the
+    guard below and the SOURCE_WITHDRAWN category in reconcile().
     resolve_meta_conflicts is likewise gated -- it overwrites Round/Season cells that
     already hold a different value, as opposed to merely filling blanks.
     """
@@ -252,11 +266,20 @@ def apply_fix(res: dict, add_missing: bool = True, correct_xg: bool = False,
     # writes back, or it lands in the CSV as a phantom "_d" field.
     df = res["df"].drop(columns=["_d"], errors="ignore")  # dtype=str, keep_default_na=False
     cols = list(df.columns)
-    stats = {"added": 0, "xg_corrected": 0, "meta_filled": 0, "meta_resolved": 0}
+    stats = {"added": 0, "xg_corrected": 0, "xg_refused": 0,
+             "meta_filled": 0, "meta_resolved": 0}
 
     # Correct xG in place for mis-scraped / empty-xG rows (only when explicitly asked).
     if correct_xg:
-        for hit, rec, _c1, _c2 in res["xg_diff"] + res["no_xg"]:
+        for hit, rec, c_hxg, c_axg in res["xg_diff"] + res["no_xg"]:
+            # Independent of how reconcile() classified this row: never trade a
+            # number for a zero. SofaScore has withdrawn xG for pre-2025 matches
+            # and returns 0/0 for them, and no provider sells that history back --
+            # so an overwrite here is not a correction, it is the only copy.
+            if (rec["hxg"] in (None, 0, 0.0) and rec["axg"] in (None, 0, 0.0)
+                    and (c_hxg or c_axg)):
+                stats["xg_refused"] += 1
+                continue
             df.at[hit, "HxG"] = str(rec["hxg"])
             df.at[hit, "AxG"] = str(rec["axg"])
             stats["xg_corrected"] += 1
@@ -305,6 +328,7 @@ def print_report(res: dict):
     print(f"{'='*80}")
     print(f"MISSING (in SofaScore, not in CSV):     {len(res['missing'])}")
     print(f"XG_DIFF (stored != SofaScore > tol):    {len(res['xg_diff'])}")
+    print(f"SOURCE_WITHDRAWN (SofaScore dropped xG): {len(res['withdrawn'])}")
     print(f"SCORE   (stored score != SofaScore):    {len(res['score_diff'])}")
     print(f"NO_XG   (stored 0/0, SofaScore has xG): {len(res['no_xg'])}")
     print(f"META    (blank Round/Season to fill):   {len(res['meta_fill'])}")
@@ -343,6 +367,14 @@ def print_report(res: dict):
                   f"{col}: {have!r} -> {want!r}")
         if len(res["meta_conflict"]) > 30:
             print(f"  ... and {len(res['meta_conflict']) - 30} more")
+    if res["withdrawn"]:
+        n = len(res["withdrawn"])
+        print(f"\n-- SOURCE_WITHDRAWN ({n}) --")
+        print("   SofaScore now returns 0/0 for these; the CSV holds the only copy.")
+        print("   Not a discrepancy and never overwritten. Nothing to do.")
+        span = sorted(r["date"] for _h, r, _a, _b in res["withdrawn"])
+        print(f"   Range: {span[0]} .. {span[-1]}")
+
     if res["unverified"]:
         print(f"\n-- UNVERIFIED CSV rows ({len(res['unverified'])}) --")
         for i in res["unverified"][:40]:
@@ -381,6 +413,9 @@ def main():
     if args.fix or args.fix_xg_diffs or args.fix_meta:
         stats = apply_fix(res, add_missing=True, correct_xg=args.fix_xg_diffs,
                           fill_meta=True, resolve_meta_conflicts=args.fix_meta)
+        if stats["xg_refused"]:
+            print(f"[FIX] REFUSED to overwrite {stats['xg_refused']} row(s) whose "
+                  "stored xG SofaScore no longer serves.")
         print(f"\n[FIX] added {stats['added']} missing matches, "
               f"corrected {stats['xg_corrected']} xG rows, "
               f"filled {stats['meta_filled']} blank and resolved "
