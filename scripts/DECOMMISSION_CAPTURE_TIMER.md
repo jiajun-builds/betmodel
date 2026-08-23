@@ -27,7 +27,7 @@ nobody has a copy of its plist.
 | Secrets set | ✅ | `GITHUB_PAT` (expires **2027-08-22**), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
 | Reachable over HTTP | ✅ no | `workers_dev = false`, `preview_urls = false` |
 | End-to-end proven | ✅ once | Worker logged `fired capture-tick` at `2026-08-22T13:20:16Z`; the `repository_dispatch` run was created `13:20:18Z` and finished green — 2 s latency |
-| Overnight coverage | ❓ **not yet proven** | that is Step 0 below, and it is your gate |
+| Overnight coverage | ✅ **PROVEN 2026-08-23** | 60 Worker ticks over `21:00:18Z → 06:50:18Z`, max gap **10.02 min**, zero holes, all green. Over the same 10 h *this Mac* fired 8 ticks in a 70-minute window and slept the other 8.9 h. |
 
 ### What you must do
 
@@ -35,18 +35,23 @@ nobody has a copy of its plist.
 2. Remove the launchd timer (Steps 1–3), deal with the token (Steps 4–5).
 3. Run the post-checks (Step 6) and report back.
 
-### The one thing that makes this readable
+### The one thing that makes this readable — tell the two timers apart by SECONDS
 
-**Both timers are running in parallel right now, and their timestamps separate cleanly:**
+Both timers are still running in parallel. They are distinguishable, but **not by the minute**:
 
-| Source | Lands on | Observed |
+| Source | Second of minute | Why |
 | --- | --- | --- |
-| This Mac (launchd, `StartInterval 600`) | `:x2:5x` | `13:12:58Z`, `13:02:57Z` |
-| The Worker (Cloudflare cron) | `:x0:1x` | `13:20:18Z` |
+| The Worker (Cloudflare cron) | **`:17`–`:19`**, rock steady | fires on the exact minute; ~18 s to create the run |
+| This Mac (launchd, `StartInterval 600`) | **`:39`–`:42`**, drifting ~0.3 s per tick | `StartInterval` accumulates error, and it re-phases on every reload |
 
-So in Step 0 do **not** just count runs — a healthy-looking list may be entirely *your* ticks.
-Look at where the seconds and minutes land, and specifically at what happens **after this Mac
-goes to sleep**.
+⚠️ **Do not classify by the minute.** An earlier version of this file said the Mac lands on
+`:x2` and the Worker on `:x0`. That is wrong: `StartInterval` restarts from zero whenever the
+job reloads or the Mac wakes, so the Mac's phase moves. On the night of 2026-08-22 it drifted
+onto `:x0:39` — **the same minute as the Worker** — and a minute-based rule silently credited
+8 of this Mac's ticks to the Worker. The second-of-minute is stable; the minute is not.
+
+So in Step 0 do **not** just count runs, and do not group by minute. Look at the seconds, and
+specifically at what happens **after this Mac goes to sleep**.
 
 ### Known-untested
 
@@ -104,12 +109,22 @@ The shape you are ruling out, from the night before the Worker existed:
     2026-08-21T23:53:56Z     <- last tick before the lid closed
     2026-08-22T11:09:44Z     <- first tick the next morning.  11h15m of nothing.
 
-- ✅ Ticks land on `:x0:1x` right through the night, no multi-hour gap → continue to Step 1.
-- ❌ Still a multi-hour hole overnight → **stop and report.** The Worker is not doing its job,
-  and this Mac is still the only thing keeping capture at 10 min. Leaving the old job installed
-  but tokenless is the worst possible outcome: it looks configured and does nothing.
-- ⚠️ If the only ticks you see land on `:x2:5x`, those are **this Mac's**, not the Worker's.
-  That is a fail, however healthy the list looks.
+And the shape you are looking for, measured on the night of 2026-08-22/23 — this is the
+reference result, so you have something to compare against rather than judging from scratch:
+
+    WORKER  60 ticks | 21:00:18Z -> 06:50:18Z | gap median 10.00m, MAX 10.02m, no holes
+    MBA      8 ticks | 00:10:39Z -> 01:20:42Z | silent 21:00->00:10 (3.2h) and 01:20->07:00 (5.7h)
+
+Read that second line: over a 10-hour night this Mac covered 1.2 h. That is the whole reason
+the timer moved, and it is why removing this job costs nothing.
+
+- ✅ Ticks at `:17`–`:19` run right through the night, no multi-hour gap → continue to Step 1.
+- ❌ Still a multi-hour hole in the `:17`–`:19` ticks → **stop and report.** The Worker is not
+  doing its job, and this Mac is still the only thing keeping capture at 10 min. Leaving the old
+  job installed but tokenless is the worst possible outcome: it looks configured and does nothing.
+- ⚠️ If the only ticks you see land on `:39`–`:42`, those are **this Mac's**, not the Worker's.
+  That is a fail, however healthy the list looks — and note they may share a minute with the
+  Worker's, so check the seconds.
 
 ## Step 1 — Find the job
 
