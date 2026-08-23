@@ -2,188 +2,188 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-23T03:00:55+00:00"
+    "updated_at": "2026-08-23T08:51:56+00:00"
   },
   "rows": [
     {
       "rank_overall": 1,
       "team": "Toluca",
-      "attack_rating": 0.2756590211765123,
-      "defense_rating": -0.2327272819062152,
-      "overall_rating": 0.5083863030827275,
+      "attack_rating": 0.2793080953802156,
+      "defense_rating": -0.23966077490124,
+      "overall_rating": 0.5189688702814557,
       "attack_rank": 1,
       "defense_rank": 2,
-      "form": "W,L,W,L,L"
+      "form": "W,D,W,L,W"
     },
     {
       "rank_overall": 2,
       "team": "Club America",
-      "attack_rating": 0.1105832193252767,
-      "defense_rating": -0.3349237969746566,
-      "overall_rating": 0.4455070162999333,
-      "attack_rank": 5,
+      "attack_rating": 0.1397733541758808,
+      "defense_rating": -0.3265222586035856,
+      "overall_rating": 0.4662956127794664,
+      "attack_rank": 4,
       "defense_rank": 1,
-      "form": "W,D,W,D,D"
+      "form": "W,W,W,D,W"
     },
     {
       "rank_overall": 3,
       "team": "Cruz Azul",
-      "attack_rating": 0.2069592199987474,
-      "defense_rating": -0.1966139536873362,
-      "overall_rating": 0.4035731736860836,
+      "attack_rating": 0.206198868433257,
+      "defense_rating": -0.1606641183376806,
+      "overall_rating": 0.3668629867709376,
       "attack_rank": 2,
-      "defense_rank": 3,
-      "form": "L,W,W,L,W"
+      "defense_rank": 5,
+      "form": "L,L,L,W,W"
     },
     {
       "rank_overall": 4,
       "team": "Tigres UANL",
-      "attack_rating": 0.1107432182463878,
-      "defense_rating": -0.1951272080141051,
-      "overall_rating": 0.3058704262604929,
-      "attack_rank": 4,
-      "defense_rank": 4,
-      "form": "L,D,L,L,W"
+      "attack_rating": 0.1267242464500414,
+      "defense_rating": -0.1888404254443406,
+      "overall_rating": 0.315564671894382,
+      "attack_rank": 6,
+      "defense_rank": 3,
+      "form": "W,L,L,D,L"
     },
     {
       "rank_overall": 5,
       "team": "Guadalajara",
-      "attack_rating": 0.0929103855188965,
-      "defense_rating": -0.1823074957959737,
-      "overall_rating": 0.2752178813148702,
-      "attack_rank": 8,
-      "defense_rank": 5,
-      "form": "D,W,L,L,D"
+      "attack_rating": 0.1280177471931483,
+      "defense_rating": -0.1766695833225181,
+      "overall_rating": 0.3046873305156664,
+      "attack_rank": 5,
+      "defense_rank": 4,
+      "form": "W,W,D,W,L"
     },
     {
       "rank_overall": 6,
-      "team": "UNAM Pumas",
-      "attack_rating": 0.0962458367919062,
-      "defense_rating": -0.0624394773686182,
-      "overall_rating": 0.1586853141605244,
-      "attack_rank": 7,
-      "defense_rank": 7,
-      "form": "W,W,L,W,L"
+      "team": "Monterrey",
+      "attack_rating": 0.1889307757246264,
+      "defense_rating": 0.0192127993162923,
+      "overall_rating": 0.1697179764083341,
+      "attack_rank": 3,
+      "defense_rank": 9,
+      "form": "L,W,W,L,W"
     },
     {
       "rank_overall": 7,
-      "team": "Monterrey",
-      "attack_rating": 0.1547430679229648,
-      "defense_rating": 0.0071383196961996,
-      "overall_rating": 0.1476047482267652,
-      "attack_rank": 3,
-      "defense_rank": 9,
-      "form": "W,L,W,L,W"
+      "team": "UNAM Pumas",
+      "attack_rating": 0.086097287710971,
+      "defense_rating": -0.0676722070002394,
+      "overall_rating": 0.1537694947112104,
+      "attack_rank": 7,
+      "defense_rank": 7,
+      "form": "D,W,W,L,W"
     },
     {
       "rank_overall": 8,
       "team": "Pachuca",
-      "attack_rating": -0.0152915684586254,
-      "defense_rating": -0.1528954347815709,
-      "overall_rating": 0.1376038663229455,
-      "attack_rank": 11,
+      "attack_rating": 0.0050073182553011,
+      "defense_rating": -0.1116733067895617,
+      "overall_rating": 0.11668062504486279,
+      "attack_rank": 10,
       "defense_rank": 6,
-      "form": "L,L,W,L,W"
+      "form": "L,L,L,W,L"
     },
     {
       "rank_overall": 9,
       "team": "Atlante",
-      "attack_rating": 0.1019059175209038,
-      "defense_rating": 0.0198152278713912,
-      "overall_rating": 0.0820906896495126,
-      "attack_rank": 6,
-      "defense_rank": 10,
-      "form": "W,D,L"
+      "attack_rating": -0.0230064263128938,
+      "defense_rating": -0.0478259984248638,
+      "overall_rating": 0.024819572111969997,
+      "attack_rank": 11,
+      "defense_rank": 8,
+      "form": "L,D,W,D,L"
     },
     {
       "rank_overall": 10,
       "team": "Tijuana",
-      "attack_rating": 0.0223788442557209,
-      "defense_rating": -0.0019311273231053,
-      "overall_rating": 0.024309971578826202,
-      "attack_rank": 9,
-      "defense_rank": 8,
-      "form": "D,W,W,D,W"
+      "attack_rating": 0.0546509238391296,
+      "defense_rating": 0.0347845176625534,
+      "overall_rating": 0.0198664061765762,
+      "attack_rank": 8,
+      "defense_rank": 11,
+      "form": "L,W,D,W,W"
     },
     {
       "rank_overall": 11,
       "team": "Necaxa",
-      "attack_rating": 0.0086387603161931,
-      "defense_rating": 0.1096083366582641,
-      "overall_rating": -0.100969576342071,
-      "attack_rank": 10,
-      "defense_rank": 14,
-      "form": "L,W,W,L,D"
+      "attack_rating": 0.0183696753286181,
+      "defense_rating": 0.1325520266303544,
+      "overall_rating": -0.11418235130173629,
+      "attack_rank": 9,
+      "defense_rank": 15,
+      "form": "L,L,W,W,L"
     },
     {
       "rank_overall": 12,
       "team": "Atletico San Luis",
-      "attack_rating": -0.0297722305942264,
-      "defense_rating": 0.0966075965086436,
-      "overall_rating": -0.12637982710287,
+      "attack_rating": -0.0373520547000669,
+      "defense_rating": 0.11491229019622,
+      "overall_rating": -0.1522643448962869,
       "attack_rank": 12,
-      "defense_rank": 13,
-      "form": "D,D,L,L,W"
+      "defense_rank": 14,
+      "form": "L,D,D,L,L"
     },
     {
       "rank_overall": 13,
       "team": "Atlas",
-      "attack_rating": -0.1655156936082895,
-      "defense_rating": 0.0666431978088159,
-      "overall_rating": -0.23215889141710538,
+      "attack_rating": -0.1224210156392546,
+      "defense_rating": 0.0511644143776447,
+      "overall_rating": -0.1735854300168993,
       "attack_rank": 15,
       "defense_rank": 12,
-      "form": "L,W,W,L,L"
+      "form": "W,W,L,W,W"
     },
     {
       "rank_overall": 14,
-      "team": "FC Juarez",
-      "attack_rating": -0.0846498313654733,
-      "defense_rating": 0.1583265182051746,
-      "overall_rating": -0.2429763495706479,
-      "attack_rank": 13,
-      "defense_rank": 16,
-      "form": "L,L,L,W,L"
+      "team": "Leon",
+      "attack_rating": -0.1019530944786404,
+      "defense_rating": 0.101669908960655,
+      "overall_rating": -0.2036230034392954,
+      "attack_rank": 14,
+      "defense_rank": 13,
+      "form": "W,W,W,L,L"
     },
     {
       "rank_overall": 15,
-      "team": "Leon",
-      "attack_rating": -0.1355287781933273,
-      "defense_rating": 0.1219111531705057,
-      "overall_rating": -0.257439931363833,
-      "attack_rank": 14,
-      "defense_rank": 15,
-      "form": "W,L,L,L,L"
+      "team": "Queretaro",
+      "attack_rating": -0.2052280471384908,
+      "defense_rating": 0.0199893959555743,
+      "overall_rating": -0.2252174430940651,
+      "attack_rank": 17,
+      "defense_rank": 10,
+      "form": "L,D,W,W,L"
     },
     {
       "rank_overall": 16,
-      "team": "Queretaro",
-      "attack_rating": -0.2148860439700007,
-      "defense_rating": 0.0464600361366484,
-      "overall_rating": -0.26134608010664906,
-      "attack_rank": 17,
-      "defense_rank": 11,
-      "form": "W,W,L,W,D"
+      "team": "FC Juarez",
+      "attack_rating": -0.0717079571431517,
+      "defense_rating": 0.2024571122404085,
+      "overall_rating": -0.2741650693835602,
+      "attack_rank": 13,
+      "defense_rank": 17,
+      "form": "L,L,L,L,L"
     },
     {
       "rank_overall": 17,
-      "team": "Santos Laguna",
-      "attack_rating": -0.1734593776156608,
-      "defense_rating": 0.2796894841705568,
-      "overall_rating": -0.4531488617862176,
-      "attack_rank": 16,
-      "defense_rank": 18,
-      "form": "L,L,L,W,L"
+      "team": "Puebla",
+      "attack_rating": -0.2417844860121511,
+      "defense_rating": 0.1757706775085339,
+      "overall_rating": -0.417555163520685,
+      "attack_rank": 18,
+      "defense_rank": 16,
+      "form": "W,W,D,L,W"
     },
     {
       "rank_overall": 18,
-      "team": "Puebla",
-      "attack_rating": -0.3237380554803782,
-      "defense_rating": 0.1597862912816684,
-      "overall_rating": -0.4835243467620466,
-      "attack_rank": 18,
-      "defense_rank": 17,
-      "form": "D,L,W,L,L"
+      "team": "Santos Laguna",
+      "attack_rating": -0.1686244909917784,
+      "defense_rating": 0.2841892167603939,
+      "overall_rating": -0.4528137077521723,
+      "attack_rank": 16,
+      "defense_rank": 18,
+      "form": "L,L,L,L,L"
     }
   ]
 }
