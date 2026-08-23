@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-23T13:12:23+01:00"
+    "updated_at": "2026-08-23T13:17:50+01:00"
   },
   "rows": [
     {
@@ -40,7 +40,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-22T12:35:41.933Z",
       "duel_open_last_update": "2026-08-22T12:44:57.302Z",
-      "fetched_at": "2026-08-23T08:51:34Z"
+      "fetched_at": "2026-08-23T12:17:43Z"
     },
     {
       "home_team": "Shenzhen Xinpengcheng",
@@ -50,34 +50,34 @@
       "draw_prob": 0.2519954738677024,
       "away_win_prob": 0.4819021513386177,
       "debias_method": "market_anchor",
-      "onexbet_open_home_odds": null,
-      "onexbet_open_draw_odds": null,
-      "onexbet_open_away_odds": null,
-      "onexbet_open_home_ev": null,
-      "onexbet_open_draw_ev": null,
-      "onexbet_open_away_ev": null,
-      "duel_open_home_odds": null,
-      "duel_open_draw_odds": null,
-      "duel_open_away_odds": null,
-      "duel_open_home_ev": null,
-      "duel_open_draw_ev": null,
-      "duel_open_away_ev": null,
-      "best_open_home_odds": null,
-      "best_open_draw_odds": null,
-      "best_open_away_odds": null,
-      "best_open_home_ev": null,
-      "best_open_draw_ev": null,
-      "best_open_away_ev": null,
-      "best_open_home_book": null,
-      "best_open_draw_book": null,
-      "best_open_away_book": null,
+      "onexbet_open_home_odds": 3.22,
+      "onexbet_open_draw_odds": 3.82,
+      "onexbet_open_away_odds": 2.07,
+      "onexbet_open_home_ev": -0.1431503531643509,
+      "onexbet_open_draw_ev": -0.0373772898253769,
+      "onexbet_open_away_ev": -0.0024625467290613,
+      "duel_open_home_odds": 3.35,
+      "duel_open_draw_odds": 3.9,
+      "duel_open_away_odds": 2.1,
+      "duel_open_home_ev": -0.1085570444411725,
+      "duel_open_draw_ev": -0.0172176519159606,
+      "duel_open_away_ev": 0.0119945178110973,
+      "best_open_home_odds": 3.35,
+      "best_open_draw_odds": 3.9,
+      "best_open_away_odds": 2.1,
+      "best_open_home_ev": -0.1085570444411725,
+      "best_open_draw_ev": -0.0172176519159606,
+      "best_open_away_ev": 0.0119945178110973,
+      "best_open_home_book": "duel",
+      "best_open_draw_book": "duel",
+      "best_open_away_book": "duel",
       "signal_pick": null,
       "signal_state": null,
       "signal_book": null,
       "signal_books": null,
-      "onexbet_open_last_update": null,
-      "duel_open_last_update": null,
-      "fetched_at": null
+      "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
+      "duel_open_last_update": "2026-08-23T12:08:58.671Z",
+      "fetched_at": "2026-08-23T12:17:43Z"
     },
     {
       "home_team": "Qingdao Hainiu",
@@ -87,12 +87,12 @@
       "draw_prob": 0.2793558267055278,
       "away_win_prob": 0.2749052132537642,
       "debias_method": "market_anchor",
-      "onexbet_open_home_odds": null,
-      "onexbet_open_draw_odds": null,
-      "onexbet_open_away_odds": null,
-      "onexbet_open_home_ev": null,
-      "onexbet_open_draw_ev": null,
-      "onexbet_open_away_ev": null,
+      "onexbet_open_home_odds": 2.625,
+      "onexbet_open_draw_odds": 3.42,
+      "onexbet_open_away_odds": 2.625,
+      "onexbet_open_home_ev": 0.1700647701068582,
+      "onexbet_open_draw_ev": -0.0446030726670948,
+      "onexbet_open_away_ev": -0.2783738152088689,
       "duel_open_home_odds": 2.68,
       "duel_open_draw_odds": 3.5,
       "duel_open_away_odds": 2.68,
@@ -112,9 +112,9 @@
       "signal_state": null,
       "signal_book": null,
       "signal_books": null,
-      "onexbet_open_last_update": null,
+      "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
       "duel_open_last_update": "2026-08-23T11:46:48.988Z",
-      "fetched_at": null
+      "fetched_at": "2026-08-23T12:17:43Z"
     },
     {
       "home_team": "Tianjin Jinmen Tiger",
@@ -151,7 +151,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-22T12:35:41.933Z",
       "duel_open_last_update": "2026-08-22T12:23:48.006Z",
-      "fetched_at": "2026-08-23T08:51:34Z"
+      "fetched_at": "2026-08-23T12:17:43Z"
     },
     {
       "home_team": "Zhejiang Professional",
@@ -188,7 +188,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-22T12:35:41.933Z",
       "duel_open_last_update": "2026-08-22T12:31:51.27Z",
-      "fetched_at": "2026-08-23T08:51:34Z"
+      "fetched_at": "2026-08-23T12:17:43Z"
     },
     {
       "home_team": "Chengdu Rongcheng",
@@ -225,7 +225,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
       "duel_open_last_update": "2026-08-23T11:16:38.284Z",
-      "fetched_at": null
+      "fetched_at": "2026-08-23T12:17:43Z"
     }
   ]
 }
