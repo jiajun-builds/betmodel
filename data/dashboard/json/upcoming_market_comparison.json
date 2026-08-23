@@ -2,73 +2,9 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-23T00:50:48+00:00"
+    "updated_at": "2026-08-23T01:00:51+00:00"
   },
   "rows": [
-    {
-      "home_team": "Leon",
-      "away_team": "Monterrey",
-      "round": 5,
-      "match_time": "19:00",
-      "kickoff_at": "2026-08-23T01:00:00Z",
-      "home_win_prob": 0.3379546979336827,
-      "draw_prob": 0.2442871642557,
-      "away_win_prob": 0.4177581378106172,
-      "home_odds": 2.96,
-      "draw_odds": 3.65,
-      "away_odds": 2.32,
-      "home_book": "duel",
-      "draw_book": "duel",
-      "away_book": "duel",
-      "home_ev": 0.035,
-      "draw_ev": -10.835,
-      "away_ev": -3.08,
-      "signal_pick": "none",
-      "signal_state": "none",
-      "bookmaker": "duel",
-      "price_proof": "observed",
-      "pinnacle_home_odds": null,
-      "pinnacle_draw_odds": null,
-      "pinnacle_away_odds": null,
-      "pinnacle_last_update": null,
-      "pinnacle_fetched_at": null,
-      "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 181.6,
-      "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
-    },
-    {
-      "home_team": "Puebla",
-      "away_team": "Santos Laguna",
-      "round": 5,
-      "match_time": "19:00",
-      "kickoff_at": "2026-08-23T01:00:00Z",
-      "home_win_prob": 0.4497103732415801,
-      "draw_prob": 0.2552180778480823,
-      "away_win_prob": 0.2950715489103375,
-      "home_odds": 2.52,
-      "draw_odds": 3.65,
-      "away_odds": 2.7,
-      "home_book": "duel",
-      "draw_book": "duel",
-      "away_book": "duel",
-      "home_ev": 13.327,
-      "draw_ev": -6.845,
-      "away_ev": -20.331,
-      "signal_pick": "home",
-      "signal_state": "bet",
-      "bookmaker": "duel",
-      "price_proof": "observed",
-      "pinnacle_home_odds": null,
-      "pinnacle_draw_odds": null,
-      "pinnacle_away_odds": null,
-      "pinnacle_last_update": null,
-      "pinnacle_fetched_at": null,
-      "price_captured_at": "2026-08-15T10:31:14Z",
-      "price_age_h": 182.3,
-      "last_update": "2026-08-15T10:09:27.905Z",
-      "fetched_at": "2026-08-23T00:50:48Z"
-    },
     {
       "home_team": "Cruz Azul",
       "away_team": "Atlas",
@@ -97,9 +33,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T10:31:14Z",
-      "price_age_h": 182.3,
+      "price_age_h": 182.5,
       "last_update": "2026-08-15T10:10:28.456Z",
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Atletico San Luis",
@@ -129,9 +65,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 181.6,
+      "price_age_h": 181.7,
       "last_update": "2026-08-15T10:39:46.641Z",
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "UNAM Pumas",
@@ -161,9 +97,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-15T11:16:04Z",
-      "price_age_h": 181.6,
+      "price_age_h": 181.7,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Necaxa",
@@ -193,9 +129,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-20T02:01:06Z",
-      "price_age_h": 70.8,
+      "price_age_h": 71,
       "last_update": "2026-08-20T01:10:51.534Z",
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Atlante",
@@ -225,9 +161,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-20T01:16:09Z",
-      "price_age_h": 71.6,
+      "price_age_h": 71.7,
       "last_update": "2026-08-20T00:59:48.014Z",
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Tijuana",
@@ -257,9 +193,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-20T02:01:06Z",
-      "price_age_h": 70.8,
+      "price_age_h": 71,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Pachuca",
@@ -289,9 +225,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 12.1,
+      "price_age_h": 12.3,
       "last_update": "2026-08-22T12:27:49.651Z",
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Atlas",
@@ -321,9 +257,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 12.1,
+      "price_age_h": 12.3,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Club America",
@@ -353,9 +289,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-22T15:15:31Z",
-      "price_age_h": 9.6,
+      "price_age_h": 9.8,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Santos Laguna",
@@ -385,9 +321,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 12.1,
+      "price_age_h": 12.3,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Toluca",
@@ -417,9 +353,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 12.1,
+      "price_age_h": 12.3,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     },
     {
       "home_team": "Monterrey",
@@ -449,9 +385,9 @@
       "pinnacle_last_update": null,
       "pinnacle_fetched_at": null,
       "price_captured_at": "2026-08-22T13:45:35Z",
-      "price_age_h": 11.1,
+      "price_age_h": 11.3,
       "last_update": null,
-      "fetched_at": "2026-08-23T00:50:48Z"
+      "fetched_at": "2026-08-23T01:00:50Z"
     }
   ]
 }
