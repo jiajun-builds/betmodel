@@ -1,9 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger,24,2026-08-22,2026-08-22T12:00:00+01:00,Wuhan Three Towns,Tianjin Jinmen Tiger,0.408285,0.250949,0.340766,2.4493,3.9849,2.9346
-CSL-2026-24-2026-08-22-chengdu-rongcheng-shanghai-shenhua,24,2026-08-22,2026-08-22T12:35:00+01:00,Chengdu Rongcheng,Shanghai Shenhua,0.556105,0.214141,0.229755,1.7982,4.6698,4.3525
-CSL-2026-24-2026-08-22-shenzhen-xinpengcheng-zhejiang-professional,24,2026-08-22,2026-08-22T12:35:00+01:00,Shenzhen Xinpengcheng,Zhejiang Professional,0.348209,0.238125,0.413666,2.8718,4.1995,2.4174
-CSL-2026-24-2026-08-22-beijing-guoan-yunnan-yukun,24,2026-08-22,2026-08-22T13:00:00+01:00,Beijing Guoan,Yunnan Yukun,0.676533,0.16982,0.153647,1.4781,5.8886,6.5084
-CSL-2026-24-2026-08-22-qingdao-west-coast-shandong-taishan,24,2026-08-22,2026-08-22T13:00:00+01:00,Qingdao West Coast,Shandong Taishan,0.361933,0.239244,0.398822,2.7629,4.1798,2.5074
 CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen,24,2026-08-23,2026-08-23T12:00:00+01:00,Liaoning Tieren,Henan Songshan Longmen,0.364245,0.241494,0.394261,2.7454,4.1409,2.5364
 CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu,24,2026-08-23,2026-08-23T12:35:00+01:00,Shanghai Port,Qingdao Hainiu,0.666815,0.17879,0.154395,1.4997,5.5932,6.4769
 CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo,24,2026-08-23,2026-08-23T13:00:00+01:00,Chongqing Tonglianglong,Dalian Yingbo,0.384221,0.298215,0.317564,2.6027,3.3533,3.149

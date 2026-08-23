@@ -1,9 +1,4 @@
 fixture_id,round,match_date,match_time,kickoff_at,home_team,away_team
-CSL-2026-24-2026-08-22-wuhan-three-towns-tianjin-jinmen-tiger,24,2026-08-22,11:00,2026-08-22T12:00:00+01:00,Wuhan Three Towns,Tianjin Jinmen Tiger
-CSL-2026-24-2026-08-22-chengdu-rongcheng-shanghai-shenhua,24,2026-08-22,11:35,2026-08-22T12:35:00+01:00,Chengdu Rongcheng,Shanghai Shenhua
-CSL-2026-24-2026-08-22-shenzhen-xinpengcheng-zhejiang-professional,24,2026-08-22,11:35,2026-08-22T12:35:00+01:00,Shenzhen Xinpengcheng,Zhejiang Professional
-CSL-2026-24-2026-08-22-beijing-guoan-yunnan-yukun,24,2026-08-22,12:00,2026-08-22T13:00:00+01:00,Beijing Guoan,Yunnan Yukun
-CSL-2026-24-2026-08-22-qingdao-west-coast-shandong-taishan,24,2026-08-22,12:00,2026-08-22T13:00:00+01:00,Qingdao West Coast,Shandong Taishan
 CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen,24,2026-08-23,11:00,2026-08-23T12:00:00+01:00,Liaoning Tieren,Henan Songshan Longmen
 CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu,24,2026-08-23,11:35,2026-08-23T12:35:00+01:00,Shanghai Port,Qingdao Hainiu
 CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo,24,2026-08-23,12:00,2026-08-23T13:00:00+01:00,Chongqing Tonglianglong,Dalian Yingbo
