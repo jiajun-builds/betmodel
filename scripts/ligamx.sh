@@ -77,6 +77,92 @@ run_pipeline() {
   printf '\nAll steps completed in %s\n' "$(format_duration "$elapsed")"
 }
 
+# Paths the pipeline owns. Explicit and never `git add -A`: the working tree can
+# carry unrelated edits -- a half-finished script, a scratch file, a hand xG
+# correction still being checked -- and sweeping those into an unattended commit
+# publishes work nobody read. Everything else the run touches (site/,
+# data/output_data/, MEX_pinnacle_h2h.csv) is gitignored and regenerable.
+PUBLISH_PATHS=(
+  data/MEX_ligamx.csv
+  data/MEX_upcoming_fixtures.csv
+  data/MEX_fixtures_meta.json
+  data/dashboard/json
+  models/MEX_team_stats.csv
+  models/MEX_team_stats_match_simulations.csv
+  models/MEX_model_meta.json
+)
+
+# Commit the pipeline's output and push it, rebasing onto whatever CI pushed while
+# we were running.
+#
+# NO `[skip ci]` here, deliberately. These paths include data/dashboard/json/**,
+# which is exactly what deploy-pages.yml triggers on -- with the suffix the JSON
+# lands on main and the published board never rebuilds, and the two silently
+# disagree. capture-odds.yml's ticks may skip CI because nothing watches their
+# files; this commit is the opposite case.
+#
+# The retry exists because the capture workflow pushes to main every few minutes,
+# so a push racing one of its commits is normal rather than exceptional.
+ligamx_publish() {
+  local branch attempt=0
+  local max_attempts=3
+
+  if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    printf 'Not a git repository; skipping publish.\n' >&2
+    return 0
+  fi
+
+  branch="$(git rev-parse --abbrev-ref HEAD)"
+  if [ "$branch" = "HEAD" ]; then
+    printf 'Detached HEAD; refusing to publish. Check out a branch and push by hand.\n' >&2
+    return 1
+  fi
+
+  # `--` so a path that does not exist yet cannot be read as a revision.
+  git add -- "${PUBLISH_PATHS[@]}"
+
+  if git diff --cached --quiet; then
+    printf '\nNothing to publish: the run reproduced what is already committed.\n'
+    return 0
+  fi
+
+  printf '\nPublishing:\n'
+  git diff --cached --stat | sed 's/^/  /'
+
+  # Every run commits, including one that found nothing new: the freshness stamps
+  # have to reach the published board or it reports STALE despite having just been
+  # refreshed. So the message distinguishes the two instead, and MEX_ligamx.csv is
+  # what it asks -- that file moves only when a match, a score or an xG figure did.
+  local subject="chore(data): refresh via ligamx.sh all"
+  if git diff --cached --quiet -- data/MEX_ligamx.csv; then
+    subject="chore(data): confirm freshness (no new results)"
+  fi
+  git commit -q -m "$subject"
+
+  while [ "$attempt" -lt "$max_attempts" ]; do
+    if git push origin "$branch" 2>&1 | sed 's/^/  /'; then
+      printf 'Pushed to origin/%s.\n' "$branch"
+      return 0
+    fi
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      break
+    fi
+    printf 'Push rejected (CI likely pushed first); rebasing and retrying (%d/%d)...\n' \
+      "$attempt" "$max_attempts"
+    # --autostash so an unrelated dirty file cannot abort the rebase; the commit
+    # itself is already made, so nothing of the run is at risk here.
+    if ! git pull --rebase --autostash origin "$branch" 2>&1 | sed 's/^/  /'; then
+      printf 'Rebase failed. The refresh is committed locally; resolve and push by hand.\n' >&2
+      return 1
+    fi
+  done
+
+  printf 'Push failed after %d attempts. The refresh is committed locally and safe;\n' "$max_attempts" >&2
+  printf 'run `git push origin %s` once the network or the conflict is sorted.\n' "$branch" >&2
+  return 1
+}
+
 # --- commands ---------------------------------------------------------------
 
 # Fetch fixtures/results/upcoming + xG from SofaScore, then blend HExpG+/AExpG+,
@@ -157,7 +243,15 @@ cmd_publish() {
     "./scripts/build_dashboard_site.sh"
 }
 
+# Runs the whole pipeline and publishes the result. `--no-push` stops at the
+# working tree, for when you want to inspect a run before it reaches the board.
 cmd_all() {
+  local push=1
+  if [ "${1:-}" = "--no-push" ]; then
+    push=0
+    shift
+  fi
+
   ligamx_require_env THE_ODDS_API_KEY || return 1
 
   run_pipeline "Full Liga MX workflow" \
@@ -171,6 +265,12 @@ cmd_all() {
     "./scripts/build_dashboard_site.sh"
 
   printf 'site/ is ready for GitHub Pages deploy.\n'
+
+  if [ "$push" -eq 1 ]; then
+    ligamx_publish
+  else
+    printf '\n--no-push: leaving the refresh uncommitted in the working tree.\n'
+  fi
 }
 
 show_help() {
@@ -186,11 +286,12 @@ Commands:
   odds       Fetch Pinnacle 1X2 odds (needs THE_ODDS_API_KEY)
   capture    One odds-capture tick: openers + pre-kickoff closes
   publish    Rebuild market comparison, dashboard and site/
-  all        update -> model -> odds -> publish
+  all        update -> model -> odds -> publish -> commit + push
+             (add --no-push to stop at the working tree)
   help       Show this message
 
 When to use what:
-  After a matchday       all
+  After a matchday       all         (commits and pushes; Pages redeploys)
   Data looks wrong       verify-xg   (then --fix to repair)
   Hand-edited the CSV    recompute -> model -> publish
   Only rebuilding site/  publish     (offline, spends no odds credit)
@@ -212,7 +313,7 @@ case "${1:-help}" in
   odds) shift; cmd_odds ;;
   capture) shift; cmd_capture "$@" ;;
   publish) shift; cmd_publish ;;
-  all) shift; cmd_all ;;
+  all) shift; cmd_all "$@" ;;
   help | -h | --help) show_help ;;
   *)
     echo "Unknown command: $1" >&2
