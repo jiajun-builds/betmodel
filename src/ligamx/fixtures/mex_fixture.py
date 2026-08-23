@@ -18,7 +18,7 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-from ligamx import config, paths
+from ligamx import config, paths, stage_meta
 from ligamx.sofascore_client import SofascoreClient, event_goals, round_label
 from ligamx.xg.data_updater import DataUpdater
 from ligamx.date_utils import parse_date_only_series
@@ -155,6 +155,12 @@ def run():
         w.writeheader()
         w.writerows(upcoming_rows)
     print(f"Wrote {len(upcoming_rows)} upcoming fixtures -> {out}")
+
+    # Only a real SofaScore round-trip may move this: it is what the dashboard
+    # shows as the age of the fixture list, and CI (which cannot reach SofaScore)
+    # re-exports that dashboard several times an hour. See ligamx.stage_meta.
+    stamped = stage_meta.stamp(paths.fixtures_meta_json(), "fixtures_updated_at")
+    print(f"Fixture-fetch timestamp recorded: {stamped}")
 
     if unmapped:
         print("\n[WARN] Unmapped SofaScore team names (add rows to ligamx_team_name_mapping.csv):")

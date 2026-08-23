@@ -227,7 +227,8 @@ function renderStrength(rows) {
 function renderContext(m) {
   const rows = [
     ["Competition", m.competition_name], ["Season", m.season],
-    ["Last Update", m.updated_at], ["Model Update", m.model_updated_at],
+    ["Export Run", m.updated_at], ["Fixtures Fetched", m.fixtures_updated_at],
+    ["Model Refit", m.model_updated_at],
     ["Timezone", DISPLAY_TZ], ["Last Completed", m.last_completed_match_date],
     ["Next Fixture", m.next_fixture_date], ["Model Name", m.model_name],
     ["Version", m.model_version], ["Matches Played", m.matches_played],
@@ -235,11 +236,47 @@ function renderContext(m) {
   el.contextBody.innerHTML = rows.map(([k, v]) => `<div class="meta__row"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
 }
 
+/* ---------- DATA FRESHNESS ----------
+   `updated_at` says when the JSON was written, which CI redoes after every odds
+   capture; it is current by construction and so cannot reveal staleness. Only
+   `fixtures_updated_at` moves when SofaScore was actually polled, and that runs
+   on a residential IP by hand -- so this is the field that goes stale silently.
+   Liga MX plays roughly twice a week, so three days without a fetch means the
+   table is probably missing results already. */
+const STALE_AFTER_DAYS = 3;
+
+function ageInDays(stamp) {
+  if (!stamp) return null;
+  const t = new Date(stamp).getTime();
+  if (Number.isNaN(t)) return null;
+  return (Date.now() - t) / 86400000;
+}
+
+function renderFreshness(meta) {
+  const banner = document.getElementById("stale-banner");
+  if (!banner) return;
+
+  const days = ageInDays(meta.fixtures_updated_at);
+  let msg = null;
+  if (days == null) {
+    // No stamp at all: the age is unknown, which is not the same as fresh and
+    // must not be shown as it.
+    msg = "Fixture list age unknown -- no fetch has been recorded. Results and kickoff times may be out of date.";
+  } else if (days >= STALE_AFTER_DAYS) {
+    const n = Math.floor(days);
+    msg = `Fixtures last fetched ${n} day${n === 1 ? "" : "s"} ago (${fmtStamp(meta.fixtures_updated_at)}). Recent results and kickoff times may be missing.`;
+  }
+
+  banner.hidden = msg == null;
+  if (msg) setText("stale-msg", msg);
+}
+
 /* ---------- HEADER + KPI ---------- */
 function renderHeader(meta, fixtures, predictions, strength, market, marketFetched) {
   setText("masthead-trail", `${meta.competition_name} · Season ${meta.season} · ${meta.model_name} · ${meta.model_version}`);
   setText("masthead-next-date", meta.next_fixture_date);
   setText("masthead-updated", fmtStamp(meta.updated_at));
+  renderFreshness(meta);
   setText("played", String(meta.matches_played));
   setText("round-label", `${meta.current_round}/${meta.total_rounds}`);
   if (el.roundFill) el.roundFill.style.width = `${Math.round((meta.current_round / meta.total_rounds) * 100)}%`;

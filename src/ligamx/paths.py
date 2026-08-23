@@ -143,8 +143,19 @@ def match_simulations_csv() -> str:
 
 
 def model_meta_json() -> str:
-    """Sidecar recording when the model was last (re)fit."""
+    """Sidecar recording when the model was last (re)fit. See ligamx.stage_meta."""
     return os.path.join(models_dir(), "MEX_model_meta.json")
+
+
+def fixtures_meta_json() -> str:
+    """Sidecar recording when fixtures/results were last fetched from SofaScore.
+
+    Separate from the model's because the two stages go stale independently: CI
+    can never refresh either (SofaScore blocks datacenter IPs), but a local
+    `recompute -> model` run advances the model without touching the fixture list.
+    See ligamx.stage_meta.
+    """
+    return os.path.join(data_dir(), "MEX_fixtures_meta.json")
 
 
 # --- dashboard datasets (site serves the json/ tree) ------------------------

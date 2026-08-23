@@ -256,3 +256,27 @@ td.c-grp { border-left: 1px solid var(--border-2); }
   .panel__bar { flex-wrap: wrap; row-gap: 4px; }
   .panel__meta { flex: 1 1 100%; text-align: left; white-space: normal; }
 }
+
+/* ---------- DATA FRESHNESS BANNER ----------
+   Shown only when the fixture list is old or its age is unknown. The dashboard's
+   own "UPDATED" clock is refreshed by every CI odds capture, so it cannot carry
+   this warning -- it is always current even when the fixtures behind it are not. */
+.stale {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 158, 44, 0.08);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.stale[hidden] { display: none; }
+.stale__tag {
+  padding: 1px 6px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.stale__msg { color: var(--text); }

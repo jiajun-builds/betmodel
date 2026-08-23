@@ -30,6 +30,12 @@
         </div>
       </header>
 
+      <!-- DATA FRESHNESS -- hidden while the fixture list is current -->
+      <div class="stale" id="stale-banner" hidden>
+        <span class="stale__tag">STALE</span>
+        <span class="stale__msg" data-bind="stale-msg"></span>
+      </div>
+
       <!-- FUNCTION TABS -->
       <nav class="tabs" aria-label="Views">
         <button type="button" class="tab tab--active" data-view-target="overview" aria-current="page"><span class="tab__f">F1</span> OVERVIEW</button>

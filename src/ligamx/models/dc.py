@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from penaltyblog.models import dixon_coles_weights
 
-from ligamx import paths
+from ligamx import paths, stage_meta
 from ligamx.models.continuous_poisson import fit_continuous_poisson
 from ligamx.date_utils import parse_date_only_series
 
@@ -260,6 +260,11 @@ def run_goals_model(input_csv_path, output_csv_path):
 
 def main():
     run_goals_model(paths.ligamx_data_csv(), paths.team_stats_csv())
+    # Stamped only on success, and only here: the dashboard reports this as
+    # "model last refit", so an export that merely re-read the CSVs must not
+    # move it. See ligamx.stage_meta.
+    stamped = stage_meta.stamp(paths.model_meta_json(), "model_updated_at")
+    print(f"Model timestamp recorded: {stamped}")
 
 
 if __name__ == "__main__":

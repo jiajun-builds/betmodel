@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from ligamx import paths
+from ligamx import paths, stage_meta
 from ligamx.date_utils import parse_date_only_series
 
 COMPETITION_CODE = "MEX"
@@ -93,15 +93,6 @@ def _records(df: pd.DataFrame) -> list:
     return [{k: _clean(v) for k, v in row.items()} for row in df.to_dict("records")]
 
 
-def _read_model_updated_at(default: str) -> str:
-    try:
-        with open(paths.model_meta_json(), encoding="utf-8") as fh:
-            val = json.load(fh).get("model_updated_at")
-        return str(val) if val else default
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return default
-
-
 def _form_map(matches: pd.DataFrame) -> dict:
     played = matches.copy()
     played["_d"] = parse_date_only_series(played["Date"])
@@ -137,7 +128,12 @@ def run() -> None:
 
     now_utc = datetime.now(timezone.utc)
     updated_at = now_utc.isoformat(timespec="seconds")
-    model_updated_at = _read_model_updated_at(updated_at)
+    # These three answer different questions and must not be collapsed:
+    # updated_at is when this export ran (CI re-runs it after every odds
+    # capture), while the other two are when their stage last really ran. Null
+    # when never stamped -- an unknown age must not render as a fresh one.
+    model_updated_at = stage_meta.read(paths.model_meta_json(), "model_updated_at")
+    fixtures_updated_at = stage_meta.read(paths.fixtures_meta_json(), "fixtures_updated_at")
 
     # ---- upcoming fixtures -------------------------------------------------
     up = upcoming.copy()
@@ -234,6 +230,7 @@ def run() -> None:
         "season": season,
         "updated_at": updated_at,
         "model_updated_at": model_updated_at,
+        "fixtures_updated_at": fixtures_updated_at,
         "timezone": DISPLAY_TZ,
         "last_completed_match_date": last_completed.strftime("%Y-%m-%d") if pd.notna(last_completed) else None,
         "next_fixture_date": next_fixture_date,
