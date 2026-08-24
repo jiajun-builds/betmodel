@@ -2,36 +2,9 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-23T13:52:26+01:00"
+    "updated_at": "2026-08-24T01:36:57+01:00"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen",
-      "round": 24,
-      "match_date": "2026-08-23",
-      "match_time": "11:00",
-      "kickoff_at": "2026-08-23T12:00:00+01:00",
-      "home_team": "Liaoning Tieren",
-      "away_team": "Henan Songshan Longmen"
-    },
-    {
-      "fixture_id": "CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu",
-      "round": 24,
-      "match_date": "2026-08-23",
-      "match_time": "11:35",
-      "kickoff_at": "2026-08-23T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Qingdao Hainiu"
-    },
-    {
-      "fixture_id": "CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo",
-      "round": 24,
-      "match_date": "2026-08-23",
-      "match_time": "12:00",
-      "kickoff_at": "2026-08-23T13:00:00+01:00",
-      "home_team": "Chongqing Tonglianglong",
-      "away_team": "Dalian Yingbo"
-    },
     {
       "fixture_id": "CSL-2026-25-2026-08-28-dalian-yingbo-beijing-guoan",
       "round": 25,

@@ -2,53 +2,11 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-23T13:52:26+01:00",
+    "updated_at": "2026-08-24T01:36:57+01:00",
     "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
     "model_version": "v2.8"
   },
   "rows": [
-    {
-      "fixture_id": "CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen",
-      "round": 24,
-      "match_date": "2026-08-23",
-      "kickoff_at": "2026-08-23T12:00:00+01:00",
-      "home_team": "Liaoning Tieren",
-      "away_team": "Henan Songshan Longmen",
-      "home_win_prob": 0.364492,
-      "draw_prob": 0.241307,
-      "away_win_prob": 0.394201,
-      "home_win_fair_odds": 2.7435,
-      "draw_fair_odds": 4.1441,
-      "away_win_fair_odds": 2.5368
-    },
-    {
-      "fixture_id": "CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu",
-      "round": 24,
-      "match_date": "2026-08-23",
-      "kickoff_at": "2026-08-23T12:35:00+01:00",
-      "home_team": "Shanghai Port",
-      "away_team": "Qingdao Hainiu",
-      "home_win_prob": 0.667626,
-      "draw_prob": 0.178249,
-      "away_win_prob": 0.154125,
-      "home_win_fair_odds": 1.4978,
-      "draw_fair_odds": 5.6101,
-      "away_win_fair_odds": 6.4882
-    },
-    {
-      "fixture_id": "CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo",
-      "round": 24,
-      "match_date": "2026-08-23",
-      "kickoff_at": "2026-08-23T13:00:00+01:00",
-      "home_team": "Chongqing Tonglianglong",
-      "away_team": "Dalian Yingbo",
-      "home_win_prob": 0.384893,
-      "draw_prob": 0.297456,
-      "away_win_prob": 0.317651,
-      "home_win_fair_odds": 2.5981,
-      "draw_fair_odds": 3.3618,
-      "away_win_fair_odds": 3.1481
-    },
     {
       "fixture_id": "CSL-2026-25-2026-08-28-dalian-yingbo-beijing-guoan",
       "round": 25,

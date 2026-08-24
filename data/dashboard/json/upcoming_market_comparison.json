@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "CSL",
     "season": "2026",
-    "updated_at": "2026-08-23T13:52:26+01:00"
+    "updated_at": "2026-08-24T01:36:57+01:00"
   },
   "rows": [
     {
@@ -40,7 +40,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-23T12:43:30.931Z",
       "duel_open_last_update": "2026-08-23T12:22:04.288Z",
-      "fetched_at": null
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Shanghai Shenhua",
@@ -77,7 +77,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-22T12:35:41.933Z",
       "duel_open_last_update": "2026-08-22T12:44:57.302Z",
-      "fetched_at": "2026-08-23T12:17:43Z"
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Shenzhen Xinpengcheng",
@@ -114,7 +114,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
       "duel_open_last_update": "2026-08-23T12:08:58.671Z",
-      "fetched_at": "2026-08-23T12:17:43Z"
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Qingdao Hainiu",
@@ -151,7 +151,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
       "duel_open_last_update": "2026-08-23T11:46:48.988Z",
-      "fetched_at": "2026-08-23T12:17:43Z"
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Tianjin Jinmen Tiger",
@@ -188,7 +188,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-22T12:35:41.933Z",
       "duel_open_last_update": "2026-08-22T12:23:48.006Z",
-      "fetched_at": "2026-08-23T12:17:43Z"
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Zhejiang Professional",
@@ -225,7 +225,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-22T12:35:41.933Z",
       "duel_open_last_update": "2026-08-22T12:31:51.27Z",
-      "fetched_at": "2026-08-23T12:17:43Z"
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Chengdu Rongcheng",
@@ -262,7 +262,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
       "duel_open_last_update": "2026-08-23T11:16:38.284Z",
-      "fetched_at": "2026-08-23T12:17:43Z"
+      "fetched_at": "2026-08-24T00:36:51Z"
     },
     {
       "home_team": "Henan Songshan Longmen",
@@ -299,7 +299,7 @@
       "signal_books": null,
       "onexbet_open_last_update": "2026-08-23T12:43:30.931Z",
       "duel_open_last_update": "2026-08-23T12:26:05.994Z",
-      "fetched_at": null
+      "fetched_at": "2026-08-24T00:36:51Z"
     }
   ]
 }

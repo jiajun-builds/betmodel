@@ -1,7 +1,4 @@
 fixture_id,round,match_date,kickoff_at,home_team,away_team,home_win_prob,draw_prob,away_win_prob,home_win_fair_odds,draw_fair_odds,away_win_fair_odds
-CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen,24,2026-08-23,2026-08-23T12:00:00+01:00,Liaoning Tieren,Henan Songshan Longmen,0.364492,0.241307,0.394201,2.7435,4.1441,2.5368
-CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu,24,2026-08-23,2026-08-23T12:35:00+01:00,Shanghai Port,Qingdao Hainiu,0.667626,0.178249,0.154125,1.4978,5.6101,6.4882
-CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo,24,2026-08-23,2026-08-23T13:00:00+01:00,Chongqing Tonglianglong,Dalian Yingbo,0.384893,0.297456,0.317651,2.5981,3.3618,3.1481
 CSL-2026-25-2026-08-28-dalian-yingbo-beijing-guoan,25,2026-08-28,2026-08-28T12:35:00+01:00,Dalian Yingbo,Beijing Guoan,0.298711,0.236359,0.46493,3.3477,4.2309,2.1509
 CSL-2026-25-2026-08-28-shanghai-shenhua-shandong-taishan,25,2026-08-28,2026-08-28T12:35:00+01:00,Shanghai Shenhua,Shandong Taishan,0.574763,0.194144,0.231094,1.7398,5.1508,4.3272
 CSL-2026-25-2026-08-28-shenzhen-xinpengcheng-shanghai-port,25,2026-08-28,2026-08-28T13:00:00+01:00,Shenzhen Xinpengcheng,Shanghai Port,0.276221,0.223552,0.500227,3.6203,4.4732,1.9991

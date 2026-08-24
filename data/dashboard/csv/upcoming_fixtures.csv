@@ -1,7 +1,4 @@
 fixture_id,round,match_date,match_time,kickoff_at,home_team,away_team
-CSL-2026-24-2026-08-23-liaoning-tieren-henan-songshan-longmen,24,2026-08-23,11:00,2026-08-23T12:00:00+01:00,Liaoning Tieren,Henan Songshan Longmen
-CSL-2026-24-2026-08-23-shanghai-port-qingdao-hainiu,24,2026-08-23,11:35,2026-08-23T12:35:00+01:00,Shanghai Port,Qingdao Hainiu
-CSL-2026-24-2026-08-23-chongqing-tonglianglong-dalian-yingbo,24,2026-08-23,12:00,2026-08-23T13:00:00+01:00,Chongqing Tonglianglong,Dalian Yingbo
 CSL-2026-25-2026-08-28-dalian-yingbo-beijing-guoan,25,2026-08-28,11:35,2026-08-28T12:35:00+01:00,Dalian Yingbo,Beijing Guoan
 CSL-2026-25-2026-08-28-shanghai-shenhua-shandong-taishan,25,2026-08-28,11:35,2026-08-28T12:35:00+01:00,Shanghai Shenhua,Shandong Taishan
 CSL-2026-25-2026-08-28-shenzhen-xinpengcheng-shanghai-port,25,2026-08-28,12:00,2026-08-28T13:00:00+01:00,Shenzhen Xinpengcheng,Shanghai Port
