@@ -12,6 +12,7 @@ covers everything before that.
 
 from __future__ import annotations
 
+import argparse
 import csv
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -56,7 +57,21 @@ def _max_existing_date():
         return None
 
 
-def run():
+def _existing_upcoming_count(path: str) -> int:
+    """Fixture rows already on disk, or 0 if the file is absent/unreadable.
+
+    Guards the overwrite below: a SofaScore outage yields an empty fetch that is
+    indistinguishable from a finished season, and the unconditional write turned
+    that into a silently blanked schedule (107 fixtures lost, 2026-08-24).
+    """
+    try:
+        with open(path, newline="", encoding="utf-8") as f:
+            return max(0, sum(1 for _ in f) - 1)  # minus the header
+    except OSError:
+        return 0
+
+
+def run(allow_empty_upcoming: bool = False):
     client = SofascoreClient()
     updater = DataUpdater()
 
@@ -150,6 +165,13 @@ def run():
 
     upcoming_rows.sort(key=lambda r: r["kickoff_utc"])
     out = paths.upcoming_fixtures_csv()
+    if not upcoming_rows and not allow_empty_upcoming and _existing_upcoming_count(out):
+        raise RuntimeError(
+            f"Refusing to blank {out}: the fetch returned no upcoming fixtures but "
+            f"the file currently holds {_existing_upcoming_count(out)}. A partial "
+            "SofaScore outage looks exactly like this. Re-run once SofaScore answers; "
+            "if the season really is over, pass --allow-empty-upcoming."
+        )
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=UPCOMING_COLUMNS)
         w.writeheader()
@@ -182,4 +204,11 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument(
+        "--allow-empty-upcoming",
+        action="store_true",
+        help="Permit blanking MEX_upcoming_fixtures.csv. Only for a genuinely "
+             "finished season -- otherwise an empty fetch is a SofaScore outage.",
+    )
+    run(allow_empty_upcoming=ap.parse_args().allow_empty_upcoming)

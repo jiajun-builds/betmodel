@@ -23,6 +23,16 @@ DEFAULT_IMPERSONATE = "chrome"
 REGULATION_PERIODS = ("1ST", "2ND")
 
 
+class SofascoreUnavailable(RuntimeError):
+    """A request exhausted its retries (block, rate-limit, network).
+
+    Distinct from a 404: a 404 is SofaScore telling us the resource is not there,
+    which for a paginated walk means "no more pages". An exhausted retry budget
+    tells us nothing about the data, so callers that would otherwise read it as an
+    empty result must fail loudly instead -- see season_events.
+    """
+
+
 def round_label(event: dict) -> str:
     """Round label for an event: the round number for league rounds, the stage name
     ("Play-in", "Quarterfinals", "Semifinals", "Final") for the post-season.
@@ -93,7 +103,13 @@ class SofascoreClient:
         self.timeout = timeout
         self.pause = pause  # polite throttle between successful requests
 
-    def _get(self, path: str) -> Optional[dict]:
+    def _get(self, path: str, strict: bool = False) -> Optional[dict]:
+        """Parsed JSON, or None for a 404 / an exhausted retry budget.
+
+        ``strict=True`` raises SofascoreUnavailable instead of returning None on an
+        exhausted budget, so a caller cannot mistake a failed request for an empty
+        result. A 404 still returns None under strict -- it is a real answer.
+        """
         url = f"{API_BASE}{path}"
         last_status = None
         for attempt in range(self.max_retries):
@@ -108,6 +124,11 @@ class SofascoreClient:
             except Exception:
                 pass
             time.sleep(self.pause * (attempt + 1))
+        if strict:
+            raise SofascoreUnavailable(
+                f"SofaScore GET {path} failed after {self.max_retries} attempts "
+                f"(last status {last_status})"
+            )
         if last_status is not None:
             print(f"  SofaScore GET {path} failed (last status {last_status})")
         return None
@@ -137,12 +158,17 @@ class SofascoreClient:
         liguilla bracket -- SofaScore files Quarterfinals/Semifinals/Final under
         non-sequential round numbers (27/28/29), so a sequential walk stops at the
         first empty round and never sees the playoffs.
+
+        A failed page raises SofascoreUnavailable rather than ending the walk: the
+        caller writes this list straight to the fixture CSV, so a silent truncation
+        to zero (or, worse, to a plausible-looking partial page) erases the schedule.
         """
         events: list = []
         for page in range(max_pages):
             data = self._get(
                 f"/unique-tournament/{unique_tournament_id}/season/{season_id}"
-                f"/events/{kind}/{page}"
+                f"/events/{kind}/{page}",
+                strict=True,
             )
             if not data:
                 break

@@ -7,7 +7,13 @@ liguilla ties are labelled by name rather than by their non-sequential round num
 
 import unittest
 
-from ligamx.sofascore_client import SofascoreClient, event_goals, round_label
+from ligamx import sofascore_client
+from ligamx.sofascore_client import (
+    SofascoreClient,
+    SofascoreUnavailable,
+    event_goals,
+    round_label,
+)
 
 
 def _stats_payload(periods: dict) -> dict:
@@ -140,6 +146,71 @@ class TestRoundLabel(unittest.TestCase):
         self.assertEqual(round_label({}), "")
         self.assertEqual(round_label({"roundInfo": None}), "")
         self.assertEqual(round_label({"tournament": {"slug": "liga-mx-apertura"}}), "")
+
+
+class SeasonEventsOutageTest(unittest.TestCase):
+    """A failed page must not be read as the end of the season.
+
+    This is the bug that blanked MEX_upcoming_fixtures.csv on 2026-08-24: _get
+    swallowed the failure, season_events took the None for "no more pages", and the
+    caller wrote the resulting empty list straight over 107 real fixtures.
+    """
+
+    def _client(self, responder):
+        client = SofascoreClient(max_retries=2, pause=0)
+        client._get = responder  # type: ignore[assignment]
+        return client
+
+    def test_outage_raises_instead_of_truncating(self):
+        # Stubbed at the network layer, so this exercises the real _get retry path.
+        class Blocked:
+            def get(self, *a, **k):
+                raise ConnectionError("simulated Cloudflare block")
+
+        original = sofascore_client._creq
+        sofascore_client._creq = Blocked()
+        try:
+            client = SofascoreClient(max_retries=2, pause=0)
+            with self.assertRaises(SofascoreUnavailable):
+                client.season_events(11621, 96191, "next")
+        finally:
+            sofascore_client._creq = original
+
+    def test_non_strict_callers_keep_tolerating_failure(self):
+        # event_xg and friends still degrade to None rather than raising.
+        class Blocked:
+            def get(self, *a, **k):
+                raise ConnectionError("simulated Cloudflare block")
+
+        original = sofascore_client._creq
+        sofascore_client._creq = Blocked()
+        try:
+            client = SofascoreClient(max_retries=1, pause=0)
+            self.assertIsNone(client._get("/anything"))
+        finally:
+            sofascore_client._creq = original
+
+    def test_outage_mid_walk_raises(self):
+        # The nastier shape: page 0 succeeds, page 1 dies. Truncating here yields a
+        # plausible-looking partial schedule that nothing downstream would question.
+        pages = {
+            0: {"events": [{"id": 1}], "hasNextPage": True},
+        }
+
+        def responder(path, strict=False):
+            page = int(path.rsplit("/", 1)[-1])
+            if page in pages:
+                return pages[page]
+            raise SofascoreUnavailable(f"boom on page {page}")
+
+        client = self._client(responder)
+        with self.assertRaises(SofascoreUnavailable):
+            SofascoreClient.season_events(client, 11621, 96191, "next")
+
+    def test_real_empty_page_still_ends_the_walk(self):
+        # A 404 is a real answer: strict mode leaves it alone.
+        client = self._client(lambda path, strict=False: None)
+        self.assertEqual(SofascoreClient.season_events(client, 11621, 96191, "next"), [])
 
 
 if __name__ == "__main__":
