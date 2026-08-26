@@ -23,7 +23,8 @@ for required in \
   upcoming_fixtures.json \
   match_predictions.json \
   team_strength_rankings.json \
-  upcoming_market_comparison.json
+  upcoming_market_comparison.json \
+  match_results.json
 do
   if [ ! -f "$SOURCE_JSON/$required" ]; then
     echo "Missing required dashboard JSON file: $SOURCE_JSON/$required" >&2

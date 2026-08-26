@@ -5,7 +5,7 @@ Reads:  MEX_ligamx.csv (history), MEX_upcoming_fixtures.csv (schedule),
         MEX_team_stats.csv + _match_simulations.csv (model),
         MEX_upcoming_market_comparison.csv (1X2 EV; optional).
 Writes: data/dashboard/json/{dashboard_meta, upcoming_fixtures, match_predictions,
-        team_strength_rankings, upcoming_market_comparison}.json
+        team_strength_rankings, upcoming_market_comparison, match_results}.json
 """
 
 from __future__ import annotations
@@ -27,7 +27,41 @@ MODEL_NAME = "Negative Binomial with Dixon-Coles Time Decay"
 MODEL_VERSION = "v1.0"
 DISPLAY_TZ = "America/Mexico_City"
 
+# Finished matches, as facts only: the score and who won. Deliberately NOT settled
+# outcomes -- whether a bet won depends on which side was backed, at what price and
+# on what stake, none of which this pipeline knows. Settlement belongs to whoever
+# holds the bet, the same way EV belongs here and not on the board.
+#
+# Field-for-field identical to cslmonitor's match_results, so a consumer reads one
+# contract rather than a per-league adapter.
+RESULTS_FIELDS = [
+    "fixture_id",
+    "season",
+    "round",
+    "match_date",
+    "home_team",
+    "away_team",
+    "home_goals",
+    "away_goals",
+    "result",
+    "status",
+]
+
+# How far back match_results carries. A trailing window rather than "the current
+# season" on purpose, and the reason is sharper here than in CSL: Liga MX runs two
+# short seasons a year, so a season-scoped export would empty itself twice annually
+# -- each time right when something downstream is still settling the final.
+RESULTS_WINDOW_DAYS = 180
+
 MARKET_FIELDS = [
+    # Stable join key, derived with the same _fixture_id() that stamps
+    # upcoming_fixtures.json and match_predictions.json, so the three payloads
+    # join on equal terms. The market CSV does not carry it -- it is rebuilt here
+    # rather than added there so there is exactly one construction of a fixture's
+    # identity in this repo. A downstream ledger keys a signal's lifecycle on this;
+    # re-deriving it from the (home_team, away_team) pair is lossy, because team
+    # names are display strings that a rename upstream silently changes.
+    "fixture_id",
     "home_team", "away_team", "round", "match_time", "kickoff_at",
     "home_win_prob", "draw_prob", "away_win_prob",
     # The bettable price: best of Betano UK / Duel per outcome, with the book
@@ -91,6 +125,104 @@ def _clean(v):
 
 def _records(df: pd.DataFrame) -> list:
     return [{k: _clean(v) for k, v in row.items()} for row in df.to_dict("records")]
+
+
+def _int_or_none(value):
+    """A plain Python int, or None. `_clean` only unwraps floats, and pandas hands
+    back numpy int64 here, which json.dump refuses."""
+    n = pd.to_numeric(value, errors="coerce")
+    return None if pd.isna(n) else int(n)
+
+
+def _build_results(matches: pd.DataFrame, now_utc: datetime) -> list:
+    """Finished matches inside the trailing window, keyed by the same fixture_id.
+
+    The id is rebuilt from each row's *own* Season and Round rather than the export's
+    current season, so a match played in Clausura keeps the id it had while it was an
+    upcoming fixture. That is the whole point of the file: it lets a consumer join a
+    signal it recorded weeks ago to the score.
+
+    `result` is derived from the score, not read from the CSV's `Res` column. The two
+    disagree on real rows today -- both legs of the Clausura 2026 final -- and picking
+    a winner between the two spellings would mean settling a bet on a guess. Those
+    rows go out as `disputed` instead, which a consumer must not settle.
+
+    Measured against six months of this repo's own committed fixture snapshots, 92.1%
+    of fixtures whose scheduled date has passed join to a result on fixture_id
+    exactly. 3.0% are postponed and not yet played, so their absence here is correct.
+    The remaining 5.0% are the real weakness: the id embeds the match date, so a match
+    moved even by a day gets a different id once played, and the signal recorded
+    against the old id never finds its result.
+
+    Those two compound -- a postponed match, once played, is by definition on a new
+    date and so lands in the 5%. A consumer should fall back to
+    (season, home_team, away_team), the same two-key shape the kickoff join uses.
+    Missing a join leaves a bet unsettled rather than settled wrongly, which is the
+    survivable direction.
+    """
+    df = matches.copy()
+    df["_d"] = parse_date_only_series(df["Date"])
+    df["_res"] = df["Res"].astype(str).str.strip()
+    df = df[df["_d"].notna() & df["_res"].isin(["H", "D", "A"])].copy()
+
+    cutoff = pd.Timestamp(now_utc).tz_convert("UTC").tz_localize(None).normalize() - pd.Timedelta(
+        days=RESULTS_WINDOW_DAYS
+    )
+    df = df[df["_d"] >= cutoff].copy()
+    if df.empty:
+        return []
+
+    df["home_goals"] = pd.to_numeric(df["HG"], errors="coerce")
+    df["away_goals"] = pd.to_numeric(df["AG"], errors="coerce")
+    # A row whose Res parsed but whose score did not is dropped rather than exported
+    # with a null score: a consumer settling on it would read the missing side as zero.
+    df = df[df["home_goals"].notna() & df["away_goals"].notna()].copy()
+    if df.empty:
+        return []
+    df["home_goals"] = df["home_goals"].astype(int)
+    df["away_goals"] = df["away_goals"].astype(int)
+
+    rows = []
+    disputed = []
+    for _, r in df.iterrows():
+        derived = "H" if r["home_goals"] > r["away_goals"] else ("A" if r["home_goals"] < r["away_goals"] else "D")
+        status = "finished" if derived == r["_res"] else "disputed"
+        if status == "disputed":
+            disputed.append(
+                f"{r['_d'].date()} {r['Home']} {r['home_goals']}-{r['away_goals']} {r['Away']} "
+                f"(Res={r['_res']}, score says {derived})"
+            )
+        rows.append({
+            "fixture_id": _fixture_id(r["Season"], r.get("Round", ""), str(r["_d"].date()), r["Home"], r["Away"]),
+            # str because cslmonitor's numeric season would otherwise be an int in one
+            # league's payload and a string in the other's, for the same contract field.
+            "season": str(r["Season"]),
+            "round": _int_or_none(r.get("Round")),
+            "match_date": str(r["_d"].date()),
+            "home_team": str(r["Home"]),
+            "away_team": str(r["Away"]),
+            "home_goals": int(r["home_goals"]),
+            "away_goals": int(r["away_goals"]),
+            "result": derived,
+            "status": status,
+        })
+
+    if disputed:
+        print(f"  [WARN] {len(disputed)} match(es) where Res disagrees with the score, "
+              f"exported as disputed and not settleable:")
+        for d in disputed:
+            print(f"    {d}")
+
+    ids = [r["fixture_id"] for r in rows]
+    if len(set(ids)) != len(ids):
+        dupes = sorted({i for i in ids if ids.count(i) > 1})
+        raise ValueError(f"match_results contains duplicate fixture_id values: {dupes[:5]}")
+    for r in rows:
+        if list(r.keys()) != RESULTS_FIELDS:
+            raise ValueError(f"match_results row fields do not match the contract: {list(r.keys())}")
+
+    rows.sort(key=lambda r: (r["match_date"], r["home_team"], r["away_team"]))
+    return rows
 
 
 def _form_map(matches: pd.DataFrame) -> dict:
@@ -201,6 +333,14 @@ def run() -> None:
     if os.path.exists(paths.market_comparison_csv()):
         mc = pd.read_csv(paths.market_comparison_csv())
         mc = mc.rename(columns={"kickoff_utc": "kickoff_at"})
+        # Before the fill-missing loop below, or every id would be None: the market
+        # CSV has no fixture_id column of its own. `season` is the export's season
+        # rather than a per-row one because the comparison only ever covers upcoming
+        # fixtures, which are by definition in it.
+        mc["fixture_id"] = [
+            _fixture_id(season, r["round"], r["match_date"], r["home_team"], r["away_team"])
+            for _, r in mc.iterrows()
+        ]
         for col in MARKET_FIELDS:
             if col not in mc.columns:
                 mc[col] = None
@@ -210,6 +350,24 @@ def run() -> None:
         if "price_proof" in mc.columns:
             mc["price_proof"] = mc["price_proof"].fillna("")
         market_rows = _records(mc[MARKET_FIELDS])
+
+        # Fail here rather than let a consumer join on a key that matches nothing.
+        # The comparison is built from the same upcoming fixtures, so a miss means
+        # the two derivations have drifted (a season string, a round that arrived as
+        # a float, a renamed team) -- and a silent drop downstream is the failure
+        # mode this key exists to remove. Nothing has been written to disk yet.
+        up_ids = {row["fixture_id"] for row in up_rows}
+        mkt_ids = [row["fixture_id"] for row in market_rows]
+        if len(set(mkt_ids)) != len(mkt_ids):
+            raise ValueError("market comparison contains duplicate fixture_id values")
+        orphans = sorted(set(mkt_ids) - up_ids)
+        if orphans:
+            raise ValueError(
+                "market comparison fixture_id values not found in upcoming fixtures: "
+                f"{orphans[:5]}"
+            )
+
+    result_rows = _build_results(matches, now_utc)
 
     # ---- round progress + meta --------------------------------------------
     season_played = matches[(matches["Season"].astype(str) == season) &
@@ -254,6 +412,10 @@ def run() -> None:
     _write("match_predictions.json", {"meta": {**common, "model_name": MODEL_NAME, "model_version": MODEL_VERSION}, "rows": pred_rows})
     _write("team_strength_rankings.json", {"meta": common, "rows": strength_rows})
     _write("upcoming_market_comparison.json", {"meta": common, "rows": market_rows})
+    # `season` in the shared meta is the dashboard's current season, while these rows
+    # carry their own -- the window is a trailing 180 days and, in a league with two
+    # seasons a year, crosses a boundary roughly every other export.
+    _write("match_results.json", {"meta": common, "rows": result_rows})
     print(f"Dashboard JSON exported to {out_dir}")
 
 

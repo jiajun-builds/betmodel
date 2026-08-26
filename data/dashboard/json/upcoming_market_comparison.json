@@ -2,10 +2,11 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-24T20:06:40+00:00"
+    "updated_at": "2026-08-26T00:25:14+00:00"
   },
   "rows": [
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-28-necaxa-cruz-azul",
       "home_team": "Necaxa",
       "away_team": "Cruz Azul",
       "round": 6,
@@ -38,6 +39,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-28-atlante-leon",
       "home_team": "Atlante",
       "away_team": "Leon",
       "round": 6,
@@ -70,6 +72,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-28-tijuana-unam-pumas",
       "home_team": "Tijuana",
       "away_team": "UNAM Pumas",
       "round": 6,
@@ -102,6 +105,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-29-pachuca-guadalajara",
       "home_team": "Pachuca",
       "away_team": "Guadalajara",
       "round": 6,
@@ -134,6 +138,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-29-atlas-queretaro",
       "home_team": "Atlas",
       "away_team": "Queretaro",
       "round": 6,
@@ -166,6 +171,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-29-club-america-puebla",
       "home_team": "Club America",
       "away_team": "Puebla",
       "round": 6,
@@ -198,6 +204,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-29-santos-laguna-tigres-uanl",
       "home_team": "Santos Laguna",
       "away_team": "Tigres UANL",
       "round": 6,
@@ -230,6 +237,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-30-toluca-fc-juarez",
       "home_team": "Toluca",
       "away_team": "FC Juarez",
       "round": 6,
@@ -262,6 +270,7 @@
       "fetched_at": "2026-08-24T20:06:40Z"
     },
     {
+      "fixture_id": "MEX-apertura-2026-6-2026-08-30-monterrey-atletico-san-luis",
       "home_team": "Monterrey",
       "away_team": "Atletico San Luis",
       "round": 6,
