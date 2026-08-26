@@ -226,8 +226,14 @@ FULL_COLUMNS = [
 # surface only.
 DASHBOARD_COLUMNS = [
     "fixture_id",
+    # `round` and `kickoff_at` ride along so a consumer can date and place a row
+    # without joining upcoming_fixtures.csv on the team pair. Both are already on
+    # this frame (see FULL_COLUMNS) -- they were simply not carried through to the
+    # dashboard contract.
+    "round",
     "match_date",
     "match_time",
+    "kickoff_at",
     "home_team",
     "away_team",
     "home_win_prob",

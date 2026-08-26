@@ -46,6 +46,10 @@ class ExportPaths:
         return os.path.join(self.csv_dir, "upcoming_market_comparison.csv")
 
     @property
+    def results_csv(self) -> str:
+        return os.path.join(self.csv_dir, "match_results.csv")
+
+    @property
     def meta_json(self) -> str:
         return os.path.join(self.json_dir, "dashboard_meta.json")
 
@@ -65,6 +69,10 @@ class ExportPaths:
     def market_comparison_json(self) -> str:
         return os.path.join(self.json_dir, "upcoming_market_comparison.json")
 
+    @property
+    def results_json(self) -> str:
+        return os.path.join(self.json_dir, "match_results.json")
+
 
 # Dashboard v2.8 market-comparison contract: model probabilities + EVERY bet book's
 # opening line/EV + the best-price layer + betting signal. No Pinnacle "Now" line —
@@ -80,6 +88,20 @@ class ExportPaths:
 # layer. `signal_books` is a "|"-joined STRING — never a list, which would raise in
 # _clean_scalar's pd.isna.
 MARKET_COMPARISON_FIELDS = [
+    # Stable join key across every export, and the one a downstream ledger keys a
+    # signal's lifecycle on -- upcoming_fixtures.json and match_predictions.json
+    # already carry it, and the comparison CSV has always had it. Emitting it here
+    # too means a consumer never has to re-derive a fixture's identity from the
+    # (home_team, away_team) pair, which is lossy: team names are display strings,
+    # and a rename upstream silently breaks the join.
+    "fixture_id",
+    # Both sit in the comparison CSV already and both are also on the fixture this
+    # row belongs to, so emitting them is not new data -- it removes a join. A
+    # consumer previously had to reach into upcoming_fixtures.json on the
+    # (home_team, away_team) pair just to date a signal, and a fixture that join
+    # missed produced a row with no kickoff at all.
+    "round",
+    "kickoff_at",
     "home_team",
     "away_team",
     "match_time",
@@ -104,6 +126,23 @@ MARKET_COMPARISON_FIELDS = [
     "signal_books",
     *[book.last_update_col for book in BET_BOOKS],
     "fetched_at",
+]
+
+
+# Finished matches, facts only. `result` is derived from the score upstream, never
+# from the source CSV's own Res column; a row where those two disagreed is exported
+# with status "disputed" and must not be settled on. See build_match_results.
+RESULTS_FIELDS = [
+    "fixture_id",
+    "season",
+    "round",
+    "match_date",
+    "home_team",
+    "away_team",
+    "home_goals",
+    "away_goals",
+    "result",
+    "status",
 ]
 
 
@@ -173,12 +212,14 @@ def validate_payloads(
     predictions_payload: dict[str, Any],
     strength_payload: dict[str, Any],
     market_comparison_payload: dict[str, Any],
+    results_payload: dict[str, Any],
 ) -> None:
     for payload_name, payload in (
         ("upcoming_fixtures.json", upcoming_payload),
         ("match_predictions.json", predictions_payload),
         ("team_strength_rankings.json", strength_payload),
         ("upcoming_market_comparison.json", market_comparison_payload),
+        ("match_results.json", results_payload),
     ):
         shared_meta = payload.get("meta", {})
         if shared_meta.get("competition_code") != meta_payload["competition_code"]:
@@ -206,6 +247,39 @@ def validate_payloads(
                 "upcoming_market_comparison.json rows must contain exactly the approved fields; "
                 f"got {row_keys}"
             )
+
+    # Same referential check the predictions payload already gets. Without it
+    # `fixture_id` is only a string that looks like a key: a comparison row built
+    # from a stale market CSV would still export, and every consumer joining on it
+    # would silently drop that fixture instead of failing here.
+    result_rows = results_payload["rows"]
+    for row in result_rows:
+        if list(row.keys()) != RESULTS_FIELDS:
+            raise ValueError(
+                "match_results.json rows must contain exactly the approved fields; "
+                f"got {list(row.keys())}"
+            )
+    result_ids = [row["fixture_id"] for row in result_rows]
+    if len(set(result_ids)) != len(result_ids):
+        raise ValueError("match_results.json contains duplicate fixture_id values")
+    # Deliberately NOT checked against upcoming_fixtures: these are played matches and
+    # the upcoming payload holds only future ones, so the two sets are disjoint by
+    # construction. The pairing that matters is a *past* signal to its result, which
+    # only a consumer holding that signal can make.
+    for row in result_rows:
+        if row["status"] not in ("finished", "disputed"):
+            raise ValueError(f"match_results.json unknown status: {row['status']}")
+        if row["result"] not in ("H", "D", "A"):
+            raise ValueError(f"match_results.json unknown result: {row['result']}")
+
+    market_ids = [row["fixture_id"] for row in market_rows]
+    if len(set(market_ids)) != len(market_ids):
+        raise ValueError("upcoming_market_comparison.json contains duplicate fixture_id values")
+    if not set(market_ids).issubset(upcoming_ids):
+        raise ValueError(
+            "upcoming_market_comparison.json contains fixture_id values not found in "
+            "upcoming_fixtures.json"
+        )
 
 
 def run() -> None:
@@ -293,6 +367,17 @@ def run() -> None:
         "upcoming_market_comparison.csv",
     )
 
+    results_rows = _load_rows_csv(
+        paths.results_csv,
+        RESULTS_FIELDS,
+        "match_results.csv",
+    )
+    # Same coercion dashboard_meta already does: read_csv types a numeric CSL season
+    # as an int, while ligamxterminal's is "Apertura 2026". One field of one contract
+    # must not be an int in one league and a string in the other.
+    for row in results_rows:
+        row["season"] = str(row["season"])
+
     common_meta = _build_common_meta(meta_row)
     meta_payload = meta_row
     upcoming_payload = {"meta": common_meta, "rows": upcoming_rows}
@@ -306,6 +391,10 @@ def run() -> None:
     }
     strength_payload = {"meta": common_meta, "rows": strength_rows}
     market_comparison_payload = {"meta": common_meta, "rows": market_comparison_rows}
+    # `season` in the shared meta is the dashboard's current season, while these rows
+    # carry their own -- the window is a trailing 180 days and crosses season
+    # boundaries by design.
+    results_payload = {"meta": common_meta, "rows": results_rows}
 
     validate_payloads(
         meta_payload,
@@ -313,6 +402,7 @@ def run() -> None:
         predictions_payload,
         strength_payload,
         market_comparison_payload,
+        results_payload,
     )
 
     _write_json(meta_payload, paths.meta_json)
@@ -320,6 +410,7 @@ def run() -> None:
     _write_json(predictions_payload, paths.predictions_json)
     _write_json(strength_payload, paths.strength_json)
     _write_json(market_comparison_payload, paths.market_comparison_json)
+    _write_json(results_payload, paths.results_json)
 
 
 def main() -> None:

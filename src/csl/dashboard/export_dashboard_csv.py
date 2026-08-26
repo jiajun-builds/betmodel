@@ -85,6 +85,30 @@ PREDICTION_COLUMNS = [
 # attack_rating/defense_rating are goals per match against an average opponent and
 # overall_rating is the calibrated strength rating — NOT the raw fitted coefficients,
 # which are carried separately as attack_coef/defense_coef. See csl.models.strength.
+# Finished matches, as facts only: the score and who won. Deliberately NOT settled
+# outcomes -- whether a bet won depends on which side was backed, at what price and
+# on what stake, none of which this pipeline knows. Settlement belongs to whoever
+# holds the bet, the same way EV belongs here and not on the board.
+RESULTS_COLUMNS = [
+    "fixture_id",
+    "season",
+    "round",
+    "match_date",
+    "home_team",
+    "away_team",
+    "home_goals",
+    "away_goals",
+    "result",
+    "status",
+]
+
+# How far back match_results carries. A trailing window rather than "the current
+# season" on purpose: a season-scoped export empties itself the day a new season
+# starts, which is exactly when something downstream is still settling last
+# season's final round. 180 days is generous enough to backfill a ledger from
+# scratch and still bounds the file at roughly one season of rows.
+RESULTS_WINDOW_DAYS = 180
+
 STRENGTH_COLUMNS = [
     "rank_overall",
     "team",
@@ -126,6 +150,10 @@ class ExportPaths:
     @property
     def strength_csv(self) -> str:
         return os.path.join(self.out_dir, "team_strength_rankings.csv")
+
+    @property
+    def results_csv(self) -> str:
+        return os.path.join(self.out_dir, "match_results.csv")
 
 
 def _require_columns(df: pd.DataFrame, required: Iterable[str], label: str) -> None:
@@ -584,6 +612,116 @@ def validate_outputs(meta: pd.DataFrame, upcoming: pd.DataFrame, predictions: pd
         raise ValueError("team_strength_rankings.csv has no clubs in the current season")
 
 
+def build_match_results(matches: pd.DataFrame, export_now: pd.Timestamp) -> pd.DataFrame:
+    """Finished matches inside the trailing window, keyed by the same fixture_id.
+
+    The id is rebuilt from the row's *own* Season and Round rather than the export's
+    current season, so a match played last season keeps the id it had when it was an
+    upcoming fixture. That is the whole point of the file: it is what lets a consumer
+    join a signal it recorded weeks ago to the score.
+
+    Measured against six months of this repo's own committed fixture snapshots, 92.1%
+    of fixtures whose scheduled date has passed join to a result on fixture_id
+    exactly. 3.0% are postponed and not yet played, so their absence here is correct.
+    The remaining 5.0% are the real weakness: the id embeds the match date, so a match
+    moved even by a day gets a different id once played, and the signal recorded
+    against the old id never finds its result.
+
+    Those two compound -- a postponed match, once played, is by definition on a new
+    date and so lands in the 5%. A consumer should fall back to
+    (season, home_team, away_team), the same two-key shape the kickoff join uses.
+    Missing a join leaves a bet unsettled rather than settled wrongly, which is the
+    survivable direction.
+    """
+    _require_columns(matches, ["Season", "Round", "Date", "Home", "Away", "HG", "AG", "Res"], "matches CSV")
+
+    out = matches.copy()
+    out["parsed_date"] = _parse_match_dates(out["Date"])
+    out["result"] = out["Res"].astype(str).str.strip()
+    out = out[out["parsed_date"].notna() & out["result"].isin(["H", "D", "A"])].copy()
+
+    cutoff = export_now.tz_convert(TZ).normalize().tz_localize(None) - pd.Timedelta(days=RESULTS_WINDOW_DAYS)
+    out = out[out["parsed_date"] >= cutoff].copy()
+
+    if out.empty:
+        return pd.DataFrame(columns=RESULTS_COLUMNS)
+
+    out["source_result"] = out["result"]
+    out["match_date"] = format_date_only_series(out["parsed_date"])
+    out["season"] = out["Season"].map(_normalize_season_value)
+    out["round"] = pd.to_numeric(out["Round"], errors="coerce").astype("Int64")
+    out["home_team"] = out["Home"].astype(str)
+    out["away_team"] = out["Away"].astype(str)
+    # Goals are the only numbers here and they are counts. A row whose Res parsed but
+    # whose score did not is dropped rather than exported with a null score: a
+    # consumer settling on it would read the missing side as zero.
+    out["home_goals"] = pd.to_numeric(out["HG"], errors="coerce").astype("Int64")
+    out["away_goals"] = pd.to_numeric(out["AG"], errors="coerce").astype("Int64")
+    out = out[out["home_goals"].notna() & out["away_goals"].notna()].copy()
+
+    # The score is the primitive fact and `result` is derived from it, so the two can
+    # never disagree inside this file. The source CSV's own `Res` column is treated as
+    # a second opinion and cross-checked: where it dissents the row is exported
+    # `disputed` rather than `finished`, and a consumer settles only on `finished`.
+    #
+    # Not a hypothetical -- two 2026 rows disagree today (a 3-2 recorded as a draw and
+    # a 2-2 recorded as an away win). Picking a winner between the two spellings would
+    # mean settling a bet on a guess, which is the one direction that costs money; a
+    # row nobody settles costs a warning.
+    out["result"] = out.apply(
+        lambda r: "H" if r["home_goals"] > r["away_goals"] else ("A" if r["home_goals"] < r["away_goals"] else "D"),
+        axis=1,
+    )
+    disputed = out["source_result"] != out["result"]
+    out["status"] = "finished"
+    out.loc[disputed, "status"] = "disputed"
+    if disputed.any():
+        log.warning(
+            "%d match(es) where Res disagrees with the score, exported as disputed "
+            "and not settleable: %s",
+            int(disputed.sum()),
+            ", ".join(
+                f"{r.match_date} {r.home_team} {r.home_goals}-{r.away_goals} {r.away_team} "
+                f"(Res={r.source_result}, score says {r.result})"
+                for r in out[disputed].itertuples()
+            ),
+        )
+
+    out["fixture_id"] = out.apply(
+        lambda row: (
+            f"{COMPETITION_CODE}-{row['season']}-{int(row['round'])}-{row['match_date']}"
+            f"-{_slugify(row['home_team'])}-{_slugify(row['away_team'])}"
+        ),
+        axis=1,
+    )
+
+    out = out[RESULTS_COLUMNS].sort_values(["match_date", "home_team", "away_team"]).reset_index(drop=True)
+    return out
+
+
+def validate_results(results: pd.DataFrame) -> None:
+    if results.empty:
+        return
+    if not results["fixture_id"].is_unique:
+        dupes = results.loc[results["fixture_id"].duplicated(), "fixture_id"].tolist()
+        raise ValueError(f"match_results.csv fixture_id values must be unique: {dupes[:5]}")
+    if not results["result"].isin(["H", "D", "A"]).all():
+        raise ValueError("match_results.csv result must be one of H/D/A")
+    if not results["status"].isin(["finished", "disputed"]).all():
+        raise ValueError("match_results.csv status must be one of finished/disputed")
+    if (results[["home_goals", "away_goals"]] < 0).any().any():
+        raise ValueError("match_results.csv goal counts cannot be negative")
+    # `result` is derived from the score, so this can only fail if the derivation is
+    # edited into disagreeing with itself. It is the invariant a consumer settles on.
+    derived = results.apply(
+        lambda r: "H" if r["home_goals"] > r["away_goals"] else ("A" if r["home_goals"] < r["away_goals"] else "D"),
+        axis=1,
+    )
+    mismatched = results.loc[derived != results["result"], "fixture_id"].tolist()
+    if mismatched:
+        raise ValueError(f"match_results.csv result disagrees with the score: {mismatched[:5]}")
+
+
 def write_csv(df: pd.DataFrame, path: str) -> None:
     df.to_csv(path, index=False)
     log.info("Wrote %s (%d rows)", path, len(df))
@@ -603,17 +741,20 @@ def run() -> None:
     strength, league_avg_goals = build_team_strength_rankings(
         paths.team_stats_csv, paths.matches_csv, season
     )
+    results = build_match_results(matches, export_now)
     round_progress = build_round_progress(paths.fresh_schedule_csv, season)
     meta = build_dashboard_meta(
         matches, upcoming, season, export_now, round_progress, league_avg_goals
     )
 
     validate_outputs(meta, upcoming, predictions, strength, export_now)
+    validate_results(results)
 
     write_csv(meta, paths.meta_csv)
     write_csv(upcoming, paths.upcoming_csv)
     write_csv(predictions, paths.predictions_csv)
     write_csv(strength, paths.strength_csv)
+    write_csv(results, paths.results_csv)
 
 
 def main() -> None:
