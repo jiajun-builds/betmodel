@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-26T00:25:14+00:00"
+    "updated_at": "2026-08-27T22:47:49+00:00"
   },
   "rows": [
     {
@@ -28,15 +28,15 @@
       "signal_state": "bet",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 3.74,
-      "pinnacle_draw_odds": 3.75,
-      "pinnacle_away_odds": 1.93,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 3.35,
+      "pinnacle_draw_odds": 3.69,
+      "pinnacle_away_odds": 2.08,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-20T02:01:06Z",
-      "price_age_h": 114.1,
+      "price_age_h": 188.8,
       "last_update": "2026-08-20T01:10:51.534Z",
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-28-atlante-leon",
@@ -61,23 +61,23 @@
       "signal_state": "bet",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 2.7,
-      "pinnacle_draw_odds": 3.4,
-      "pinnacle_away_odds": 2.6,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 2.78,
+      "pinnacle_draw_odds": 3.48,
+      "pinnacle_away_odds": 2.49,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-20T01:16:09Z",
-      "price_age_h": 114.8,
+      "price_age_h": 189.5,
       "last_update": "2026-08-20T00:59:48.014Z",
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-28-tijuana-unam-pumas",
       "home_team": "Tijuana",
       "away_team": "UNAM Pumas",
       "round": 6,
-      "match_time": "21:00",
-      "kickoff_at": "2026-08-29T03:00:00Z",
+      "match_time": "21:10",
+      "kickoff_at": "2026-08-29T03:10:00Z",
       "home_win_prob": 0.426349066741724,
       "draw_prob": 0.2505673924242747,
       "away_win_prob": 0.3230835408340012,
@@ -94,15 +94,15 @@
       "signal_state": "none",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 2.4,
-      "pinnacle_draw_odds": 3.32,
-      "pinnacle_away_odds": 3.02,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 2.23,
+      "pinnacle_draw_odds": 3.43,
+      "pinnacle_away_odds": 3.23,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-20T02:01:06Z",
-      "price_age_h": 114.1,
+      "price_age_h": 188.8,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-pachuca-guadalajara",
@@ -127,15 +127,15 @@
       "signal_state": "none",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 3.1,
-      "pinnacle_draw_odds": 3.42,
-      "pinnacle_away_odds": 2.3,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 3.38,
+      "pinnacle_draw_odds": 3.49,
+      "pinnacle_away_odds": 2.13,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 55.4,
+      "price_age_h": 130,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-atlas-queretaro",
@@ -160,15 +160,15 @@
       "signal_state": "none",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 2.3,
-      "pinnacle_draw_odds": 3.05,
-      "pinnacle_away_odds": 3.48,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 2.18,
+      "pinnacle_draw_odds": 3.14,
+      "pinnacle_away_odds": 3.66,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 55.4,
+      "price_age_h": 130,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-club-america-puebla",
@@ -193,15 +193,15 @@
       "signal_state": "none",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 1.33,
-      "pinnacle_draw_odds": 5.29,
-      "pinnacle_away_odds": 8.55,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 1.35,
+      "pinnacle_draw_odds": 5.18,
+      "pinnacle_away_odds": 8.24,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-22T15:15:31Z",
-      "price_age_h": 52.9,
+      "price_age_h": 127.5,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-29-santos-laguna-tigres-uanl",
@@ -229,12 +229,12 @@
       "pinnacle_home_odds": 4.32,
       "pinnacle_draw_odds": 4.03,
       "pinnacle_away_odds": 1.74,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 55.4,
+      "price_age_h": 130,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-30-toluca-fc-juarez",
@@ -261,13 +261,13 @@
       "price_proof": "observed",
       "pinnacle_home_odds": 1.26,
       "pinnacle_draw_odds": 6.22,
-      "pinnacle_away_odds": 9.25,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_away_odds": 9.24,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-22T12:45:19Z",
-      "price_age_h": 55.4,
+      "price_age_h": 130,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     },
     {
       "fixture_id": "MEX-apertura-2026-6-2026-08-30-monterrey-atletico-san-luis",
@@ -292,15 +292,15 @@
       "signal_state": "none",
       "bookmaker": "duel",
       "price_proof": "observed",
-      "pinnacle_home_odds": 1.49,
-      "pinnacle_draw_odds": 4.66,
-      "pinnacle_away_odds": 5.92,
-      "pinnacle_last_update": "2026-08-24T20:06:30Z",
-      "pinnacle_fetched_at": "2026-08-24T20:06:39Z",
+      "pinnacle_home_odds": 1.48,
+      "pinnacle_draw_odds": 4.68,
+      "pinnacle_away_odds": 5.97,
+      "pinnacle_last_update": "2026-08-27T22:47:17Z",
+      "pinnacle_fetched_at": "2026-08-27T22:47:48Z",
       "price_captured_at": "2026-08-22T13:45:35Z",
-      "price_age_h": 54.4,
+      "price_age_h": 129,
       "last_update": null,
-      "fetched_at": "2026-08-24T20:06:40Z"
+      "fetched_at": "2026-08-27T22:47:48Z"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "meta": {
     "competition_code": "MEX",
     "season": "Apertura 2026",
-    "updated_at": "2026-08-26T00:25:14+00:00",
+    "updated_at": "2026-08-27T22:47:49+00:00",
     "model_name": "Negative Binomial with Dixon-Coles Time Decay",
     "model_version": "v1.0"
   },
@@ -39,7 +39,7 @@
       "fixture_id": "MEX-apertura-2026-6-2026-08-28-tijuana-unam-pumas",
       "round": 6,
       "match_date": "2026-08-28",
-      "kickoff_at": "2026-08-29T03:00:00Z",
+      "kickoff_at": "2026-08-29T03:10:00Z",
       "home_team": "Tijuana",
       "away_team": "UNAM Pumas",
       "home_win_prob": 0.426349,
