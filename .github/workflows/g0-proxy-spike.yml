@@ -23,19 +23,16 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - run: pip install --quiet 'curl_cffi>=0.7'
-      - name: probe SofaScore directly from the runner
-        id: probe
-        continue-on-error: true
-        run: python scripts/spike_sofascore_proxy.py
-      - name: a passing control invalidates the experiment
+      - name: the runner must be refused, or the experiment proves nothing
+        # Inverted on purpose. This job is green when SofaScore REFUSES the
+        # runner, because that is what makes the proxy job's pass meaningful.
         run: |
-          if [ "${{ steps.probe.outcome }}" = "success" ]; then
-            echo "::warning::The runner reached SofaScore with no proxy."
-            echo "That means this runner's IP is not blocked, so the proxy test"
-            echo "below proves nothing. Re-check before trusting G0."
-          else
-            echo "Control refused as expected: the runner IP is blocked."
+          if python scripts/spike_sofascore_proxy.py; then
+            echo "::error::The runner reached SofaScore with no proxy at all."
+            echo "This runner IP is not blocked, so the proxy job proves nothing."
+            exit 1
           fi
+          echo "Refused as expected: this runner IP is blocked, control is valid."
 
   via-residential-proxy:
     name: via residential proxy (the actual question)

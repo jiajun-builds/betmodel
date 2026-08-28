@@ -51,19 +51,47 @@ def _client(proxy: str | None):
     return cffi, proxies
 
 
+ATTEMPTS = 4
+
+
+def get_with_retry(cffi, proxies, url: str, timeout: float):
+    """GET, retrying on refusal.
+
+    A rotating residential pool hands out a different exit IP per connection and
+    some of those IPs are already known to Cloudflare, so a 403 is usually a
+    statement about one exit rather than about us. Retrying draws a new one.
+    Returns (response_or_None, attempts_used, last_error).
+    """
+    last = ""
+    for attempt in range(1, ATTEMPTS + 1):
+        try:
+            r = cffi.get(url, impersonate="chrome", proxies=proxies, timeout=timeout)
+            if r.status_code == 200:
+                return r, attempt, ""
+            last = f"HTTP {r.status_code}"
+        except Exception as exc:  # noqa: BLE001 - the failure mode is the datapoint
+            last = f"{type(exc).__name__}: {exc}"[:120]
+        if attempt < ATTEMPTS:
+            time.sleep(0.4 * attempt)
+    return None, ATTEMPTS, last
+
+
 def build_probes(cffi, proxies, timeout: float) -> list[tuple[str, str]]:
     """Seasons endpoint first, then a real event listing for each league."""
     probes: list[tuple[str, str]] = []
     for league, tid in TOURNAMENTS.items():
         seasons_url = f"{API}/unique-tournament/{tid}/seasons"
         probes.append((f"{league}: seasons", seasons_url))
+        r, _, err = get_with_retry(cffi, proxies, seasons_url, timeout)
         try:
-            r = cffi.get(seasons_url, impersonate="chrome", proxies=proxies, timeout=timeout)
             season_id = r.json()["seasons"][0]["id"]
         except Exception:
-            # Leave a probe that will fail loudly rather than silently skipping
-            # the expensive endpoint, which is the one that matters.
-            probes.append((f"{league}: events (season id unresolved)", seasons_url + "/UNRESOLVED"))
+            # Fail loudly rather than silently skipping the expensive endpoint,
+            # which is the one that matters.
+            probes.append((
+                f"{league}: events (season unresolved: {err or 'bad payload'})",
+                seasons_url + "/UNRESOLVED",
+            ))
             continue
         probes.append((
             f"{league}: events (season {season_id})",
@@ -74,26 +102,24 @@ def build_probes(cffi, proxies, timeout: float) -> list[tuple[str, str]]:
 
 def probe(cffi, proxies, name: str, url: str, timeout: float) -> dict:
     started = time.monotonic()
-    result = {"probe": name, "url": url}
-    try:
-        r = cffi.get(url, impersonate="chrome", proxies=proxies, timeout=timeout)
-        result["status"] = r.status_code
-        result["ms"] = round((time.monotonic() - started) * 1000)
-        if r.status_code == 200:
-            try:
-                body = r.json()
-                # A 200 carrying a Cloudflare interstitial is still a failure.
-                result["ok"] = isinstance(body, dict) and bool(body)
-                result["keys"] = sorted(body)[:4] if isinstance(body, dict) else None
-            except Exception:
-                result["ok"] = False
-                result["note"] = "200 but body was not JSON (challenge page?)"
-        else:
-            result["ok"] = False
-    except Exception as exc:  # noqa: BLE001 - the failure mode is the datapoint
+    result: dict = {"probe": name, "url": url}
+    r, attempts, err = get_with_retry(cffi, proxies, url, timeout)
+    result["ms"] = round((time.monotonic() - started) * 1000)
+    result["attempts"] = attempts
+    if r is None:
         result["ok"] = False
-        result["ms"] = round((time.monotonic() - started) * 1000)
-        result["error"] = f"{type(exc).__name__}: {exc}"[:200]
+        result["error"] = err
+        return result
+    result["status"] = r.status_code
+    try:
+        body = r.json()
+        # A 200 carrying a Cloudflare interstitial is still a failure.
+        result["ok"] = isinstance(body, dict) and bool(body)
+        if not result["ok"]:
+            result["note"] = "200 but payload was not a JSON object (challenge page?)"
+    except Exception:
+        result["ok"] = False
+        result["note"] = "200 but body was not JSON (challenge page?)"
     return result
 
 
@@ -133,7 +159,7 @@ def egress_identity(cffi, proxies, timeout: float) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--timeout", type=float, default=20.0)
+    ap.add_argument("--timeout", type=float, default=25.0)
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     args = ap.parse_args()
 
@@ -168,8 +194,12 @@ def main() -> int:
         for r in results:
             mark = "PASS" if r.get("ok") else "FAIL"
             detail = r.get("error") or r.get("note") or f"HTTP {r.get('status')}"
-            print(f"  [{mark}] {r['probe']:32s} {r.get('ms','?')}ms  {detail}")
-        print(f"  {passed}/{len(results)} probes returned usable data")
+            tries = r.get("attempts", 1)
+            retry = f" after {tries} attempts" if tries > 1 else ""
+            print(f"  [{mark}] {r['probe']:44s} {r.get('ms','?')}ms  {detail}{retry}")
+        total_attempts = sum(r.get("attempts", 1) for r in results)
+        print(f"  {passed}/{len(results)} probes returned usable data "
+              f"({total_attempts} requests for {len(results)} probes)")
 
     if passed != len(results):
         print(
