@@ -1,0 +1,38 @@
+{
+ "schema": 1,
+ "generated_at": "2026-08-28T16:05:02Z",
+ "leagues": [
+  {
+   "id": "csl",
+   "name": "Chinese Super League",
+   "code": "CSL",
+   "season": "2026",
+   "timezone": "Europe/London",
+   "validated": true,
+   "caveat": null,
+   "ev_min": 0.2,
+   "allow_draw": false,
+   "updated_at": "2026-08-28T16:05:02Z",
+   "files": {
+    "signals": "csl/signals.json",
+    "results": "csl/results.json"
+   }
+  },
+  {
+   "id": "ligamx",
+   "name": "Liga MX",
+   "code": "MEX",
+   "season": "Apertura 2026",
+   "timezone": "America/Mexico_City",
+   "validated": false,
+   "caveat": "Signals fire at EV >= 10%, backed by a 427-opener walk-forward backtest, but the provenance gate is not yet reflected downstream. Left unvalidated until the board reads the threshold from the manifest.\n",
+   "ev_min": 0.1,
+   "allow_draw": true,
+   "updated_at": "2026-08-28T16:05:02Z",
+   "files": {
+    "signals": "ligamx/signals.json",
+    "results": "ligamx/results.json"
+   }
+  }
+ ]
+}

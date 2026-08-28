@@ -60,6 +60,25 @@ def slugify(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", stripped.lower()).strip("-")
 
 
+def make_fixture_id(code: str, season: str, round_label: str, local_date, home: str, away: str) -> str:
+    """Assemble an identifier from its parts.
+
+    Shared so signals and results cannot construct the same fixture's identity
+    differently, which would silently break the join between them.
+
+    The round may be a stage name rather than a number: knockout ties are filed
+    under names like "Quarterfinals", and "28" says far less about a match.
+    """
+    return "-".join([
+        code,
+        slugify(season),
+        slugify(str(round_label)) or "0",
+        local_date.strftime("%Y-%m-%d"),
+        slugify(home),
+        slugify(away),
+    ])
+
+
 def fixture_id(config: LeagueConfig, fixture: Fixture) -> str:
     """Stable identifier, and the join key across every published file.
 
@@ -73,14 +92,10 @@ def fixture_id(config: LeagueConfig, fixture: Fixture) -> str:
     not, which is the worst way for it to appear.
     """
     local = fixture.kickoff.astimezone(ZoneInfo(config.timezone))
-    return "-".join([
-        config.code,
-        slugify(config.season),
-        str(fixture.round or "0"),
-        local.strftime("%Y-%m-%d"),
-        slugify(fixture.home),
-        slugify(fixture.away),
-    ])
+    return make_fixture_id(
+        config.code, config.season, fixture.round or "0", local,
+        fixture.home, fixture.away,
+    )
 
 
 @dataclass(frozen=True)
