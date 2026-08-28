@@ -84,6 +84,61 @@ def _prepared(history: pd.DataFrame, config: LeagueConfig) -> pd.DataFrame:
     return frame[usable]
 
 
+def collapse_opens(
+    league: str,
+    config: LeagueConfig,
+    *,
+    lookahead_days: int | None = None,
+    history_path: str | None = None,
+    watch_path: str | None = None,
+) -> dict[tuple[str, str, str], dict]:
+    """Earliest usable open per ``(home, away, book)``, with its proof.
+
+    Shared by the reducer and the signal engine so the two cannot disagree about
+    what an opening price is. They used to: the reducer applied a proof test that
+    the signal path did not, so a price the match table refused could still fire
+    a bet.
+    """
+    lp = paths.for_league(league)
+    history = capture_store.load_history(history_path or lp.capture_history_csv)
+    frame = _prepared(history, config)
+    if frame.empty:
+        return {}
+
+    watched = capture_watch.watched_before(watch_path or lp.capture_watch_csv)
+    since = capture_watch.watching_since(history)
+    horizon = pd.Timedelta(
+        days=config.odds.open.lookahead_days if lookahead_days is None else lookahead_days
+    )
+
+    opens = frame[
+        (frame["snapshot_type"] == "open")
+        & frame["_provenance"].map(provenance.is_opening_price)
+    ]
+    out: dict[tuple[str, str, str], dict] = {}
+    for (home, away, book), group in opens.groupby(
+        ["home_team", "away_team", "bookmaker"], dropna=False
+    ):
+        first = group.loc[group["_at"].idxmin()]
+        kickoff = group["_ko"].max()
+        proof = capture_watch.opener_proof(
+            home=home, away=away, bookmaker=book,
+            captured_at=first["_at"], kickoff=kickoff,
+            watched=watched, since=since, horizon=horizon,
+        )
+        out[(str(home), str(away), str(book))] = {
+            "home_odds": float(first.home_odds),
+            "draw_odds": float(first.draw_odds),
+            "away_odds": float(first.away_odds),
+            "captured_at": first["_at"],
+            "last_update": str(first.last_update),
+            "proof": proof,
+            "provenance": first["_provenance"],
+            "lead_h": (kickoff - first["_at"]).total_seconds() / 3600.0,
+        }
+    return out
+
+
 def build_records(
     league: str,
     config: LeagueConfig,

@@ -286,3 +286,36 @@ Its only input is the Polymarket snapshot store, and that provider is deferred t
 the evaluation phase because no production path reads it. Porting a module with
 no inputs would move dead code rather than merge anything. It travels with the
 evaluation layer.
+
+---
+
+## D9 — A fixture is named by its local matchday.
+
+**Decided 2026-08-28.**
+
+`fixture_id` is the join key across every published file, and it embeds a date.
+That date is now the kickoff converted to the league's own timezone, not UTC.
+
+A 19:00 kickoff in a UTC-6 league falls on the next UTC day, so naming the
+fixture by the UTC date names a day nobody played on. The bug hides completely in
+a league whose kickoffs sit in the middle of the UTC day and appears the instant
+one does not, which is the worst way for it to appear: it looked like the engine
+had failed to produce seven of nine Liga MX fixtures, when it had produced all
+nine under names differing by one day.
+
+**Accepted difference against the golden baseline**: none. This restores the
+identifiers both pre-merge exporters already produced; the UTC reading was
+introduced by the merge and caught by replaying the baseline.
+
+---
+
+## D10 — Model probabilities are read, not refitted, inside the signal path.
+
+One pipeline refitted the model inside its exporter. The other read the fitted
+simulations. Refitting means a published probability can differ from the one the
+same model wrote minutes earlier, for no reason visible to a reader, and it puts
+a several-second fit inside a path that runs on every capture tick.
+
+The engine now reads `simulations.csv`. Verified by replay: probabilities match
+the frozen baseline to 3.3e-16 for the league that refitted, and exactly for the
+one that read.
