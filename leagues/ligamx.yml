@@ -19,9 +19,12 @@ model_name: Negative Binomial with Dixon-Coles Time Decay
 model_version: v1.0
 
 sources:
-  # Liga MX stays on SofaScore for both. TheSportsDB was tried and its Liga MX
-  # match data was incomplete, so the CI-friendly schedule provider that CSL uses
-  # is not an option here. Both stages therefore need a residential egress path.
+  # Liga MX stays on SofaScore for both, and MUST NOT be moved to TheSportsDB.
+  # It was tried and its Liga MX match data is incomplete. This is the tempting
+  # wrong turn: TheSportsDB is the one schedule provider a cloud runner reaches
+  # without a residential proxy, so it looks like the obvious way to give this
+  # league the automated refresh the other one already has. It is not available
+  # for that, and both stages here need the residential egress path.
   fixtures:
     provider: sofascore
     network: residential
@@ -153,4 +156,8 @@ publish:
     the board reads the threshold from the manifest.
 
 notify:
-  telegram: false
+  # On. This league is the one that actually fires, and an alert that reaches a
+  # lock screen is the only thing bounding "signal exists" to "human sees it".
+  # Note the source is still validated: false, so a firing row is a candidate
+  # rather than a bet, and the caveat above says why.
+  telegram: true

@@ -348,3 +348,43 @@ that should.
 
 The canonical contract has one UTC field, one zone, and one explicit distinction
 between the judged price and the bettable one.
+
+---
+
+## D12 — The match history gains an explicit kickoff, because its date column means three different things.
+
+**Decided 2026-08-28, after a dry run refused to write.**
+
+Classifying every row of one league's match history against provider truth:
+
+| season | league-local | UK-local | UTC | unresolved |
+|---|---|---|---|---|
+| Apertura 2026 | 27 | 0 | 0 | 0 |
+| Clausura 2026 | 38 | 41 | 1 | 80 |
+
+The UK-local block is the stretch backfilled from a public archive that stamps
+kickoffs in UK time. So the `Date` and `Time` columns do not carry a timezone,
+they carry whichever timezone the source that wrote each row happened to use.
+
+**This is not only a merge-key problem.** The published `fixture_id` embeds a
+date, and the results file derives its date from this column while the signals
+file derives it from the provider's kickoff. A row stamped in UK time yields an
+identifier one day off the one the signal used, and the join between a signal and
+its outcome breaks silently, which is the whole reason results are published.
+
+**Three changes.**
+
+The fixture sync keys on the team pairing within a two-day tolerance instead of
+on the date. A pairing does not recur within two days, which makes it unambiguous
+where the date is not. Keying on the date reported 98 additions where the answer
+was none; writing them would have duplicated a third of a season.
+
+The sync writes `kickoff_utc` onto every row it identifies, so the ambiguity
+stops propagating. 212 rows stamped on the first run.
+
+The results publisher prefers that column and falls back to `Date` only where it
+is absent.
+
+**`Date` and `Time` are left alone.** Several seasons of research reference them,
+and rewriting them would silently move rows other work is keyed to. They are
+superseded, not corrected.

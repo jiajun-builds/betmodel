@@ -18,7 +18,10 @@ import pandas as pd
 from betmodel import paths
 from betmodel.config import load_all
 from betmodel.config.schema import LeagueConfig
+from zoneinfo import ZoneInfo
+
 from betmodel.dates import parse_date_only_series
+from betmodel.fixtures.sync import KICKOFF_COLUMN
 from betmodel.publish import contract
 from betmodel.signals.engine import Signal, make_fixture_id
 from betmodel.fixtures.upcoming import load_upcoming
@@ -119,6 +122,18 @@ def results_payload(
     """
     frame = pd.read_csv(paths.for_league(league).matches_csv)
     frame["MatchDate"] = parse_date_only_series(frame["Date"])
+
+    # Prefer the explicit kickoff where the fixture stage has recorded one. The
+    # Date column cannot be trusted to mean a particular timezone: one history
+    # carries league-local, UK-local and UTC rows depending on which source
+    # backfilled them, and the identifier published here has to agree with the
+    # one the signal used or the join between a signal and its outcome breaks.
+    zone = ZoneInfo(config.timezone)
+    if KICKOFF_COLUMN in frame.columns:
+        explicit = pd.to_datetime(frame[KICKOFF_COLUMN], utc=True, errors="coerce")
+        local = explicit.dt.tz_convert(zone).dt.tz_localize(None).dt.normalize()
+        frame["MatchDate"] = local.fillna(frame["MatchDate"])
+
     cutoff = frame["MatchDate"].max() - pd.Timedelta(days=window_days)
     frame = frame[frame["MatchDate"] >= cutoff]
 

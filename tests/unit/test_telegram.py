@@ -124,12 +124,23 @@ def test_an_unreachable_telegram_does_not_raise(monkeypatch):
 
 
 def test_a_league_with_notifications_off_sends_nothing(monkeypatch):
-    config = load_league("ligamx")
-    assert config.notify.telegram is False
+    """Constructed rather than read from a shipped league, so flipping a league's
+    setting cannot make this test lie about the behaviour it guards."""
+    from dataclasses import replace
+
+    from betmodel.config.schema import NotifyConfig
+
+    config = replace(load_league("ligamx"), notify=NotifyConfig(telegram=False))
     monkeypatch.setattr(
         telegram, "previous_signals", lambda p: pytest.fail("should not read a baseline")
     )
     assert telegram.notify("ligamx", config) == 0
+
+
+def test_both_shipped_leagues_currently_alert():
+    """Recorded deliberately: the league that fires had alerts off until now."""
+    assert load_league("csl").notify.telegram is True
+    assert load_league("ligamx").notify.telegram is True
 
 
 # --------------------------------------------------------------------------- #

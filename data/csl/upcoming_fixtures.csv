@@ -1,17 +1,47 @@
-Wk,Date,Time,Home,Away,kickoff_utc
-25,2026-08-28,11:35,Dalian Yingbo,Beijing Guoan,2026-08-28T11:35:00+00:00
-25,2026-08-28,11:35,Shanghai Shenhua,Shandong Taishan,2026-08-28T11:35:00+00:00
-25,2026-08-28,12:00,Shenzhen Xinpengcheng,Shanghai Port,2026-08-28T12:00:00+00:00
-25,2026-08-29,09:00,Qingdao Hainiu,Wuhan Three Towns,2026-08-29T09:00:00+00:00
-25,2026-08-29,11:00,Tianjin Jinmen Tiger,Qingdao West Coast,2026-08-29T11:00:00+00:00
-25,2026-08-29,11:00,Zhejiang Professional,Yunnan Yukun,2026-08-29T11:00:00+00:00
-25,2026-08-29,11:35,Chengdu Rongcheng,Liaoning Tieren,2026-08-29T11:35:00+00:00
-25,2026-08-29,12:00,Henan Songshan Longmen,Chongqing Tonglianglong,2026-08-29T12:00:00+00:00
-26,2026-09-05,11:00,Wuhan Three Towns,Qingdao West Coast,2026-09-05T11:00:00+00:00
-26,2026-09-05,11:35,Dalian Yingbo,Qingdao Hainiu,2026-09-05T11:35:00+00:00
-26,2026-09-05,11:35,Shanghai Port,Beijing Guoan,2026-09-05T11:35:00+00:00
-26,2026-09-05,12:00,Shandong Taishan,Shenzhen Xinpengcheng,2026-09-05T12:00:00+00:00
-26,2026-09-06,11:00,Chongqing Tonglianglong,Shanghai Shenhua,2026-09-06T11:00:00+00:00
-26,2026-09-06,11:35,Henan Songshan Longmen,Chengdu Rongcheng,2026-09-06T11:35:00+00:00
-26,2026-09-06,11:35,Yunnan Yukun,Liaoning Tieren,2026-09-06T11:35:00+00:00
-26,2026-09-06,12:00,Tianjin Jinmen Tiger,Zhejiang Professional,2026-09-06T12:00:00+00:00
+Season,Round,Date,Time,Home,Away,kickoff_utc
+2026,25,2026-08-29,09:00,Qingdao Hainiu,Wuhan Three Towns,2026-08-29T09:00:00Z
+2026,25,2026-08-29,11:00,Tianjin Jinmen Tiger,Qingdao West Coast,2026-08-29T11:00:00Z
+2026,25,2026-08-29,11:00,Zhejiang Professional,Yunnan Yukun,2026-08-29T11:00:00Z
+2026,25,2026-08-29,11:35,Chengdu Rongcheng,Liaoning Tieren,2026-08-29T11:35:00Z
+2026,25,2026-08-29,12:00,Henan Songshan Longmen,Chongqing Tonglianglong,2026-08-29T12:00:00Z
+2026,26,2026-09-05,11:00,Wuhan Three Towns,Qingdao West Coast,2026-09-05T11:00:00Z
+2026,26,2026-09-05,11:35,Dalian Yingbo,Qingdao Hainiu,2026-09-05T11:35:00Z
+2026,26,2026-09-05,11:35,Shanghai Port,Beijing Guoan,2026-09-05T11:35:00Z
+2026,26,2026-09-05,12:00,Shandong Taishan,Shenzhen Xinpengcheng,2026-09-05T12:00:00Z
+2026,26,2026-09-06,11:00,Chongqing Tonglianglong,Shanghai Shenhua,2026-09-06T11:00:00Z
+2026,26,2026-09-06,11:35,Henan Songshan Longmen,Chengdu Rongcheng,2026-09-06T11:35:00Z
+2026,26,2026-09-06,11:35,Yunnan Yukun,Liaoning Tieren,2026-09-06T11:35:00Z
+2026,26,2026-09-06,12:00,Tianjin Jinmen Tiger,Zhejiang Professional,2026-09-06T12:00:00Z
+2026,18,2026-09-12,11:00,Tianjin Jinmen Tiger,Liaoning Tieren,2026-09-12T11:00:00Z
+2026,27,2026-10-09,11:35,Shenzhen Xinpengcheng,Henan Songshan Longmen,2026-10-09T11:35:00Z
+2026,27,2026-10-09,12:00,Zhejiang Professional,Shanghai Port,2026-10-09T12:00:00Z
+2026,27,2026-10-10,11:35,Chengdu Rongcheng,Tianjin Jinmen Tiger,2026-10-10T11:35:00Z
+2026,27,2026-10-10,11:35,Shanghai Shenhua,Yunnan Yukun,2026-10-10T11:35:00Z
+2026,27,2026-10-10,12:00,Qingdao Hainiu,Beijing Guoan,2026-10-10T12:00:00Z
+2026,27,2026-10-11,10:00,Qingdao West Coast,Dalian Yingbo,2026-10-11T10:00:00Z
+2026,27,2026-10-11,11:35,Chongqing Tonglianglong,Shandong Taishan,2026-10-11T11:35:00Z
+2026,27,2026-10-11,11:35,Liaoning Tieren,Wuhan Three Towns,2026-10-11T11:35:00Z
+2026,28,2026-10-16,11:35,Henan Songshan Longmen,Tianjin Jinmen Tiger,2026-10-16T11:35:00Z
+2026,28,2026-10-17,11:00,Dalian Yingbo,Shenzhen Xinpengcheng,2026-10-17T11:00:00Z
+2026,28,2026-10-17,11:35,Qingdao Hainiu,Liaoning Tieren,2026-10-17T11:35:00Z
+2026,28,2026-10-17,11:35,Yunnan Yukun,Chongqing Tonglianglong,2026-10-17T11:35:00Z
+2026,28,2026-10-17,12:00,Shandong Taishan,Zhejiang Professional,2026-10-17T12:00:00Z
+2026,28,2026-10-18,10:00,Wuhan Three Towns,Shanghai Shenhua,2026-10-18T10:00:00Z
+2026,28,2026-10-18,11:00,Beijing Guoan,Qingdao West Coast,2026-10-18T11:00:00Z
+2026,28,2026-10-18,12:00,Shanghai Port,Chengdu Rongcheng,2026-10-18T12:00:00Z
+2026,29,2026-10-24,07:30,Chengdu Rongcheng,Dalian Yingbo,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Chongqing Tonglianglong,Qingdao Hainiu,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Henan Songshan Longmen,Beijing Guoan,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Liaoning Tieren,Zhejiang Professional,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Qingdao West Coast,Yunnan Yukun,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Shenzhen Xinpengcheng,Shanghai Shenhua,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Tianjin Jinmen Tiger,Shanghai Port,2026-10-24T07:30:00Z
+2026,29,2026-10-24,07:30,Wuhan Three Towns,Shandong Taishan,2026-10-24T07:30:00Z
+2026,30,2026-11-08,07:30,Beijing Guoan,Chongqing Tonglianglong,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Dalian Yingbo,Tianjin Jinmen Tiger,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Qingdao Hainiu,Shenzhen Xinpengcheng,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Shandong Taishan,Chengdu Rongcheng,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Shanghai Port,Liaoning Tieren,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Shanghai Shenhua,Qingdao West Coast,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Yunnan Yukun,Wuhan Three Towns,2026-11-08T07:30:00Z
+2026,30,2026-11-08,07:30,Zhejiang Professional,Henan Songshan Longmen,2026-11-08T07:30:00Z

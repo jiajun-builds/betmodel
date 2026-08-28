@@ -84,6 +84,20 @@ def test_onexbet_legacy_prefix_stays_frozen():
     assert book.legacy_prefix_note, "a frozen prefix must record why"
 
 
+def test_ligamx_never_takes_fixtures_from_thesportsdb():
+    """A standing constraint, guarded because it is a tempting wrong turn.
+
+    TheSportsDB is the only schedule provider a cloud runner can reach without a
+    residential proxy, so switching Liga MX to it looks like a free way to give
+    the league the automated refresh the other one already has. Its Liga MX match
+    data is incomplete, so it is not available for that, and this league pays the
+    residential-egress cost for fixtures as well as xG.
+    """
+    sources = load_league("ligamx").sources
+    assert sources["fixtures"].provider == "sofascore"
+    assert sources["xg"].provider == "sofascore"
+
+
 def test_residential_stages_are_data_not_a_hardcoded_league_name():
     assert load_league("csl").residential_stages == ("xg",)
     assert load_league("ligamx").residential_stages == ("fixtures", "xg")
