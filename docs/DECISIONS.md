@@ -191,3 +191,41 @@ sampled pairings:
 **Accepted difference against the golden baseline**: none. This is a rewrite of
 the expression, not of the value. A test pins the equivalence, so a library
 upgrade that changes the zero-line convention is caught rather than shipped.
+
+---
+
+## D5 — Chinese Super League gains a reducer, and the master tables get the same odds columns.
+
+**Decided 2026-08-28.**
+
+Only one of the two pipelines ever reduced its capture history into its match
+table. Liga MX did; Chinese Super League did not, and read opening prices
+straight out of the history at signal time instead. Its match table does carry
+odds columns, heavily populated, but those are historical imports rather than
+anything the capture loop wrote.
+
+**What changes, and what does not.** CSL's published signals do not move at all:
+the signal engine reads the history, not the match table, so this touches only
+what the research and CLV layers see. Replaying the history writes 210 values
+into blanks that were never filled, and overwrites nothing.
+
+**Two facts found while wiring it up.**
+
+The provenance filter earns its place immediately. Of 160 usable CSL open rows,
+20 are excluded as not being opening prices at all, on `onexbet` and `pinnacle`.
+Without that filter a reducer would have written mid-market placeholders into the
+opening-line columns, which is the exact corruption the opening-line series
+cannot survive. Liga MX loses none.
+
+CSL has no `duel_*` or `betfair_*` columns, so 147 captured values had nowhere to
+go. Captured data with no column is silent waste, so `missing_columns()` now
+surfaces it rather than counting it, and `merge(create_columns=True)` adds them.
+Column creation is off by default: growing a tracked file's schema should be a
+deliberate migration step, never a side effect of a routine capture tick.
+
+**How gate G2 reads**
+
+Replaying the history must be a no-op for the league that was already reduced.
+Measured: Liga MX writes 0 and keeps 36, so every value the reducer would produce
+is already present and identical. For CSL there is nothing to replay against, so
+the gate is that every write lands in a blank and none overwrites.
