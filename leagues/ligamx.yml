@@ -113,11 +113,6 @@ odds:
       provider: theoddsapi
       role: reference
       schema_prefix: betfair
-    - key: matchbook
-      label: Matchbook
-      provider: theoddsapi
-      role: reference
-      schema_prefix: null
     - key: polymarket
       label: Polymarket
       provider: polymarket
@@ -126,7 +121,7 @@ odds:
 
   close:
     credential: closes
-    books: [pinnacle, betfair_ex_eu, matchbook]
+    books: [pinnacle, betfair_ex_eu]
     window_minutes: 20
     target_minutes: 10
     min_remaining: 50

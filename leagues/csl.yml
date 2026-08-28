@@ -112,15 +112,10 @@ odds:
       provider: theoddsapi
       role: reference
       schema_prefix: null
-    - key: matchbook
-      label: Matchbook
-      provider: theoddsapi
-      role: reference
-      schema_prefix: null        # captured for research, no column yet
 
   close:
     credential: closes
-    books: [pinnacle, betfair_ex_eu, betfair_ex_uk, matchbook]
+    books: [pinnacle, betfair_ex_eu, betfair_ex_uk]
     window_minutes: 60
     target_minutes: 5
     min_remaining: 50
