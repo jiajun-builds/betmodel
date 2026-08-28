@@ -232,6 +232,7 @@ class BookConfig:
     schema_prefix: str | None = None   # column prefix in matches.csv; None = store only
     legacy_prefix: str | None = None   # published legacy column prefix
     legacy_prefix_note: str = ""       # required when legacy_prefix is non-default
+    url: str = ""                      # where a human would go to take this price
 
     def __post_init__(self) -> None:
         where = f"odds.books[{self.key}]"
@@ -277,6 +278,7 @@ class BookConfig:
             schema_prefix=raw.get("schema_prefix", key),
             legacy_prefix=raw.get("legacy_prefix"),
             legacy_prefix_note=str(raw.get("legacy_prefix_note", "") or ""),
+            url=str(raw.get("url", "") or ""),
         )
 
 

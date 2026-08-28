@@ -229,3 +229,60 @@ Replaying the history must be a no-op for the league that was already reduced.
 Measured: Liga MX writes 0 and keeps 36, so every value the reducer would produce
 is already present and identical. For CSL there is nothing to replay against, so
 the gate is that every write lands in a blank and none overwrites.
+
+---
+
+## D6 — One unambiguous kickoff column, required rather than derived.
+
+**Decided 2026-08-28.**
+
+Three stages decide *when* to act: the open poller decides what is still pending,
+the close poller decides what is inside its window, and the signal engine decides
+what is still upcoming. All three are wrong in the same way if the kickoff is
+wrong, and none of them would raise.
+
+One pipeline had already learned this. Its match table's `Time` column mixes
+local and UTC, the ambiguity fabricated a result once, and it responded by
+writing an explicit `kickoff_utc` and never reading `Date`/`Time` again. The
+other pipeline was still parsing the pair and calling the result UTC, which is
+correct for that league today and is exactly the assumption that failed
+elsewhere.
+
+The loader now requires `kickoff_utc` and refuses to derive one. CSL's file has
+been backfilled from its documented-UTC pair as a one-time migration, and the
+fixtures stage writes the column from here on.
+
+**Accepted difference against the golden baseline**: none. The derived values are
+identical to what the old parse produced for that league; what changed is that
+the assumption is now stated in the data instead of held in a comment.
+
+---
+
+## D7 — odds-api.io credentials are per league.
+
+**Decided 2026-08-28.**
+
+A key on this provider is entitled to a fixed, small number of bookmakers, and
+the refusal is explicit: *"You're allowed max 2 bookmakers. Allowed: 1xbet,
+Duel."* The two leagues bet three distinct books between them, so they cannot
+share a key, and the split is now part of each league's config rather than a
+global environment variable.
+
+The same refusal exposed a second problem. The client described the 403 body as
+"the authoritative entitlement list, unlike the catalogue endpoint which goes
+stale" and then discarded it, which turned a self-explaining error into a guess
+and cost real time. Refusals now carry a redacted excerpt of the body, and name
+which credential and which environment variable were refused.
+
+**Not a production issue.** A local `.env` in one source repo holds a stale copy
+of the other league's key; the repository secret is correct and the live capture
+loop is unaffected.
+
+---
+
+## D8 — `price_quality` is deferred with Polymarket.
+
+Its only input is the Polymarket snapshot store, and that provider is deferred to
+the evaluation phase because no production path reads it. Porting a module with
+no inputs would move dead code rather than merge anything. It travels with the
+evaluation layer.
