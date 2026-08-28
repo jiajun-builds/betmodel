@@ -91,11 +91,13 @@ odds:
     - key: pinnacle
       label: Pinnacle
       provider: theoddsapi
-      role: reference              # displayed as context; this league does not de-bias
-      # Opening lines are irreproducible and no provider sells opener history, so
-      # they are captured even though nothing consumes them yet: it also gives the
-      # CLV harnesses the open-to-close drift baseline they currently lack.
-      # Set to null to stop spending on it.
+      # Reference for now, anchor later. The intent is that both leagues
+      # calibrate the draw against the Pinnacle OPEN, but this league has zero
+      # Pinnacle opens captured, so there is nothing to anchor to until polling
+      # accumulates them. See docs/DECISIONS.md D1.
+      role: reference
+      # Opening lines are irreproducible and no provider sells opener history,
+      # so capture starts now even though nothing consumes it yet.
       poll_interval_minutes: 180
       credential: opens
       schema_prefix: pinnacle
@@ -132,7 +134,10 @@ signals:
   allow_draw: true
   require_price_proof: true      # a signal needs a provably-first price, see capture_watch
   debias:
-    method: none                 # deleted: the draw bias it corrected was a fitter bug
+    # Off. The draw bias the old calibration corrected turned out to be a fitter
+    # bug, and turning market anchoring on instead would change which bets fire.
+    # That needs a backtest and needs Pinnacle opens to exist first. D1.
+    method: none
 
 publish:
   legacy_contract: composite

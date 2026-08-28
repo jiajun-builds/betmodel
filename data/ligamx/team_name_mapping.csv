@@ -1,20 +1,20 @@
-﻿ligamx_team,match_team,odds_team,sofascore_team,standard_team
-Puebla,Puebla,Puebla,Club Puebla,Puebla
-Santos,Santos Laguna,Santos Laguna,Santos Laguna,Santos Laguna
-Atlético,Atl. San Luis,Atlético San Luis,Atlético San Luis,Atletico San Luis
-América,Club América,América,Club América,Club America
-Querétaro,Querétaro,Querétaro,Querétaro FC,Queretaro
-Tijuana,Tijuana,Tijuana,Club Tijuana,Tijuana
-FC Juárez,FC Juárez,FC Juárez,FC Juárez,FC Juarez
-Atlas,Atlas,Atlas,Atlas FC,Atlas
-UNAM,UNAM Pumas,Pumas,Pumas UNAM,UNAM Pumas
-León,León,León,Club León,Leon
-Guadalajara,Guadalajara,Guadalajara,CD Guadalajara,Guadalajara
-Toluca,Toluca,Toluca,CD Toluca,Toluca
-UANL,Tigres UANL,Tigres,Tigres UANL,Tigres UANL
-Necaxa,Necaxa,Necaxa,Club Necaxa,Necaxa
-Cruz Azul,Cruz Azul,Cruz Azul,Cruz Azul,Cruz Azul
-Mazatlán,Mazatlán,Mazatlán FC,Mazatlán FC,Mazatlan
-Pachuca,Pachuca,Pachuca,CF Pachuca,Pachuca
-Monterrey,Monterrey,Monterrey,CF Monterrey,Monterrey
-Atlante,Atlante,Atlante FC,Atlante FC,Atlante
+match_team,sofascore_team,theoddsapi_team,oddsapiio_team,ligamx_team,standard_team
+Puebla,Club Puebla,Puebla,Club Puebla,Puebla,Puebla
+Santos Laguna,Santos Laguna,Santos Laguna,Club Santos Laguna,Santos,Santos Laguna
+Atl. San Luis,Atlético San Luis,Atlético San Luis,Atletico San Luis,Atlético,Atletico San Luis
+Club América,Club América,América,CF America,América,Club America
+Querétaro,Querétaro FC,Querétaro,Queretaro FC,Querétaro,Queretaro
+Tijuana,Club Tijuana,Tijuana,Club Tijuana de Caliente,Tijuana,Tijuana
+FC Juárez,FC Juárez,FC Juárez,FC Juarez,FC Juárez,FC Juarez
+Atlas,Atlas FC,Atlas,Atlas FC,Atlas,Atlas
+UNAM Pumas,Pumas UNAM,Pumas,Pumas UNAM,UNAM,UNAM Pumas
+León,Club León,León,Club Leon,León,Leon
+Guadalajara,CD Guadalajara,Guadalajara,CD Guadalajara,Guadalajara,Guadalajara
+Toluca,CD Toluca,Toluca,Deportivo Toluca FC,Toluca,Toluca
+Tigres UANL,Tigres UANL,Tigres,Tigres UANL,UANL,Tigres UANL
+Necaxa,Club Necaxa,Necaxa,Club Necaxa,Necaxa,Necaxa
+Cruz Azul,Cruz Azul,Cruz Azul,CF Cruz Azul,Cruz Azul,Cruz Azul
+Mazatlán,Mazatlán FC,Mazatlán FC,Mazatlan FC,Mazatlán,Mazatlan
+Pachuca,CF Pachuca,Pachuca,CF Pachuca,Pachuca,Pachuca
+Monterrey,CF Monterrey,Monterrey,CF Monterrey,Monterrey,Monterrey
+Atlante,Atlante FC,Atlante FC,Atlante FC,Atlante,Atlante

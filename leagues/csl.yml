@@ -127,6 +127,8 @@ signals:
   debias:
     method: market_anchor
     lam: 1.0                     # the draw IS the anchor's no-vig draw
+    # The anchor is the stored OPENING price, never the current one. The Now line
+    # is not fetched at all any more; see docs/DECISIONS.md D1.
     anchor_book: pinnacle
 
 publish:
