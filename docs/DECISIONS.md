@@ -59,3 +59,85 @@ captured today, so there is nothing to anchor to until polling accumulates them.
 Turning it on also changes which bets fire, which is a strategy decision that
 needs a backtest, not a side effect of a merge. Revisit once opens exist and the
 gates have passed.
+
+---
+
+## D2 — One scoreline grid for every league: 0 to 9.
+
+**Decided 2026-08-28.**
+
+The two fitters used grids of different sizes, and worse, read a field of the
+same name differently: one built `arange(max_goals)` and the other
+`arange(max_goals + 1)`, so the same number meant a 10-cell grid in one and an
+11-cell grid in the other. `max_goals` now means the highest scoreline modelled,
+unambiguously, and both leagues use 9.
+
+**Measured cost of the reduction**, at Liga MX's scoring rates (mean targets
+1.587 home, 1.197 away):
+
+| case | probability mass outside a 10-cell grid |
+|---|---|
+| typical fixture | 7.2e-06 |
+| a fixture at lambda 3.0 | 1.1e-03 |
+| a fixture at lambda 3.5 | 3.3e-03 |
+
+Orders of magnitude below the model's own uncertainty, and the 1X2 aggregation
+renormalises, so the residual effect is second order.
+
+**Accepted difference against the golden baseline**
+
+Liga MX model outputs shift slightly. **Measured**: at most 1.1e-04 on a 1X2
+probability across all 342 team pairings, which is about one hundredth of a
+percentage point against a signal threshold of ten percent. Chinese Super League
+is unaffected, since its grid was already 10 cells.
+
+**How gate G1 handles this**
+
+Two separate checks, so a porting bug cannot hide behind a deliberate change:
+
+1. **Faithful port.** Fit each league with its pre-merge optimiser settings and
+   grid size, and require the parameters to reproduce the frozen output tightly.
+   This answers "is the merged fitter the same mathematics".
+2. **Applied change.** Fit again with the unified settings and report the delta.
+   This answers "how much did the decisions above move the numbers", and the
+   answer has to be consistent with the table above.
+
+---
+
+## D3 — One optimiser setting, the tighter one.
+
+**Decided 2026-08-28.**
+
+The two fitters used different starting points and different convergence
+tolerances. Liga MX set `ftol=1e-12, gtol=1e-10`; Chinese Super League used
+scipy's defaults, which are far looser. The objective is convex, so both reach
+the same optimum in principle, but "in principle" is not a claim to make about a
+number that reaches a bet, so it was measured.
+
+Liga MX's settings are adopted for both. Measured on the CSL training window:
+
+| setting | log-likelihood | max gradient | score equation |
+|---|---|---|---|
+| scipy defaults | -509.7319474717 | 2.30e-03 | (0.999996, 1.000007) |
+| ftol 1e-12, gtol 1e-10 | -509.7319470621 | 5.59e-04 | (0.999999, 1.000000) |
+
+The tighter setting is closer to the optimum on every axis: higher likelihood, a
+gradient four times smaller, and a score equation an order of magnitude nearer
+1.0. The frozen CSL output is slightly under-converged.
+
+**Accepted difference against the golden baseline**
+
+CSL attack and defence coefficients move by at most 9.3e-05, which is a relative
+2e-04 on a coefficient of order 0.5 and about 0.01% on a fitted scoring rate. Liga
+MX is unaffected: its pre-merge settings were already these.
+
+**Why this does not weaken gate G1**
+
+G1 keeps both settings available and runs two checks. Fitting with each league's
+pre-merge settings must reproduce its frozen coefficients to floating-point
+precision, which proves the merged fitter is the same mathematics. Fitting with
+the unified settings then reports the delta, which measures the decision. A
+porting bug cannot hide inside the second number, because the first would fail.
+
+Measured faithful-port result: max coefficient difference 5.6e-16 for CSL and
+3.0e-15 for Liga MX. That is floating-point noise.

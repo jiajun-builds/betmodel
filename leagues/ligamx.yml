@@ -46,7 +46,10 @@ model:
   xi: 0.0015
   lookback_months: 24
   min_train: 100
-  max_goals: 15
+  # Was 15 (a 16-cell grid). Reduced to match the other league: at this
+  # league's scoring rates the mass outside a 10-cell grid is 7e-06, and
+  # 1e-03 even on an extreme fixture. See docs/DECISIONS.md D2.
+  max_goals: 9
   xg_blend: {xg: 0.25, goals: 0.75}   # chosen by walk-forward RPS search
   shrinkage: {enabled: true, k: 6.0}  # empirical Bayes, w = n / (n + k)
   draw_calibration_alpha: 1.0         # identity; the bias it corrected was a fitter bug

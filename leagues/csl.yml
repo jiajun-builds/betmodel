@@ -41,10 +41,16 @@ model:
   xi: 0.001                      # Dixon-Coles time decay
   lookback_months: 18
   min_train: 100
-  max_goals: 10                  # scoreline grid truncation
+  # Highest scoreline modelled, so the grid is 10 cells a side. Stated
+  # explicitly because the two pre-merge fitters read a field of this name
+  # differently: one built arange(max_goals), the other arange(max_goals + 1).
+  max_goals: 9
   xg_blend: {xg: 0.7, goals: 0.3}
   shrinkage: {enabled: false}
   draw_calibration_alpha: 1.0    # identity; the bias it corrected was a fitter bug
+  # Asian-handicap cover probabilities written to the simulations file. Research
+  # input only: nothing in the production path reads them.
+  ah_lines: [-2, -1]
 
 odds:
   quota_floor: 50                # skip a tick below this many remaining credits
