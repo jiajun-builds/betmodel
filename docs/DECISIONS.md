@@ -388,3 +388,31 @@ is absent.
 **`Date` and `Time` are left alone.** Several seasons of research reference them,
 and rewriting them would silently move rows other work is keyed to. They are
 superseded, not corrected.
+
+---
+
+## D13 — Three layers use time, and only one of them is about a reader.
+
+**Decided 2026-08-28.**
+
+**Storage and computation: UTC, without exception.** Every stored timestamp ends
+in `Z`, every comparison happens in UTC. The bug that prompted this was a match
+history whose date column violated it, carrying whichever timezone the source
+that wrote each row happened to use.
+
+**Identity: the league's own local matchday.** Not display. A match belongs to
+the day it was played in its own country, and naming a 19:00 kickoff in a UTC-6
+league by the next UTC date names a day nobody played on. Frozen, because
+published identifiers must keep matching the ones already issued.
+
+**Display: one timezone, and it is the reader's.** Previously each league was
+shown in its own zone, which put two timezones in one inbox and answered a
+question nobody asked. A Liga MX kickoff shown as "19:00" sounds like an evening;
+for a reader in London it is two in the morning. Only the second tells them
+whether to be at a screen. `BETMODEL_DISPLAY_TZ` overrides, defaulting to
+Europe/London.
+
+The distinction matters because these three pull in different directions, and the
+pre-merge pipelines conflated them: a display convenience, local kickoff time,
+had leaked into the published contract, where two shapes then disagreed about
+which field carried it.

@@ -37,11 +37,10 @@ import logging
 import os
 import subprocess
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 import requests
 
-from betmodel import paths
+from betmodel import display, paths
 from betmodel.config.schema import LeagueConfig
 
 log = logging.getLogger(__name__)
@@ -157,7 +156,6 @@ def format_message(config: LeagueConfig, signal: dict) -> str:
     fair = (1.0 / probability) if probability else None
 
     kickoff = datetime.fromisoformat(signal["kickoff_utc"].replace("Z", "+00:00"))
-    local = kickoff.astimezone(ZoneInfo(config.timezone))
 
     book = next((b for b in config.odds.bet_books if b.key == bet["book"]), None)
     label = book.label if book else bet["book"]
@@ -170,7 +168,10 @@ def format_message(config: LeagueConfig, signal: dict) -> str:
         f"{_escape(label)} 开盘价: <b>{bet['odds']:.2f}</b>",
         f"EV: <b>{bet['ev']:+.3f}</b>",
         f"Fair odds (模型): <b>{fair:.2f}</b>" if fair else "Fair odds (模型): --",
-        f"开赛: {local.strftime('%m-%d %H:%M')} ({config.timezone})",
+        # One timezone for every league, and it is the reader's. Showing each
+        # league in its own zone puts two timezones in one inbox and answers a
+        # question nobody asked: what matters is when to be at a screen.
+        f"开赛: {display.moment(kickoff)} {display.label()}",
     ]
 
     alternates = []

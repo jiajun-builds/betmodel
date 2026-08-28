@@ -13,6 +13,7 @@ import subprocess
 
 import pytest
 
+from betmodel import display
 from betmodel.config import load_league
 from betmodel.notify import telegram
 
@@ -153,10 +154,27 @@ def test_the_price_and_the_book_appear_together():
     assert "Duel" in message and "3.80" in message
 
 
-def test_the_kickoff_is_shown_in_league_local_time():
-    """A display concern, and the one place local time belongs."""
+def test_every_league_shows_its_kickoff_in_the_same_timezone(monkeypatch):
+    """One inbox, one timezone.
+
+    Showing each league in its own zone answers a question nobody asked. This
+    kickoff is 19:00 in Mexico City, which sounds like an evening; the reader is
+    in London, where it is two in the morning. Only the second is actionable.
+    """
+    monkeypatch.setenv(display.ENV, "Europe/London")
+    mex = telegram.format_message(load_league("ligamx"), _signal())
+    assert "08-29 02:00" in mex
+    assert "19:00" not in mex
+
+    csl = telegram.format_message(load_league("csl"), _signal(book="onexbet"))
+    # Same zone label in both, whatever the league.
+    assert display.label() in mex and display.label() in csl
+
+
+def test_the_display_timezone_follows_the_reader_not_the_league(monkeypatch):
+    monkeypatch.setenv(display.ENV, "Asia/Shanghai")
     message = telegram.format_message(load_league("ligamx"), _signal())
-    assert "08-28 19:00" in message, "01:00Z is 19:00 the previous day in Mexico City"
+    assert "08-29 09:00" in message, "01:00Z is 09:00 in Shanghai"
 
 
 def test_fair_odds_are_labelled_as_a_reference_not_a_floor():
