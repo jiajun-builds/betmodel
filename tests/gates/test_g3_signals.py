@@ -153,3 +153,105 @@ def test_the_positive_path_is_actually_exercised_somewhere(replay):
         # Recorded rather than asserted away: CSL's firing path is covered by
         # constructed cases in tests/unit/test_signal_engine.py.
         assert firing == 0
+
+
+# --------------------------------------------------------------------------- #
+# G3, second half: the whole legacy payload, field by field
+# --------------------------------------------------------------------------- #
+
+from betmodel.publish import legacy  # noqa: E402
+
+#: Fields whose source was deliberately removed, recorded as D1. The current
+#: price is no longer fetched, so the reference columns it fed carry the anchor's
+#: OPENING price instead, and are empty for a league with no anchor opens yet.
+D1_RETIRED_NOW_LINE = frozenset({
+    "pinnacle_home_odds", "pinnacle_draw_odds", "pinnacle_away_odds",
+    "pinnacle_last_update", "pinnacle_fetched_at",
+})
+
+#: When the export ran. Not a property of the data.
+EXPORT_STAMP = frozenset({"fetched_at"})
+
+ACCEPTED = D1_RETIRED_NOW_LINE | EXPORT_STAMP
+
+
+def _equal(left, right) -> bool:
+    if isinstance(left, bool) or isinstance(right, bool):
+        return left == right
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        return abs(left - right) < 1e-9
+    return left == right
+
+
+def _rendered(league: str) -> tuple[dict, dict]:
+    payload, signals = _replay(league)
+    published_at = pd.Timestamp(payload["meta"]["updated_at"]).tz_convert("UTC").to_pydatetime()
+    rendered = legacy.market_comparison(
+        load_league(league), list(signals.values()), generated_at=published_at
+    )
+    return payload, rendered
+
+
+@pytest.fixture(scope="module", params=["csl", "ligamx"])
+def rendered(request):
+    payload, output = _rendered(request.param)
+    return request.param, payload, output
+
+
+def test_the_field_set_and_its_order_are_unchanged(rendered):
+    """The board reads these by name, and one prefix is frozen at a historical
+    spelling precisely because renaming it blanks every price it names."""
+    league, payload, output = rendered
+    assert list(output["rows"][0]) == list(payload["rows"][0]), league
+
+
+def test_the_envelope_matches(rendered):
+    league, payload, output = rendered
+    assert output["meta"] == payload["meta"], league
+
+
+def test_every_field_of_every_row_matches_or_is_an_accepted_difference(rendered):
+    """The strongest check available: thirty-eight and thirty-one fields, every
+    published row, against what the two pipelines actually shipped."""
+    league, payload, output = rendered
+    ours = {r["fixture_id"]: r for r in output["rows"]}
+    unexplained: list[str] = []
+    for row in payload["rows"]:
+        mine = ours[row["fixture_id"]]
+        for field, value in row.items():
+            if field in ACCEPTED or _equal(value, mine.get(field)):
+                continue
+            unexplained.append(
+                f"{row['fixture_id']}.{field}: {value!r} != {mine.get(field)!r}"
+            )
+    assert not unexplained, f"{league}: {len(unexplained)} unexplained:\n  " + \
+        "\n  ".join(unexplained[:8])
+
+
+def test_the_accepted_differences_are_the_ones_recorded_and_no_others(rendered):
+    """A shrinking list is fine; a growing one means a decision went unrecorded."""
+    league, payload, output = rendered
+    ours = {r["fixture_id"]: r for r in output["rows"]}
+    differing = {
+        field
+        for row in payload["rows"]
+        for field, value in row.items()
+        if not _equal(value, ours[row["fixture_id"]].get(field))
+    }
+    assert differing <= ACCEPTED, f"{league}: undocumented: {sorted(differing - ACCEPTED)}"
+
+
+def test_expected_value_is_published_in_the_unit_the_board_expects(rendered):
+    """The two boards disagree, which is why the board downstream guesses the
+    scale from a median. The canonical contract is a fraction everywhere."""
+    league, _, output = rendered
+    unit = load_league(league).publish.legacy_ev_unit
+    values = [
+        v for row in output["rows"] for k, v in row.items()
+        if k.endswith("_ev") and isinstance(v, (int, float))
+    ]
+    assert values
+    if unit == "percent":
+        assert max(abs(v) for v in values) > 1.5
+    else:
+        assert max(abs(v) for v in values) < 1.5

@@ -319,3 +319,32 @@ a several-second fit inside a path that runs on every capture tick.
 The engine now reads `simulations.csv`. Verified by replay: probabilities match
 the frozen baseline to 3.3e-16 for the league that refitted, and exactly for the
 one that read.
+
+---
+
+## D11 — What the two legacy shapes disagreed about.
+
+Rendering both pre-merge payloads from one engine turned up three field-level
+inversions that had never been visible because each pipeline only ever saw its
+own. All three are reproduced exactly by the compatibility exporter and all three
+are gone from the canonical contract.
+
+**`kickoff_at` and `match_time` mean opposite things.** One shape puts
+league-local time with an offset in `kickoff_at` and UTC time-of-day in
+`match_time`; the other puts UTC in `kickoff_at` and local time-of-day in
+`match_time`. Both parse to the right instant, so nothing downstream ever broke,
+but a consumer reading them as one contract is reading two.
+
+**The envelope timestamp is stamped in different zones**, league-local in one and
+UTC in the other. Same inversion, one level up.
+
+**"The book" means two things in one row.** `price_proof`, `price_captured_at`
+and `price_age_h` describe the price the row was *judged* on, which is the
+best-expected-value side whether or not it cleared the bar. `bookmaker` and
+`last_update` describe the price to actually *bet*, which is empty when nothing
+fires. Reproducing this needed both notions kept separate; conflating them put
+provenance on seven rows that should have had none, or stripped it from seven
+that should.
+
+The canonical contract has one UTC field, one zone, and one explicit distinction
+between the judged price and the bettable one.

@@ -125,6 +125,11 @@ class Signal:
     pick: str
     state: str
     ev: float | None
+    #: Highest-EV bettable side BEFORE any threshold. Distinct from ``pick``,
+    #: which is empty unless the edge cleared. Provenance and price age describe
+    #: the price we would have taken, so they follow this rather than the pick:
+    #: a row that did not fire still says which price it was judged on.
+    top_side: str = ""
     books: tuple[str, ...] = ()
     anchor_odds: tuple[float, float, float] | None = None
     anchor_last_update: str = ""
@@ -133,6 +138,16 @@ class Signal:
     @property
     def fires(self) -> bool:
         return self.state == STATE_BET
+
+    @property
+    def top_quote(self) -> "Quote | None":
+        """The quote behind :attr:`top_side`, whether or not it fired."""
+        if not self.top_side or self.top_side not in self.best:
+            return None
+        book = self.best[self.top_side].book
+        return next(
+            (q for q in self.quotes if q.side == self.top_side and q.book == book), None
+        )
 
     def quotes_for(self, book: str) -> dict[str, Quote]:
         return {q.side: q for q in self.quotes if q.book == book}
@@ -236,6 +251,9 @@ def build_signals(
         if not quotes and anchor_odds is None:
             continue  # nobody has priced it; there is nothing to decide
 
+        allowed = {s: b for s, b in best.items() if s in config.signals.sides}
+        top_side = max(allowed, key=lambda s: allowed[s].ev) if allowed else ""
+
         pick, state, pick_ev, books = _decide(config, quotes, best)
         signals.append(Signal(
             fixture_id=fixture_id(config, fixture),
@@ -243,7 +261,7 @@ def build_signals(
             kickoff=fixture.kickoff, round=fixture.round,
             probabilities=probabilities, debias_method=method,
             quotes=tuple(quotes), best=best,
-            pick=pick, state=state, ev=pick_ev, books=books,
+            pick=pick, state=state, ev=pick_ev, top_side=top_side, books=books,
             anchor_odds=anchor_odds,
             anchor_last_update=(anchor or {}).get("last_update", ""),
             anchor_captured_at=_iso((anchor or {}).get("captured_at")),
