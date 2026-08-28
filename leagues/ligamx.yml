@@ -1,0 +1,142 @@
+# Liga MX.
+#
+# Same schema as leagues/csl.yml, different values. Where a value is knowingly
+# stale it says so rather than being quietly corrected: the merge is verified by
+# reproducing the pre-merge published output byte for byte, so a cosmetic fix now
+# would be indistinguishable from a regression.
+
+id: ligamx
+name: Liga MX
+code: MEX
+season: Apertura 2026
+timezone: America/Mexico_City
+total_rounds: 17
+
+# KNOWINGLY STALE. The fitter has been continuous Poisson since the integer
+# truncation fix; this string still says Negative Binomial. It is published
+# verbatim, so correcting it changes the golden comparison. Fix after gate G3.
+model_name: Negative Binomial with Dixon-Coles Time Decay
+model_version: v1.0
+
+sources:
+  # Liga MX stays on SofaScore for both. TheSportsDB was tried and its Liga MX
+  # match data was incomplete, so the CI-friendly schedule provider that CSL uses
+  # is not an option here. Both stages therefore need a residential egress path.
+  fixtures:
+    provider: sofascore
+    network: residential
+    tournaments:
+      apertura: 11621
+      clausura: 11620
+  xg:
+    provider: sofascore
+    network: residential
+    tournaments:
+      apertura: 11621
+      clausura: 11620
+
+model:
+  xi: 0.0015
+  lookback_months: 24
+  min_train: 100
+  max_goals: 15
+  xg_blend: {xg: 0.25, goals: 0.75}   # chosen by walk-forward RPS search
+  shrinkage: {enabled: true, k: 6.0}  # empirical Bayes, w = n / (n + k)
+  draw_calibration_alpha: 1.0         # identity; the bias it corrected was a fitter bug
+  ah_lines: [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
+
+odds:
+  quota_floor: 50
+
+  providers:
+    theoddsapi:
+      base_url: https://api.the-odds-api.com/v4
+      sport_key: soccer_mexico_ligamx
+      regions: eu,uk
+      market: h2h
+    oddsapiio:
+      base_url: https://api.odds-api.io/v3
+      sport: football
+      # Two slugs because Liga MX runs two tournaments per calendar year.
+      league_slugs: [mexico-liga-mx-clausura, mexico-liga-mx-apertura]
+      markets: [ML, Spread]
+      batch_size: 10
+      window_days: 30
+    polymarket:
+      gamma_base: https://gamma-api.polymarket.com
+      clob_base: https://clob.polymarket.com
+
+  books:
+    - key: betano
+      label: Betano
+      provider: oddsapiio
+      provider_name: Betano UK     # plain "Betano" 403s; the entitlement is the UK book
+      role: bet
+      poll_interval_minutes: 10
+      schema_prefix: betano
+    - key: duel
+      label: Duel
+      provider: oddsapiio
+      provider_name: Duel
+      role: bet
+      poll_interval_minutes: 10
+      schema_prefix: duel
+    - key: pinnacle
+      label: Pinnacle
+      provider: theoddsapi
+      role: reference              # displayed as context; this league does not de-bias
+      # Opening lines are irreproducible and no provider sells opener history, so
+      # they are captured even though nothing consumes them yet: it also gives the
+      # CLV harnesses the open-to-close drift baseline they currently lack.
+      # Set to null to stop spending on it.
+      poll_interval_minutes: 180
+      credential: opens
+      schema_prefix: pinnacle
+    - key: betfair_ex_eu
+      label: Betfair Exchange EU
+      provider: theoddsapi
+      role: reference
+      schema_prefix: betfair
+    - key: matchbook
+      label: Matchbook
+      provider: theoddsapi
+      role: reference
+      schema_prefix: null
+    - key: polymarket
+      label: Polymarket
+      provider: polymarket
+      role: reference              # free and retroactively backfillable, so never polled
+      schema_prefix: polymarket
+
+  close:
+    credential: closes
+    books: [pinnacle, betfair_ex_eu, matchbook]
+    window_minutes: 20
+    target_minutes: 10
+    min_remaining: 50
+
+  open:
+    lookahead_days: 14
+    max_requests: 3
+
+signals:
+  ev_min: 0.10                   # fraction; backed by a 427-opener walk-forward test
+  odds_cap: null                 # no cap here
+  allow_draw: true
+  require_price_proof: true      # a signal needs a provably-first price, see capture_watch
+  debias:
+    method: none                 # deleted: the draw bias it corrected was a fitter bug
+
+publish:
+  legacy_contract: composite
+  legacy_ev_unit: percent        # KNOWINGLY divergent; the canonical contract is
+                                 # always a fraction, this describes only the
+                                 # public/legacy/ compatibility file
+  validated: false
+  caveat: >
+    Signals fire at EV >= 10%, backed by a 427-opener walk-forward backtest, but
+    the provenance gate is not yet reflected downstream. Left unvalidated until
+    the board reads the threshold from the manifest.
+
+notify:
+  telegram: false

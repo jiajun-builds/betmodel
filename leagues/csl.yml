@@ -1,0 +1,131 @@
+# Chinese Super League.
+#
+# Every value here was a module-level constant in cslmonitor. Where a value is
+# knowingly stale it says so, rather than being quietly corrected: the merge is
+# verified by reproducing the pre-merge published output byte for byte, so a
+# cosmetic fix now would look identical to a regression.
+
+id: csl
+name: Chinese Super League
+code: CSL
+season: "2026"
+timezone: Europe/London          # display tz; source CSVs store UTC
+total_rounds: 35
+
+model_name: Weighted Poisson on xG with Dixon-Coles Time Decay
+model_version: v2.8
+
+sources:
+  fixtures:
+    provider: thesportsdb
+    network: cloud               # plain HTTP, runs anywhere
+    league_id: "4359"
+    max_rounds: 35
+    seasons:
+      - ["2026", ["2026", "2026-2027"]]
+  xg:
+    provider: sofascore
+    network: residential         # Cloudflare 403s datacenter IPs; curl_cffi is
+                                 # necessary but not sufficient, the IP matters
+    unique_tournament_id: 649
+    season_id: 90049
+
+model:
+  xi: 0.001                      # Dixon-Coles time decay
+  lookback_months: 18
+  min_train: 100
+  max_goals: 10                  # scoreline grid truncation
+  xg_blend: {xg: 0.7, goals: 0.3}
+  shrinkage: {enabled: false}
+  draw_calibration_alpha: 1.0    # identity; the bias it corrected was a fitter bug
+
+odds:
+  quota_floor: 50                # skip a tick below this many remaining credits
+
+  providers:
+    theoddsapi:
+      base_url: https://api.the-odds-api.com/v4
+      sport_key: soccer_china_superleague
+      regions: us
+      market: h2h
+    oddsapiio:
+      base_url: https://api.odds-api.io/v3
+      sport: football
+      league_slugs: [china-chinese-super-league]
+      markets: [ML]
+      batch_size: 10             # /odds/multi returns 10 events per request
+
+  # Order is load-bearing: it sets published column order and breaks ties when
+  # two books quote the same best price.
+  books:
+    - key: onexbet
+      label: 1xBet
+      provider: oddsapiio
+      provider_name: "1xbet"
+      role: bet
+      poll_interval_minutes: 10
+      schema_prefix: onexbet
+      legacy_prefix: onexbet_open
+      legacy_prefix_note: >
+        Frozen. The published column names are derived from the book key
+        downstream, and every stored row plus the board's own column vocabulary
+        already spell it this way. Renaming blanks every CSL price silently.
+    - key: duel
+      label: Duel
+      provider: oddsapiio
+      provider_name: Duel
+      role: bet
+      poll_interval_minutes: 10
+      schema_prefix: duel
+    - key: pinnacle
+      label: Pinnacle
+      provider: theoddsapi
+      role: anchor               # never bet, never displayed; de-bias input only
+      poll_interval_minutes: 180 # was a predicted 12h window that missed 17% of
+                                 # opens; polling is cheaper than being wrong
+      credential: opens
+      schema_prefix: pinnacle
+    - key: betfair_ex_eu
+      label: Betfair Exchange EU
+      provider: theoddsapi
+      role: reference
+      schema_prefix: betfair
+    - key: betfair_ex_uk
+      label: Betfair Exchange UK
+      provider: theoddsapi
+      role: reference
+      schema_prefix: null
+    - key: matchbook
+      label: Matchbook
+      provider: theoddsapi
+      role: reference
+      schema_prefix: null        # captured for research, no column yet
+
+  close:
+    credential: closes
+    books: [pinnacle, betfair_ex_eu, betfair_ex_uk, matchbook]
+    window_minutes: 60
+    target_minutes: 5
+    min_remaining: 50
+
+  open:
+    lookahead_days: 21
+    max_requests: 4
+
+signals:
+  ev_min: 0.20                   # fraction, never percentage points
+  odds_cap: 7.0
+  allow_draw: false              # draws are never bet here
+  require_price_proof: false     # no capture_watch history yet; see leagues/ligamx.yml
+  debias:
+    method: market_anchor
+    lam: 1.0                     # the draw IS the anchor's no-vig draw
+    anchor_book: pinnacle
+
+publish:
+  legacy_contract: per_book
+  legacy_ev_unit: fraction
+  validated: true
+
+notify:
+  telegram: true
