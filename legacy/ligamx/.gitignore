@@ -1,0 +1,28 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+.venv/
+venv/
+
+.env
+.env.*
+!.env.local.example
+
+output/
+site/
+data/output_data/
+
+# Regenerable odds caches (raw store rebuilds via backfill; h2h is a live snapshot)
+data/odds_snapshots.csv
+data/MEX_pinnacle_h2h.csv
+data/polymarket_price_quality.csv
+data/polymarket_trades.csv
+data/oddsapi_io_closes.csv
+
+AGENTS.md
+CLAUDE.md
+
+# wrangler local state for tools/capture-timer (account cache, build output)
+.wrangler/
+node_modules/

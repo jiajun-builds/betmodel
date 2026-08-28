@@ -1,0 +1,16 @@
+{
+  "competition_code": "MEX",
+  "competition_name": "Liga MX",
+  "season": "Apertura 2026",
+  "updated_at": "2026-08-27T22:47:49+00:00",
+  "model_updated_at": "2026-08-27T22:47:47+00:00",
+  "fixtures_updated_at": "2026-08-27T22:47:44+00:00",
+  "timezone": "America/Mexico_City",
+  "last_completed_match_date": "2026-08-23",
+  "next_fixture_date": "2026-08-28",
+  "matches_played": 45,
+  "current_round": 6,
+  "total_rounds": 17,
+  "model_name": "Negative Binomial with Dixon-Coles Time Decay",
+  "model_version": "v1.0"
+}

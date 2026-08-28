@@ -1,0 +1,282 @@
+name: Capture Odds
+
+# The odds-capture tick. Two captures write the same append-only store
+# (data/MEX_odds_capture_history.csv), on two different cadences, because the two
+# prices they chase have opposite deadlines:
+#
+#   job                | line    | book             | provider     | budget     | cadence
+#   -------------------|---------|------------------|--------------|------------|--------
+#   1. oddsapiio-opens | OPENING | Betano UK + Duel | odds-api.io  | ~500/DAY   | 15 min
+#   2. pinnacle-close  | CLOSING | Pinnacle (+exch) | The Odds API | 500/MONTH  |  5 min
+#
+# A third job then turns whatever landed into signals. It is not a capture: it
+# spends no credits, calls no API and fits no model, it only re-runs the offline
+# export so a price that just arrived becomes a bet (or fails the opener gate)
+# within minutes instead of waiting for the pipeline to be run by hand.
+#
+# The opener has no window at all: a fixture stays pending until the book prices it
+# or it kicks off, so a late tick costs latency and nothing else. Betano opens a
+# median T-293h out, so 15 minutes of slippage is 0.09% of the lead. The close has a
+# hard deadline instead -- a fixture leaves the pre-match feed at kickoff and there
+# is no backfill at any price -- so it needs the fast tick and a tight window.
+#
+# Why the window is 20 minutes and not cslmonitor's 60: at Liga MX's 39 fixtures a
+# month, a 60-minute window costs ~468 of the 500 free monthly credits; 20 minutes
+# costs ~156. cslmonitor needed 60 because its trigger was unreliable. Ours is not.
+#
+# Why the jobs are SEQUENTIAL, not parallel: both append rows to the end of the same
+# CSV. Two same-tick appends at EOF do not auto-merge, so parallel jobs hit real
+# rebase conflicts on push. Chaining with `needs` + `if: always()` means exactly one
+# writer at a time while keeping per-capture logs and failure isolation. Runner
+# minutes are free on this public repo, so the extra checkout costs nothing.
+#
+# NOTE: scheduled workflows only run from the default branch, so changes here have
+# no effect until merged to main.
+
+on:
+  # Primary trigger: a Cloudflare Worker POSTs repository_dispatch on two crons,
+  # */5 -> close-tick and */15 -> open-tick. An API-fired dispatch starts within
+  # seconds. See SETUP_CAPTURE.md for the Worker and the PAT it needs.
+  repository_dispatch:
+    types: [open-tick, close-tick, capture-tick]
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Which capture to run (manual runs only)"
+        type: choice
+        options: [all, oddsapiio-opens, pinnacle-close]
+        default: all
+      dry_run:
+        description: "Decide only: report what would be captured, spend/write nothing"
+        type: boolean
+        default: false
+  schedule:
+    # Fallback heartbeat ONLY, and deliberately slow. GitHub's cron is heavily
+    # throttled -- measured on cslmonitor over 299 runs, a requested */10 landed at
+    # median 10min but p90 137min and worst 232min -- so it cannot be relied on for
+    # the close. It exists so that if the Worker dies, openers still get captured.
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: capture-odds
+  cancel-in-progress: false
+
+env:
+  # Non-manual triggers leave the inputs null, so each job's `if` falls back to
+  # "all" and the choice input only ever narrows a manual run.
+  DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. OPENING lines, Betano UK + Duel -- odds-api.io, no window.
+  # ---------------------------------------------------------------------------
+  # Cost is bounded by --max-requests, a hard per-run cap rather than a guess about
+  # cadence: 3 requests (1 /events + 2 /odds/multi, i.e. up to 20 fixtures) x 96
+  # runs/day = 288/day, inside the ~500/day free tier and well inside the 100/hour
+  # limit. Overflow past 20 pending fixtures waits for the next tick. Both books
+  # ride the same /odds/multi call, so capturing two costs exactly what one does.
+  oddsapiio_opens:
+    name: "1. Opening lines (Betano UK + Duel)"
+    if: >-
+      ${{ (github.event_name == 'repository_dispatch'
+             && (github.event.action == 'open-tick' || github.event.action == 'capture-tick'))
+          || github.event_name == 'schedule'
+          || (github.event_name == 'workflow_dispatch'
+             && ((github.event.inputs.only || 'all') == 'all'
+                 || github.event.inputs.only == 'oddsapiio-opens')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      appended: ${{ steps.commit.outputs.appended }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so the pre-push rebase can fast-forward
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        # The tick needs only pandas + requests (no model, no curl_cffi, no conda),
+        # which is what keeps a close capture ~45s from dispatch to API call.
+        # python-dotenv is needed because ligamx.config imports it unconditionally
+        # (it is a local-dev convenience there; in CI the values come from secrets).
+        run: pip install "pandas>=2.0" "requests>=2.28" "python-dotenv>=1.0"
+
+      - name: Capture opening lines
+        env:
+          ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          if [ -z "${ODDS_API_IO_KEY:-}" ]; then
+            echo "ODDS_API_IO_KEY not configured; skipping."
+            exit 0
+          fi
+          ARGS="--max-requests 3"
+          if [ "$DRY_RUN" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          # Deliberately NOT `|| echo WARNING`. Isolating the close from this job's
+          # failure is already job 2's `if: always()`, so swallowing the exit code
+          # here buys nothing and costs the only failure signal there is -- it
+          # reported this job green for a run that crashed on a missing import.
+          python -m ligamx.odds.fetch_oddsapiio_opens $ARGS
+
+      - name: Commit captured snapshot
+        id: commit
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(odds): capture opening lines (Betano UK + Duel)"
+          # The watch file must be staged too. It records the moment a (fixture,
+          # book) was seen carrying NO price, which is what later proves a captured
+          # price was genuinely the opener. That evidence exists nowhere else -- an
+          # unpriced fixture leaves no odds row -- and the runner is destroyed after
+          # the job, so anything not committed here is gone for good. A tick that
+          # appends no odds but records a new observation is a real change and must
+          # still commit.
+          paths: data/MEX_odds_capture_history.csv data/MEX_capture_watch.csv
+
+  # ---------------------------------------------------------------------------
+  # 2. Pinnacle CLOSING lines -- The Odds API, [KO-20m, KO) window.
+  # ---------------------------------------------------------------------------
+  # Idle ticks spend zero credits: the window check runs against local CSVs before
+  # any request, and the quota probe it does make (/v4/sports) is free. A fixture
+  # goes final once a Pinnacle close lands inside KO-10m and stops spending.
+  #
+  # Betfair and Matchbook ride along for free -- The Odds API bills markets x
+  # regions and counts 10 bookmakers as one region -- so this also finally fills
+  # betfair_close_*, which has been an empty column since the schema was written.
+  #
+  # Runs last because it is the only job whose deadline a delay moves it TOWARD
+  # (closer to kickoff), never away from.
+  pinnacle_close:
+    name: "2. Pinnacle closing lines"
+    needs: oddsapiio_opens
+    # always(): job 1 is a different provider on a different budget. Its failure,
+    # or its being skipped by the `only` input, must not stop the close.
+    if: >-
+      ${{ always()
+          && ((github.event_name == 'repository_dispatch'
+                && (github.event.action == 'close-tick' || github.event.action == 'capture-tick'))
+              || github.event_name == 'schedule'
+              || (github.event_name == 'workflow_dispatch'
+                && ((github.event.inputs.only || 'all') == 'all'
+                    || github.event.inputs.only == 'pinnacle-close'))) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      appended: ${{ steps.commit.outputs.appended }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main        # picks up job 1's commit so this rebases onto it cleanly
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        # python-dotenv is needed because ligamx.config imports it unconditionally
+        # (it is a local-dev convenience there; in CI the values come from secrets).
+        run: pip install "pandas>=2.0" "requests>=2.28" "python-dotenv>=1.0"
+
+      - name: Capture Pinnacle closing lines
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          if [ -z "${THE_ODDS_API_KEY:-}" ]; then
+            echo "THE_ODDS_API_KEY not configured; skipping."
+            exit 0
+          fi
+          ARGS=""
+          if [ "$DRY_RUN" = "true" ]; then ARGS="--dry-run"; fi
+          python -m ligamx.odds.capture_close $ARGS
+
+      - name: Commit captured snapshot
+        id: commit
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(odds): capture Pinnacle closing lines"
+
+  # ---------------------------------------------------------------------------
+  # 3. Re-export the signals off the capture that just landed.
+  # ---------------------------------------------------------------------------
+  # Without this the capture loop appends a price and stops: the opener sits in
+  # MEX_odds_capture_history.csv until someone runs the pipeline by hand, and
+  # myevbettracker -- which polls data/dashboard/json/ every 5 minutes -- shows a
+  # days-old board. This is the job its sources.js calls "the one real automation
+  # gap between the two leagues".
+  #
+  # Why it can ride the capture tick at all: the export is OFFLINE and needs only
+  # pandas. Model probabilities come from models/MEX_team_stats_match_simulations.csv,
+  # which is committed, so nothing is re-fitted here and no scipy is installed.
+  # EV is computed against the Betano/Duel composite, never against Pinnacle, so
+  # a stale reference price cannot change a signal. Cost is therefore zero API
+  # credits -- it cannot eat into the 500/month the close capture depends on.
+  #
+  # This does NOT refresh results, xG or the model. That is the daily job's work;
+  # this one only answers "given what we already know, is the price that just
+  # arrived a bet?".
+  republish:
+    name: "3. Re-export signals"
+    needs: [oddsapiio_opens, pinnacle_close]
+    # Only when a capture actually landed rows on main. An idle tick -- which is
+    # most of them -- changes no input, so re-exporting would rewrite the JSON
+    # timestamps and produce an empty-but-not-empty commit every few minutes.
+    # `appended` is already "true" only after a successful push, so this also
+    # cannot run against a commit that never made it.
+    if: >-
+      ${{ always()
+          && (needs.oddsapiio_opens.outputs.appended == 'true'
+              || needs.pinnacle_close.outputs.appended == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # main, not the triggering ref: jobs 1 and 2 have just pushed and this
+          # must export off what they wrote, not off the tick's starting commit.
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        run: pip install "pandas>=2.0" "requests>=2.28" "python-dotenv>=1.0"
+
+      - name: Re-export market comparison and dashboard JSON
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          python -m ligamx.odds.export_upcoming_market_comparison
+          python -m ligamx.dashboard.export_dashboard
+
+      - name: Commit refreshed signals
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(dashboard): re-export signals after capture"
+          # Only the JSON: data/output_data/ is untracked, and the site bundle is
+          # built by deploy-pages from these files rather than committed.
+          paths: data/dashboard/json
+          # MUST stay false. deploy-pages.yml triggers on data/dashboard/json/**,
+          # so [skip ci] here would land new signals on main while leaving the
+          # published board on the old ones.
+          skip_ci: "false"

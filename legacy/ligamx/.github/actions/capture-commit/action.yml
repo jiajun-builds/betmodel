@@ -1,0 +1,90 @@
+name: Commit capture history
+description: >
+  Commit and push newly-appended rows of the odds-capture history back to main,
+  reporting whether anything was actually appended. Shared by every capture job in
+  capture-odds.yml so the rebase/retry logic lives in exactly one place.
+
+inputs:
+  message:
+    description: Commit message (a [skip ci] suffix is added unless skip_ci is false).
+    required: true
+  paths:
+    description: Space-separated paths to stage.
+    required: false
+    default: data/MEX_odds_capture_history.csv
+  skip_ci:
+    description: >
+      Append "[skip ci]" to the commit message. True for the capture ticks, whose
+      files no workflow watches, so the suffix only saves a pointless queue entry.
+      Must be FALSE for a commit touching data/dashboard/json/**, which is what
+      deploy-pages.yml triggers on -- with the suffix the JSON lands on main but
+      the published board never rebuilds, and the two silently disagree.
+    required: false
+    default: "true"
+
+outputs:
+  appended:
+    description: '"true" only when new rows were committed AND pushed successfully.'
+    value: ${{ steps.push.outputs.appended }}
+
+runs:
+  using: composite
+  steps:
+    - id: push
+      shell: bash
+      env:
+        COMMIT_MESSAGE: ${{ inputs.message }}
+        STAGE_PATHS: ${{ inputs.paths }}
+        SKIP_CI: ${{ inputs.skip_ci }}
+      run: |
+        set -euo pipefail
+        # Default false. Flipped to true only after a successful push, so a failed
+        # push can never report data as landed on main when it is not.
+        echo "appended=false" >> "$GITHUB_OUTPUT"
+
+        # shellcheck disable=SC2086 -- STAGE_PATHS is intentionally word-split.
+        existing=""
+        for path in $STAGE_PATHS; do
+          if [ -e "$path" ]; then
+            existing="$existing $path"
+          fi
+        done
+        if [ -z "$existing" ]; then
+          echo "None of the staged paths exist yet (idle tick); nothing to commit."
+          exit 0
+        fi
+
+        # shellcheck disable=SC2086
+        git add $existing
+        if git diff --cached --quiet; then
+          echo "No new rows; nothing to commit."
+          exit 0
+        fi
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        if [ "$SKIP_CI" = "true" ]; then
+          git commit -m "$COMMIT_MESSAGE [skip ci]"
+        else
+          git commit -m "$COMMIT_MESSAGE"
+        fi
+
+        # main may have moved (an earlier job in this same tick, a data refresh),
+        # so rebase this append-only change on top before pushing. The retry loop
+        # closes the pull->push race when another writer lands in between.
+        pushed=0
+        for attempt in 1 2 3; do
+          if git pull --rebase origin main && git push origin main; then
+            pushed=1
+            break
+          fi
+          # A failed rebase leaves the tree mid-rebase; abort so the retry is clean.
+          git rebase --abort 2>/dev/null || true
+          echo "push attempt $attempt failed; retrying..."
+          sleep 3
+        done
+        if [ "$pushed" -ne 1 ]; then
+          echo "push failed after retries" >&2
+          exit 1
+        fi
+        echo "appended=true" >> "$GITHUB_OUTPUT"
