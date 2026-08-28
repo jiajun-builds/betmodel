@@ -29,6 +29,10 @@ sources:
                                  # necessary but not sufficient, the IP matters
     unique_tournament_id: 649
     season_id: 90049
+    # SofaScore publishes this league's per-half xG as literal 0.0 and carries
+    # the real figure only in the ALL rollup, so the rollup is the only usable
+    # source here. Verified against live data 2026-08-28.
+    period_strategy: all_first
 
 model:
   xi: 0.001                      # Dixon-Coles time decay

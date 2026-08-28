@@ -34,6 +34,10 @@ sources:
     tournaments:
       apertura: 11621
       clausura: 11620
+    # Real per-half figures are published here and their sum is the better
+    # feature (MAE against goals 0.797 vs the ALL rollup's 0.815 over 696
+    # team-innings), and the ALL rollup is sometimes plainly wrong.
+    period_strategy: halves_sum
 
 model:
   xi: 0.0015
