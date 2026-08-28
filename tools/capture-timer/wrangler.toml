@@ -1,0 +1,26 @@
+name = "betmodel-capture-timer"
+main = "src/worker.js"
+compatibility_date = "2026-08-28"
+
+# No public hostname and no preview URLs. An open endpoint would let anyone
+# drain a metered odds allowance.
+workers_dev = false
+preview_urls = false
+
+[observability]
+# So a failing tick is visible here rather than only in the absence of workflow
+# runs, which looks identical to an idle tick.
+enabled = true
+
+[triggers]
+# Every five minutes. The close tick gates itself on fixture proximity, and the
+# open tick runs on the quarter hours. This cadence is what lets the close window
+# be 15 minutes rather than 60: three ticks a fixture instead of six, and closer
+# to kickoff. Narrowing the window without this would leave fixtures with no
+# close at all, and a close missed cannot be bought back.
+crons = ["*/5 * * * *"]
+
+# Secrets, set with `wrangler secret put`:
+#   GITHUB_PAT          fine-grained, Contents read/write, this repository only
+#   TELEGRAM_BOT_TOKEN  optional, alerts when a dispatch stops returning 204
+#   TELEGRAM_CHAT_ID    optional

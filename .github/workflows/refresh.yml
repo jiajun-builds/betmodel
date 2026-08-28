@@ -1,0 +1,89 @@
+# The full refresh: fixtures, xG, model, signals, publish.
+#
+# Both leagues run here, which is new. One of them had no scheduled refresh at
+# all before the merge, because its schedule and xG both come from a provider
+# that refuses datacenter IPs and there was no residential path from CI. There is
+# now, so the difference between the two leagues is a proxy secret rather than a
+# manual step on a laptop.
+name: refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      league:
+        description: A league id, or 'all'
+        default: all
+      dry_run:
+        type: boolean
+        default: false
+  schedule:
+    # Once a day, after the last kickoff in either league has settled.
+    - cron: "17 6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install
+        run: pip install --quiet -e .
+
+      # Everything below can reach its provider from a cloud runner EXCEPT the
+      # SofaScore stages, which are refused on IP. Only that provider reads this
+      # variable, and when it is unset the same code runs direct, which is what
+      # makes a laptop and a runner the same code path rather than two.
+      - name: Fixtures
+        env:
+          SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
+        run: betmodel ${{ inputs.league || 'all' }} fixtures
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+        continue-on-error: true
+
+      - name: xG
+        env:
+          SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
+        run: betmodel ${{ inputs.league || 'all' }} xg
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+        continue-on-error: true
+
+      - name: Reduce captured odds into the match table
+        run: betmodel ${{ inputs.league || 'all' }} reduce
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Fit the model
+        run: betmodel ${{ inputs.league || 'all' }} model
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          betmodel ${{ inputs.league || 'all' }} publish
+          betmodel index
+          betmodel ${{ inputs.league || 'all' }} notify
+
+      - name: Commit
+        if: ${{ !inputs.dry_run }}
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(data): daily refresh"
+          paths: data public
+          skip_ci: "false"

@@ -116,8 +116,14 @@ odds:
   close:
     credential: closes
     books: [pinnacle, betfair_ex_eu, betfair_ex_uk]
-    window_minutes: 60
-    target_minutes: 5
+    # Was 60 minutes on a 10-minute trigger, which is six ticks a fixture and
+    # still only reached the target band on 27% of them, worst case 33.6 minutes
+    # out. The trigger was the bottleneck, not the window. On a 5-minute trigger
+    # 15 minutes is three ticks: cheaper and more accurate. Narrowing without
+    # speeding the trigger would have left 12% of fixtures with no close at all,
+    # and a close missed is unrecoverable at any price.
+    window_minutes: 15
+    target_minutes: 10
     min_remaining: 50
 
   open:

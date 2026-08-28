@@ -32,6 +32,25 @@ ALL = "all"
 # stages
 # --------------------------------------------------------------------------- #
 
+def _fixtures(league: str, args) -> int:
+    from betmodel.fixtures.sync import sync
+
+    stats = sync(
+        league, load_league(league), dry_run=args.dry_run,
+        allow_empty_upcoming=args.allow_empty_upcoming,
+    )
+    log.info("%s: fixtures %s", league, stats)
+    return 0
+
+
+def _xg(league: str, args) -> int:
+    from betmodel.xg.sync import sync
+
+    stats = sync(league, load_league(league), dry_run=args.dry_run, limit=args.limit)
+    log.info("%s: xg %s", league, stats)
+    return 0
+
+
 def _model(league: str, args) -> int:
     from betmodel.models.run import run_model
 
@@ -134,13 +153,15 @@ def _publish(league: str, args) -> int:
 
 def _all(league: str, args) -> int:
     """The full local chain, in dependency order."""
-    for stage in (_reduce, _model, _signals, _legacy, _notify):
+    for stage in (_fixtures, _xg, _reduce, _model, _signals, _legacy, _notify):
         stage(league, args)
     return 0
 
 
 #: League-scoped stages.
 STAGES = {
+    "fixtures": _fixtures,
+    "xg": _xg,
     "model": _model,
     "capture-opens": _capture_opens,
     "capture-closes": _capture_closes,
@@ -152,12 +173,7 @@ STAGES = {
     "all": _all,
 }
 
-#: Stages that exist upstream but are not wired here yet. Named so the command
-#: says what is missing instead of pretending the stage does not exist.
-NOT_YET = {
-    "fixtures": "fixture sync is not ported yet; run it in the source repository",
-    "xg": "xG sync is not ported yet; run it in the source repository",
-}
+NOT_YET: dict[str, str] = {}
 
 
 def _now() -> datetime:
@@ -178,6 +194,11 @@ def build_parser() -> argparse.ArgumentParser:
                         help="restrict a capture to these providers")
     parser.add_argument("--create-columns", action="store_true",
                         help="let reduce add a missing column to the match table")
+    parser.add_argument("--allow-empty-upcoming", action="store_true",
+                        help="accept a provider returning no upcoming fixture "
+                             "(season end); refused by default")
+    parser.add_argument("--limit", type=int, default=None,
+                        help="cap how many per-match fetches one xG run makes")
     parser.add_argument("-v", "--verbose", action="store_true")
     return parser
 

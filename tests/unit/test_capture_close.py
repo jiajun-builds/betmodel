@@ -75,11 +75,14 @@ def test_a_kicked_off_fixture_is_not_due(tmp_path):
     assert _due(tmp_path, [("A", "B", NOW - timedelta(minutes=1))], []) == []
 
 
-def test_the_wider_window_of_the_other_league_is_configuration_not_code(tmp_path):
-    """One league's trigger was unreliable and needs the wider window; the other
-    fires dependably and takes the tight one."""
-    assert load_league("csl").odds.close.window_minutes > \
-           load_league("ligamx").odds.close.window_minutes
+def test_the_window_is_configuration_and_now_the_same_for_both():
+    """It used to differ, because one league's trigger was unreliable and needed
+    the wider window. That reason is gone: both fire from the same Worker on the
+    same cadence, so both take the tight window. The coupling between the two is
+    guarded in tests/unit/test_orchestration.py, which is where the trigger
+    cadence lives."""
+    windows = {load_league(l).odds.close.window_minutes for l in ("csl", "ligamx")}
+    assert windows == {15.0}
 
 
 # --------------------------------------------------------------------------- #

@@ -1,0 +1,27 @@
+# Neither source repository ran its tests in CI. Between them they had sixteen,
+# each written against a specific production bug, and nothing checked they still
+# passed.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('pyproject.toml') }}
+      - run: pip install --quiet -e ".[dev]"
+      # No network. Every test here runs offline by design; a test that needed a
+      # provider would be measuring the provider.
+      - run: python -m pytest -q

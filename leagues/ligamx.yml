@@ -125,7 +125,10 @@ odds:
   close:
     credential: closes
     books: [pinnacle, betfair_ex_eu]
-    window_minutes: 20
+    # 20 -> 15 to match the other league. Measured here: the capture that becomes
+    # the close sits at p90 9.6 minutes before kickoff and worst case 14.6, so a
+    # 15-minute window loses nothing on this evidence.
+    window_minutes: 15
     target_minutes: 10
     min_remaining: 50
 

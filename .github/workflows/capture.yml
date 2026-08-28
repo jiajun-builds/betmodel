@@ -1,0 +1,138 @@
+# Odds capture, for every league.
+#
+# Triggered by the Cloudflare Worker, not by this file's schedule. GitHub cron
+# measured on this project over 299 runs: requested every 10 minutes, median 10,
+# p90 137, worst 232. A closing line has a hard deadline and no backfill at any
+# price, so the schedule below is a heartbeat that catches a dead Worker, not the
+# mechanism.
+name: capture
+
+on:
+  repository_dispatch:
+    types: [open-tick, close-tick]
+  workflow_dispatch:
+    inputs:
+      league:
+        description: A league id, or 'all'
+        default: all
+      only:
+        description: opens, closes, or both
+        type: choice
+        options: [both, opens, closes]
+        default: both
+      dry_run:
+        type: boolean
+        default: false
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+
+# Never cancel a capture in flight. The price it is reaching for exists only now.
+concurrency:
+  group: capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Deliberately not the full environment. These stages need pandas and an
+      # HTTP client and nothing else, and the difference between this and a conda
+      # solve is the difference between reaching the API in forty-five seconds
+      # and reaching it in four minutes. For a price that moves, that matters.
+      - name: Install the capture dependencies only
+        run: pip install --quiet "pandas>=2.0" "requests>=2.28" "PyYAML>=6.0" -e . --no-deps
+
+      - name: Resolve which league and which ticks
+        id: plan
+        env:
+          DISPATCH_LEAGUE: ${{ github.event.client_payload.league }}
+          DISPATCH_TYPE: ${{ github.event.action }}
+          INPUT_LEAGUE: ${{ inputs.league }}
+          INPUT_ONLY: ${{ inputs.only }}
+        run: |
+          set -euo pipefail
+          league="${DISPATCH_LEAGUE:-${INPUT_LEAGUE:-all}}"
+          case "$DISPATCH_TYPE" in
+            open-tick)  only=opens ;;
+            close-tick) only=closes ;;
+            *)          only="${INPUT_ONLY:-both}" ;;
+          esac
+          echo "league=$league" >> "$GITHUB_OUTPUT"
+          echo "only=$only" >> "$GITHUB_OUTPUT"
+          echo "Capturing $only for $league"
+
+      - name: Opening lines
+        if: steps.plan.outputs.only != 'closes'
+        env:
+          ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
+          ODDS_API_IO_KEY_CSL: ${{ secrets.ODDS_API_IO_KEY_CSL }}
+          ODDS_API_IO_KEY_LIGAMX: ${{ secrets.ODDS_API_IO_KEY_LIGAMX }}
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          THE_ODDS_API_KEY_OPENS: ${{ secrets.THE_ODDS_API_KEY_OPENS }}
+        # Not `|| true`. Swallowing the exit code costs the only failure signal
+        # there is, and it once reported this job green for a run that crashed on
+        # a missing import.
+        run: betmodel ${{ steps.plan.outputs.league }} capture-opens
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit opening lines
+        id: opens
+        if: always() && steps.plan.outputs.only != 'closes'
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(odds): capture opening lines"
+          paths: data
+
+      - name: Closing lines
+        if: always() && steps.plan.outputs.only != 'opens'
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          THE_ODDS_API_KEY_CLOSES: ${{ secrets.THE_ODDS_API_KEY_CLOSES }}
+        run: betmodel ${{ steps.plan.outputs.league }} capture-closes
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit closing lines
+        id: closes
+        if: always() && steps.plan.outputs.only != 'opens'
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(odds): capture closing lines"
+          paths: data
+
+      # Only when something was actually appended. Republishing on an idle tick
+      # would rewrite the published tree several times an hour with an identical
+      # payload and a fresh timestamp.
+      - name: Republish signals
+        if: >-
+          always()
+          && (steps.opens.outputs.appended == 'true'
+              || steps.closes.outputs.appended == 'true')
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          betmodel ${{ steps.plan.outputs.league }} publish
+          betmodel index
+          betmodel ${{ steps.plan.outputs.league }} notify
+
+      - name: Commit the published tree
+        if: >-
+          always()
+          && (steps.opens.outputs.appended == 'true'
+              || steps.closes.outputs.appended == 'true')
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(publish): republish after a capture"
+          paths: public
+          # False on purpose. The alert reads the previously committed signals
+          # file as its baseline, so a commit that never lands leaves the next
+          # run comparing against a stale snapshot.
+          skip_ci: "false"
