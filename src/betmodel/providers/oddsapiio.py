@@ -65,10 +65,28 @@ class Book:
     key: str
 
 
-def api_key(required: bool = True) -> str:
-    value = os.environ.get(KEY_ENV, "").strip()
+def key_env_for(credential: str) -> str:
+    """Environment variable holding the key for a named credential.
+
+    A key is entitled to a fixed, small number of bookmakers, so leagues that bet
+    different books cannot share one. Two leagues wanting three distinct books
+    between them need two keys, and which key a league uses is therefore part of
+    its configuration rather than a global.
+    """
+    if not credential or credential == "default":
+        return KEY_ENV
+    return f"{KEY_ENV}_{credential.upper()}"
+
+
+def api_key(credential: str = "default", *, required: bool = True) -> str:
+    env = key_env_for(credential)
+    value = os.environ.get(env, "").strip()
+    if not value and env != KEY_ENV:
+        value = os.environ.get(KEY_ENV, "").strip()
+        if value:
+            log.debug("%s unset; falling back to %s", env, KEY_ENV)
     if not value and required:
-        raise RuntimeError(f"no odds-api.io key: set {KEY_ENV}")
+        raise RuntimeError(f"no odds-api.io key: set {env} (or {KEY_ENV})")
     return value
 
 
@@ -88,6 +106,7 @@ class OddsApiIoClient:
         *,
         sport: str = "football",
         base_url: str = BASE_URL,
+        credential: str = "default",
         timeout: float = 30.0,
         max_park_seconds: float = 900.0,
     ) -> None:
@@ -95,6 +114,7 @@ class OddsApiIoClient:
             raise ValueError("at least one league slug is required")
         self.league_slugs = tuple(league_slugs)
         self.sport = sport
+        self.credential = credential
         self.base_url = base_url.rstrip("/")
         self.max_park_seconds = max_park_seconds
         # Retries are handled here, not by the policy: a 429 needs the reset
@@ -121,17 +141,23 @@ class OddsApiIoClient:
         return max(0.0, min(wait, self.max_park_seconds))
 
     def get(self, path: str, **params: Any) -> Any:
-        params["apiKey"] = api_key()
+        params["apiKey"] = api_key(self.credential)
         url = f"{self.base_url}/{path.lstrip('/')}"
         for attempt in range(1, 6):
             try:
                 response = self._http.get(url, params=params)
             except http.HttpError as exc:
                 if exc.status == 403:
+                    # The body names exactly which books this key may request,
+                    # e.g. "You're allowed max 2 bookmakers. Allowed: 1xbet, Duel".
+                    # It is the only authoritative list, so it goes in the message
+                    # rather than being described in the abstract.
+                    detail = getattr(exc, "body", "") or ""
                     raise EntitlementError(
-                        f"odds-api.io refused {path}: a requested bookmaker is "
-                        "outside this plan. The 403 body lists what is entitled; "
-                        "the catalogue endpoint does not and goes stale."
+                        f"odds-api.io refused {path} for credential "
+                        f"{self.credential!r} ({key_env_for(self.credential)}): "
+                        f"a requested bookmaker is outside this key's plan. "
+                        f"{detail}".strip()
                     ) from exc
                 if exc.status == 429:
                     # HttpError already means the body is gone, so park on a

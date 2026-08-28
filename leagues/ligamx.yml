@@ -66,6 +66,10 @@ odds:
       market: h2h
     oddsapiio:
       base_url: https://api.odds-api.io/v3
+      # A key is entitled to a fixed, small number of bookmakers, and the two
+      # leagues bet three distinct books between them, so they cannot share one.
+      # Reads ODDS_API_IO_KEY_LIGAMX, falling back to ODDS_API_IO_KEY.
+      credential: ligamx
       sport: football
       # Two slugs because Liga MX runs two tournaments per calendar year.
       league_slugs: [mexico-liga-mx-clausura, mexico-liga-mx-apertura]

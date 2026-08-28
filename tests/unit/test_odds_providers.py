@@ -79,19 +79,31 @@ def test_an_event_with_no_bookmakers_yields_nothing():
 # --------------------------------------------------------------------------- #
 
 def test_an_entitlement_refusal_is_distinct_and_not_retried(monkeypatch):
-    """A 403 means a bookmaker outside the plan; retrying burns the daily budget."""
+    """A 403 means a bookmaker outside this key's plan; retrying burns the
+    daily budget to be refused identically."""
     monkeypatch.setenv(oio.KEY_ENV, "k")
-    c = oio.OddsApiIoClient(["some-league"])
+    c = oio.OddsApiIoClient(["some-league"], credential="ligamx")
     calls = {"n": 0}
 
     def boom(*a, **kw):
         calls["n"] += 1
-        raise http.HttpError("refused", status=403)
+        raise http.HttpError(
+            "refused", status=403,
+            body='{"error":"Access denied. You\'re allowed max 2 bookmakers. '
+                 'Allowed: 1xbet, Duel."}',
+        )
 
     object.__setattr__(c._http, "get", boom)
-    with pytest.raises(oio.EntitlementError, match="outside this plan"):
+    with pytest.raises(oio.EntitlementError) as err:
         c.get("odds/multi")
     assert calls["n"] == 1
+
+    message = str(err.value)
+    # Which key was refused, so a two-key setup does not send you guessing.
+    assert "ligamx" in message and "ODDS_API_IO_KEY_LIGAMX" in message
+    # And what that key is actually allowed. The body is the only authoritative
+    # list; the catalogue endpoint goes stale.
+    assert "Allowed: 1xbet, Duel" in message
 
 
 def test_batches_are_capped_rather_than_silently_truncated(monkeypatch):

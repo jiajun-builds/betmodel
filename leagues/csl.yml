@@ -63,6 +63,10 @@ odds:
       market: h2h
     oddsapiio:
       base_url: https://api.odds-api.io/v3
+      # A key is entitled to a fixed, small number of bookmakers, and the two
+      # leagues bet three distinct books between them, so they cannot share one.
+      # Reads ODDS_API_IO_KEY_CSL, falling back to ODDS_API_IO_KEY.
+      credential: csl
       sport: football
       league_slugs: [china-chinese-super-league]
       markets: [ML]

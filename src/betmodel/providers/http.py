@@ -77,10 +77,15 @@ DEFAULT_USER_AGENT = (
 class HttpError(RuntimeError):
     """A request failed after exhausting its retry policy."""
 
-    def __init__(self, message: str, *, status: int | None = None, attempts: int = 1):
+    def __init__(self, message: str, *, status: int | None = None,
+                 attempts: int = 1, body: str = ""):
         super().__init__(message)
         self.status = status
         self.attempts = attempts
+        #: First part of the response body. Some providers answer a refusal with
+        #: the precise reason, and discarding it turns a self-explaining error
+        #: into a guess.
+        self.body = body
 
 
 def _redact(url: str) -> str:
@@ -98,6 +103,15 @@ def _redact(url: str) -> str:
             out = out[: idx + len(marker)] + "<redacted>" + out[end:]
             idx = out.lower().find(marker.lower(), idx + len(marker) + 10)
     return out
+
+
+def _body_of(response, limit: int = 400) -> str:
+    """A short, safe excerpt of a response body for an error message."""
+    try:
+        text = getattr(response, "text", "") or ""
+    except Exception:  # noqa: BLE001 - never let diagnostics raise
+        return ""
+    return _redact(text.strip().replace("\n", " ")[:limit])
 
 
 @dataclass(frozen=True)
@@ -203,6 +217,7 @@ class HttpClient:
                     f"after {attempt} attempt(s)",
                     status=status,
                     attempts=attempt,
+                    body=_body_of(response),
                 )
             log.debug(
                 "%s: HTTP %d on attempt %d, retrying", self.name, status, attempt
