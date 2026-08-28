@@ -65,19 +65,14 @@ def simulations_frame(fit: ProductionFit, config: LeagueConfig, as_of: str) -> p
             if home == away:
                 continue
             probs = fit.model.predict(home, away)
-            # Both pre-merge pipelines derived 1X2 from the zero handicap rather
-            # than from the grid aggregate. Kept, because they are equal only
-            # while the grid is normalised the same way, and this is the form the
-            # frozen output was produced in.
-            home_win = probs.asian_handicap("home", 0)
-            away_win = probs.asian_handicap("away", 0)
+            outcome = fit.model.outcome_probabilities(home, away)
             row = {
                 "Date": as_of,
                 "Home Team": home,
                 "Away Team": away,
-                "Home Win Probability": home_win,
-                "Draw Probability": 1 - home_win - away_win,
-                "Away Win Probability": away_win,
+                "Home Win Probability": outcome.home,
+                "Draw Probability": outcome.draw,
+                "Away Win Probability": outcome.away,
             }
             for line in config.model.ah_lines:
                 row[f"Home {line:g}"] = probs.asian_handicap("home", line)

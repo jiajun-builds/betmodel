@@ -210,3 +210,59 @@ def test_the_grid_is_the_only_thing_the_grid_setting_changes():
     fit.model.max_goals = 9
     fit.model.predict(fit.teams[0], fit.teams[1])
     assert np.array_equal(before, fit.model.attack)
+
+
+# --------------------------------------------------------------------------- #
+# 4. one route to 1X2 (D4)
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("league", ["csl", "ligamx"])
+def test_the_three_historical_routes_to_1x2_still_agree(league):
+    """Pins the assumption that let D4 collapse them.
+
+    The pre-merge code read home and away from a zero-line Asian handicap and
+    subtracted to get the draw. That is only equal to the direct read while the
+    library treats a zero-line "win" as push-excluded. If a library upgrade
+    changed that convention, the old expression would put the draw at zero
+    silently. This test is how we would find out instead.
+    """
+    fit = _fit(league, PRE_MERGE_OPTIONS[league])
+    teams = list(fit.teams)[:8]
+    for home in teams:
+        for away in teams:
+            if home == away:
+                continue
+            grid = fit.model.predict(home, away)
+            direct = fit.model.outcome_probabilities(home, away)
+
+            handicap_home = grid.asian_handicap("home", 0)
+            handicap_away = grid.asian_handicap("away", 0)
+            assert abs(handicap_home - direct.home) < EXACT
+            assert abs(handicap_away - direct.away) < EXACT
+            assert abs((1 - handicap_home - handicap_away) - direct.draw) < EXACT
+
+            # The push component of that same call already is the draw.
+            assert abs(grid.asian_handicap_probs("home", 0)["push"] - direct.draw) < EXACT
+
+            raw = np.asarray(grid.grid, dtype=float)
+            n = raw.shape[0]
+            difference = np.subtract.outer(np.arange(n), np.arange(n))
+            sums = np.array([
+                raw[difference > 0].sum(), raw[difference == 0].sum(),
+                raw[difference < 0].sum(),
+            ])
+            sums = sums / sums.sum()
+            assert np.abs(sums - np.array(direct)).max() < EXACT
+
+
+@pytest.mark.parametrize("league", ["csl", "ligamx"])
+def test_the_1x2_probabilities_sum_to_one(league):
+    """The residual formula guaranteed this by construction; the direct read
+    has to earn it, and does, because the grid is normalised."""
+    fit = _fit(league, PRE_MERGE_OPTIONS[league])
+    teams = list(fit.teams)[:6]
+    for home in teams:
+        for away in teams:
+            if home == away:
+                continue
+            assert abs(sum(fit.model.outcome_probabilities(home, away)) - 1.0) < EXACT

@@ -141,3 +141,53 @@ porting bug cannot hide inside the second number, because the first would fail.
 
 Measured faithful-port result: max coefficient difference 5.6e-16 for CSL and
 3.0e-15 for Liga MX. That is floating-point noise.
+
+---
+
+## D4 — 1X2 probabilities are read directly, not recovered from a zero handicap.
+
+**Decided 2026-08-28.**
+
+Both pre-merge pipelines produced their 1X2 figures like this:
+
+```python
+home = probs.asian_handicap("home", 0)
+away = probs.asian_handicap("away", 0)
+draw = 1 - home - away
+```
+
+It gives the right answer, and it is worth being precise about why. The library
+defines a zero-line "win" as push-excluded, so at line 0 it is exactly the
+outright win probability. Its own docstring calls that method
+backward-compatible and directs anything careful to `asian_handicap_probs`.
+
+**The cost is fragility, not accuracy.** The draw is a residual of two numbers
+that come from a market where the draw is a push. If that zero-line convention
+ever became push-adjusted, the standard reading of an Asian 0, then home and away
+would sum to one and the draw would silently become zero. Nothing would raise.
+
+It is also redundant. The same call already returns the draw:
+
+```
+asian_handicap_probs('home', 0) -> {'win': 0.798, 'push': 0.133, 'lose': 0.069}
+```
+
+The push component **is** the draw. It was being discarded and reconstructed by
+subtraction.
+
+A third route existed as well, in the signal engine, summing the scoreline grid
+by goal difference and renormalising. So three pieces of code computed the same
+three numbers three ways.
+
+**All three are now one call**, `model.outcome_probabilities(home, away)`, which
+reads the grid's own 1X2. Measured agreement before collapsing them, over the
+sampled pairings:
+
+| route | max difference from the direct read |
+|---|---|
+| zero-handicap detour | 3.9e-16 |
+| raw grid sums | 2.2e-16 |
+
+**Accepted difference against the golden baseline**: none. This is a rewrite of
+the expression, not of the value. A test pins the equivalence, so a library
+upgrade that changes the zero-line convention is caught rather than shipped.

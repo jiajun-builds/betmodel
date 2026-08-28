@@ -35,11 +35,20 @@ component along a flat direction and stops on the function tolerance instead.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import NamedTuple
 
 import numpy as np
 from penaltyblog.models import FootballProbabilityGrid
 from scipy.optimize import minimize
 from scipy.stats import poisson
+
+
+class Outcome(NamedTuple):
+    """1X2 probabilities. Sums to 1 because the scoreline grid is normalised."""
+
+    home: float
+    draw: float
+    away: float
 
 
 @dataclass(frozen=True)
@@ -263,6 +272,29 @@ class ContinuousPoissonModel:
         k = np.arange(self.grid_size)
         grid = np.outer(poisson.pmf(k, lam_h), poisson.pmf(k, lam_a))
         return FootballProbabilityGrid(grid, lam_h, lam_a)
+
+    def outcome_probabilities(self, home_team: str, away_team: str) -> Outcome:
+        """1X2 for a fixture. The single route to these three numbers.
+
+        Both pre-merge pipelines took a detour: they read the home and away
+        probabilities out of a zero-line Asian handicap and recovered the draw by
+        subtracting the two from one. That works only because the library defines
+        a zero-line "win" as push-excluded, which makes it exactly the outright
+        win probability. The library labels that method backward-compatible and
+        points elsewhere for anything careful.
+
+        The cost of the detour is not accuracy, it is fragility. The draw is a
+        residual, so if the zero-line convention ever became push-adjusted the
+        home and away figures would sum to one and the draw would silently become
+        zero. The push component of that same call already *is* the draw; it was
+        being thrown away and reconstructed.
+
+        A third route existed too, summing the grid directly. All three agree to
+        floating point, which is what makes collapsing them safe rather than a
+        judgement call.
+        """
+        home_p, draw_p, away_p = self.predict(home_team, away_team).home_draw_away
+        return Outcome(float(home_p), float(draw_p), float(away_p))
 
     def score_equation_ratio(self) -> tuple[float, float]:
         """``(home, away)`` values of ``sum(w*lambda) / sum(w*y)``.
