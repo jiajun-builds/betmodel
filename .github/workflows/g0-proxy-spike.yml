@@ -1,0 +1,58 @@
+# Gate G0: can a cloud runner reach SofaScore through the residential proxy?
+#
+# Every league's automated refresh depends on the answer, so it is settled by
+# experiment rather than assumed. Two jobs run the same script: one without the
+# proxy as a control, one with it. A useful result needs BOTH -- a pass with the
+# proxy means nothing if the control also passes, because that would mean the
+# runner was never blocked in the first place.
+name: G0 residential proxy
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Three consecutive days of green is what the plan asks for before the
+    # automation design is allowed to depend on this.
+    - cron: "0 7 * * *"
+
+jobs:
+  control-no-proxy:
+    name: control (no proxy, expected to be refused)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install --quiet 'curl_cffi>=0.7'
+      - name: probe SofaScore directly from the runner
+        id: probe
+        continue-on-error: true
+        run: python scripts/spike_sofascore_proxy.py
+      - name: a passing control invalidates the experiment
+        run: |
+          if [ "${{ steps.probe.outcome }}" = "success" ]; then
+            echo "::warning::The runner reached SofaScore with no proxy."
+            echo "That means this runner's IP is not blocked, so the proxy test"
+            echo "below proves nothing. Re-check before trusting G0."
+          else
+            echo "Control refused as expected: the runner IP is blocked."
+          fi
+
+  via-residential-proxy:
+    name: via residential proxy (the actual question)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install --quiet 'curl_cffi>=0.7'
+      - name: probe SofaScore through the proxy
+        env:
+          # The script never prints this; it reports the egress IP's owner instead,
+          # which is what tells a real residential exit from a hosting one.
+          SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
+        run: |
+          if [ -z "$SOFASCORE_PROXY_URL" ]; then
+            echo "::error::SOFASCORE_PROXY_URL is not set on this repository."
+            exit 1
+          fi
+          python scripts/spike_sofascore_proxy.py
