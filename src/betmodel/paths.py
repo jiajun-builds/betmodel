@@ -100,7 +100,23 @@ class LeaguePaths:
 
     @property
     def xg_csv(self) -> str:
+        """Per-match xG, where the provider serves it separately from results.
+
+        Optional. Some leagues get xG inline with the match record and never
+        write this file; callers must tolerate its absence.
+        """
         return os.path.join(self.root, "xg.csv")
+
+    @property
+    def schedule_csv(self) -> str:
+        """The fixtures provider's fresh full-season schedule, as pulled.
+
+        Distinct from matches.csv, which is the curated master: this one is
+        overwritten every fetch and is what round and season metadata are
+        derived from, so a mid-season round renumbering upstream shows up here
+        rather than silently rewriting match history. Optional, like xg_csv.
+        """
+        return os.path.join(self.root, "schedule.csv")
 
     @property
     def team_mapping_csv(self) -> str:
@@ -129,6 +145,16 @@ class LeaguePaths:
         return os.path.join(self.root, "capture_watch.csv")
 
     # --- derived -------------------------------------------------------------
+    @property
+    def football_data_csv(self) -> str:
+        """Cached football-data.co.uk CSV: free market and exchange closing odds.
+
+        Tracked rather than treated as research cache because it backfills
+        closing benchmarks the paid providers stopped publishing, and the eval
+        layer needs a stable copy to make walk-forward runs reproducible.
+        """
+        return os.path.join(self.root, "football_data.csv")
+
     @property
     def market_comparison_csv(self) -> str:
         return os.path.join(self.root, "market_comparison.csv")
@@ -184,9 +210,7 @@ class LeaguePaths:
     def oddsapiio_closes_csv(self) -> str:
         return os.path.join(self.research_dir, "oddsapi_io_closes.csv")
 
-    @property
-    def football_data_csv(self) -> str:
-        return os.path.join(self.research_dir, "football_data.csv")
+
 
     # --- published contract --------------------------------------------------
     @property

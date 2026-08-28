@@ -97,6 +97,40 @@ def probe(cffi, proxies, name: str, url: str, timeout: float) -> dict:
     return result
 
 
+def egress_identity(cffi, proxies, timeout: float) -> dict:
+    """Which IP do we leave from, and who owns it?
+
+    Half of gate G0 is not "does it work" but "is this really residential".
+    A datacenter ASN behind a plan sold as residential is a refund conversation,
+    and it is the difference between a fixable purchase and a fixable design.
+    Known datacenter operators are named because the free tier that motivated
+    this check exited via Leaseweb and was refused on every probe.
+    """
+    out: dict = {}
+    try:
+        r = cffi.get("https://ipinfo.io/json", impersonate="chrome",
+                     proxies=proxies, timeout=timeout)
+        d = r.json()
+        out["ip"] = d.get("ip", "")
+        out["org"] = d.get("org", "")
+        out["city"] = d.get("city", "")
+        out["country"] = d.get("country", "")
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = f"{type(exc).__name__}: {exc}"[:160]
+        return out
+
+    org = out.get("org", "").lower()
+    hosting = (
+        "leaseweb", "digitalocean", "linode", "vultr", "ovh", "hetzner", "aws",
+        "amazon", "google", "microsoft", "azure", "oracle", "contabo", "scaleway",
+        "choopa", "quadranet", "hostwinds", "m247", "datacamp", "cloudflare",
+    )
+    hit = next((h for h in hosting if h in org), None)
+    out["looks_like_datacenter"] = bool(hit)
+    out["matched"] = hit or ""
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--timeout", type=float, default=20.0)
@@ -107,7 +141,8 @@ def main() -> int:
     cffi, proxies = _client(proxy)
 
     # Never print the proxy URL: it carries credentials.
-    where = "via residential proxy" if proxy else "direct (no proxy configured)"
+    where = "via proxy" if proxy else "direct (no proxy configured)"
+    ident = egress_identity(cffi, proxies, args.timeout)
     results = [
         probe(cffi, proxies, n, u, args.timeout)
         for n, u in build_probes(cffi, proxies, args.timeout)
@@ -115,9 +150,21 @@ def main() -> int:
     passed = sum(1 for r in results if r.get("ok"))
 
     if args.json:
-        print(json.dumps({"proxy_configured": bool(proxy), "results": results}, indent=2))
+        print(json.dumps(
+            {"proxy_configured": bool(proxy), "egress": ident, "results": results},
+            indent=2,
+        ))
     else:
         print(f"SofaScore reachability {where}")
+        if ident.get("error"):
+            print(f"  egress: could not identify ({ident['error']})")
+        else:
+            print(f"  egress: {ident.get('ip','?')}  {ident.get('org','?')}  "
+                  f"{ident.get('city','')} {ident.get('country','')}")
+            if ident.get("looks_like_datacenter"):
+                print(f"  WARNING: {ident['matched']} is a hosting provider. This is a "
+                      "datacenter IP,\n           not residential, and SofaScore is "
+                      "expected to refuse it.")
         for r in results:
             mark = "PASS" if r.get("ok") else "FAIL"
             detail = r.get("error") or r.get("note") or f"HTTP {r.get('status')}"
