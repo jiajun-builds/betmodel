@@ -103,3 +103,27 @@ def test_goals_fall_back_to_current_when_regulation_is_absent():
 )
 def test_round_label(event, expected):
     assert sf.round_label(event) == expected
+
+
+def test_all_first_refuses_the_rollup_once_extra_time_appears():
+    """The setting assumes a competition that cannot go to extra time.
+
+    Measured on the Liga MX Apertura 25/26 final: ALL (2.36, 0.66), halves
+    (2.68, 0.38), extra time (0.30, 0.05). The rollup is neither the ninety
+    minutes nor the full match, so it cannot be put on the same clock as the
+    scoreline. If a league configured all_first gains a knockout stage, falling
+    back to the halves is the only safe answer.
+    """
+    c = _client("all_first", {
+        "ALL": (2.36, 0.66), "1ST": (0.35, 0.13), "2ND": (2.33, 0.25),
+        "ET1": (0.1, 0.0), "ET2": (0.2, 0.05),
+    })
+    assert c.event_xg(1) == (2.68, 0.38)
+
+
+def test_all_first_still_answers_when_extra_time_leaves_no_usable_halves():
+    """Degraded but not silent: the warning is the product here."""
+    c = _client("all_first", {
+        "ALL": (1.5, 0.5), "1ST": (0.0, 0.0), "2ND": (0.0, 0.0), "ET1": (0.2, 0.1),
+    })
+    assert c.event_xg(1) == (1.5, 0.5)

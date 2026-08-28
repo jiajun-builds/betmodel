@@ -32,16 +32,24 @@ REGULATION_PERIODS = ("1ST", "2ND")
 #: How to turn published per-period xG into one number per side.
 #:
 #: ``halves_sum``
-#:     Sum the two regulation halves. Preferred on evidence: SofaScore's ALL
-#:     rollup is internally inconsistent with its own per-half figures and is
-#:     sometimes plainly wrong (observed: an away ALL of 0.16 when the second half
-#:     alone was 1.03). Measured over 696 team-innings the half-sum is also the
-#:     better feature, MAE against goals 0.797 versus ALL's 0.815.
+#:     Sum the two regulation halves, which is ninety minutes by construction.
+#:     Required for any competition with a knockout stage, because the ALL rollup
+#:     cannot be assumed to be a ninety-minute figure once extra time exists and
+#:     it is not reconstructible either. Measured on the Apertura 25/26 final,
+#:     which went to extra time: ALL (2.36, 0.66), halves (2.68, 0.38), extra time
+#:     (0.30, 0.05). ALL is neither the ninety-minute number nor the full-match
+#:     one. The rollup is separately computed and disagrees with SofaScore's own
+#:     periods, which also shows up in league matches (observed: an away ALL of
+#:     0.16 when the second half alone was 1.03). Over 696 team-innings the
+#:     half-sum is additionally the better feature, MAE against goals 0.797
+#:     versus 0.815.
 #:
 #: ``all_first``
-#:     Prefer the ALL rollup. Kept because one league's entire stored history was
-#:     built this way, and switching would silently restate three seasons of model
-#:     input. Migrate deliberately, with a refit, not as a side effect of a merge.
+#:     Prefer the ALL rollup. Correct only where the competition cannot produce
+#:     extra time, and necessary where the per-half figures are published as
+#:     zeros. A straight league season satisfies both. This path still refuses
+#:     the rollup if extra-time periods turn up, because that means the
+#:     competition gained a knockout stage and the assumption has expired.
 XG_STRATEGIES = ("halves_sum", "all_first")
 
 _ALL_FIRST_ORDER = ("ALL", "REGULAR_TIME", "1ST", "2ND")
@@ -261,21 +269,52 @@ class SofascoreClient:
     def event_xg(self, event_id: int) -> tuple[float | None, float | None]:
         """Canonical xG for one event, per the configured strategy.
 
-        Extra time (ET1/ET2, which SofaScore does expose on knockout ties) is
-        excluded either way, so xG stays on the same ninety-minute basis as
-        :func:`event_goals`. Mixing extra-time xG with a regulation scoreline
-        would put the model's two inputs on different clocks.
+        Extra time is never summed in, so xG stays on the same ninety-minute
+        basis as :func:`event_goals`. Mixing extra-time xG with a regulation
+        scoreline would put the model's two inputs on different clocks.
         """
         by_period = self.event_xg_by_period(event_id)
         if not by_period:
             return None, None
 
+        has_extra_time = any(k.startswith("ET") for k in by_period)
+
         if self.xg_strategy == "all_first":
+            # The rollup is only a ninety-minute figure while the competition
+            # cannot produce extra time. If extra time appears, this league has
+            # gained a knockout stage and the assumption behind the setting has
+            # expired, so fall back to the halves, which are ninety minutes by
+            # construction.
+            if has_extra_time:
+                usable = [
+                    v for k, v in by_period.items()
+                    if k in REGULATION_PERIODS and any(x is not None for x in v)
+                ]
+                if usable and any(any(v) for v in usable):
+                    log.warning(
+                        "event %s has extra time but this league is configured "
+                        "all_first; using the regulation halves instead",
+                        event_id,
+                    )
+                    return self._sum_halves(by_period)
+                log.warning(
+                    "event %s has extra time and no usable per-half xG; the ALL "
+                    "rollup is on an unknown clock for this match",
+                    event_id,
+                )
             for key in _ALL_FIRST_ORDER:
                 if key in by_period:
                     return by_period[key]
             return None, None
 
+        return self._sum_halves(by_period, event_id=event_id)
+
+    @staticmethod
+    def _sum_halves(
+        by_period: dict[str, tuple[float | None, float | None]],
+        *,
+        event_id: int | None = None,
+    ) -> tuple[float | None, float | None]:
         halves = [v for k, v in by_period.items() if k in REGULATION_PERIODS]
         home = sum(h for h, _ in halves if h is not None)
         away = sum(a for _, a in halves if a is not None)

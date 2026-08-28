@@ -29,9 +29,12 @@ sources:
                                  # necessary but not sufficient, the IP matters
     unique_tournament_id: 649
     season_id: 90049
-    # SofaScore publishes this league's per-half xG as literal 0.0 and carries
-    # the real figure only in the ALL rollup, so the rollup is the only usable
-    # source here. Verified against live data 2026-08-28.
+    # The ALL rollup, for two reasons that both have to hold. This is a straight
+    # league season with no knockout stage, so no match can go to extra time and
+    # the rollup is a ninety-minute figure. And SofaScore publishes this league's
+    # per-half xG as literal 0.0, so the halves carry nothing. Verified against
+    # live data 2026-08-28. If this league ever gains a play-off, the provider
+    # falls back to the halves on its own and says so.
     period_strategy: all_first
 
 model:
