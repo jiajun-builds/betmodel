@@ -1,0 +1,27 @@
+# --- secrets ---
+.env
+.env.*
+!.env.example
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv*/
+.xg_venv/
+build/
+dist/
+
+# --- tooling ---
+.DS_Store
+.wrangler/
+.claude/settings.local.json
+node_modules/
+
+# --- data: tracked by design, EXCEPT the regenerable and the huge ---
+# The committed CSV/JSON under data/<league>/ IS the database. Do not broaden this.
+data/*/now_line.csv              # transient snapshot, rewritten every fetch
+data/*/cache/                    # provider response caches
+data/*/research/                 # large regenerable research stores:
+#   polymarket_trades.csv (~55MB), odds_snapshots.csv (~4MB), price_quality.csv (~4MB)
+backups/

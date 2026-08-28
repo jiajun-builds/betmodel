@@ -1,0 +1,13 @@
+# betmodel golden baseline
+captured_at: 2026-08-28T00:32:04Z
+
+cslmonitor:
+  head:    64a62764e61f7ac52f7aa417f6258469aae6caf3
+  branch:  main
+  commits: 686
+  dirty:   5 untracked/modified
+ligamxterminal:
+  head:    a97b954b3895d3afe1ad31b78469cb2f61a7bcd2
+  branch:  main
+  commits: 225
+  dirty:   0 untracked/modified
