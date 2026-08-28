@@ -92,6 +92,9 @@ class SourceConfig:
             )
         return self.params[key]
 
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.params.get(key, default)
+
     @classmethod
     def parse(cls, raw: Mapping[str, Any], where: str) -> "SourceConfig":
         provider = str(_req(raw, "provider", where))
