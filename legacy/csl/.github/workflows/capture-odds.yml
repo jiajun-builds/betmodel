@@ -1,0 +1,342 @@
+name: Capture Odds
+
+# The odds-capture tick. Three independent captures write the same append-only store
+# (data/raw_data/CHN_pinnacle_spreads_history.csv); one gated publish job rebuilds the
+# dashboard when any of them appended something.
+#
+#   job                | line     | book        | provider      | budget     | gate
+#   -------------------|----------|-------------|---------------|------------|----------------------
+#   1. oddsapiio-opens | OPENING  | 1xBet + Duel| odds-api.io   | ~500/DAY   | none — every tick,
+#                      |          |             |               |            | capped by --max-requests
+#   2. pinnacle-open   | OPENING  | Pinnacle    | The Odds API  | ~500/MONTH | predicted open window
+#                      |          | (+recon)    |               |            | [anchor, anchor+12h]
+#   3. pinnacle-close  | CLOSING  | Pinnacle    | The Odds API  | ~500/MONTH | pre-kickoff window
+#                      |          | (+recon)    |               |            | [KO-60m, KO), target KO-5m
+#
+# Why these opens are their own job on their own provider: The Odds API stopped carrying
+# 1xBet opens (2026-08-02), and odds-api.io's ~500/DAY budget is what lets it poll with
+# no predicted window at all — which is the fix for opens lost when a fixture reaches
+# the feed after its window closed. It runs first because the dashboard's bet price, EV
+# and BET signal all key off 1xBet.
+#
+# Job 1 captures BOTH entitled books at equal priority on the same tick (2026-08-08).
+# Duel joined for free: `bookmakers=1xbet,Duel` is one /odds/multi request, so the cost
+# model, the cadence and --max-requests below are all unchanged. Duel's rows are stored
+# under `bookmaker=duel` and are inert downstream — `load_open_snapshots` filters by
+# book, so nothing on the dashboard moves until a consumer opts in.
+#
+# Why the jobs are SEQUENTIAL, not parallel: all three append rows to the end of the
+# same CSV. Two same-tick appends at EOF do not auto-merge, so parallel jobs would hit
+# real rebase conflicts on push (today's writers only get away with it because they
+# touch different files). Chaining with `needs` + `if: always()` means exactly one
+# writer at a time while keeping per-capture logs, exit codes and failure isolation.
+# Runner minutes are free on this public repo, so the extra checkouts cost nothing.
+#
+# NOTE: scheduled workflows only run from the default branch (main), so changes here
+# have no effect until merged there.
+
+on:
+  # Primary trigger (P0-3): an external timer POSTs a repository_dispatch every ~10min.
+  # GitHub's `schedule` cron is heavily throttled (measured median ~78min, worst ~197min
+  # between landed runs — wider than the 180min executable window), whereas an API-fired
+  # dispatch starts within seconds. The `schedule` below is kept only as a fallback
+  # heartbeat should the external timer stop. See SETUP_ALERTS.md for the timer setup.
+  repository_dispatch:
+    types: [capture-tick]
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Which capture to run (manual runs only)"
+        type: choice
+        options: [all, oddsapiio-opens, pinnacle-open, pinnacle-close]
+        default: all
+      dry_run:
+        description: "Decide only: report what would be captured, spend/write nothing"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "*/10 * * * *"  # fallback heartbeat only (throttled); dispatch is primary
+
+permissions:
+  contents: write
+
+concurrency:
+  group: capture-odds
+  cancel-in-progress: false
+
+env:
+  # Non-manual triggers leave the inputs null, so each job's `if` falls back to "all"
+  # and the choice input only ever narrows a manual run.
+  DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. OPENING lines, 1xBet + Duel — odds-api.io, no window, runs on every tick.
+  # ---------------------------------------------------------------------------
+  # Deliberately unthrottled. An earlier version gated this to ~2 runs/hour on a minute
+  # band, assuming this workflow ticks a reliable 144 times/day. Measured over 299 real
+  # runs it does not: the gap between runs has a median of 10min but a p75 of 74min, a
+  # p90 of 137min and a max of 232min (the external dispatch timer dies intermittently,
+  # leaving only the heavily-throttled GitHub cron). Actual volume is 13-54 runs/day. So
+  # the band tripled capture latency — p90 ~7h — while using ~7% of the daily budget.
+  #
+  # Cost is bounded by --max-requests instead, a hard per-run cap rather than a guess
+  # about cadence: 2 requests (1 /events + 1 /odds/multi, i.e. up to 10 fixtures) x even
+  # a fully-recovered 144 runs/day = 288/day, inside the ~500/day free tier. Overflow
+  # past 10 pending fixtures waits for the next tick. Idle runs cost zero.
+  #
+  # --max-requests stays at 2 now that two books are captured: one /odds/multi names both
+  # books and still bills once. What DID change is the pending set — a fixture stays
+  # pending until BOTH books have opened, so it now routinely exceeds one batch (measured
+  # 16 pending on 2026-08-08). That is safe because the fetcher orders pending by soonest
+  # kickoff and a CSL round is 8 fixtures, comfortably inside the 10-fixture batch: the
+  # next round to open is always fully covered, and the overflow left waiting a tick is
+  # fixtures a week or more out, whose lines have not opened yet by construction.
+  # Raising this to 3 would put the theoretical worst case (144 runs/day) at 432/day,
+  # uncomfortably close to the ~500/day cap, for no capture-latency gain.
+  oddsapiio_opens:
+    name: "1. Opening lines (1xBet + Duel)"
+    if: ${{ (github.event.inputs.only || 'all') == 'all' || github.event.inputs.only == 'oddsapiio-opens' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      appended: ${{ steps.commit.outputs.appended }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so the pre-push rebase can fast-forward
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        # The tick only needs pandas + requests (no model / penaltyblog), so we skip
+        # the full conda environment for a fast, cheap run.
+        run: pip install "pandas>=2.0" "requests>=2.28"
+
+      - name: Capture opening lines (1xBet + Duel)
+        env:
+          ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          if [ -z "${ODDS_API_IO_KEY:-}" ]; then
+            echo "ODDS_API_IO_KEY not configured; skipping."
+            exit 0
+          fi
+          ARGS="--max-requests 2"
+          if [ "$DRY_RUN" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          # Fail-open: a supplementary provider must never fail the tick or block the
+          # Pinnacle jobs chained behind it.
+          python -m csl.odds.fetch_oddsapiio_opens $ARGS || \
+            echo "WARNING: odds-api.io capture failed; continuing."
+
+      - name: Commit captured snapshot
+        id: commit
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(odds): capture opening lines (1xBet + Duel)"
+
+  # ---------------------------------------------------------------------------
+  # 2. Pinnacle OPENING lines — The Odds API, predicted open window.
+  # ---------------------------------------------------------------------------
+  # Only spends a request when a fixture is inside its predicted opening window
+  # [anchor, anchor+12h] and has no Pinnacle open yet; one /odds call covers the whole
+  # slate and reaches every CAPTURE_BOOKMAKERS book for the same single credit. Idle
+  # ticks cost zero. Pinnacle's open is the model's lambda de-bias anchor.
+  #
+  # GitHub cron delay is tolerated here because the window is 12h wide and a fixture is
+  # captured at most once, so a single landed tick per window suffices.
+  pinnacle_open:
+    name: "2. Pinnacle opening lines"
+    needs: oddsapiio_opens
+    # always(): job 1 is a supplementary source on a different provider. Its failure
+    # (or its being skipped by the `only` input) must not stop the Pinnacle captures.
+    if: ${{ always() && ((github.event.inputs.only || 'all') == 'all' || github.event.inputs.only == 'pinnacle-open') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      appended: ${{ steps.commit.outputs.appended }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main        # picks up job 1's commit so this job rebases onto it cleanly
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        run: pip install "pandas>=2.0" "requests>=2.28"
+
+      - name: Capture Pinnacle opening lines
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          ARGS=""
+          if [ "$DRY_RUN" = "true" ]; then ARGS="--dry-run"; fi
+          python -m csl.odds.capture_scheduler $ARGS
+
+      - name: Commit captured snapshot
+        id: commit
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(odds): capture Pinnacle opening lines"
+
+  # ---------------------------------------------------------------------------
+  # 3. Pinnacle CLOSING lines — The Odds API, pre-kickoff window (roadmap #3).
+  # ---------------------------------------------------------------------------
+  # The close is the CLV benchmark every edge claim in backtest/backtest.md is graded
+  # against, and until now no live source produced one.
+  #
+  # The target is the line ~5 minutes before kickoff, but the window opens at KO-60m and
+  # re-captures each tick, keeping the latest price. That gap is deliberate: with a p90
+  # inter-tick gap of 137min (see job 1's note), a literal 5-minute window would be
+  # missed on most fixtures — and a missed close is unrecoverable, since the fixture
+  # leaves the pre-match feed at kickoff. Once a Pinnacle close lands inside the 5-min
+  # target band the fixture goes final and stops spending quota.
+  #
+  # Cost is per tick, not per fixture (one /odds call covers the slate): roughly 1-6
+  # credits per kickoff wave. Runs last because it is the only job with a hard deadline
+  # that a delay moves it TOWARD (closer to kickoff), never away from.
+  pinnacle_close:
+    name: "3. Pinnacle closing lines"
+    needs: pinnacle_open
+    if: ${{ always() && ((github.event.inputs.only || 'all') == 'all' || github.event.inputs.only == 'pinnacle-close') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      appended: ${{ steps.commit.outputs.appended }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main        # picks up jobs 1-2's commits
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        run: pip install "pandas>=2.0" "requests>=2.28"
+
+      - name: Capture Pinnacle closing lines
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          ARGS=""
+          if [ "$DRY_RUN" = "true" ]; then ARGS="--dry-run"; fi
+          python -m csl.odds.capture_close $ARGS
+
+      - name: Commit captured snapshot
+        id: commit
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(odds): capture Pinnacle closing lines"
+
+  # ---------------------------------------------------------------------------
+  # Rebuild the dashboard + redeploy Pages — ONLY when a capture appended something.
+  # ---------------------------------------------------------------------------
+  # This closes the "capture doesn't refresh the site" gap (a fresh line otherwise
+  # waited up to ~3h for the next csl-refresh) without redeploying on every idle tick.
+  # It re-reads the existing Now line joined to the updated history — no /odds request
+  # is spent here.
+  #
+  # Closing lines do not currently surface on the dashboard (they are CLV archive data,
+  # roadmap #3), so pinnacle-close is intentionally NOT part of this gate — a close-only
+  # tick commits its rows and stops there rather than triggering a no-op redeploy.
+  publish:
+    needs: [oddsapiio_opens, pinnacle_open, pinnacle_close]
+    if: ${{ always() && (needs.oddsapiio_opens.outputs.appended == 'true' || needs.pinnacle_open.outputs.appended == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    # Serialize Pages deploys with deploy-pages.yml (same "pages" group) so a
+    # capture-driven redeploy and a CSL Refresh redeploy can't clobber each other.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    env:
+      CONDA_PKGS_DIRS: /home/runner/conda_pkgs_dir
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main          # includes the capture commits the jobs above just pushed
+          fetch-depth: 0      # full history so the commit step's rebase can fast-forward
+
+      - name: Cache conda packages
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/conda_pkgs_dir
+          key: conda-pkgs-${{ runner.os }}-${{ hashFiles('environment.yml') }}
+          restore-keys: |
+            conda-pkgs-${{ runner.os }}-
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          activate-environment: csl-workflows
+          auto-activate-base: false
+          environment-file: environment.yml
+          miniforge-variant: Miniforge3
+          use-mamba: true
+
+      - name: Rebuild dashboard from captured lines (no odds fetch)
+        env:
+          PYTHONPATH: src
+          # Signal alerts: republish runs the notifier, which pushes newly-fired bet
+          # signals to Telegram. Unset -> the notifier no-ops (never fails the build).
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: ./scripts/csl.sh republish
+
+      - name: Commit rebuilt dashboard
+        uses: ./.github/actions/capture-commit
+        with:
+          message: "chore(odds): rebuild dashboard after opening-line capture"
+          paths: data/output_data/CHN_upcoming_market_comparison.csv data/dashboard
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site           # built by `csl.sh republish` (run_site_build)
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

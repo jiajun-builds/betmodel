@@ -1,0 +1,14 @@
+.env.local
+.DS_Store
+__pycache__/
+*.pyc
+data/raw_data/backups/
+# Transient all-book "Now" snapshot: written by fetch_pinnacle_spreads, consumed by
+# backfill_open within the same run. Not committed (it changes every fetch and is
+# fully regenerated), but must exist as a working-tree file for the fallback to read.
+data/raw_data/CHN_now_all_books.csv
+site/
+src/csl/xg/.xg_venv/
+
+# wrangler account cache, written on deploy
+tools/capture-timer/.wrangler/

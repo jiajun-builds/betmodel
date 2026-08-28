@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSL Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="term">
+      <!-- COMMAND BAR -->
+      <header class="cmd">
+        <div class="cmd__brand">
+          <div class="cmd__glyph"><img src="./assets/csl-logo.png" alt="CSL" /></div>
+          <div>
+            <div class="cmd__title-row">
+              <span class="cmd__title">CSL Terminal</span>
+              <span class="cmd__tag">Macro Terminal</span>
+            </div>
+            <div class="cmd__trail" data-bind="masthead-trail">Chinese Super League · Season 2026</div>
+          </div>
+        </div>
+        <div class="cmd__status">
+          <div class="cmd__stat"><span class="cmd__stat-k">NEXT</span><span class="cmd__stat-v" data-bind="masthead-next-date">--</span></div>
+          <div class="cmd__stat"><span class="cmd__stat-k">UPDATED</span><span class="cmd__stat-v" data-bind="masthead-updated">--</span></div>
+          <div class="cmd__stat cmd__stat--live"><span class="cmd__stat-k">● LIVE</span><span class="cmd__stat-v" data-bind="masthead-clock">--:--:--</span></div>
+        </div>
+      </header>
+
+      <!-- FUNCTION TABS -->
+      <nav class="tabs" aria-label="Views">
+        <button type="button" class="tab tab--active" data-view-target="overview" aria-current="page"><span class="tab__f">F1</span> OVERVIEW</button>
+        <button type="button" class="tab" data-view-target="ev-bet" aria-current="false"><span class="tab__f">F2</span> EV BET</button>
+        <button type="button" class="tab" data-view-target="schedule" aria-current="false"><span class="tab__f">F3</span> SCHEDULE</button>
+        <button type="button" class="tab" data-view-target="club" aria-current="false"><span class="tab__f">F4</span> TEAM STRENGTH</button>
+        <button type="button" class="tab" data-view-target="context" aria-current="false"><span class="tab__f">F5</span> MODEL</button>
+        <div class="tabs__meta">
+          <span>PLAYED <b data-bind="played">--</b></span>
+          <span class="tabs__sep">|</span>
+          <span>RND <b data-bind="round-label">--</b></span>
+          <div class="progress"><div class="progress__fill" id="round-fill"></div></div>
+        </div>
+      </nav>
+
+      <div class="views">
+        <!-- ===== OVERVIEW ===== -->
+        <section class="view view--active" data-view="overview" aria-label="Overview">
+          <!-- BEST BET HERO -->
+          <div class="hero" id="overview-hero"></div>
+
+          <!-- CONTENT ROW -->
+          <div class="ov-grid">
+            <!-- SIGNALS FIRING -->
+            <div class="panel ov-grid__main">
+              <div class="panel__bar">
+                <div class="panel__title-wrap"><span class="panel__title">BET SIGNALS</span><span class="panel__kick">FIXTURES CLEARING EV &amp; ODDS FILTER</span></div>
+                <span class="panel__meta"><b data-bind="ov-signal-count">--</b> firing · <span data-bind="ov-signal-total">--</span> fixtures</span>
+              </div>
+              <div class="scroll">
+                <table class="tbl tbl--overview">
+                  <thead>
+                    <tr>
+                      <th class="c-time">TIME</th>
+                      <th class="c-match">MATCH</th>
+                      <th class="c-pick">MODEL PICK</th>
+                      <th class="num c-odds">BEST OPEN</th>
+                      <th class="num c-ev">EV</th>
+                      <th class="c-signal">SIGNAL</th>
+                    </tr>
+                  </thead>
+                  <tbody id="overview-body"></tbody>
+                </table>
+              </div>
+              <div class="legend"><span>Ranked by EV · pick is the model’s bet at the best of the 1xBet / Duel opening lines · <span class="badge">BET</span> clears EV &gt; 0.20 &amp; odds ≤ 7 · logo = where to bet</span></div>
+            </div>
+
+            <!-- SIDE TILES -->
+            <aside class="ov-grid__side">
+              <article class="tile">
+                <span class="tile__label">NEXT FIXTURE</span>
+                <span class="tile__value" data-bind="next-fixture">--</span>
+                <span class="tile__note" data-bind="next-note"></span>
+              </article>
+              <article class="tile">
+                <span class="tile__label">STRONGEST CLUB</span>
+                <span class="tile__value tile__value--accent" data-bind="strong-team">--</span>
+                <span class="tile__note" data-bind="strong-note"></span>
+              </article>
+              <a class="tile tile--link" href="https://kellysuite-1x2.netlify.app/" target="_blank" rel="noopener noreferrer">
+                <span class="tile__label">KELLY CALCULATOR</span>
+                <span class="tile__value tile__value--accent">Open Kelly Suite <span class="tile__value-sub">↗</span></span>
+                <span class="tile__note">Size stakes from EV &amp; odds · 1X2 Kelly staking tool</span>
+              </a>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ===== EV BET ===== -->
+        <section class="view" data-view="ev-bet" aria-label="Bet Signals">
+          <div class="panel">
+            <div class="panel__bar">
+              <div class="panel__title-wrap"><span class="panel__title">BET SIGNALS</span><span class="panel__kick">OPENING LINES · 1XBET vs DUEL · MODEL vs FAIR</span></div>
+              <span class="panel__meta" data-bind="panel-signal-meta">Model -- · Opens --</span>
+            </div>
+            <div class="panel__config">
+              <span>λ 1.00</span><span>EV &gt; 0.20</span><span>ODDS ≤ 7</span><span>DRAWS EXCLUDED</span><span>BEST OF 2 BOOKS</span>
+            </div>
+            <div class="scroll">
+              <table class="tbl tbl--signals">
+                <thead>
+                  <tr>
+                    <th class="c-time">TIME</th>
+                    <th class="c-outcome">OUTCOME</th>
+                    <th class="num c-prob">PROB</th>
+                    <th class="num c-grp">1XBET</th>
+                    <th class="num c-book">DUEL</th>
+                    <th class="num c-ev">EV</th>
+                    <th class="c-grp c-signal">SIGNAL</th>
+                  </tr>
+                </thead>
+                <tbody id="signal-body"></tbody>
+              </table>
+            </div>
+            <div class="legend">
+              <span><b class="pos">+EV</b> value vs model &nbsp; <b class="neg">−EV</b> negative edge</span>
+              <span><b class="is-best-key">2.22</b> = best price, drives EV &nbsp; <span class="dim">·</span> = book has no line</span>
+              <span><span class="badge">BET</span> pick clears EV &amp; odds filter — logo = where to bet</span>
+              <span><span class="swatch">amber</span> = model pick on a bet-signal fixture</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== SCHEDULE ===== -->
+        <section class="view" data-view="schedule" aria-label="Upcoming Schedule">
+          <div class="panel">
+            <div class="panel__bar">
+              <span class="panel__title">UPCOMING MATCHES</span>
+              <span class="panel__meta" data-bind="panel-market-meta">-- matches</span>
+            </div>
+            <div class="datefilter" id="market-filter" role="group" aria-label="Filter by date"></div>
+            <div class="scroll">
+              <table class="tbl tbl--market">
+                <thead>
+                  <tr>
+                    <th class="c-rnd">RND</th>
+                    <th class="c-date">DATE</th>
+                    <th class="c-mtime">TIME</th>
+                    <th class="c-match">MATCH</th>
+                    <th class="num c-grp c-p">HOME</th>
+                    <th class="num c-p">DRAW</th>
+                    <th class="num c-p">AWAY</th>
+                  </tr>
+                </thead>
+                <tbody id="market-body"></tbody>
+              </table>
+            </div>
+            <div class="legend"><span>Highlighted = model’s most-likely outcome · small figure = fair odds (F)</span></div>
+          </div>
+        </section>
+
+        <!-- ===== TEAM STRENGTH ===== -->
+        <section class="view" data-view="club" aria-label="Club Snapshot">
+          <div class="panel">
+            <div class="panel__bar">
+              <span class="panel__title">TEAM STRENGTH</span>
+              <span class="panel__meta" data-bind="panel-strength-meta">-- clubs</span>
+            </div>
+            <div class="scroll">
+              <table class="tbl tbl--strength">
+                <thead>
+                  <tr>
+                    <th class="num c-rk">RK</th>
+                    <th class="c-team">TEAM</th>
+                    <th class="num c-grp c-ovr">OVR</th>
+                    <th class="num c-r">ATT</th>
+                    <th class="num c-r">DEF</th>
+                    <th class="c-grp c-form">FORM</th>
+                  </tr>
+                </thead>
+                <tbody id="strength-body"></tbody>
+              </table>
+            </div>
+            <div class="legend legend--stack">
+              <span><b>OVR</b> = overall strength rating · 0.000 = league average · higher is stronger. Ranks by expected points against this season’s field, so it accounts for the goal level and not just the scored-to-conceded ratio.</span>
+              <span><b>ATT</b> / <b>DEF</b> = ExpG+ (0.7·xG + 0.3·goals) this club would score / concede per match against an average opponent, adjusted for opponent quality and recency — not this season’s raw goal tally.</span>
+              <span data-bind="strength-legend-avg">A league-average team is -- in both ATT and DEF.</span>
+              <span><span class="st-flag">REL</span> greyed = relegated, not in this season’s league · <span class="st-flag">!</span> = fewer matches in the model’s 18-month window, so the rating is less certain · hover a row for the raw model coefficients</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== MODEL CONTEXT ===== -->
+        <section class="view" data-view="context" aria-label="Model Context">
+          <div class="panel panel--narrow">
+            <div class="panel__bar">
+              <span class="panel__title">MODEL CONTEXT</span>
+              <span class="panel__meta">SYSTEM REFERENCE</span>
+            </div>
+            <dl class="meta" id="context-body"></dl>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>

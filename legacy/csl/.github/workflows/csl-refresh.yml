@@ -1,0 +1,184 @@
+name: CSL Refresh
+
+# Dual-mode refresh (AGENTS.md roadmap: intraday odds + daily model).
+#   full  -> ./scripts/csl.sh all            (data + model + odds + dashboard + site)
+#   odds  -> ./scripts/csl.sh odds + publish  (re-fetch the "Now" line + rebuild site)
+# The daily 09:17 London cron runs `full`; the every-12h UTC cron runs `odds`. Both
+# share the cached conda env and one commit/push path. Pages redeploys after either
+# mode via deploy-pages.yml's workflow_run chain (keyed on this workflow's name).
+#
+# The odds mode's Now-line fetch also runs a zero-quota fallback open backfill
+# (csl.odds.backfill_open): any fixture with a Now line but no captured open whose
+# capture window has closed gets its current line stored as a fallback open. So the
+# odds mode CAN append to the history CSV (append-only, dedup-guarded) — it is not
+# strictly capture-odds.yml-only. See AGENTS.md roadmap #2/#3/#6.
+#
+# CADENCE: 3h -> 12h (2026-08-02), freeing ~180 of 500 Odds-API requests/month for the
+# new pinnacle_close capture. The 3h cron was ~70% of the monthly spend and, of the four
+# things the odds mode does, three had become redundant:
+#   * the Now line itself      -> dashboard v2.7 dropped the Now/Move columns; it is
+#                                 archive data only, not a betting basis;
+#   * run_oddsapiio_opens      -> capture-odds.yml runs the open capture every ~10min;
+#   * publish / site rebuild   -> capture-odds.yml's gated publish job already rebuilds
+#                                 on every capture, and `full` rebuilds daily.
+# Only backfill_open is load-bearing: it is the safety net for a Pinnacle open whose
+# 12h capture window closed unfilled, and Pinnacle's open is the model's lambda anchor.
+# Two runs/day is ample for a window that wide. The mode-resolution step below matches
+# on the literal cron string, so changing the schedule means changing it there too.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Which refresh to run"
+        type: choice
+        options: [full, odds]
+        default: full
+  schedule:
+    - cron: "17 9 * * *"    # daily full (model) refresh
+      timezone: "Europe/London"
+    - cron: "0 */12 * * *"  # every 12h odds-only refresh (UTC) — see the note above
+
+permissions:
+  contents: write
+
+concurrency:
+  group: csl-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      # Package cache location so actions/cache can persist conda/mamba downloads.
+      CONDA_PKGS_DIRS: /home/runner/conda_pkgs_dir
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve mode
+        id: mode
+        shell: bash {0}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MODE="${{ github.event.inputs.mode }}"
+          elif [ "${{ github.event.schedule }}" = "0 */12 * * *" ]; then
+            MODE="odds"
+          else
+            MODE="full"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Resolved mode: $MODE"
+
+      - name: Cache conda packages
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/conda_pkgs_dir
+          key: conda-pkgs-${{ runner.os }}-${{ hashFiles('environment.yml') }}
+          restore-keys: |
+            conda-pkgs-${{ runner.os }}-
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          activate-environment: csl-workflows
+          auto-activate-base: false
+          environment-file: environment.yml
+          miniforge-variant: Miniforge3
+          use-mamba: true
+
+      - name: Show environment details
+        run: |
+          conda info
+          python --version
+
+      - name: Run refresh (${{ steps.mode.outputs.mode }})
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          # 1xBet + Duel opens (csl.sh run_oddsapiio_opens, reached by `odds` and `all`).
+          # Unset -> that step skips itself; it never fails the refresh.
+          ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
+          PYTHONPATH: src
+          MODE: ${{ steps.mode.outputs.mode }}
+          # Signal alerts: publish (odds mode) and `all` (full mode) both run the
+          # notifier. Unset secrets -> the notifier no-ops (never fails the build).
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # SofaScore Cloudflare-blocks datacenter IPs; skip the xG fetch on CI
+          # and merge the committed xg_data.csv (refreshed by the home Mac).
+          CSL_SKIP_XG_FETCH: "1"
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = "odds" ]; then
+            # csl.sh odds uses the UNguarded fetch_pinnacle_spreads, so do the
+            # pre-spend quota check here (the free /sports read costs 0). Reuse
+            # read_quota() from the capture pipeline. Missing headers -> 9999 so a
+            # quota we can't read never blocks the refresh.
+            REMAINING="$(python -c "from csl.odds.capture_snapshot import read_quota; from csl.odds.fetch_pinnacle_spreads import get_api_key; r,_,_=read_quota(get_api_key()); print(r if r is not None else 9999)")"
+            echo "Odds API requests remaining: $REMAINING"
+            if [ "$REMAINING" -lt 50 ]; then
+              echo "Quota remaining $REMAINING < 50; skipping odds refresh this tick."
+            else
+              ./scripts/csl.sh odds
+              ./scripts/csl.sh publish
+            fi
+          else
+            ./scripts/csl.sh all
+          fi
+
+      - name: Commit refreshed data
+        # Plain bash avoids login-shell EXIT traps (conda) turning exit 0 into failure.
+        shell: bash {0}
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = "odds" ]; then
+            # Stage the intraday odds outputs, plus the history CSV — the odds mode now
+            # runs the zero-quota fallback open backfill, which may append opening-line
+            # rows (append-only + dedup, so it rebases cleanly against capture-odds.yml).
+            git add data/raw_data/CHN_pinnacle_now.csv \
+                    data/raw_data/CHN_pinnacle_spreads_history.csv \
+                    data/output_data/CHN_upcoming_market_comparison.csv \
+                    data/dashboard
+            MSG="chore(odds): 12h Now-line refresh"
+          else
+            git add data/raw_data data/output_data data/dashboard
+            MSG="chore(data): automated dashboard refresh"
+          fi
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            # The Pages deploy (deploy-pages.yml) chains off this workflow via
+            # workflow_run, not off this push, so no `[skip ci]` is needed.
+            git commit -m "$MSG"
+            # Robust push: main may have moved while csl.sh ran — a ~10-min
+            # capture-odds tick can land a history-only commit. That commit touches a
+            # different file, so the rebase is always conflict-free; the retry loop
+            # just closes the pull->push race (main moving between our rebase and push).
+            pushed=0
+            for attempt in 1 2 3; do
+              if git pull --rebase origin main && git push origin main; then
+                pushed=1
+                break
+              fi
+              echo "push attempt $attempt failed; retrying..."
+              sleep 3
+            done
+            if [ "$pushed" -ne 1 ]; then
+              echo "push failed after retries" >&2
+              exit 1
+            fi
+          fi
