@@ -30,11 +30,11 @@ def test_available_leagues_is_discovered_not_hardcoded():
 
 
 @pytest.mark.parametrize(
-    "league,xi,window,max_goals,ev_min",
-    [("csl", 0.001, 18, 10, 0.20), ("ligamx", 0.0015, 24, 15, 0.10)],
+    "league,xi,window,ev_min",
+    [("csl", 0.001, 18, 0.20), ("ligamx", 0.0015, 24, 0.10)],
 )
 def test_model_and_signal_params_match_the_pre_merge_constants(
-    league, xi, window, max_goals, ev_min
+    league, xi, window, ev_min
 ):
     """These values are the ones the golden outputs were produced with.
 
@@ -44,8 +44,19 @@ def test_model_and_signal_params_match_the_pre_merge_constants(
     c = load_league(league)
     assert c.model.xi == xi
     assert c.model.lookback_months == window
-    assert c.model.max_goals == max_goals
     assert c.signals.ev_min == ev_min
+
+
+@pytest.mark.parametrize("league", ["csl", "ligamx"])
+def test_the_scoreline_grid_is_the_same_for_every_league(league):
+    """Deliberately NOT the pre-merge value. See docs/DECISIONS.md D2.
+
+    The two pipelines used 10 and 15, and read the field differently on top of
+    that: one built arange(max_goals), the other arange(max_goals + 1). It now
+    means the highest scoreline modelled, and both leagues use 9. The cost to
+    Liga MX is bounded by gate G1 rather than by this test.
+    """
+    assert load_league(league).model.max_goals == 9
 
 
 def test_csl_anchors_the_draw_on_pinnacle_and_never_bets_it():
