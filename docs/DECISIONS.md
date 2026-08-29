@@ -625,3 +625,29 @@ is visible within minutes. A refresh that fetches nothing and says it succeeded
 is discovered days later, by someone reading a number that stopped moving. The
 leagues stay independent — one league's outage still does not stop another's —
 but the run's exit code carries the failure, which it already did.
+
+## D19b — The same swallow, one layer up.
+
+Fixing the provider layer (D19) made the stage exit 1, and the run still went
+green:
+
+```
+ERROR   ligamx fixtures failed: SofaScore GET /unique-tournament/11621/seasons failed
+##[error]Process completed with exit code 1
+...
+6. Fixtures: success
+```
+
+Both fetch steps carried a bare `continue-on-error: true`. The intent is sound
+and worth keeping: a provider outage should still leave the model refitted and
+published from the data already on disk, because yesterday's numbers beat no
+numbers. What was missing is that nothing afterwards remembered it had happened.
+
+The steps now carry ids, and a final always-run step fails the job if either
+fetch failed. Everything still runs; the run just stops claiming it worked.
+
+**The general shape.** Two independent layers each turned a failure into a
+success, and each looked locally reasonable — one read an empty list as an empty
+answer, the other let a step fail so later steps could run. It took an actual
+outage to reveal either. Any place that degrades rather than stops needs
+somewhere downstream that still knows it degraded.

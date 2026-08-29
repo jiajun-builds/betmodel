@@ -48,7 +48,14 @@ jobs:
       # SofaScore stages, which are refused on IP. Only that provider reads this
       # variable, and when it is unset the same code runs direct, which is what
       # makes a laptop and a runner the same code path rather than two.
+      # These two continue on error so a provider outage still leaves the model
+      # refitted and published from the data already on disk -- yesterday's
+      # numbers beat no numbers. The run is failed at the end instead, by
+      # "Fail if a fetch failed": without that, a refresh that fetched nothing
+      # reported success, and stale output is only noticed days later by whoever
+      # reads a number that stopped moving.
       - name: Fixtures
+        id: fixtures
         env:
           SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
         run: betmodel ${{ inputs.league || 'all' }} fixtures
@@ -56,6 +63,7 @@ jobs:
         continue-on-error: true
 
       - name: xG
+        id: xg
         env:
           SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
         run: betmodel ${{ inputs.league || 'all' }} xg
@@ -98,3 +106,17 @@ jobs:
           message: "chore(data): daily refresh"
           paths: data public
           skip_ci: "false"
+
+      # Last, so everything above has already run and committed. A fetch that
+      # failed is still a failed refresh, whatever was salvaged from disk.
+      - name: Fail if a fetch failed
+        if: always()
+        run: |
+          failed=""
+          [ "${{ steps.fixtures.outcome }}" = "failure" ] && failed="$failed fixtures"
+          [ "${{ steps.xg.outcome }}" = "failure" ] && failed="$failed xG"
+          if [ -n "$failed" ]; then
+            echo "::error::refresh completed but these fetches failed:$failed"
+            exit 1
+          fi
+          echo "every fetch succeeded"
