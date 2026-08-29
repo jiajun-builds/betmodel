@@ -523,3 +523,40 @@ appears anywhere in `src/`.
 borrowed from the closest existing league, not fitted. Adding a league is cheap;
 making its signals mean anything is not, and the config says so with
 `validated: false` and a caveat.
+
+## D17 — Existing in the repository and being in production are two different things.
+
+The acceptance test added a league, and publishing it enlisted it in production.
+That was not an accident of the test: the capture timer discovers which leagues
+to dispatch captures for by reading `public/index.json`, so appearing in the
+manifest *is* the enlistment. A league added to prove the abstraction was
+therefore dispatched for real captures against credentials nobody had created
+for it, and every opening tick for it failed:
+
+```
+RuntimeError: no odds-api.io key: set ODDS_API_IO_KEY
+```
+
+Four of the last twenty capture runs were this and nothing else.
+
+**No quota was burned.** The providers run in the order `("oddsapiio",
+"theoddsapi")`, and the first raised, so the stage aborted before reaching the
+account that mattered — the one with 82 of 500 requests left until it resets.
+The cost was a red workflow, not lost data. It could easily have been the other
+way round with the order reversed.
+
+**The decision.** `publish.published` gates whether a league appears in the
+manifest, whether its canonical files are written, and whether its compatibility
+payload is written. It defaults to true, so no existing league changes meaning,
+and it is deliberately separate from `validated`: that one warns a reader about
+the numbers, this one decides whether there is a reader at all.
+
+**Why not simply give the new league a credential.** Because the general problem
+is not this league. Any league added from now on is dispatched for captures the
+moment it is published, and the natural order of work — add the league, look at
+the fixtures, tune the parameters, then arrange the accounts — has publication
+happening before credentials exist. The flag makes that order legal.
+
+**What did not change.** The producer still names no league anywhere. The
+withholding is a field on the league, read by the manifest builder, so G4 still
+proves the list is discovered rather than written.

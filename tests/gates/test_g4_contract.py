@@ -56,13 +56,21 @@ def published():
 # the manifest
 # --------------------------------------------------------------------------- #
 
-def test_the_manifest_lists_every_league_found_on_disk(published):
+def test_the_manifest_lists_every_published_league_found_on_disk(published):
     """Adding a league must not need a consumer change, which is only true if
     the manifest is discovered rather than written. A league with no model yet
     still appears here: the manifest describes what exists, and its own
-    validated flag says whether to trust it."""
+    validated flag says whether to trust it.
+
+    Withheld leagues are the one exception, and they are withheld by a flag on
+    the league rather than by a list kept here, so the discovery this gate exists
+    to protect is unaffected: nothing in the producer names a league.
+    """
     listed = {entry["id"] for entry in published["index"]["leagues"]}
-    assert listed == set(available_leagues())
+    on_disk = set(available_leagues())
+    withheld = {l for l in on_disk if not load_league(l).publish.published}
+    assert listed == on_disk - withheld
+    assert listed, "the manifest cannot be empty; the board reads nothing else"
 
 
 def test_a_league_without_a_model_is_marked_unvalidated(published):

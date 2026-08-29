@@ -2,7 +2,7 @@
  "meta": {
   "competition_code": "MEX",
   "season": "Apertura 2026",
-  "updated_at": "2026-08-29T10:01:43+00:00"
+  "updated_at": "2026-08-29T11:14:59+00:00"
  },
  "rows": [
   {
@@ -34,9 +34,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 165.3,
+   "price_age_h": 166.5,
    "last_update": null,
-   "fetched_at": "2026-08-29T10:01:43.211962Z"
+   "fetched_at": "2026-08-29T11:14:59.105935Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-atlas-queretaro",
@@ -67,9 +67,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 165.3,
+   "price_age_h": 166.5,
    "last_update": null,
-   "fetched_at": "2026-08-29T10:01:43.211962Z"
+   "fetched_at": "2026-08-29T11:14:59.105935Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-club-america-puebla",
@@ -100,9 +100,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T15:15:31Z",
-   "price_age_h": 162.8,
+   "price_age_h": 164.0,
    "last_update": null,
-   "fetched_at": "2026-08-29T10:01:43.211962Z"
+   "fetched_at": "2026-08-29T11:14:59.105935Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-santos-laguna-tigres-uanl",
@@ -133,9 +133,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 165.3,
+   "price_age_h": 166.5,
    "last_update": null,
-   "fetched_at": "2026-08-29T10:01:43.211962Z"
+   "fetched_at": "2026-08-29T11:14:59.105935Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-30-toluca-fc-juarez",
@@ -166,9 +166,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 165.3,
+   "price_age_h": 166.5,
    "last_update": null,
-   "fetched_at": "2026-08-29T10:01:43.211962Z"
+   "fetched_at": "2026-08-29T11:14:59.105935Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-30-monterrey-atletico-san-luis",
@@ -199,9 +199,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T13:45:35Z",
-   "price_age_h": 164.3,
+   "price_age_h": 165.5,
    "last_update": null,
-   "fetched_at": "2026-08-29T10:01:43.211962Z"
+   "fetched_at": "2026-08-29T11:14:59.105935Z"
   }
  ]
 }

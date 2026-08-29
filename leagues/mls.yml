@@ -107,6 +107,11 @@ signals:
 publish:
   legacy_contract: composite
   legacy_ev_unit: fraction
+  # Not in the manifest, and so not dispatched for captures by the timer. This
+  # league was added to prove a league is only configuration; it has no
+  # odds-api.io credential of its own and every open tick against it failed.
+  # Set to true once it has credentials and parameters fitted on its own data.
+  published: false
   validated: false
   caveat: >
     Newly added league. Model parameters are borrowed, the signal threshold is a

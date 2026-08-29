@@ -2,27 +2,9 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T11:51:17+01:00"
+  "updated_at": "2026-08-29T12:14:59+01:00"
  },
  "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-tianjin-jinmen-tiger-qingdao-west-coast",
-   "round": "",
-   "match_date": "2026-08-29",
-   "match_time": "11:00",
-   "kickoff_at": "2026-08-29T12:00:00+01:00",
-   "home_team": "Tianjin Jinmen Tiger",
-   "away_team": "Qingdao West Coast"
-  },
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-zhejiang-professional-yunnan-yukun",
-   "round": "",
-   "match_date": "2026-08-29",
-   "match_time": "11:00",
-   "kickoff_at": "2026-08-29T12:00:00+01:00",
-   "home_team": "Zhejiang Professional",
-   "away_team": "Yunnan Yukun"
-  },
   {
    "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
    "round": "",

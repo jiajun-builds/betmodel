@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-08-29T10:51:18Z",
+ "generated_at": "2026-08-29T11:15:08Z",
  "leagues": [
   {
    "id": "csl",
@@ -12,7 +12,7 @@
    "caveat": null,
    "ev_min": 0.2,
    "allow_draw": false,
-   "updated_at": "2026-08-29T10:51:18Z",
+   "updated_at": "2026-08-29T11:15:08Z",
    "files": {
     "signals": "csl/signals.json",
     "results": "csl/results.json",
@@ -29,28 +29,11 @@
    "caveat": "Signals fire at EV >= 10%, backed by a 427-opener walk-forward backtest, but the provenance gate is not yet reflected downstream. Left unvalidated until the board reads the threshold from the manifest.\n",
    "ev_min": 0.1,
    "allow_draw": true,
-   "updated_at": "2026-08-29T10:51:18Z",
+   "updated_at": "2026-08-29T11:15:08Z",
    "files": {
     "signals": "ligamx/signals.json",
     "results": "ligamx/results.json",
     "meta": "ligamx/meta.json"
-   }
-  },
-  {
-   "id": "mls",
-   "name": "Major League Soccer",
-   "code": "MLS",
-   "season": "2026",
-   "timezone": "America/New_York",
-   "validated": false,
-   "caveat": "Newly added league. Model parameters are borrowed, the signal threshold is a placeholder rather than a backtested bar, and no opening-line history exists yet. Nothing here is a bet.\n",
-   "ev_min": 0.25,
-   "allow_draw": true,
-   "updated_at": "2026-08-29T10:51:18Z",
-   "files": {
-    "signals": "mls/signals.json",
-    "results": "mls/results.json",
-    "meta": "mls/meta.json"
    }
   }
  ]

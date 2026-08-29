@@ -234,7 +234,13 @@ def index_payload(configs: dict[str, LeagueConfig], generated_at: datetime) -> d
     Carries the signal threshold and the validation state per league, so a board
     stops holding its own copy of either. Both had already drifted: one board
     hardcoded a threshold three times smaller than the producer's.
+
+    A league with ``publish.published: false`` is left out. The manifest is not
+    only read by boards: the capture timer discovers which leagues to dispatch
+    captures for from this list, so naming a league here enlists it in production
+    whether or not anything downstream displays it.
     """
+    configs = {k: c for k, c in configs.items() if c.publish.published}
     payload = {
         "schema": contract.SCHEMA_VERSION,
         "generated_at": contract.utc(generated_at),
@@ -270,7 +276,14 @@ def publish_league(
     *,
     generated_at: datetime | None = None,
 ) -> dict[str, str]:
-    """Write one league's canonical files. Returns what it wrote."""
+    """Write one league's canonical files. Returns what it wrote.
+
+    Writes nothing for a league the manifest does not name, so the public tree
+    never holds files no consumer can discover.
+    """
+    if not config.publish.published:
+        log.info("%s: not published, writing nothing", league)
+        return {}
     generated_at = generated_at or datetime.now(timezone.utc)
     lp = paths.for_league(league)
     lp.ensure_dirs()

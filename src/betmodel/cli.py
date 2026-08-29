@@ -127,6 +127,9 @@ def _legacy(league: str, args) -> int:
     from betmodel.signals.engine import build_signals
 
     config = load_league(league)
+    if not config.publish.published:
+        log.info("%s: not published, writing no compatibility payload", league)
+        return 0
     signals = build_signals(league, config)
     at = _now()
     # All three the board fetches. One it cannot do without, and two it asks for

@@ -503,12 +503,21 @@ class PublishConfig:
     files under ``public/legacy/``, which exist so the downstream board keeps
     working across the cutover. The canonical contract under ``public/`` is
     identical for every league and always expresses EV as a fraction.
+
+    ``published`` is the difference between a league that exists in this repo and
+    a league that is in production. The capture timer discovers its work from the
+    published manifest, so a league added for development is otherwise dispatched
+    for real captures the moment it is published, against credentials nobody set
+    up for it. It is a separate question from ``validated``: that one warns a
+    reader about the numbers, this one decides whether there is anything for a
+    reader to see.
     """
 
     legacy_contract: str
     legacy_ev_unit: str = "fraction"
     validated: bool = False
     caveat: str = ""
+    published: bool = True
 
     def __post_init__(self) -> None:
         _one_of(self.legacy_contract, LEGACY_CONTRACTS, "publish.legacy_contract")
@@ -521,6 +530,7 @@ class PublishConfig:
             legacy_ev_unit=str(raw.get("legacy_ev_unit", "fraction")),
             validated=bool(raw.get("validated", False)),
             caveat=str(raw.get("caveat", "") or ""),
+            published=bool(raw.get("published", True)),
         )
 
 

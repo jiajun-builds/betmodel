@@ -2,39 +2,11 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T11:51:17+01:00",
+  "updated_at": "2026-08-29T12:14:59+01:00",
   "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
   "model_version": "v2.8"
  },
  "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-tianjin-jinmen-tiger-qingdao-west-coast",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-29T12:00:00+01:00",
-   "home_team": "Tianjin Jinmen Tiger",
-   "away_team": "Qingdao West Coast",
-   "home_win_prob": 0.444236,
-   "draw_prob": 0.27638,
-   "away_win_prob": 0.279384,
-   "home_win_fair_odds": 2.2511,
-   "draw_fair_odds": 3.6182,
-   "away_win_fair_odds": 3.5793
-  },
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-zhejiang-professional-yunnan-yukun",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-29T12:00:00+01:00",
-   "home_team": "Zhejiang Professional",
-   "away_team": "Yunnan Yukun",
-   "home_win_prob": 0.506259,
-   "draw_prob": 0.213643,
-   "away_win_prob": 0.280098,
-   "home_win_fair_odds": 1.9753,
-   "draw_fair_odds": 4.6807,
-   "away_win_fair_odds": 3.5702
-  },
   {
    "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
    "round": "",
