@@ -19,14 +19,27 @@ from betmodel.config.loader import clear_cache
 # the real configs
 # --------------------------------------------------------------------------- #
 
-def test_both_shipped_leagues_load():
+def test_every_shipped_league_loads():
     leagues = load_all()
-    assert set(leagues) == {"csl", "ligamx"}
+    assert leagues, "no leagues found"
+    assert set(leagues) == set(available_leagues())
 
 
 def test_available_leagues_is_discovered_not_hardcoded():
-    # The whole point of the merge: the engine must never enumerate leagues.
-    assert available_leagues() == ("csl", "ligamx")
+    """The whole point of the merge: nothing may enumerate leagues, this test
+    included. It asserts the mechanism, that what is on disk is what comes back,
+    rather than a list that has to be edited whenever a league is added. The
+    first version of this test named two leagues and broke the moment a third
+    arrived, which is the failure it exists to prevent.
+    """
+    from pathlib import Path
+
+    on_disk = {
+        p.stem for p in Path(paths.leagues_dir()).glob("*.y*ml")
+        if not p.stem.startswith("_")
+    }
+    assert set(available_leagues()) == on_disk
+    assert len(on_disk) >= 2
 
 
 @pytest.mark.parametrize(

@@ -64,6 +64,26 @@ KICKOFF_COLUMN = "kickoff_utc"
 #: pairing does not recur within two days.
 DATE_TOLERANCE_DAYS = 2
 
+#: Columns the fitted target and the odds reducer expect to find.
+DERIVED_COLUMNS = ["HxG", "AxG", "HExpG+", "AExpG+"]
+
+
+def empty_history(config: LeagueConfig) -> pd.DataFrame:
+    """The match table a league starts life with.
+
+    A new league has no history, and every stage downstream reads this file, so
+    without it adding a league means hand-building a CSV with exactly the right
+    columns. The odds columns are derived from the league's own book list, which
+    is the same source the reducer uses, so the two cannot disagree.
+    """
+    from betmodel.odds.reduce import schema_prefixes
+
+    columns = list(MATCH_COLUMNS) + DERIVED_COLUMNS + [KICKOFF_COLUMN]
+    for prefix in dict.fromkeys(schema_prefixes(config).values()):
+        for phase in ("open", "close"):
+            columns += [f"{prefix}_{phase}_{side}" for side in ("h", "d", "a")]
+    return pd.DataFrame(columns=columns)
+
 UPCOMING_COLUMNS = ["Season", "Round", "Date", "Time", "Home", "Away", "kickoff_utc"]
 
 
@@ -203,8 +223,13 @@ def sync(
         log.warning("%s: the fixture provider returned nothing; leaving files alone", league)
         return stats
 
-    history = pd.read_csv(lp.matches_csv)
-    history["MatchDate"] = parse_date_only_series(history["Date"])
+    if os.path.exists(lp.matches_csv):
+        history = pd.read_csv(lp.matches_csv)
+        history["MatchDate"] = parse_date_only_series(history["Date"])
+    else:
+        log.info("%s: no match table yet, starting one", league)
+        history = empty_history(config)
+        history["MatchDate"] = pd.Series(dtype="datetime64[ns]")
     if KICKOFF_COLUMN not in history.columns:
         history[KICKOFF_COLUMN] = pd.NA
     stats["stamped"] = 0
@@ -250,6 +275,7 @@ def sync(
         log.info("%s: would write %s", league, stats)
         return stats
 
+    lp.ensure_dirs()
     history.drop(columns=["MatchDate"]).to_csv(lp.matches_csv, index=False)
     pd.DataFrame([{
         "Season": m.season, "Round": m.round,

@@ -478,3 +478,42 @@ reader to ignore the channel.
 It runs as the last step of the refresh workflow under `if: always()`. A monitor
 that only runs when the thing it monitors succeeded is silent exactly when it is
 needed: if the xG stage fails or never runs, that is the condition to alert on.
+
+---
+
+## D16 — What the acceptance test found.
+
+**Run 2026-08-29.** The claim under test: adding a league costs one
+`leagues/<id>.yml` plus one team-name mapping CSV, and nothing under `src/`.
+
+The claim did not hold on the first attempt. Three things had to change, and each
+was a real gap rather than a concession:
+
+**A new league had no match table, and every stage assumed one existed.** The
+fixtures stage is what creates it, but it read the file before merging into it.
+So onboarding meant hand-building a CSV with exactly the right columns, including
+odds columns derived from that league's own book list. The stage now bootstraps
+one, deriving those columns from the same source the reducer uses so the two
+cannot disagree.
+
+**Two tests enumerated the leagues**, including one named "available leagues is
+discovered not hardcoded" which asserted a two-element tuple. It broke the moment
+a third league arrived, which is precisely the failure it was written to prevent.
+Both now assert the mechanism: what is on disk is what comes back.
+
+**The contract gate assumed every discovered league had a full data set.** A
+league being onboarded legitimately has no model and no history, so the gate
+failed for it and adding a league broke CI. It now skips a league with no fitted
+model, states that it did, and separately requires such a league to be marked
+unvalidated and to carry a caveat, so onboarding cannot put an untuned signal in
+front of a reader.
+
+**What the test confirmed.** With those fixed, the league loads, is discovered by
+the CLI and the manifest, fetches its own fixtures, and is refused by the model
+with a legible reason until it has a training target. No league identifier
+appears anywhere in `src/`.
+
+**What the test does not prove.** The parameters in the new league's YAML are
+borrowed from the closest existing league, not fitted. Adding a league is cheap;
+making its signals mean anything is not, and the config says so with
+`validated: false` and a caveat.

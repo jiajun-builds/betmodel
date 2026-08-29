@@ -19,10 +19,28 @@ from betmodel.signals.engine import build_signals, make_fixture_id
 AT = datetime(2026, 8, 28, 12, 0, tzinfo=timezone.utc)
 
 
+def _has_model(league: str) -> bool:
+    """Whether this league has been fitted yet.
+
+    A league being onboarded legitimately has no model and no history. Failing
+    the contract gate for it would mean a league cannot be added without
+    breaking CI, so it is skipped with the reason stated rather than silently.
+    """
+    import os
+
+    from betmodel import paths as _paths
+
+    return os.path.exists(_paths.for_league(league).simulations_csv)
+
+
 @pytest.fixture(scope="module")
 def published():
     payloads = {}
+    skipped = []
     for league in available_leagues():
+        if not _has_model(league):
+            skipped.append(league)
+            continue
         config = load_league(league)
         signals = build_signals(league, config, now=AT)
         payloads[league] = {
@@ -30,6 +48,7 @@ def published():
             "results": public.results_payload(league, config, AT),
         }
     payloads["index"] = public.index_payload(load_all(), AT)
+    payloads["_skipped"] = skipped
     return payloads
 
 
@@ -39,9 +58,18 @@ def published():
 
 def test_the_manifest_lists_every_league_found_on_disk(published):
     """Adding a league must not need a consumer change, which is only true if
-    the manifest is discovered rather than written."""
+    the manifest is discovered rather than written. A league with no model yet
+    still appears here: the manifest describes what exists, and its own
+    validated flag says whether to trust it."""
     listed = {entry["id"] for entry in published["index"]["leagues"]}
     assert listed == set(available_leagues())
+
+
+def test_a_league_without_a_model_is_marked_unvalidated(published):
+    """Onboarding one must not put an untuned signal in front of a reader."""
+    for league in published["_skipped"]:
+        assert load_league(league).publish.validated is False, league
+        assert load_league(league).publish.caveat, f"{league} has no caveat"
 
 
 def test_the_manifest_names_every_file_a_consumer_needs(published):
@@ -65,7 +93,8 @@ def test_signal_records_have_the_same_field_set_in_every_league(published):
     shapes = {
         league: set(payload["signals"]["signals"][0])
         for league, payload in published.items()
-        if league != "index" and payload["signals"]["signals"]
+        if not league.startswith("_") and league != "index"
+        and payload["signals"]["signals"]
     }
     assert len(set(map(frozenset, shapes.values()))) == 1, shapes
 
@@ -74,7 +103,7 @@ def test_expected_value_is_a_fraction_in_every_league(published):
     """The old contract expressed it two ways, which is why the board downstream
     guesses the scale from a median of the payload."""
     for league, payload in published.items():
-        if league == "index":
+        if league.startswith("_") or league == "index":
             continue
         values = [q["ev"] for s in payload["signals"]["signals"] for q in s["quotes"]]
         assert values, league
@@ -83,7 +112,7 @@ def test_expected_value_is_a_fraction_in_every_league(published):
 
 def test_every_timestamp_is_utc(published):
     for league, payload in published.items():
-        if league == "index":
+        if league.startswith("_") or league == "index":
             continue
         for signal in payload["signals"]["signals"]:
             assert signal["kickoff_utc"].endswith("Z"), league
@@ -95,7 +124,7 @@ def test_every_timestamp_is_utc(published):
 
 def test_a_firing_row_always_names_a_book_to_bet_with(published):
     for league, payload in published.items():
-        if league == "index":
+        if league.startswith("_") or league == "index":
             continue
         for signal in payload["signals"]["signals"]:
             fires = signal["state"] == contract.STATE_BET
@@ -108,7 +137,8 @@ def test_the_judged_price_is_published_even_when_nothing_fires(published):
     """The distinction the old shape expressed by which field you read. A row
     that did not fire still says which price it was judged against."""
     quiet = [
-        s for league, payload in published.items() if league != "index"
+        s for league, payload in published.items()
+        if league != "index" and not league.startswith("_")
         for s in payload["signals"]["signals"]
         if s["state"] != contract.STATE_BET and s["quotes"]
     ]
@@ -118,7 +148,7 @@ def test_the_judged_price_is_published_even_when_nothing_fires(published):
 
 def test_results_carry_a_score_exactly_when_they_are_played(published):
     for league, payload in published.items():
-        if league == "index":
+        if league.startswith("_") or league == "index":
             continue
         for result in payload["results"]["results"]:
             played = result["status"] == "played"
