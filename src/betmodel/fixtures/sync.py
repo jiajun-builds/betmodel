@@ -43,7 +43,7 @@ import pandas as pd
 
 from betmodel import paths, teams
 from betmodel.config.schema import LeagueConfig, SourceConfig
-from betmodel.dates import parse_date_only_series
+from betmodel.dates import parse_date_only_series, stamp
 
 log = logging.getLogger(__name__)
 
@@ -282,7 +282,7 @@ def sync(
         "Date": m.local_date(config.timezone),
         "Time": m.kickoff.strftime("%H:%M"),
         "Home": m.home, "Away": m.away,
-        "kickoff_utc": m.kickoff.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "kickoff_utc": stamp(m.kickoff),
     } for m in upcoming], columns=UPCOMING_COLUMNS).to_csv(
         lp.upcoming_fixtures_csv, index=False
     )
@@ -310,7 +310,7 @@ def _locate(history, by_pairing, match: Match, zone: str, tolerance) -> int | No
 
 
 def _iso(moment: datetime) -> str:
-    return moment.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return stamp(moment)
 
 
 def _row(config: LeagueConfig, match: Match, columns) -> list:

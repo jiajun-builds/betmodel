@@ -36,6 +36,7 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from betmodel import paths, teams
+from betmodel.dates import stamp
 from betmodel.config.schema import BookConfig, LeagueConfig
 from betmodel.fixtures.upcoming import Fixture, load_upcoming
 from betmodel.odds import capture_store, capture_watch
@@ -114,7 +115,7 @@ def _row(
 ) -> dict:
     return {
         "event_id": str(event.get("id", "")),
-        "commence_time": fixture.kickoff.isoformat().replace("+00:00", "Z"),
+        "commence_time": stamp(fixture.kickoff),
         "api_home_team": str(event.get("home", event.get("home_team", ""))),
         "api_away_team": str(event.get("away", event.get("away_team", ""))),
         "home_team": fixture.home,
@@ -169,7 +170,7 @@ def _capture_oddsapiio(
     if not matched:
         return [], [], requests_used
 
-    fetched_at = now.isoformat().replace("+00:00", "Z")
+    fetched_at = stamp(now)
     rows: list[dict] = []
     unpriced: list[tuple[str, str, str]] = []
     budget = config.odds.open.max_requests
@@ -238,7 +239,7 @@ def _capture_theoddsapi(
 
     events = client.odds(bookmakers=[b.key for b in books])
     mapping = teams.for_league(league)
-    fetched_at = now.isoformat().replace("+00:00", "Z")
+    fetched_at = stamp(now)
 
     wanted = {p.fixture.key: p for p in pending}
     priced: set[tuple[str, str, str]] = set()
@@ -339,14 +340,14 @@ def capture_opens(
     if all_unpriced:
         capture_watch.record_unpriced(
             all_unpriced, path=watch_path,
-            observed_at=now.isoformat().replace("+00:00", "Z"),
+            observed_at=stamp(now),
         )
     if all_rows:
         _, appended = capture_store.append_snapshots(
             pd.DataFrame(all_rows),
             path=history_path,
             snapshot_type="open",
-            capture_reason=f"first-seen open price @ {now.isoformat()}",
+            capture_reason=f"first-seen open price @ {stamp(now)}",
         )
         stats["appended"] = appended
     return stats

@@ -560,3 +560,35 @@ happening before credentials exist. The flag makes that order legal.
 **What did not change.** The producer still names no league anywhere. The
 withholding is a field on the league, read by the manifest builder, so G4 still
 proves the list is discovered rather than written.
+
+## D18 — One format for a stored timestamp, and one column deliberately exempt.
+
+Every stamp was written through a bare `isoformat()`, which keeps whatever
+precision its source carried. A provider's value arrives to the second; this
+pipeline's own clock arrives to the microsecond. Both were written to the same
+column, so `fetched_at` held two formats at once and a strict parse of it
+raised — which is how it was found, while reading the column for something else.
+
+**It is a regression, not an inheritance.** Both pre-merge pipelines published
+seconds; the frozen baselines show `2026-08-25T12:25:16Z`. The merge introduced
+the microseconds and shipped them downstream: the compatibility payload the board
+reads carried `2026-08-29T11:14:59.055821Z`. Nothing broke, because the board
+parses with `new Date()`, which is forgiving. G3 never caught it because it
+excludes generation-time fields, correctly — they differ on every run by design.
+
+`dates.stamp()` is now the one way a timestamp is written to storage, matching
+`publish.contract.utc` on the publishing side. Eighteen already-written rows were
+normalised.
+
+**`last_update` is exempt, and the reason is not cosmetic.** It is the book's own
+clock and part of the dedup key. Normalising it would re-identify the row: two
+genuinely distinct ticks a fraction of a second apart would collapse into one,
+and every affected row — 56 in one league, 35 in the other — would look new to
+the upstream sync and be appended a second time. It is stored exactly as the
+provider sent it, whatever precision that is. The first attempt at this change
+did truncate it, along with rewriting 680 lines of historical `capture_reason`
+prose, before the diff was read.
+
+**`capture_reason` is exempt too, for a different reason.** It is free text
+describing what a run did, some of it written by pipelines that no longer exist.
+Its wording is a record, not a field to reformat.

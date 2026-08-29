@@ -34,7 +34,7 @@ import pandas as pd
 
 from betmodel import paths, teams
 from betmodel.config.schema import LeagueConfig
-from betmodel.dates import parse_date_only_series
+from betmodel.dates import parse_date_only_series, stamp
 from betmodel.fixtures.sync import DATE_TOLERANCE_DAYS, KICKOFF_COLUMN
 from betmodel.xg.blend import recompute
 
@@ -167,7 +167,7 @@ def sync(
             history.at[position, "AxG"] = away_xg
             if pd.isna(history.at[position, KICKOFF_COLUMN]):
                 history.at[position, KICKOFF_COLUMN] = (
-                    event["kickoff"].isoformat().replace("+00:00", "Z")
+                    stamp(event["kickoff"])
                 )
             stats["written"] += 1
 

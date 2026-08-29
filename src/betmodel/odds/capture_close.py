@@ -39,6 +39,7 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from betmodel import paths, teams
+from betmodel.dates import stamp
 from betmodel.config.schema import LeagueConfig
 from betmodel.fixtures.upcoming import Fixture, load_upcoming
 from betmodel.odds import capture_store
@@ -203,7 +204,7 @@ def capture_closes(
     events = client.odds(bookmakers=list(close.books))
     stats["requests"] = 1
 
-    fetched_at = now.isoformat().replace("+00:00", "Z")
+    fetched_at = stamp(now)
     rows = extract_rows(league, events, {f.key for f in due}, fetched_at)
     stats["captured"] = len(rows)
     if not rows:
@@ -214,7 +215,7 @@ def capture_closes(
         pd.DataFrame(rows),
         path=history_path or paths.for_league(league).capture_history_csv,
         snapshot_type="close",
-        capture_reason=f"pre-kickoff close tick @ {now.isoformat()} (T-{lead:.0f}m)",
+        capture_reason=f"pre-kickoff close tick @ {stamp(now)} (T-{lead:.0f}m)",
     )
     stats["appended"] = appended
     return stats

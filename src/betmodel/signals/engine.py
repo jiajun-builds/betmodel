@@ -332,5 +332,5 @@ def _iso(value) -> str:
     if value is None or (isinstance(value, float) and math.isnan(value)):
         return ""
     if isinstance(value, pd.Timestamp):
-        return value.isoformat().replace("+00:00", "Z")
+        return value.isoformat(timespec="seconds").replace("+00:00", "Z")
     return str(value)

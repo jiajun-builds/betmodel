@@ -38,7 +38,9 @@ EMPTY_STATE = {"per_book": None, "composite": "none"}
 def _iso_z(moment: datetime | None) -> str | None:
     if moment is None:
         return None
-    return moment.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return moment.astimezone(timezone.utc).isoformat(timespec="seconds").replace(
+        "+00:00", "Z"
+    )
 
 
 def _ev_out(value: float | None, unit: str) -> float | None:
