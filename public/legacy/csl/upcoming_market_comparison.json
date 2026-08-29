@@ -2,7 +2,7 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T12:14:59+01:00"
+  "updated_at": "2026-08-29T12:21:18+01:00"
  },
  "rows": [
   {
@@ -43,7 +43,7 @@
    "signal_books": null,
    "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
    "duel_open_last_update": "2026-08-23T11:16:38.284Z",
-   "fetched_at": "2026-08-29T11:14:59.055821Z"
+   "fetched_at": "2026-08-29T11:21:18.738340Z"
   },
   {
    "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
@@ -83,7 +83,7 @@
    "signal_books": null,
    "onexbet_open_last_update": "2026-08-23T12:43:30.931Z",
    "duel_open_last_update": "2026-08-23T12:26:05.994Z",
-   "fetched_at": "2026-08-29T11:14:59.055821Z"
+   "fetched_at": "2026-08-29T11:21:18.738340Z"
   }
  ]
 }
