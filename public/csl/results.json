@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-29T11:51:18Z",
+ "generated_at": "2026-08-29T12:45:20Z",
  "results": [
   {
    "fixture_id": "CSL-2026-1-2026-03-06-chengdu-rongcheng-shenzhen-xinpengcheng",
@@ -2341,6 +2341,30 @@
    "home_goals": 1,
    "away_goals": 5,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-25-2026-08-29-chengdu-rongcheng-liaoning-tieren",
+   "match_date": "2026-08-29",
+   "season": "2026",
+   "round": "25",
+   "home_team": "Chengdu Rongcheng",
+   "away_team": "Liaoning Tieren",
+   "home_goals": 2,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-25-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
+   "match_date": "2026-08-29",
+   "season": "2026",
+   "round": "25",
+   "home_team": "Henan Songshan Longmen",
+   "away_team": "Chongqing Tonglianglong",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
    "status": "played"
   }
  ]

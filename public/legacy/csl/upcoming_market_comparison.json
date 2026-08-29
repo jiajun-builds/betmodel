@@ -2,48 +2,7 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T12:51:18+01:00"
+  "updated_at": "2026-08-29T13:45:20+01:00"
  },
- "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
-   "round": "",
-   "kickoff_at": "2026-08-29T13:00:00+01:00",
-   "home_team": "Henan Songshan Longmen",
-   "away_team": "Chongqing Tonglianglong",
-   "match_time": "12:00",
-   "home_win_prob": 0.5750389241459877,
-   "draw_prob": 0.24189422843343195,
-   "away_win_prob": 0.18306684742058033,
-   "debias_method": "market_anchor",
-   "onexbet_open_home_odds": 1.632,
-   "onexbet_open_draw_odds": 3.92,
-   "onexbet_open_away_odds": 5.3,
-   "onexbet_open_home_ev": -0.06153647579374821,
-   "onexbet_open_draw_ev": -0.051774624540946834,
-   "onexbet_open_away_ev": -0.029745708670924298,
-   "duel_open_home_odds": 1.66,
-   "duel_open_draw_odds": 4.0,
-   "duel_open_away_odds": 5.4,
-   "duel_open_home_ev": -0.0454353859176605,
-   "duel_open_draw_ev": -0.032423086266272216,
-   "duel_open_away_ev": -0.011439023928866199,
-   "best_open_home_odds": 1.66,
-   "best_open_draw_odds": 4.0,
-   "best_open_away_odds": 5.4,
-   "best_open_home_ev": -0.0454353859176605,
-   "best_open_draw_ev": -0.032423086266272216,
-   "best_open_away_ev": -0.011439023928866199,
-   "best_open_home_book": "duel",
-   "best_open_draw_book": "duel",
-   "best_open_away_book": "duel",
-   "signal_pick": null,
-   "signal_state": null,
-   "signal_book": null,
-   "signal_books": null,
-   "onexbet_open_last_update": "2026-08-23T12:43:30.931Z",
-   "duel_open_last_update": "2026-08-23T12:26:05.994Z",
-   "fetched_at": "2026-08-29T11:51:18Z"
-  }
- ]
+ "rows": []
 }

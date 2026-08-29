@@ -2,24 +2,9 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T12:51:18+01:00",
+  "updated_at": "2026-08-29T13:45:20+01:00",
   "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
   "model_version": "v2.8"
  },
- "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-29T13:00:00+01:00",
-   "home_team": "Henan Songshan Longmen",
-   "away_team": "Chongqing Tonglianglong",
-   "home_win_prob": 0.565199,
-   "draw_prob": 0.254866,
-   "away_win_prob": 0.179934,
-   "home_win_fair_odds": 1.7693,
-   "draw_fair_odds": 3.9236,
-   "away_win_fair_odds": 5.5576
-  }
- ]
+ "rows": []
 }
