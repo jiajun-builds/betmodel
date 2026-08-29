@@ -138,3 +138,17 @@ def test_the_capture_install_does_not_strip_dependencies_from_pandas():
             assert "pandas" not in line, (
                 "--no-deps is on the same command as pandas, which strips numpy"
             )
+
+
+def test_the_staleness_check_runs_whatever_happened_before_it():
+    """A monitor that only runs when the thing it monitors succeeded is silent
+    exactly when it is needed. If the xG step fails or never runs, that IS the
+    condition to alert on."""
+    workflow = yaml.safe_load((ROOT / ".github/workflows/refresh.yml").read_text())
+    steps = workflow["jobs"]["refresh"]["steps"]
+    check = [s for s in steps if "staleness" in s.get("name", "").lower()]
+    assert check, "no staleness step in the refresh workflow"
+    assert check[0].get("if") == "always()"
+    # And it must sit after the stage it watches, or it measures the old state.
+    names = [s.get("name", "") for s in steps]
+    assert names.index(check[0]["name"]) > names.index("xG")

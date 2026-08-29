@@ -80,6 +80,17 @@ jobs:
           betmodel index
           betmodel ${{ inputs.league || 'all' }} notify
 
+      # always(), and deliberately last. A monitor that only runs when the thing
+      # it monitors succeeded is silent exactly when it is needed: if the xG step
+      # above fails or never runs, that IS the condition to alert on.
+      - name: xG staleness check
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: betmodel ${{ inputs.league || 'all' }} freshness
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
       - name: Commit
         if: ${{ !inputs.dry_run }}
         uses: ./.github/actions/commit-data

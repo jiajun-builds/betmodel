@@ -51,6 +51,13 @@ def _xg(league: str, args) -> int:
     return 0
 
 
+def _freshness(league: str, args) -> int:
+    from betmodel.xg.freshness import check
+
+    reading = check(league, load_league(league), dry_run=args.dry_run)
+    return 0
+
+
 def _model(league: str, args) -> int:
     from betmodel.models.run import run_model
 
@@ -162,7 +169,8 @@ def _publish(league: str, args) -> int:
 
 def _all(league: str, args) -> int:
     """The full local chain, in dependency order."""
-    for stage in (_fixtures, _xg, _reduce, _model, _signals, _legacy, _notify):
+    for stage in (_fixtures, _xg, _freshness, _reduce, _model,
+                  _signals, _legacy, _notify):
         stage(league, args)
     return 0
 
@@ -171,6 +179,7 @@ def _all(league: str, args) -> int:
 STAGES = {
     "fixtures": _fixtures,
     "xg": _xg,
+    "freshness": _freshness,
     "model": _model,
     "capture-opens": _capture_opens,
     "capture-closes": _capture_closes,

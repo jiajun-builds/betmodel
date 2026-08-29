@@ -424,3 +424,57 @@ The distinction matters because these three pull in different directions, and th
 pre-merge pipelines conflated them: a display convenience, local kickoff time,
 had leaked into the published contract, where two shapes then disagreed about
 which field carried it.
+
+---
+
+## D14 — xG arrives twice, and the first figure is sometimes a zero.
+
+**Decided 2026-08-29, after measuring.**
+
+The provider publishes a figure within minutes of full time and revises it after
+review. Measured across the two leagues on the fourteen most recent matches
+each: **8 of 14 revised for one league, 3 of 14 for the other**, by as much as
+0.41 on a mean around 1.5. A pipeline that fetches once and never looks again
+trains on the provisional number permanently.
+
+Worse, in the minutes after full time the provider serves xG as **0.0** before
+computing it. Zero is a plausible-looking number that a fitter accepts as a real
+observation. The frozen pre-merge history already contained three such rows, all
+inside the training window, including a match that finished 3-2 recorded as
+having created no chances at all. Under that league's blend that match entered
+the fit at 0.9 instead of roughly 3.1.
+
+**Three changes.** Every played match inside a seven-day review window is
+refetched regardless of what is stored, and written only when the value actually
+differs. An all-zero pair is treated as not-yet-published rather than as a
+measurement. And an all-zero pair already stored is treated as missing, so it is
+refetched and cleared if still unpublished.
+
+Applied: one league had six placeholder rows, three of which resolved to real
+values and three of which were cleared to blank. Its xG coverage fell from 910 to
+907, which is the correct direction: three rows now say they have no xG instead
+of claiming zero.
+
+**The limit, stated.** A revision landing after seven days is missed. Revisions
+were measured to settle within a few days, so the window has margin, but that is
+an assumption rather than a guarantee. A full-history audit would close it and is
+deferred with the evaluation layer.
+
+---
+
+## D15 — The staleness monitor runs whatever happened before it.
+
+The xG merge never erases, so a feed that stops leaves the previous values in
+place and every downstream stage rebuilds green on stale data. One fetcher sat
+wedged for ten days with nothing reporting a problem.
+
+The check compares the xG frontier against the results frontier, not against the
+xG feed's own state: when a fetcher dies that side freezes whole, so any
+self-consistency check on it alone sees nothing wrong. Two conditions are both
+required, a gap in days and a number of stranded played matches, because a
+provider does not cover every fixture and alerting on a single gap trains the
+reader to ignore the channel.
+
+It runs as the last step of the refresh workflow under `if: always()`. A monitor
+that only runs when the thing it monitors succeeded is silent exactly when it is
+needed: if the xG stage fails or never runs, that is the condition to alert on.
