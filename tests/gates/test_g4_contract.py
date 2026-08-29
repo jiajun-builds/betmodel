@@ -101,13 +101,21 @@ def test_signal_records_have_the_same_field_set_in_every_league(published):
 
 def test_expected_value_is_a_fraction_in_every_league(published):
     """The old contract expressed it two ways, which is why the board downstream
-    guesses the scale from a median of the payload."""
+    guesses the scale from a median of the payload.
+
+    A league with no captured odds has no quotes and is skipped, but at least one
+    must have some or this test asserts nothing at all.
+    """
+    checked = 0
     for league, payload in published.items():
         if league.startswith("_") or league == "index":
             continue
         values = [q["ev"] for s in payload["signals"]["signals"] for q in s["quotes"]]
-        assert values, league
+        if not values:
+            continue  # no odds captured for this league yet
         assert max(abs(v) for v in values) < 5.0, league
+        checked += 1
+    assert checked, "no league had any quote, so this proved nothing"
 
 
 def test_every_timestamp_is_utc(published):
