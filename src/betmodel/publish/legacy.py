@@ -209,6 +209,93 @@ def _age_hours(captured_at: str, fetched_at: str) -> float | None:
 RENDERERS = {"per_book": _per_book_row, "composite": _composite_row}
 
 
+def _match_date(config: LeagueConfig, signal: Signal) -> str:
+    """The local matchday, the same one the identifier is built from."""
+    return signal.kickoff.astimezone(ZoneInfo(config.timezone)).strftime("%Y-%m-%d")
+
+
+def _kickoff_field(config: LeagueConfig, signal: Signal) -> str:
+    """Whichever spelling of the kickoff this league's shape expects.
+
+    The two shapes disagree: one carries league-local with an offset, the other
+    UTC. Reproduced rather than reconciled, because the board reads it. The
+    canonical contract has one UTC field.
+    """
+    if config.publish.legacy_contract == "per_book":
+        return signal.kickoff.astimezone(ZoneInfo(config.timezone)).isoformat(timespec="seconds")
+    return _iso_z(signal.kickoff)
+
+
+def upcoming_fixtures(
+    config: LeagueConfig, signals: list[Signal], *, generated_at: datetime | None = None
+) -> dict:
+    """The fixture list, in the pre-merge shape.
+
+    Fetched by the board for one league's shape and optional for the other's, so
+    it is produced for both rather than conditionally: a file the consumer asks
+    for and does not get is a failed fetch it has to tolerate.
+    """
+    generated_at = generated_at or datetime.now(timezone.utc)
+    return {
+        "meta": _meta(config, generated_at),
+        "rows": [{
+            "fixture_id": s.fixture_id,
+            "round": int(s.round) if str(s.round).isdigit() else s.round,
+            "match_date": _match_date(config, s),
+            "match_time": (
+                s.kickoff.astimezone(timezone.utc).strftime("%H:%M")
+                if config.publish.legacy_contract == "per_book"
+                else s.kickoff.astimezone(ZoneInfo(config.timezone)).strftime("%H:%M")
+            ),
+            "kickoff_at": _kickoff_field(config, s),
+            "home_team": s.home_team,
+            "away_team": s.away_team,
+        } for s in signals],
+    }
+
+
+def match_predictions(
+    config: LeagueConfig, signals: list[Signal], *, generated_at: datetime | None = None
+) -> dict:
+    """Model probabilities and the fair price each implies.
+
+    Fair odds are 1/p: the price at which expected value is exactly zero. A
+    reference point against a quoted price, never a betting floor, since a signal
+    requires a materially higher bar than zero expected value.
+
+    **These are the RAW probabilities, before the market-anchored correction.**
+    The signal file publishes the corrected ones, so the same fixture appears in
+    two files with two different probabilities, differing by about half a
+    percentage point where the correction applies, and nothing in either file
+    says which is which. Reproduced because the board reads it. The canonical
+    contract publishes one set with the method that produced it named alongside.
+    """
+    generated_at = generated_at or datetime.now(timezone.utc)
+    meta = _meta(config, generated_at)
+    meta["model_name"] = config.model_name
+    meta["model_version"] = config.model_version
+    rows = []
+    for s in signals:
+        exact = s.raw_probabilities
+        # Published to six places, but the fair price is taken from the unrounded
+        # value. Inverting a rounded probability magnifies the rounding, and the
+        # pre-merge exporter did it this way.
+        home, draw, away = (round(p, 6) for p in exact)
+        rows.append({
+            "fixture_id": s.fixture_id,
+            "round": int(s.round) if str(s.round).isdigit() else s.round,
+            "match_date": _match_date(config, s),
+            "kickoff_at": _kickoff_field(config, s),
+            "home_team": s.home_team,
+            "away_team": s.away_team,
+            "home_win_prob": home, "draw_prob": draw, "away_win_prob": away,
+            "home_win_fair_odds": round(1.0 / exact[0], 4) if exact[0] else None,
+            "draw_fair_odds": round(1.0 / exact[1], 4) if exact[1] else None,
+            "away_win_fair_odds": round(1.0 / exact[2], 4) if exact[2] else None,
+        })
+    return {"meta": meta, "rows": rows}
+
+
 def market_comparison(
     config: LeagueConfig, signals: list[Signal], *, generated_at: datetime | None = None
 ) -> dict:

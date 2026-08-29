@@ -1,0 +1,24 @@
+{
+ "schema": 1,
+ "league": "ligamx",
+ "generated_at": "2026-08-29T09:15:02Z",
+ "competition": {
+  "code": "MEX",
+  "name": "Liga MX",
+  "season": "Apertura 2026",
+  "total_rounds": 17,
+  "timezone": "America/Mexico_City"
+ },
+ "model": {
+  "name": "Negative Binomial with Dixon-Coles Time Decay",
+  "version": "v1.0",
+  "updated_at": "2026-08-28T02:37:51-06:00"
+ },
+ "data": {
+  "fixtures_updated_at": "2026-08-28T16:49:18+00:00",
+  "matches_played": 1062,
+  "last_completed_match": "2026-08-23",
+  "next_fixture": "2026-08-29T01:00:00Z",
+  "xg_coverage": 1062
+ }
+}

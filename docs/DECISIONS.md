@@ -320,6 +320,14 @@ The engine now reads `simulations.csv`. Verified by replay: probabilities match
 the frozen baseline to 3.3e-16 for the league that refitted, and exactly for the
 one that read.
 
+**Accepted difference against the golden baseline.** The refitting league's
+`match_predictions.json` published probabilities from that in-exporter fit, which
+differ from the frozen simulations in the seventh decimal. On one of eight rows
+that is enough to move a sixth-decimal rounding, so `away_win_prob` and the fair
+odds derived from it differ by one unit in the last published place. Every other
+field of every other row matches exactly, and the other league matches
+completely.
+
 ---
 
 ## D11 — What the two legacy shapes disagreed about.

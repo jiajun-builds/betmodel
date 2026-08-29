@@ -33,13 +33,13 @@ SCHEMA_VERSION = 1
 #: Files published per league. The manifest names them, so a consumer never
 #: builds these paths itself, and never has to guess whether one exists.
 #:
-#: Two, not six. The agreed scope for this contract is signals and results: the
-#: pair that closes the monitoring loop, since results are what let a consumer
-#: settle a signal instead of deciding a match is over from the clock. Fixtures,
-#: predictions, strength and dashboard metadata still ship in the legacy tree and
-#: move here in a later pass. A manifest that named files nobody writes would
-#: break the consumer it exists to serve.
-LEAGUE_FILES = ("signals", "results")
+#: Three, not six. The agreed scope is signals and results, the pair that closes
+#: the monitoring loop, plus the staleness metadata without which a consumer can
+#: see a signal and not tell whether the model behind it was fitted last night or
+#: three weeks ago. Fixtures, predictions and strength still ship in the legacy
+#: tree. A manifest that named files nobody writes would break the consumer it
+#: exists to serve.
+LEAGUE_FILES = ("signals", "results", "meta")
 
 SIDES = ("home", "draw", "away")
 

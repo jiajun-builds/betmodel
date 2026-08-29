@@ -120,20 +120,29 @@ def _legacy(league: str, args) -> int:
     from betmodel.signals.engine import build_signals
 
     config = load_league(league)
-    payload = legacy.market_comparison(
-        config, build_signals(league, config), generated_at=_now()
-    )
+    signals = build_signals(league, config)
+    at = _now()
+    # All three the board fetches. One it cannot do without, and two it asks for
+    # on every tick: a file the consumer requests and does not get is a failed
+    # fetch it has to tolerate on every poll.
+    payloads = {
+        "upcoming_market_comparison": legacy.market_comparison(config, signals, generated_at=at),
+        "upcoming_fixtures": legacy.upcoming_fixtures(config, signals, generated_at=at),
+        "match_predictions": legacy.match_predictions(config, signals, generated_at=at),
+    }
     if args.dry_run:
-        log.info("%s: %d legacy rows", league, len(payload["rows"]))
+        for name, payload in payloads.items():
+            log.info("%s: %s %d rows", league, name, len(payload["rows"]))
         return 0
     lp = paths.for_league(league)
     lp.ensure_dirs()
-    path = lp.public_legacy_json("upcoming_market_comparison")
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, ensure_ascii=False, indent=1)
-        handle.write("\n")
-    log.info("%s: wrote %s", league, path)
+    for name, payload in payloads.items():
+        path = lp.public_legacy_json(name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=False, indent=1)
+            handle.write("\n")
+    log.info("%s: wrote %d legacy payload(s)", league, len(payloads))
     return 0
 
 

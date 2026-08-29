@@ -134,6 +134,10 @@ class Signal:
     kickoff: datetime
     round: str
     probabilities: tuple[float, float, float]
+    #: Before de-bias. Carried because one published file uses these and another
+    #: uses the corrected ones, so the same fixture appears with two different
+    #: probabilities and nothing in either file says which is which.
+    raw_probabilities: tuple[float, float, float]
     debias_method: str
     quotes: tuple[Quote, ...]
     best: dict[str, Best]
@@ -274,7 +278,7 @@ def build_signals(
             fixture_id=fixture_id(config, fixture),
             home_team=fixture.home, away_team=fixture.away,
             kickoff=fixture.kickoff, round=fixture.round,
-            probabilities=probabilities, debias_method=method,
+            probabilities=probabilities, raw_probabilities=raw, debias_method=method,
             quotes=tuple(quotes), best=best,
             pick=pick, state=state, ev=pick_ev, top_side=top_side, books=books,
             anchor_odds=anchor_odds,

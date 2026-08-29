@@ -1,108 +1,12 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-28T16:05:02Z",
+ "generated_at": "2026-08-29T09:15:02Z",
  "signals": [
   {
-   "fixture_id": "CSL-2026-25-2026-08-29-qingdao-hainiu-wuhan-three-towns",
-   "kickoff_utc": "2026-08-29T09:00:00Z",
-   "round": "25",
-   "home_team": "Qingdao Hainiu",
-   "away_team": "Wuhan Three Towns",
-   "model": {
-    "home": 0.44627281877304126,
-    "draw": 0.27935582670552783,
-    "away": 0.27437135452143085,
-    "method": "market_anchor"
-   },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 2.625,
-     "ev": 0.17146614927923332,
-     "captured_at": "2026-08-23T12:17:45Z",
-     "last_update": "2026-08-23T12:05:39.648Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 3.42,
-     "ev": -0.044603072667094845,
-     "captured_at": "2026-08-23T12:17:45Z",
-     "last_update": "2026-08-23T12:05:39.648Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 2.625,
-     "ev": -0.279775194381244,
-     "captured_at": "2026-08-23T12:17:45Z",
-     "last_update": "2026-08-23T12:05:39.648Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.68,
-     "ev": 0.19601115431175065,
-     "captured_at": "2026-08-23T12:00:36Z",
-     "last_update": "2026-08-23T11:46:48.988Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.5,
-     "ev": -0.022254606530652588,
-     "captured_at": "2026-08-23T12:00:36Z",
-     "last_update": "2026-08-23T11:46:48.988Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.68,
-     "ev": -0.2646847698825653,
-     "captured_at": "2026-08-23T12:00:36Z",
-     "last_update": "2026-08-23T11:46:48.988Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.68,
-     "ev": 0.19601115431175065
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.5,
-     "ev": -0.022254606530652588
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.68,
-     "ev": -0.2646847698825653
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.68,
-    "ev": 0.19601115431175065,
-    "proof": "window",
-    "captured_at": "2026-08-23T12:00:36Z"
-   },
-   "bet": null,
-   "state": ""
-  },
-  {
-   "fixture_id": "CSL-2026-25-2026-08-29-tianjin-jinmen-tiger-qingdao-west-coast",
+   "fixture_id": "CSL-2026-0-2026-08-29-tianjin-jinmen-tiger-qingdao-west-coast",
    "kickoff_utc": "2026-08-29T11:00:00Z",
-   "round": "25",
+   "round": "",
    "home_team": "Tianjin Jinmen Tiger",
    "away_team": "Qingdao West Coast",
    "model": {
@@ -196,9 +100,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-25-2026-08-29-zhejiang-professional-yunnan-yukun",
+   "fixture_id": "CSL-2026-0-2026-08-29-zhejiang-professional-yunnan-yukun",
    "kickoff_utc": "2026-08-29T11:00:00Z",
-   "round": "25",
+   "round": "",
    "home_team": "Zhejiang Professional",
    "away_team": "Yunnan Yukun",
    "model": {
@@ -292,9 +196,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-25-2026-08-29-chengdu-rongcheng-liaoning-tieren",
+   "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
    "kickoff_utc": "2026-08-29T11:35:00Z",
-   "round": "25",
+   "round": "",
    "home_team": "Chengdu Rongcheng",
    "away_team": "Liaoning Tieren",
    "model": {
@@ -388,9 +292,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-25-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
+   "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
    "kickoff_utc": "2026-08-29T12:00:00Z",
-   "round": "25",
+   "round": "",
    "home_team": "Henan Songshan Longmen",
    "away_team": "Chongqing Tonglianglong",
    "model": {

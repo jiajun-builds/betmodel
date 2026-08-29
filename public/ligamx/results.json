@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-08-28T16:05:02Z",
+ "generated_at": "2026-08-29T09:15:02Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-8-2026-02-28-atletico-san-luis-puebla",
@@ -16,8 +16,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-02-28-queretaro-santos-laguna",
-   "match_date": "2026-02-28",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-27-queretaro-santos-laguna",
+   "match_date": "2026-02-27",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "Queretaro",
@@ -28,8 +28,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-02-28-fc-juarez-atlas",
-   "match_date": "2026-02-28",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-27-fc-juarez-atlas",
+   "match_date": "2026-02-27",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "FC Juarez",
@@ -40,8 +40,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-02-28-mazatlan-pachuca",
-   "match_date": "2026-02-28",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-27-mazatlan-pachuca",
+   "match_date": "2026-02-27",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "Mazatlan",
@@ -52,8 +52,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-02-28-tijuana-unam-pumas",
-   "match_date": "2026-02-28",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-27-tijuana-unam-pumas",
+   "match_date": "2026-02-27",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "Tijuana",
@@ -76,8 +76,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-03-01-leon-necaxa",
-   "match_date": "2026-03-01",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-28-leon-necaxa",
+   "match_date": "2026-02-28",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "Leon",
@@ -88,8 +88,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-03-01-club-america-tigres-uanl",
-   "match_date": "2026-03-01",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-28-club-america-tigres-uanl",
+   "match_date": "2026-02-28",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "Club America",
@@ -100,8 +100,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-8-2026-03-01-monterrey-cruz-azul",
-   "match_date": "2026-03-01",
+   "fixture_id": "MEX-apertura-2026-8-2026-02-28-monterrey-cruz-azul",
+   "match_date": "2026-02-28",
    "season": "Clausura 2026",
    "round": "8",
    "home_team": "Monterrey",
@@ -112,8 +112,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-04-atletico-san-luis-mazatlan",
-   "match_date": "2026-03-04",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-03-atletico-san-luis-mazatlan",
+   "match_date": "2026-03-03",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Atletico San Luis",
@@ -124,8 +124,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-04-unam-pumas-toluca",
-   "match_date": "2026-03-04",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-03-unam-pumas-toluca",
+   "match_date": "2026-03-03",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "UNAM Pumas",
@@ -136,8 +136,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-04-santos-laguna-cruz-azul",
-   "match_date": "2026-03-04",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-03-santos-laguna-cruz-azul",
+   "match_date": "2026-03-03",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Santos Laguna",
@@ -148,8 +148,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-04-pachuca-necaxa",
-   "match_date": "2026-03-04",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-03-pachuca-necaxa",
+   "match_date": "2026-03-03",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Pachuca",
@@ -160,8 +160,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-05-monterrey-queretaro",
-   "match_date": "2026-03-05",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-04-monterrey-queretaro",
+   "match_date": "2026-03-04",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Monterrey",
@@ -172,8 +172,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-05-atlas-tijuana",
-   "match_date": "2026-03-05",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-04-atlas-tijuana",
+   "match_date": "2026-03-04",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Atlas",
@@ -184,8 +184,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-05-puebla-tigres-uanl",
-   "match_date": "2026-03-05",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-04-puebla-tigres-uanl",
+   "match_date": "2026-03-04",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Puebla",
@@ -196,8 +196,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-05-club-america-fc-juarez",
-   "match_date": "2026-03-05",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-04-club-america-fc-juarez",
+   "match_date": "2026-03-04",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Club America",
@@ -208,8 +208,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-07-necaxa-unam-pumas",
-   "match_date": "2026-03-07",
+   "fixture_id": "MEX-apertura-2026-10-2026-03-06-necaxa-unam-pumas",
+   "match_date": "2026-03-06",
    "season": "Clausura 2026",
    "round": "10",
    "home_team": "Necaxa",
@@ -220,8 +220,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-07-mazatlan-leon",
-   "match_date": "2026-03-07",
+   "fixture_id": "MEX-apertura-2026-10-2026-03-06-mazatlan-leon",
+   "match_date": "2026-03-06",
    "season": "Clausura 2026",
    "round": "10",
    "home_team": "Mazatlan",
@@ -256,8 +256,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-08-atlas-guadalajara",
-   "match_date": "2026-03-08",
+   "fixture_id": "MEX-apertura-2026-10-2026-03-07-atlas-guadalajara",
+   "match_date": "2026-03-07",
    "season": "Clausura 2026",
    "round": "10",
    "home_team": "Atlas",
@@ -280,8 +280,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-08-pachuca-puebla",
-   "match_date": "2026-03-08",
+   "fixture_id": "MEX-apertura-2026-10-2026-03-07-pachuca-puebla",
+   "match_date": "2026-03-07",
    "season": "Clausura 2026",
    "round": "10",
    "home_team": "Pachuca",
@@ -292,8 +292,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-08-tigres-uanl-monterrey",
-   "match_date": "2026-03-08",
+   "fixture_id": "MEX-apertura-2026-10-2026-03-07-tigres-uanl-monterrey",
+   "match_date": "2026-03-07",
    "season": "Clausura 2026",
    "round": "10",
    "home_team": "Tigres UANL",
@@ -304,8 +304,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-09-tijuana-santos-laguna",
-   "match_date": "2026-03-09",
+   "fixture_id": "MEX-apertura-2026-10-2026-03-08-tijuana-santos-laguna",
+   "match_date": "2026-03-08",
    "season": "Clausura 2026",
    "round": "10",
    "home_team": "Tijuana",
@@ -316,8 +316,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-11-2026-03-14-puebla-necaxa",
-   "match_date": "2026-03-14",
+   "fixture_id": "MEX-apertura-2026-11-2026-03-13-puebla-necaxa",
+   "match_date": "2026-03-13",
    "season": "Clausura 2026",
    "round": "11",
    "home_team": "Puebla",
@@ -352,8 +352,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-11-2026-03-14-fc-juarez-monterrey",
-   "match_date": "2026-03-14",
+   "fixture_id": "MEX-apertura-2026-11-2026-03-13-fc-juarez-monterrey",
+   "match_date": "2026-03-13",
    "season": "Clausura 2026",
    "round": "11",
    "home_team": "FC Juarez",
@@ -364,8 +364,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-11-2026-03-15-unam-pumas-cruz-azul",
-   "match_date": "2026-03-15",
+   "fixture_id": "MEX-apertura-2026-11-2026-03-14-unam-pumas-cruz-azul",
+   "match_date": "2026-03-14",
    "season": "Clausura 2026",
    "round": "11",
    "home_team": "UNAM Pumas",
@@ -376,8 +376,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-11-2026-03-15-toluca-atlas",
-   "match_date": "2026-03-15",
+   "fixture_id": "MEX-apertura-2026-11-2026-03-14-toluca-atlas",
+   "match_date": "2026-03-14",
    "season": "Clausura 2026",
    "round": "11",
    "home_team": "Toluca",
@@ -400,8 +400,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-11-2026-03-15-leon-tijuana",
-   "match_date": "2026-03-15",
+   "fixture_id": "MEX-apertura-2026-11-2026-03-14-leon-tijuana",
+   "match_date": "2026-03-14",
    "season": "Clausura 2026",
    "round": "11",
    "home_team": "Leon",
@@ -412,8 +412,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-11-2026-03-16-club-america-mazatlan",
-   "match_date": "2026-03-16",
+   "fixture_id": "MEX-apertura-2026-11-2026-03-15-club-america-mazatlan",
+   "match_date": "2026-03-15",
    "season": "Clausura 2026",
    "round": "11",
    "home_team": "Club America",
@@ -424,8 +424,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-19-guadalajara-leon",
-   "match_date": "2026-03-19",
+   "fixture_id": "MEX-apertura-2026-9-2026-03-18-guadalajara-leon",
+   "match_date": "2026-03-18",
    "season": "Clausura 2026",
    "round": "9",
    "home_team": "Guadalajara",
@@ -448,8 +448,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-21-necaxa-tijuana",
-   "match_date": "2026-03-21",
+   "fixture_id": "MEX-apertura-2026-12-2026-03-20-necaxa-tijuana",
+   "match_date": "2026-03-20",
    "season": "Clausura 2026",
    "round": "12",
    "home_team": "Necaxa",
@@ -460,8 +460,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-21-mazatlan-cruz-azul",
-   "match_date": "2026-03-21",
+   "fixture_id": "MEX-apertura-2026-12-2026-03-20-mazatlan-cruz-azul",
+   "match_date": "2026-03-20",
    "season": "Clausura 2026",
    "round": "12",
    "home_team": "Mazatlan",
@@ -484,8 +484,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-22-unam-pumas-club-america",
-   "match_date": "2026-03-22",
+   "fixture_id": "MEX-apertura-2026-12-2026-03-21-unam-pumas-club-america",
+   "match_date": "2026-03-21",
    "season": "Clausura 2026",
    "round": "12",
    "home_team": "UNAM Pumas",
@@ -508,8 +508,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-22-monterrey-guadalajara",
-   "match_date": "2026-03-22",
+   "fixture_id": "MEX-apertura-2026-12-2026-03-21-monterrey-guadalajara",
+   "match_date": "2026-03-21",
    "season": "Clausura 2026",
    "round": "12",
    "home_team": "Monterrey",
@@ -520,8 +520,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-22-atletico-san-luis-leon",
-   "match_date": "2026-03-22",
+   "fixture_id": "MEX-apertura-2026-12-2026-03-21-atletico-san-luis-leon",
+   "match_date": "2026-03-21",
    "season": "Clausura 2026",
    "round": "12",
    "home_team": "Atletico San Luis",
@@ -532,8 +532,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-23-fc-juarez-tigres-uanl",
-   "match_date": "2026-03-23",
+   "fixture_id": "MEX-apertura-2026-12-2026-03-22-fc-juarez-tigres-uanl",
+   "match_date": "2026-03-22",
    "season": "Clausura 2026",
    "round": "12",
    "home_team": "FC Juarez",
@@ -544,8 +544,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-04-puebla-fc-juarez",
-   "match_date": "2026-04-04",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-03-puebla-fc-juarez",
+   "match_date": "2026-04-03",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Puebla",
@@ -556,8 +556,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-04-necaxa-mazatlan",
-   "match_date": "2026-04-04",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-03-necaxa-mazatlan",
+   "match_date": "2026-04-03",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Necaxa",
@@ -568,8 +568,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-04-tijuana-tigres-uanl",
-   "match_date": "2026-04-04",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-03-tijuana-tigres-uanl",
+   "match_date": "2026-04-03",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Tijuana",
@@ -580,8 +580,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-05-cruz-azul-pachuca",
-   "match_date": "2026-04-05",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-04-cruz-azul-pachuca",
+   "match_date": "2026-04-04",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Cruz Azul",
@@ -592,8 +592,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-05-leon-atlas",
-   "match_date": "2026-04-05",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-04-leon-atlas",
+   "match_date": "2026-04-04",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Leon",
@@ -604,8 +604,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-05-monterrey-atletico-san-luis",
-   "match_date": "2026-04-05",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-04-monterrey-atletico-san-luis",
+   "match_date": "2026-04-04",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Monterrey",
@@ -616,8 +616,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-05-queretaro-toluca",
-   "match_date": "2026-04-05",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-04-queretaro-toluca",
+   "match_date": "2026-04-04",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Queretaro",
@@ -628,8 +628,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-13-2026-04-05-santos-laguna-club-america",
-   "match_date": "2026-04-05",
+   "fixture_id": "MEX-apertura-2026-13-2026-04-04-santos-laguna-club-america",
+   "match_date": "2026-04-04",
    "season": "Clausura 2026",
    "round": "13",
    "home_team": "Santos Laguna",
@@ -652,8 +652,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-7-2026-04-08-queretaro-fc-juarez",
-   "match_date": "2026-04-08",
+   "fixture_id": "MEX-apertura-2026-7-2026-04-07-queretaro-fc-juarez",
+   "match_date": "2026-04-07",
    "season": "Clausura 2026",
    "round": "7",
    "home_team": "Queretaro",
@@ -664,8 +664,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-11-fc-juarez-tijuana",
-   "match_date": "2026-04-11",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-10-fc-juarez-tijuana",
+   "match_date": "2026-04-10",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "FC Juarez",
@@ -676,8 +676,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-11-puebla-leon",
-   "match_date": "2026-04-11",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-10-puebla-leon",
+   "match_date": "2026-04-10",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Puebla",
@@ -688,8 +688,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-12-queretaro-necaxa",
-   "match_date": "2026-04-12",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-11-queretaro-necaxa",
+   "match_date": "2026-04-11",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Queretaro",
@@ -700,8 +700,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-12-club-america-cruz-azul",
-   "match_date": "2026-04-12",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-11-club-america-cruz-azul",
+   "match_date": "2026-04-11",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Club America",
@@ -712,8 +712,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-12-atlas-monterrey",
-   "match_date": "2026-04-12",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-11-atlas-monterrey",
+   "match_date": "2026-04-11",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Atlas",
@@ -736,8 +736,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-12-pachuca-santos-laguna",
-   "match_date": "2026-04-12",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-11-pachuca-santos-laguna",
+   "match_date": "2026-04-11",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Pachuca",
@@ -748,8 +748,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-12-tigres-uanl-guadalajara",
-   "match_date": "2026-04-12",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-11-tigres-uanl-guadalajara",
+   "match_date": "2026-04-11",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Tigres UANL",
@@ -760,8 +760,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-14-2026-04-13-toluca-atletico-san-luis",
-   "match_date": "2026-04-13",
+   "fixture_id": "MEX-apertura-2026-14-2026-04-12-toluca-atletico-san-luis",
+   "match_date": "2026-04-12",
    "season": "Clausura 2026",
    "round": "14",
    "home_team": "Toluca",
@@ -772,8 +772,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-18-atletico-san-luis-unam-pumas",
-   "match_date": "2026-04-18",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-17-atletico-san-luis-unam-pumas",
+   "match_date": "2026-04-17",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Atletico San Luis",
@@ -784,8 +784,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-18-mazatlan-queretaro",
-   "match_date": "2026-04-18",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-17-mazatlan-queretaro",
+   "match_date": "2026-04-17",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Mazatlan",
@@ -796,8 +796,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-monterrey-pachuca",
-   "match_date": "2026-04-19",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-18-monterrey-pachuca",
+   "match_date": "2026-04-18",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Monterrey",
@@ -808,8 +808,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-leon-fc-juarez",
-   "match_date": "2026-04-19",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-18-leon-fc-juarez",
+   "match_date": "2026-04-18",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Leon",
@@ -820,8 +820,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-cruz-azul-tijuana",
-   "match_date": "2026-04-19",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-18-cruz-azul-tijuana",
+   "match_date": "2026-04-18",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Cruz Azul",
@@ -832,8 +832,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-necaxa-tigres-uanl",
-   "match_date": "2026-04-19",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-18-necaxa-tigres-uanl",
+   "match_date": "2026-04-18",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Necaxa",
@@ -844,8 +844,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-club-america-toluca",
-   "match_date": "2026-04-19",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-18-club-america-toluca",
+   "match_date": "2026-04-18",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Club America",
@@ -856,8 +856,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-guadalajara-puebla",
-   "match_date": "2026-04-19",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-18-guadalajara-puebla",
+   "match_date": "2026-04-18",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Guadalajara",
@@ -868,8 +868,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-20-santos-laguna-atlas",
-   "match_date": "2026-04-20",
+   "fixture_id": "MEX-apertura-2026-15-2026-04-19-santos-laguna-atlas",
+   "match_date": "2026-04-19",
    "season": "Clausura 2026",
    "round": "15",
    "home_team": "Santos Laguna",
@@ -880,8 +880,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-22-leon-club-america",
-   "match_date": "2026-04-22",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-21-leon-club-america",
+   "match_date": "2026-04-21",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Leon",
@@ -892,8 +892,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-22-queretaro-cruz-azul",
-   "match_date": "2026-04-22",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-21-queretaro-cruz-azul",
+   "match_date": "2026-04-21",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Queretaro",
@@ -904,8 +904,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-22-unam-pumas-fc-juarez",
-   "match_date": "2026-04-22",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-21-unam-pumas-fc-juarez",
+   "match_date": "2026-04-21",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "UNAM Pumas",
@@ -916,8 +916,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-22-monterrey-puebla",
-   "match_date": "2026-04-22",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-21-monterrey-puebla",
+   "match_date": "2026-04-21",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Monterrey",
@@ -928,8 +928,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-23-atlas-tigres-uanl",
-   "match_date": "2026-04-23",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-22-atlas-tigres-uanl",
+   "match_date": "2026-04-22",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Atlas",
@@ -940,8 +940,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-23-necaxa-guadalajara",
-   "match_date": "2026-04-23",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-22-necaxa-guadalajara",
+   "match_date": "2026-04-22",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Necaxa",
@@ -952,8 +952,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-23-tijuana-pachuca",
-   "match_date": "2026-04-23",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-22-tijuana-pachuca",
+   "match_date": "2026-04-22",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Tijuana",
@@ -964,8 +964,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-23-mazatlan-toluca",
-   "match_date": "2026-04-23",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-22-mazatlan-toluca",
+   "match_date": "2026-04-22",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Mazatlan",
@@ -976,8 +976,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-16-2026-04-23-atletico-san-luis-santos-laguna",
-   "match_date": "2026-04-23",
+   "fixture_id": "MEX-apertura-2026-16-2026-04-22-atletico-san-luis-santos-laguna",
+   "match_date": "2026-04-22",
    "season": "Clausura 2026",
    "round": "16",
    "home_team": "Atletico San Luis",
@@ -988,8 +988,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-puebla-queretaro",
-   "match_date": "2026-04-25",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-24-puebla-queretaro",
+   "match_date": "2026-04-24",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Puebla",
@@ -1000,8 +1000,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-26-toluca-leon",
-   "match_date": "2026-04-26",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-25-toluca-leon",
+   "match_date": "2026-04-25",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Toluca",
@@ -1012,8 +1012,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-26-club-america-atlas",
-   "match_date": "2026-04-26",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-25-club-america-atlas",
+   "match_date": "2026-04-25",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Club America",
@@ -1024,8 +1024,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-26-pachuca-unam-pumas",
-   "match_date": "2026-04-26",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-25-pachuca-unam-pumas",
+   "match_date": "2026-04-25",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Pachuca",
@@ -1036,8 +1036,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-26-guadalajara-tijuana",
-   "match_date": "2026-04-26",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-25-guadalajara-tijuana",
+   "match_date": "2026-04-25",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Guadalajara",
@@ -1048,8 +1048,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-26-fc-juarez-atletico-san-luis",
-   "match_date": "2026-04-26",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-25-fc-juarez-atletico-san-luis",
+   "match_date": "2026-04-25",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "FC Juarez",
@@ -1060,8 +1060,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-26-tigres-uanl-mazatlan",
-   "match_date": "2026-04-26",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-25-tigres-uanl-mazatlan",
+   "match_date": "2026-04-25",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Tigres UANL",
@@ -1072,8 +1072,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-27-cruz-azul-necaxa",
-   "match_date": "2026-04-27",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-26-cruz-azul-necaxa",
+   "match_date": "2026-04-26",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Cruz Azul",
@@ -1084,8 +1084,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-27-santos-laguna-monterrey",
-   "match_date": "2026-04-27",
+   "fixture_id": "MEX-apertura-2026-17-2026-04-26-santos-laguna-monterrey",
+   "match_date": "2026-04-26",
    "season": "Clausura 2026",
    "round": "17",
    "home_team": "Santos Laguna",
@@ -1096,8 +1096,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-atlas-cruz-azul",
-   "match_date": "2026-05-03",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-02-atlas-cruz-azul",
+   "match_date": "2026-05-02",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Atlas",
@@ -1108,8 +1108,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-tigres-uanl-guadalajara",
-   "match_date": "2026-05-03",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-02-tigres-uanl-guadalajara",
+   "match_date": "2026-05-02",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Tigres UANL",
@@ -1120,8 +1120,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-04-club-america-unam-pumas",
-   "match_date": "2026-05-04",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-club-america-unam-pumas",
+   "match_date": "2026-05-03",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Club America",
@@ -1132,8 +1132,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-04-toluca-pachuca",
-   "match_date": "2026-05-04",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-toluca-pachuca",
+   "match_date": "2026-05-03",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Toluca",
@@ -1144,8 +1144,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-10-cruz-azul-atlas",
-   "match_date": "2026-05-10",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-09-cruz-azul-atlas",
+   "match_date": "2026-05-09",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Cruz Azul",
@@ -1156,8 +1156,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-10-guadalajara-tigres-uanl",
-   "match_date": "2026-05-10",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-09-guadalajara-tigres-uanl",
+   "match_date": "2026-05-09",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Guadalajara",
@@ -1168,8 +1168,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-11-pachuca-toluca",
-   "match_date": "2026-05-11",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-10-pachuca-toluca",
+   "match_date": "2026-05-10",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "Pachuca",
@@ -1180,8 +1180,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-11-unam-pumas-club-america",
-   "match_date": "2026-05-11",
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-10-unam-pumas-club-america",
+   "match_date": "2026-05-10",
    "season": "Clausura 2026",
    "round": "Quarterfinals",
    "home_team": "UNAM Pumas",
@@ -1192,8 +1192,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-14-cruz-azul-guadalajara",
-   "match_date": "2026-05-14",
+   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-13-cruz-azul-guadalajara",
+   "match_date": "2026-05-13",
    "season": "Clausura 2026",
    "round": "Semifinals",
    "home_team": "Cruz Azul",
@@ -1204,8 +1204,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-15-pachuca-unam-pumas",
-   "match_date": "2026-05-15",
+   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-14-pachuca-unam-pumas",
+   "match_date": "2026-05-14",
    "season": "Clausura 2026",
    "round": "Semifinals",
    "home_team": "Pachuca",
@@ -1216,8 +1216,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-17-guadalajara-cruz-azul",
-   "match_date": "2026-05-17",
+   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-16-guadalajara-cruz-azul",
+   "match_date": "2026-05-16",
    "season": "Clausura 2026",
    "round": "Semifinals",
    "home_team": "Guadalajara",
@@ -1228,8 +1228,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-18-unam-pumas-pachuca",
-   "match_date": "2026-05-18",
+   "fixture_id": "MEX-apertura-2026-semifinals-2026-05-17-unam-pumas-pachuca",
+   "match_date": "2026-05-17",
    "season": "Clausura 2026",
    "round": "Semifinals",
    "home_team": "UNAM Pumas",
@@ -1240,8 +1240,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-final-2026-05-22-cruz-azul-unam-pumas",
-   "match_date": "2026-05-22",
+   "fixture_id": "MEX-apertura-2026-final-2026-05-21-cruz-azul-unam-pumas",
+   "match_date": "2026-05-21",
    "season": "Clausura 2026",
    "round": "Final",
    "home_team": "Cruz Azul",
@@ -1252,8 +1252,8 @@
    "status": "played"
   },
   {
-   "fixture_id": "MEX-apertura-2026-final-2026-05-25-unam-pumas-cruz-azul",
-   "match_date": "2026-05-25",
+   "fixture_id": "MEX-apertura-2026-final-2026-05-24-unam-pumas-cruz-azul",
+   "match_date": "2026-05-24",
    "season": "Clausura 2026",
    "round": "Final",
    "home_team": "UNAM Pumas",

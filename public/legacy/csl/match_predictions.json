@@ -1,0 +1,67 @@
+{
+ "meta": {
+  "competition_code": "CSL",
+  "season": "2026",
+  "updated_at": "2026-08-29T10:15:02+01:00",
+  "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
+  "model_version": "v2.8"
+ },
+ "rows": [
+  {
+   "fixture_id": "CSL-2026-0-2026-08-29-tianjin-jinmen-tiger-qingdao-west-coast",
+   "round": "",
+   "match_date": "2026-08-29",
+   "kickoff_at": "2026-08-29T12:00:00+01:00",
+   "home_team": "Tianjin Jinmen Tiger",
+   "away_team": "Qingdao West Coast",
+   "home_win_prob": 0.459193,
+   "draw_prob": 0.272811,
+   "away_win_prob": 0.267995,
+   "home_win_fair_odds": 2.1777,
+   "draw_fair_odds": 3.6655,
+   "away_win_fair_odds": 3.7314
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-08-29-zhejiang-professional-yunnan-yukun",
+   "round": "",
+   "match_date": "2026-08-29",
+   "kickoff_at": "2026-08-29T12:00:00+01:00",
+   "home_team": "Zhejiang Professional",
+   "away_team": "Yunnan Yukun",
+   "home_win_prob": 0.507369,
+   "draw_prob": 0.215622,
+   "away_win_prob": 0.277009,
+   "home_win_fair_odds": 1.971,
+   "draw_fair_odds": 4.6377,
+   "away_win_fair_odds": 3.61
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
+   "round": "",
+   "match_date": "2026-08-29",
+   "kickoff_at": "2026-08-29T12:35:00+01:00",
+   "home_team": "Chengdu Rongcheng",
+   "away_team": "Liaoning Tieren",
+   "home_win_prob": 0.747228,
+   "draw_prob": 0.149762,
+   "away_win_prob": 0.10301,
+   "home_win_fair_odds": 1.3383,
+   "draw_fair_odds": 6.6772,
+   "away_win_fair_odds": 9.7078
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
+   "round": "",
+   "match_date": "2026-08-29",
+   "kickoff_at": "2026-08-29T13:00:00+01:00",
+   "home_team": "Henan Songshan Longmen",
+   "away_team": "Chongqing Tonglianglong",
+   "home_win_prob": 0.560802,
+   "draw_prob": 0.255484,
+   "away_win_prob": 0.183713,
+   "home_win_fair_odds": 1.7832,
+   "draw_fair_odds": 3.9141,
+   "away_win_fair_odds": 5.4433
+  }
+ ]
+}

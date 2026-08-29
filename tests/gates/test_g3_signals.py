@@ -255,3 +255,69 @@ def test_expected_value_is_published_in_the_unit_the_board_expects(rendered):
         assert max(abs(v) for v in values) > 1.5
     else:
         assert max(abs(v) for v in values) < 1.5
+
+
+# --------------------------------------------------------------------------- #
+# the other two payloads the board fetches
+# --------------------------------------------------------------------------- #
+
+#: One league's exporter refitted the model inside itself rather than reading the
+#: fitted simulations, so its published probabilities differ from the frozen ones
+#: in the seventh decimal. That is D10's accepted consequence, and it moves a
+#: sixth-decimal rounding on one row.
+REFIT_DRIFT = frozenset({"away_win_prob", "away_win_fair_odds"})
+
+
+@pytest.mark.parametrize("payload_name,builder", [
+    ("upcoming_fixtures", "upcoming_fixtures"),
+    ("match_predictions", "match_predictions"),
+])
+def test_the_other_published_payloads_match(rendered, payload_name, builder):
+    """The board fetches three files, not one. A file it asks for and does not
+    get is a failed fetch it has to tolerate on every poll."""
+    league, _, _ = rendered
+    payload, signals = _replay(league)
+    published_at = pd.Timestamp(payload["meta"]["updated_at"]).tz_convert("UTC").to_pydatetime()
+    with open(f"{GOLDEN}/{league}/published/{payload_name}.json") as handle:
+        expected = json.load(handle)
+
+    produced = getattr(legacy, builder)(
+        load_league(league), list(signals.values()), generated_at=published_at
+    )
+    assert list(produced["rows"][0]) == list(expected["rows"][0]), "field order"
+
+    ours = {r["fixture_id"]: r for r in produced["rows"]}
+    unexplained = []
+    for row in expected["rows"]:
+        if row["fixture_id"] not in ours:
+            continue  # the frozen list runs further ahead than the priced set
+        for field, value in row.items():
+            if field in REFIT_DRIFT or _equal(value, ours[row["fixture_id"]].get(field)):
+                continue
+            unexplained.append(f"{row['fixture_id']}.{field}: {value!r}")
+    assert not unexplained, f"{league} {payload_name}: {unexplained[:5]}"
+
+
+@pytest.mark.parametrize("league", ["csl", "ligamx"])
+def test_fair_odds_are_taken_from_the_unrounded_probability(league):
+    """Inverting a rounded probability magnifies the rounding.
+
+    Distinguishing the two methods needs a row where they actually disagree at
+    the published precision, which is rare, so the check is against the exact
+    value the engine holds rather than against a tolerance that would pass
+    either way. The frozen payload agreed only after this was fixed.
+    """
+    _, signals = _replay(league)
+    produced = legacy.match_predictions(load_league(league), list(signals.values()))
+    exact = {s.fixture_id: s.raw_probabilities for s in signals.values()}
+    checked = 0
+    for row in produced["rows"]:
+        probabilities = exact[row["fixture_id"]]
+        for index, field in enumerate(
+            ("home_win_fair_odds", "draw_fair_odds", "away_win_fair_odds")
+        ):
+            if not probabilities[index]:
+                continue
+            assert row[field] == round(1.0 / probabilities[index], 4)
+            checked += 1
+    assert checked, f"{league}: nothing was checked"

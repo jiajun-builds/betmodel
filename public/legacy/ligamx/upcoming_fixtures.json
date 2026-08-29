@@ -1,0 +1,63 @@
+{
+ "meta": {
+  "competition_code": "MEX",
+  "season": "Apertura 2026",
+  "updated_at": "2026-08-29T09:15:02+00:00"
+ },
+ "rows": [
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-08-29-pachuca-guadalajara",
+   "round": "",
+   "match_date": "2026-08-29",
+   "match_time": "17:00",
+   "kickoff_at": "2026-08-29T23:00:00Z",
+   "home_team": "Pachuca",
+   "away_team": "Guadalajara"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-08-29-atlas-queretaro",
+   "round": "",
+   "match_date": "2026-08-29",
+   "match_time": "17:00",
+   "kickoff_at": "2026-08-29T23:00:00Z",
+   "home_team": "Atlas",
+   "away_team": "Queretaro"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-08-29-club-america-puebla",
+   "round": "",
+   "match_date": "2026-08-29",
+   "match_time": "19:05",
+   "kickoff_at": "2026-08-30T01:05:00Z",
+   "home_team": "Club America",
+   "away_team": "Puebla"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-08-29-santos-laguna-tigres-uanl",
+   "round": "",
+   "match_date": "2026-08-29",
+   "match_time": "21:10",
+   "kickoff_at": "2026-08-30T03:10:00Z",
+   "home_team": "Santos Laguna",
+   "away_team": "Tigres UANL"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-08-30-toluca-fc-juarez",
+   "round": "",
+   "match_date": "2026-08-30",
+   "match_time": "18:00",
+   "kickoff_at": "2026-08-31T00:00:00Z",
+   "home_team": "Toluca",
+   "away_team": "FC Juarez"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-08-30-monterrey-atletico-san-luis",
+   "round": "",
+   "match_date": "2026-08-30",
+   "match_time": "20:10",
+   "kickoff_at": "2026-08-31T02:10:00Z",
+   "home_team": "Monterrey",
+   "away_team": "Atletico San Luis"
+  }
+ ]
+}

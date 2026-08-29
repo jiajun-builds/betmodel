@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-28T16:05:02Z",
+ "generated_at": "2026-08-29T09:15:02Z",
  "results": [
   {
    "fixture_id": "CSL-2026-1-2026-03-06-chengdu-rongcheng-shenzhen-xinpengcheng",
@@ -2266,6 +2266,42 @@
    "round": "24",
    "home_team": "Chongqing Tonglianglong",
    "away_team": "Dalian Yingbo",
+   "home_goals": 0,
+   "away_goals": 1,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-25-2026-08-28-dalian-yingbo-beijing-guoan",
+   "match_date": "2026-08-28",
+   "season": "2026",
+   "round": "25",
+   "home_team": "Dalian Yingbo",
+   "away_team": "Beijing Guoan",
+   "home_goals": 0,
+   "away_goals": 0,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-25-2026-08-28-shenzhen-xinpengcheng-shanghai-port",
+   "match_date": "2026-08-28",
+   "season": "2026",
+   "round": "25",
+   "home_team": "Shenzhen Xinpengcheng",
+   "away_team": "Shanghai Port",
+   "home_goals": 0,
+   "away_goals": 1,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-25-2026-08-28-shanghai-shenhua-shandong-taishan",
+   "match_date": "2026-08-28",
+   "season": "2026",
+   "round": "25",
+   "home_team": "Shanghai Shenhua",
+   "away_team": "Shandong Taishan",
    "home_goals": 0,
    "away_goals": 1,
    "result": "A",

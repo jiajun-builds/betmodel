@@ -172,6 +172,58 @@ def results_payload(
     return payload
 
 
+def meta_payload(league: str, config: LeagueConfig, generated_at: datetime) -> dict:
+    """How stale each part of this league's data is.
+
+    The gap this closes: a consumer could see a signal but not tell whether the
+    model behind it was fitted last night or three weeks ago. Each stage carries
+    its own timestamp because they go stale independently, and collapsing them
+    into one "updated_at" is what made that invisible: the capture loop
+    republishes several times an hour, so a single timestamp always looks fresh
+    however old the model is.
+    """
+    lp = paths.for_league(league)
+    matches = pd.read_csv(lp.matches_csv)
+    matches["MatchDate"] = parse_date_only_series(matches["Date"])
+    played = matches[pd.to_numeric(matches["HG"], errors="coerce").notna()]
+
+    def stamp(path: str, key: str) -> str | None:
+        try:
+            with open(path, encoding="utf-8") as handle:
+                return json.load(handle).get(key)
+        except (OSError, ValueError):
+            return None
+
+    upcoming = load_upcoming(lp.upcoming_fixtures_csv)
+    return {
+        "schema": contract.SCHEMA_VERSION,
+        "league": config.id,
+        "generated_at": contract.utc(generated_at),
+        "competition": {
+            "code": config.code, "name": config.name,
+            "season": config.season, "total_rounds": config.total_rounds,
+            "timezone": config.timezone,
+        },
+        "model": {
+            "name": config.model_name, "version": config.model_version,
+            # Deliberately not touched by an odds-only republish, so it keeps
+            # pointing at the last real fit.
+            "updated_at": stamp(lp.model_meta_json, "model_updated_at"),
+        },
+        "data": {
+            "fixtures_updated_at": stamp(lp.fixtures_meta_json, "fixtures_updated_at"),
+            "matches_played": int(len(played)),
+            "last_completed_match": (
+                played["MatchDate"].max().strftime("%Y-%m-%d") if len(played) else None
+            ),
+            "next_fixture": (
+                contract.utc(min(f.kickoff for f in upcoming)) if upcoming else None
+            ),
+            "xg_coverage": int(pd.to_numeric(matches["HxG"], errors="coerce").notna().sum()),
+        },
+    }
+
+
 # --------------------------------------------------------------------------- #
 # the manifest
 # --------------------------------------------------------------------------- #
@@ -227,6 +279,7 @@ def publish_league(
     for name, payload in (
         ("signals", signals_payload(config, signals, generated_at)),
         ("results", results_payload(league, config, generated_at)),
+        ("meta", meta_payload(league, config, generated_at)),
     ):
         path = lp.public_json(name)
         _write(path, payload)
