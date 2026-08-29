@@ -2,18 +2,9 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T12:34:38+01:00"
+  "updated_at": "2026-08-29T12:51:18+01:00"
  },
  "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
-   "round": "",
-   "match_date": "2026-08-29",
-   "match_time": "11:35",
-   "kickoff_at": "2026-08-29T12:35:00+01:00",
-   "home_team": "Chengdu Rongcheng",
-   "away_team": "Liaoning Tieren"
-  },
   {
    "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
    "round": "",

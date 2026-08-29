@@ -2,25 +2,11 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T12:34:38+01:00",
+  "updated_at": "2026-08-29T12:51:18+01:00",
   "model_name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
   "model_version": "v2.8"
  },
  "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-29T12:35:00+01:00",
-   "home_team": "Chengdu Rongcheng",
-   "away_team": "Liaoning Tieren",
-   "home_win_prob": 0.75068,
-   "draw_prob": 0.145619,
-   "away_win_prob": 0.103701,
-   "home_win_fair_odds": 1.3321,
-   "draw_fair_odds": 6.8672,
-   "away_win_fair_odds": 9.6431
-  },
   {
    "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
    "round": "",

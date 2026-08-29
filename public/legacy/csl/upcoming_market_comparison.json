@@ -2,49 +2,9 @@
  "meta": {
   "competition_code": "CSL",
   "season": "2026",
-  "updated_at": "2026-08-29T12:34:38+01:00"
+  "updated_at": "2026-08-29T12:51:18+01:00"
  },
  "rows": [
-  {
-   "fixture_id": "CSL-2026-0-2026-08-29-chengdu-rongcheng-liaoning-tieren",
-   "round": "",
-   "kickoff_at": "2026-08-29T12:35:00+01:00",
-   "home_team": "Chengdu Rongcheng",
-   "away_team": "Liaoning Tieren",
-   "match_time": "11:35",
-   "home_win_prob": 0.7377915151440311,
-   "draw_prob": 0.16028821937510046,
-   "away_win_prob": 0.10192026548086826,
-   "debias_method": "market_anchor",
-   "onexbet_open_home_odds": 1.3,
-   "onexbet_open_draw_odds": 5.95,
-   "onexbet_open_away_odds": 8.5,
-   "onexbet_open_home_ev": -0.040871030312759626,
-   "onexbet_open_draw_ev": -0.04628509471815223,
-   "onexbet_open_away_ev": -0.13367774341261984,
-   "duel_open_home_odds": 1.33,
-   "duel_open_draw_odds": 6.2,
-   "duel_open_away_odds": 8.4,
-   "duel_open_home_ev": -0.01873728485843862,
-   "duel_open_draw_ev": -0.0062130398743771575,
-   "duel_open_away_ev": -0.14386976996070655,
-   "best_open_home_odds": 1.33,
-   "best_open_draw_odds": 6.2,
-   "best_open_away_odds": 8.5,
-   "best_open_home_ev": -0.01873728485843862,
-   "best_open_draw_ev": -0.0062130398743771575,
-   "best_open_away_ev": -0.13367774341261984,
-   "best_open_home_book": "duel",
-   "best_open_draw_book": "duel",
-   "best_open_away_book": "onexbet",
-   "signal_pick": null,
-   "signal_state": null,
-   "signal_book": null,
-   "signal_books": null,
-   "onexbet_open_last_update": "2026-08-23T12:05:39.648Z",
-   "duel_open_last_update": "2026-08-23T11:16:38.284Z",
-   "fetched_at": "2026-08-29T11:34:38Z"
-  },
   {
    "fixture_id": "CSL-2026-0-2026-08-29-henan-songshan-longmen-chongqing-tonglianglong",
    "round": "",
@@ -83,7 +43,7 @@
    "signal_books": null,
    "onexbet_open_last_update": "2026-08-23T12:43:30.931Z",
    "duel_open_last_update": "2026-08-23T12:26:05.994Z",
-   "fetched_at": "2026-08-29T11:34:38Z"
+   "fetched_at": "2026-08-29T11:51:18Z"
   }
  ]
 }
