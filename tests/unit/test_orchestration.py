@@ -121,3 +121,20 @@ def test_the_residential_stages_are_the_ones_given_the_proxy():
     }
     for stage in needed:
         assert any(stage in name for name in proxied), f"{stage} runs without the proxy"
+
+
+def test_the_capture_install_does_not_strip_dependencies_from_pandas():
+    """--no-deps must apply to this package alone.
+
+    Listing it beside the runtime dependencies applied it to all of them, so
+    pandas installed without numpy and every capture failed on import. The
+    workflow reported it because the step does not swallow its exit code.
+    """
+    text = (ROOT / ".github/workflows/capture.yml").read_text()
+    lines = [l.strip() for l in text.splitlines() if l.strip().startswith("pip install")]
+    assert lines, "no install line found"
+    for line in lines:
+        if "--no-deps" in line:
+            assert "pandas" not in line, (
+                "--no-deps is on the same command as pandas, which strips numpy"
+            )

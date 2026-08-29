@@ -48,7 +48,13 @@ jobs:
       # solve is the difference between reaching the API in forty-five seconds
       # and reaching it in four minutes. For a price that moves, that matters.
       - name: Install the capture dependencies only
-        run: pip install --quiet "pandas>=2.0" "requests>=2.28" "PyYAML>=6.0" -e . --no-deps
+        # Two commands on purpose. --no-deps must apply to this package alone, so
+        # the heavy scientific stack is skipped, not to the runtime dependencies
+        # it is listed beside: a single command installed pandas without numpy
+        # and every capture failed on import.
+        run: |
+          pip install --quiet "pandas>=2.0" "requests>=2.28" "PyYAML>=6.0"
+          pip install --quiet --no-deps -e .
 
       - name: Resolve which league and which ticks
         id: plan
