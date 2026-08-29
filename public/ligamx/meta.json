@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-08-29T11:27:48Z",
+ "generated_at": "2026-08-29T11:34:38Z",
  "competition": {
   "code": "MEX",
   "name": "Liga MX",
@@ -12,7 +12,7 @@
  "model": {
   "name": "Negative Binomial with Dixon-Coles Time Decay",
   "version": "v1.0",
-  "updated_at": "2026-08-29T03:43:13-06:00"
+  "updated_at": "2026-08-29T05:34:37-06:00"
  },
  "data": {
   "fixtures_updated_at": "2026-08-28T16:49:18+00:00",

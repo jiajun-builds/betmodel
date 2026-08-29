@@ -2,7 +2,7 @@
  "meta": {
   "competition_code": "MEX",
   "season": "Apertura 2026",
-  "updated_at": "2026-08-29T11:27:48+00:00"
+  "updated_at": "2026-08-29T11:34:38+00:00"
  },
  "rows": [
   {
@@ -12,9 +12,9 @@
    "round": "",
    "match_time": "17:00",
    "kickoff_at": "2026-08-29T23:00:00Z",
-   "home_win_prob": 0.3912850165977705,
-   "draw_prob": 0.2714826537118288,
-   "away_win_prob": 0.3372323296904005,
+   "home_win_prob": 0.3912850165911676,
+   "draw_prob": 0.2714826537180104,
+   "away_win_prob": 0.3372323296908218,
    "home_odds": 2.76,
    "draw_odds": 3.5,
    "away_odds": 2.56,
@@ -34,9 +34,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 166.7,
+   "price_age_h": 166.8,
    "last_update": null,
-   "fetched_at": "2026-08-29T11:27:48Z"
+   "fetched_at": "2026-08-29T11:34:38Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-atlas-queretaro",
@@ -45,9 +45,9 @@
    "round": "",
    "match_time": "17:00",
    "kickoff_at": "2026-08-29T23:00:00Z",
-   "home_win_prob": 0.4611863873666536,
-   "draw_prob": 0.2711018040265844,
-   "away_win_prob": 0.2677118086067619,
+   "home_win_prob": 0.4611863873479456,
+   "draw_prob": 0.2711018040359038,
+   "away_win_prob": 0.2677118086161505,
    "home_odds": 2.08,
    "draw_odds": 3.5,
    "away_odds": 3.6,
@@ -67,9 +67,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 166.7,
+   "price_age_h": 166.8,
    "last_update": null,
-   "fetched_at": "2026-08-29T11:27:48Z"
+   "fetched_at": "2026-08-29T11:34:38Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-club-america-puebla",
@@ -78,9 +78,9 @@
    "round": "",
    "match_time": "19:05",
    "kickoff_at": "2026-08-30T01:05:00Z",
-   "home_win_prob": 0.7120917328764764,
-   "draw_prob": 0.1850341214890982,
-   "away_win_prob": 0.1028741456344255,
+   "home_win_prob": 0.7120917328345824,
+   "draw_prob": 0.185034121512257,
+   "away_win_prob": 0.1028741456531608,
    "home_odds": 1.42,
    "draw_odds": 4.8,
    "away_odds": 7.6,
@@ -100,9 +100,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T15:15:31Z",
-   "price_age_h": 164.2,
+   "price_age_h": 164.3,
    "last_update": null,
-   "fetched_at": "2026-08-29T11:27:48Z"
+   "fetched_at": "2026-08-29T11:34:38Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-santos-laguna-tigres-uanl",
@@ -111,9 +111,9 @@
    "round": "",
    "match_time": "21:10",
    "kickoff_at": "2026-08-30T03:10:00Z",
-   "home_win_prob": 0.2335348888633447,
-   "draw_prob": 0.2361949173619989,
-   "away_win_prob": 0.5302701937746562,
+   "home_win_prob": 0.233534888868811,
+   "draw_prob": 0.2361949173716651,
+   "away_win_prob": 0.5302701937595239,
    "home_odds": 4.6,
    "draw_odds": 3.95,
    "away_odds": 1.76,
@@ -133,9 +133,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 166.7,
+   "price_age_h": 166.8,
    "last_update": null,
-   "fetched_at": "2026-08-29T11:27:48Z"
+   "fetched_at": "2026-08-29T11:34:38Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-30-toluca-fc-juarez",
@@ -144,9 +144,9 @@
    "round": "",
    "match_time": "18:00",
    "kickoff_at": "2026-08-31T00:00:00Z",
-   "home_win_prob": 0.7326189513744324,
-   "draw_prob": 0.1605775709964601,
-   "away_win_prob": 0.1068034776291074,
+   "home_win_prob": 0.732618951336926,
+   "draw_prob": 0.1605775710153116,
+   "away_win_prob": 0.1068034776477623,
    "home_odds": 1.46,
    "draw_odds": 4.8,
    "away_odds": 6.6,
@@ -166,9 +166,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T12:45:19Z",
-   "price_age_h": 166.7,
+   "price_age_h": 166.8,
    "last_update": null,
-   "fetched_at": "2026-08-29T11:27:48Z"
+   "fetched_at": "2026-08-29T11:34:38Z"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-30-monterrey-atletico-san-luis",
@@ -177,9 +177,9 @@
    "round": "",
    "match_time": "20:10",
    "kickoff_at": "2026-08-31T02:10:00Z",
-   "home_win_prob": 0.5895019504277451,
-   "draw_prob": 0.2083660898984601,
-   "away_win_prob": 0.2021319596737948,
+   "home_win_prob": 0.5895019504042096,
+   "draw_prob": 0.2083660899096056,
+   "away_win_prob": 0.2021319596861848,
    "home_odds": 1.77,
    "draw_odds": 3.95,
    "away_odds": 4.4,
@@ -199,9 +199,9 @@
    "pinnacle_last_update": null,
    "pinnacle_fetched_at": null,
    "price_captured_at": "2026-08-22T13:45:35Z",
-   "price_age_h": 165.7,
+   "price_age_h": 165.8,
    "last_update": null,
-   "fetched_at": "2026-08-29T11:27:48Z"
+   "fetched_at": "2026-08-29T11:34:38Z"
   }
  ]
 }
