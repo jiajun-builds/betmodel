@@ -508,6 +508,12 @@ model, states that it did, and separately requires such a league to be marked
 unvalidated and to carry a caveat, so onboarding cannot put an untuned signal in
 front of a reader.
 
+**A fourth, found on the second pass.** A gate asserted every league had at
+least one quote. A league with no captured odds legitimately has none, so it now
+skips such a league but requires at least one to have quotes, or the assertion
+would be vacuous. Same family as the other two: a test that assumed every league
+looks like the leagues that already existed.
+
 **What the test confirmed.** With those fixed, the league loads, is discovered by
 the CLI and the manifest, fetches its own fixtures, and is refused by the model
 with a legible reason until it has a training target. No league identifier

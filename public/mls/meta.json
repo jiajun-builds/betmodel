@@ -1,0 +1,24 @@
+{
+ "schema": 1,
+ "league": "mls",
+ "generated_at": "2026-08-29T10:23:08Z",
+ "competition": {
+  "code": "MLS",
+  "name": "Major League Soccer",
+  "season": "2026",
+  "total_rounds": 34,
+  "timezone": "America/New_York"
+ },
+ "model": {
+  "name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
+  "version": "v0.1",
+  "updated_at": "2026-08-29T06:23:07-04:00"
+ },
+ "data": {
+  "fixtures_updated_at": "2026-08-29T10:18:02+00:00",
+  "matches_played": 314,
+  "last_completed_match": "2026-08-23",
+  "next_fixture": "2026-08-29T20:30:00Z",
+  "xg_coverage": 314
+ }
+}
