@@ -60,11 +60,19 @@ def main() -> int:
             problems.append(f"{league}: cannot read {files['history']}")
             continue
         before = len(capture_store.load_history(lp.capture_history_csv))
-        if not dry:
+        if dry:
+            # A dry run cannot measure the delta by re-reading a file it did not
+            # write: `before` and `after` would be the same number, so every
+            # check reported +0 whatever upstream held. Count the dedup keys
+            # instead, with the store's own key so the answer matches a real run.
+            would_add = _missing_here(upstream, lp.capture_history_csv)
+            print(f"  {league:7s} history  upstream {len(upstream):4d}  "
+                  f"local {before:4d}  (would add {would_add})")
+        else:
             _append_preserving_type(upstream, lp.capture_history_csv)
-        after = len(capture_store.load_history(lp.capture_history_csv))
-        print(f"  {league:7s} history  upstream {len(upstream):4d}  "
-              f"local {before:4d} -> {after:4d}  (+{after - before})")
+            after = len(capture_store.load_history(lp.capture_history_csv))
+            print(f"  {league:7s} history  upstream {len(upstream):4d}  "
+                  f"local {before:4d} -> {after:4d}  (+{after - before})")
 
         if files["watch"]:
             watch = _at_origin(repo, files["watch"])
@@ -82,6 +90,24 @@ def main() -> int:
             print(f"  PROBLEM: {p}", file=sys.stderr)
         return 1
     return 0
+
+
+def _missing_here(upstream: pd.DataFrame, path: str) -> int:
+    """Upstream rows this store does not already hold, by the store's dedup key.
+
+    Only rows whose snapshot_type the store accepts are counted, so the number
+    matches what a real run would append rather than what upstream happens to
+    contain.
+    """
+    existing = capture_store.load_history(path)
+    seen = set()
+    if not existing.empty:
+        seen = set(existing[capture_store.DEDUP_KEY].apply(tuple, axis=1))
+    fresh = upstream[upstream["snapshot_type"].isin(capture_store.VALID_SNAPSHOT_TYPES)]
+    if fresh.empty:
+        return 0
+    keys = set(fresh[capture_store.DEDUP_KEY].apply(tuple, axis=1))
+    return len(keys - seen)
 
 
 def _append_preserving_type(upstream: pd.DataFrame, path: str) -> int:
