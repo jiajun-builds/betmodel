@@ -592,3 +592,36 @@ prose, before the diff was read.
 **`capture_reason` is exempt too, for a different reason.** It is free text
 describing what a run did, some of it written by pipelines that no longer exist.
 Its wording is a record, not a field to reformat.
+
+## D19 — An unreachable provider is not an empty result.
+
+The first refresh run in CI reported success having fetched nothing. Every
+SofaScore call had failed at the TCP level — the residential proxy was refusing
+connections — and each stage read the empty answer as "the provider has nothing
+new for you", logged a warning, and returned cleanly:
+
+```
+WARNING no seasons for tournament 11621
+WARNING ligamx: the fixture provider returned nothing; leaving files alone
+INFO    ligamx: xg {'missing': 0, 'in_review': 15, 'fetched': 0, 'written': 0}
+```
+
+Three leagues, nothing fetched, green tick. The `allow_empty_upcoming` guard —
+which exists precisely to refuse an empty fixture list — never fired, because the
+stage had already returned two hundred lines earlier on the "provider returned
+nothing" path.
+
+**The distinction is made where it is known.** `_get(strict=True)` already
+existed and already said, in its own docstring, that it exists "so a caller
+cannot mistake it for an empty result". It was used on one deep call and not on
+`seasons()`, which is the first call every SofaScore-backed stage makes and the
+one that gates all the others. It is strict now.
+
+**A 404 stays an answer.** A tournament id that does not exist is a real reply,
+and escalating it would make a typo in a league YAML look like a proxy outage.
+
+**Why this matters more than the outage that exposed it.** A refresh that fails
+is visible within minutes. A refresh that fetches nothing and says it succeeded
+is discovered days later, by someone reading a number that stopped moving. The
+leagues stay independent — one league's outage still does not stop another's —
+but the run's exit code carries the failure, which it already did.

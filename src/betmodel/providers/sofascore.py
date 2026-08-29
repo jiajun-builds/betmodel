@@ -193,10 +193,17 @@ class SofascoreClient:
 
     # --- tournaments and seasons -------------------------------------------
     def seasons(self, tournament_id: int) -> list[dict]:
-        """Seasons for a tournament, newest first."""
-        return (self._get(f"/unique-tournament/{tournament_id}/seasons") or {}).get(
-            "seasons", []
-        )
+        """Seasons for a tournament, newest first.
+
+        Strict, because this is the first call every SofaScore-backed stage
+        makes and an empty answer here stops the whole stage. A live tournament
+        always has a season; an empty list means the id is wrong or the provider
+        could not be reached, and neither is a reason to report a refresh that
+        fetched nothing as a refresh that had nothing to fetch.
+        """
+        return (
+            self._get(f"/unique-tournament/{tournament_id}/seasons", strict=True) or {}
+        ).get("seasons", [])
 
     def current_season_id(self, tournament_id: int) -> int | None:
         seasons = self.seasons(tournament_id)
