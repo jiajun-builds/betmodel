@@ -170,3 +170,43 @@ def test_watching_since_uses_the_whole_history_not_just_the_opens():
         "snapshot_type": ["close", "open"],
     })
     assert cw.watching_since(history).isoformat().startswith("2026-08-01")
+
+
+def test_importing_a_row_keeps_the_provenance_it_arrived_with(tmp_path):
+    """capture_reason is the only record of how a price was obtained, and the
+    sole input to the provenance classifier. Blanking it on import makes an open
+    classify as unknown, which drops it out of the opening-line series entirely.
+    """
+    path = str(tmp_path / "history.csv")
+    imported = pd.DataFrame([_row() | {
+        "snapshot_type": "open", "target_round": "6",
+        "capture_reason": "odds-api.io first-seen open price @ 2026-08-20T10:00:00Z",
+    }])
+    cs.append_snapshots(imported, path=path, snapshot_type="open", preserve_meta=True)
+    stored = cs.load_history(path).iloc[0]
+    assert stored["capture_reason"].startswith("odds-api.io first-seen")
+    assert stored["target_round"] == "6"
+
+
+def test_a_locally_captured_row_is_stamped_by_the_caller(tmp_path):
+    """The default path still stamps, because a row captured here has no
+    metadata of its own to keep."""
+    path = str(tmp_path / "history.csv")
+    cs.append_snapshots(
+        pd.DataFrame([_row()]), path=path, snapshot_type="open",
+        target_round="9", capture_reason="local tick",
+    )
+    stored = cs.load_history(path).iloc[0]
+    assert (stored["target_round"], stored["capture_reason"]) == ("9", "local tick")
+
+
+def test_an_imported_row_missing_metadata_falls_back_to_the_caller(tmp_path):
+    path = str(tmp_path / "history.csv")
+    cs.append_snapshots(
+        pd.DataFrame([_row() | {"snapshot_type": "open", "target_round": "",
+                                "capture_reason": ""}]),
+        path=path, snapshot_type="open", target_round="4",
+        capture_reason="fallback", preserve_meta=True,
+    )
+    stored = cs.load_history(path).iloc[0]
+    assert (stored["target_round"], stored["capture_reason"]) == ("4", "fallback")

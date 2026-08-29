@@ -79,9 +79,29 @@ def load_history(path: str) -> pd.DataFrame:
 
 
 def _prepare(
-    rows: pd.DataFrame, *, snapshot_type: str, target_round: str, capture_reason: str
+    rows: pd.DataFrame, *, snapshot_type: str, target_round: str, capture_reason: str,
+    preserve_meta: bool = False,
 ) -> pd.DataFrame:
+    """Stamp capture metadata onto fresh rows and align them to the schema.
+
+    ``preserve_meta`` keeps whatever a row already carries, for rows imported
+    from another store rather than captured here. Without it an import silently
+    blanks ``capture_reason``, which is the only record of how a price was
+    obtained and the sole input to the provenance classifier: a blank one
+    classifies as unknown, and an unknown open is excluded from the opening-line
+    series entirely.
+    """
     frame = rows.copy()
+    if preserve_meta:
+        for column, default in (("snapshot_type", snapshot_type),
+                                ("target_round", target_round),
+                                ("capture_reason", capture_reason)):
+            if column in frame.columns:
+                existing = frame[column].astype(str)
+                frame[column] = existing.where(existing.str.strip() != "", default)
+            else:
+                frame[column] = default
+        return frame.reindex(columns=HISTORY_COLUMNS, fill_value="").astype(str)
     frame["snapshot_type"] = snapshot_type
     frame["target_round"] = target_round
     frame["capture_reason"] = capture_reason
@@ -98,6 +118,7 @@ def append_snapshots(
     snapshot_type: str,
     target_round: str = "",
     capture_reason: str = "",
+    preserve_meta: bool = False,
 ) -> tuple[pd.DataFrame, int]:
     """Append captured rows, dropping any that duplicate the key.
 
@@ -117,6 +138,7 @@ def append_snapshots(
         snapshot_type=snapshot_type,
         target_round=str(target_round),
         capture_reason=capture_reason,
+        preserve_meta=preserve_meta,
     ).drop_duplicates(subset=DEDUP_KEY, keep="last")
 
     existing = load_history(path)
