@@ -55,6 +55,27 @@ HISTORY_COLUMNS = BASE_COLUMNS + CAPTURE_META_COLUMNS
 
 DEDUP_KEY = ["event_id", "bookmaker", "last_update", "snapshot_type"]
 
+#: Providers whose event id is stored with their name in front of it.
+#:
+#: The asymmetry is inherited, not chosen. Both pre-merge pipelines wrote
+#: odds-api.io ids as ``oddsapiio:72055150`` and The Odds API ids bare, and
+#: ``event_id`` is part of DEDUP_KEY, so a row's id IS its identity. Restyling
+#: the bare ones would re-identify 677 rows of history: they would stop matching
+#: the same captures upstream, and the reconciliation before the old
+#: repositories are archived would import every one of them a second time.
+#:
+#: So the rule is not "namespace everything", it is "write what the history for
+#: this provider already contains".
+ID_NAMESPACED = frozenset({"oddsapiio"})
+
+
+def stored_event_id(provider: str, raw: str) -> str:
+    """The id as this store writes it, given the provider that issued it."""
+    raw = str(raw)
+    if provider not in ID_NAMESPACED or not raw or raw.startswith(f"{provider}:"):
+        return raw
+    return f"{provider}:{raw}"
+
 VALID_SNAPSHOT_TYPES = frozenset({"open", "close", "ad_hoc"})
 
 

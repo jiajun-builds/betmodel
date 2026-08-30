@@ -114,7 +114,10 @@ def _row(
     *, fixture: Fixture, book: BookConfig, prices: dict, event: dict, fetched_at: str
 ) -> dict:
     return {
-        "event_id": str(event.get("id", "")),
+        # Namespaced per the provider's own convention: the id is part of the
+        # dedup key, so a row written under the wrong form is a different row.
+        "event_id": capture_store.stored_event_id(
+            book.provider, event.get("id", "")),
         "commence_time": stamp(fixture.kickoff),
         "api_home_team": str(event.get("home", event.get("home_team", ""))),
         "api_away_team": str(event.get("away", event.get("away_team", ""))),

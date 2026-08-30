@@ -691,3 +691,32 @@ every five minutes, so alerting per failure would be noise, and the right shape
 there is a digest or a dead-man's switch rather than a per-run message. Left
 undone deliberately, not overlooked: a missed capture is unrecoverable, so it
 deserves a better answer than the one that fits here.
+
+## D21 — A stored event id follows its own provider's convention, not a tidy rule.
+
+`event_id` is part of `DEDUP_KEY`, so the form of the id *is* the row's identity.
+Both pre-merge pipelines wrote odds-api.io ids as `oddsapiio:72055150` and The
+Odds API ids bare. The merged capture wrote `str(event["id"])` for everything, so
+the first three odds-api.io opens it captured went in bare — the same captures
+upstream had, under a different identity.
+
+**What it did not break.** The opener gate keys on `(home, away, book)`, not on
+the id, so no fixture was ever re-opened and no later price was recorded as an
+opening line. That is the failure this would have caused if the gate had been
+built the obvious way.
+
+**What it would have broken.** The reconciliation due before the old
+repositories are archived: all three rows would have been imported a second time,
+as duplicate captures of the same quote. Repairing them dropped the Liga MX
+delta from 40 rows to 37.
+
+**Why the asymmetry stays.** Namespacing everything is the tidier rule and it is
+the wrong one here. 677 stored rows carry bare The Odds API ids; restyling them
+would re-identify every one, exactly as truncating `last_update` would have
+(D18). The rule is "write what this provider's history already contains", and a
+test asserts every row on disk satisfies it.
+
+**Third time this shape has appeared.** `last_update`, `fetched_at`, and now
+`event_id`: a column whose format looks cosmetic but is load-bearing because
+something downstream keys on it. The distinction that matters each time is
+whether the field is part of an identity or merely describes one.
