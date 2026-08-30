@@ -12,6 +12,17 @@ inputs:
     description: Space-separated paths to stage.
     required: false
     default: data/<league>/odds_capture_history.csv
+  derived:
+    description: >
+      True when the staged paths are regenerated wholesale rather than appended
+      to -- everything under public/. Two runs racing produce two different
+      generations of the same document, so a rebase conflict there has no
+      correct textual resolution and no history worth preserving: it is resolved
+      by keeping this run's output, which the next publish supersedes anyway.
+      Leave false for the capture histories, which are append-only and merge
+      losslessly via the union driver in .gitattributes.
+    required: false
+    default: "false"
   skip_ci:
     description: >
       Append "[skip ci]" to the commit message. True for the capture ticks, whose
@@ -36,6 +47,7 @@ runs:
         COMMIT_MESSAGE: ${{ inputs.message }}
         STAGE_PATHS: ${{ inputs.paths }}
         SKIP_CI: ${{ inputs.skip_ci }}
+        DERIVED: ${{ inputs.derived }}
       run: |
         set -euo pipefail
         # Default false. Flipped to true only after a successful push, so a failed
@@ -70,14 +82,60 @@ runs:
         fi
 
         # main may have moved (an earlier job in this same tick, a data refresh),
-        # so rebase this append-only change on top before pushing. The retry loop
-        # closes the pull->push race when another writer lands in between.
+        # so rebase on top before pushing. The retry loop closes the pull->push
+        # race when another writer lands in between.
+        #
+        # The append-only histories merge losslessly through the union driver in
+        # .gitattributes, so they no longer reach the conflict path at all. What
+        # can still conflict is regenerated output, and for that a rebase is the
+        # wrong tool: it tries to carry a diff between two whole documents that
+        # were each generated from a different snapshot. Neither side is right --
+        # ours predates the rows that just landed, theirs predates the rows we are
+        # adding -- and the next publish regenerates from the merged data anyway.
+        # So with derived: true we keep this run's output and move on, rather than
+        # failing a push and losing the commit entirely.
         pushed=0
         for attempt in 1 2 3; do
           if git pull --rebase origin main && git push origin main; then
             pushed=1
             break
           fi
+
+          if [ "$DERIVED" = "true" ]; then
+            unmerged=$(git diff --name-only --diff-filter=U || true)
+
+            # The capture histories must never be resolved by picking a side:
+            # each side holds rows the other does not, and a discarded opening
+            # line cannot be recaptured. They are meant to merge automatically
+            # via the union driver, so reaching here means .gitattributes did not
+            # apply -- a shallow checkout, a stale action ref. Fail loudly rather
+            # than silently drop them.
+            irreplaceable=$(echo "$unmerged" | grep -E 'odds_capture_history\.csv|capture_watch\.csv' || true)
+            if [ -n "$irreplaceable" ]; then
+              echo "::error::refusing to resolve append-only history by picking a side: $irreplaceable"
+              echo "::error::the union merge driver did not apply; check .gitattributes"
+              git rebase --abort 2>/dev/null || true
+              exit 1
+            fi
+
+            if [ -n "$unmerged" ]; then
+              echo "resolving regenerated files in favour of this run: $unmerged"
+              # During a rebase --theirs is the commit being replayed, i.e. ours.
+              # --ours would be the branch we are landing on. The naming is
+              # inverted from the intuitive reading, so it is spelled out here.
+              # shellcheck disable=SC2086
+              git checkout --theirs -- $unmerged 2>/dev/null || true
+              # shellcheck disable=SC2086
+              git add $unmerged
+              if GIT_EDITOR=true git rebase --continue; then
+                if git push origin main; then
+                  pushed=1
+                  break
+                fi
+              fi
+            fi
+          fi
+
           # A failed rebase leaves the tree mid-rebase; abort so the retry is clean.
           git rebase --abort 2>/dev/null || true
           echo "push attempt $attempt failed; retrying..."

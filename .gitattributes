@@ -1,0 +1,10 @@
+# The capture histories are append-only, and two writers appending different rows
+# is a normal outcome, not a conflict: a capture tick for one league can land
+# while the daily refresh is rebasing. Git's built-in union driver keeps both
+# sides' lines, which is exactly right here and loses nothing.
+#
+# Derived output under public/ is deliberately NOT listed. A union of two
+# generated JSON documents is not a JSON document; those are resolved by the
+# commit action instead, which knows they are regenerated rather than appended.
+data/*/odds_capture_history.csv merge=union
+data/*/capture_watch.csv merge=union

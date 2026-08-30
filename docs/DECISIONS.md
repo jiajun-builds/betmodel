@@ -720,3 +720,71 @@ test asserts every row on disk satisfies it.
 `event_id`: a column whose format looks cosmetic but is load-bearing because
 something downstream keys on it. The distinction that matters each time is
 whether the field is part of an identity or merely describes one.
+
+## D22 — Two trees, two failure modes, one commit.
+
+Committing was the last place that treated everything alike. `git pull --rebase`
+was applied to `data/` and `public/` together, described in a comment as
+rebasing "this append-only change" — true of the capture histories, false of the
+published JSON, which is regenerated in full every run. Two whole generated
+documents have no meaningful diff to carry, so any concurrent publish conflicted,
+and the retry loop replayed the same conflict three times and gave up. It cost
+two failed runs in one afternoon.
+
+**Append-only merges; regenerated is resolved.** `.gitattributes` gives the two
+capture histories Git's built-in `union` driver, so two writers appending
+different rows now merge losslessly instead of conflicting. Everything else is a
+function of that data, so a `derived: true` commit resolves what is left in
+favour of this run and continues, rather than failing a push and losing the
+data rows along with it.
+
+**Rehearsed, not reasoned about.** Three things were wrong on the first attempt
+and a scratch-repo simulation of a real race found all three:
+
+1. `--ours` during a rebase is the branch being landed on, and `--theirs` is the
+   commit being replayed. The intuitive reading is backwards, so the resolution
+   would have kept the wrong side.
+2. Splitting into two commits — clean-looking, since it classifies each tree
+   separately — leaves the other tree unstaged, and `git pull --rebase` refuses
+   to run on a dirty tree.
+3. `--autostash`, the obvious fix for (2), is worse than the problem: the stash
+   reapplies over the rebased tree, conflicts, and leaves `<<<<<<<` markers
+   inside the published JSON, which then gets committed and served to the board.
+
+So it stays one commit, which keeps the tree clean, and the classification lives
+in `.gitattributes` and the resolver rather than in the commit boundaries.
+
+**A guard where the reasoning could rot.** If a conflict ever reaches the
+resolver in one of the two append-only histories, the union driver did not apply
+— a shallow checkout, a stale action ref — and picking a side would discard
+opening lines that cannot be recaptured. That case fails loudly instead.
+
+## D23 — A dead-man's switch for the captures, not a failure alert.
+
+D20 left the capture ticks deliberately uncovered, and this is the shape that
+fits them.
+
+Alerting per failed run is noise at a five-minute cadence. Alerting on the data
+is worse than noise, it is wrong: an idle tick with no fixture in its window
+correctly appends nothing, so a healthy quiet stretch and a total outage look
+identical from the rows. The tracker already carries this trap in a comment about
+its own staleness tolerance.
+
+What is never normal is the workflow not running at all, or running and never
+once succeeding in 24 hours. Both mean down rather than idle. `scripts/
+check_capture_health.py` checks exactly those two and is run once a day from the
+refresh, which already holds the Telegram credentials.
+
+**Cancelled runs count as neither.** Concurrency cancels an overlapping tick by
+design. Counting those as failures would make a busy matchday — precisely when
+captures matter most — look like an outage.
+
+**Deliberately forgiving.** One success in the window is enough to stay quiet. A
+threshold tight enough to catch partial degradation would fire on the ordinary
+transient failures this pipeline sees daily, and an alarm that cries wolf is
+worse than the gap it filled. Measured against the live repo when written: 88
+succeeded, 5 failed.
+
+**It reports without failing the refresh.** Failing its host would conflate a
+capture outage with a refresh outage, and the refresh has its own alert for its
+own failures.

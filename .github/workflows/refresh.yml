@@ -99,12 +99,39 @@ jobs:
         run: betmodel ${{ inputs.league || 'all' }} freshness
              ${{ inputs.dry_run && '--dry-run' || '' }}
 
+      # Hosted here rather than in the capture workflow itself, because a job
+      # that is failing cannot be relied on to report that it is failing, and a
+      # five-minute cadence makes a per-run alert noise. Once a day is the right
+      # frequency for "has this been down all day".
+      - name: Capture dead-man's switch
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/check_capture_health.py --window-hours 24
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # One commit covering both trees, deliberately. Splitting them so each
+      # could be classified separately reads better and does not work: this job
+      # produces data/ and public/ changes together, so committing one leaves the
+      # other unstaged, and `git pull --rebase` refuses to run on a dirty tree.
+      # Reaching for --autostash makes it worse -- the stash reapplies over the
+      # rebased tree, conflicts, and leaves conflict markers inside the published
+      # JSON, which then gets committed and served. Both were caught in a
+      # scratch-repo rehearsal of an actual race, not in production.
+      #
+      # A single commit keeps the tree clean. The two classes are still handled
+      # differently where it counts: the append-only histories merge through the
+      # union driver in .gitattributes, and derived: true resolves whatever is
+      # left, all of which is regenerated on the next run.
       - name: Commit
         if: ${{ !inputs.dry_run }}
         uses: ./.github/actions/commit-data
         with:
           message: "chore(data): daily refresh"
           paths: data public
+          derived: "true"
           skip_ci: "false"
 
       # Last, so everything above has already run and committed. A fetch that

@@ -138,6 +138,7 @@ jobs:
         with:
           message: "chore(publish): republish after a capture"
           paths: public
+          derived: "true"
           # False on purpose. The alert reads the previously committed signals
           # file as its baseline, so a commit that never lands leaves the next
           # run comparing against a stale snapshot.
