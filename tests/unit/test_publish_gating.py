@@ -10,6 +10,7 @@ that write the public tree.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime, timezone
 
 from betmodel.config import load_all, load_league
@@ -27,18 +28,34 @@ def test_published_defaults_to_true():
     assert parsed.published is True
 
 
+def _withheld_copy(league: str):
+    """A real config with only its published flag flipped.
+
+    Built rather than borrowed from disk on purpose. These tests used to require
+    that some league on disk was unpublished, which was true only while the
+    acceptance-test league existed; deleting it would have made one test vacuous
+    and crashed the other. What is under test is the flag, not the roster.
+    """
+    config = load_league(league)
+    return replace(config, publish=replace(config.publish, published=False))
+
+
 def test_an_unpublished_league_is_absent_from_the_manifest():
-    configs = load_all()
+    configs = dict(load_all())
+    victim = sorted(configs)[0]
+    configs[victim] = _withheld_copy(victim)
     named = {entry["id"] for entry in public.index_payload(configs, AT)["leagues"]}
-    withheld = {key for key, c in configs.items() if not c.publish.published}
-    assert withheld, "this test is vacuous unless some league is unpublished"
-    assert named == set(configs) - withheld
+    assert victim not in named
+    # The invariant is "exactly the published ones", not "everything but the
+    # victim" -- otherwise the test depends on no other league being withheld.
+    assert named == {k for k, c in configs.items() if c.publish.published}
 
 
-def test_an_unpublished_league_writes_no_canonical_files():
-    league = next(k for k, c in load_all().items() if not c.publish.published)
-    written = public.publish_league(league, load_league(league), [], generated_at=AT)
-    assert written == {}
+def test_an_unpublished_league_writes_no_canonical_files(tmp_path):
+    league = sorted(load_all())[0]
+    written = public.publish_league(
+        league, _withheld_copy(league), [], generated_at=AT)
+    assert written == {}, "a withheld league must not write, even over its own files"
 
 
 def test_every_league_the_manifest_names_declares_its_files():
