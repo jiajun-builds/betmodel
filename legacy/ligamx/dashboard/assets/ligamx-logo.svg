@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Liga MX">
-  <rect x="3" y="3" width="94" height="94" rx="22" fill="#ff9e2c"/>
-  <rect x="3.75" y="3.75" width="92.5" height="92.5" rx="21.25" fill="none" stroke="#0a0a0b" stroke-opacity="0.22" stroke-width="1.5"/>
-  <text x="50" y="52" text-anchor="middle" dominant-baseline="central"
-        font-family="'IBM Plex Mono','SFMono-Regular',ui-monospace,monospace" font-weight="700"
-        font-size="40" letter-spacing="-2" fill="#0a0a0b">MX</text>
-</svg>
