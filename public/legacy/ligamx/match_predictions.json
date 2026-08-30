@@ -2,39 +2,11 @@
  "meta": {
   "competition_code": "MEX",
   "season": "Apertura 2026",
-  "updated_at": "2026-08-29T12:45:21+00:00",
+  "updated_at": "2026-08-30T00:51:13+00:00",
   "model_name": "Negative Binomial with Dixon-Coles Time Decay",
   "model_version": "v1.0"
  },
  "rows": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-08-29-pachuca-guadalajara",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-29T23:00:00Z",
-   "home_team": "Pachuca",
-   "away_team": "Guadalajara",
-   "home_win_prob": 0.391285,
-   "draw_prob": 0.271483,
-   "away_win_prob": 0.337232,
-   "home_win_fair_odds": 2.5557,
-   "draw_fair_odds": 3.6835,
-   "away_win_fair_odds": 2.9653
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-08-29-atlas-queretaro",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-29T23:00:00Z",
-   "home_team": "Atlas",
-   "away_team": "Queretaro",
-   "home_win_prob": 0.461186,
-   "draw_prob": 0.271102,
-   "away_win_prob": 0.267712,
-   "home_win_fair_odds": 2.1683,
-   "draw_fair_odds": 3.6887,
-   "away_win_fair_odds": 3.7354
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-club-america-puebla",
    "round": "",
