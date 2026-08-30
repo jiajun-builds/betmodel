@@ -2,25 +2,11 @@
  "meta": {
   "competition_code": "MEX",
   "season": "Apertura 2026",
-  "updated_at": "2026-08-30T03:01:33+00:00",
+  "updated_at": "2026-08-30T03:31:16+00:00",
   "model_name": "Negative Binomial with Dixon-Coles Time Decay",
   "model_version": "v1.0"
  },
  "rows": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-08-29-santos-laguna-tigres-uanl",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-30T03:10:00Z",
-   "home_team": "Santos Laguna",
-   "away_team": "Tigres UANL",
-   "home_win_prob": 0.233535,
-   "draw_prob": 0.236195,
-   "away_win_prob": 0.53027,
-   "home_win_fair_odds": 4.282,
-   "draw_fair_odds": 4.2338,
-   "away_win_fair_odds": 1.8858
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-30-toluca-fc-juarez",
    "round": "",
@@ -62,6 +48,34 @@
    "home_win_fair_odds": 1.6726,
    "draw_fair_odds": 4.4385,
    "away_win_fair_odds": 5.6556
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-05-tigres-uanl-necaxa",
+   "round": "",
+   "match_date": "2026-09-05",
+   "kickoff_at": "2026-09-06T01:00:00Z",
+   "home_team": "Tigres UANL",
+   "away_team": "Necaxa",
+   "home_win_prob": 0.605616,
+   "draw_prob": 0.213694,
+   "away_win_prob": 0.18069,
+   "home_win_fair_odds": 1.6512,
+   "draw_fair_odds": 4.6796,
+   "away_win_fair_odds": 5.5344
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-05-atlas-atlante",
+   "round": "",
+   "match_date": "2026-09-05",
+   "kickoff_at": "2026-09-06T03:00:00Z",
+   "home_team": "Atlas",
+   "away_team": "Atlante",
+   "home_win_prob": 0.391201,
+   "draw_prob": 0.269783,
+   "away_win_prob": 0.339016,
+   "home_win_fair_odds": 2.5562,
+   "draw_fair_odds": 3.7067,
+   "away_win_fair_odds": 2.9497
   }
  ]
 }

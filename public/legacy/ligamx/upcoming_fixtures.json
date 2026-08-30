@@ -2,18 +2,9 @@
  "meta": {
   "competition_code": "MEX",
   "season": "Apertura 2026",
-  "updated_at": "2026-08-30T03:01:33+00:00"
+  "updated_at": "2026-08-30T03:31:16+00:00"
  },
  "rows": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-08-29-santos-laguna-tigres-uanl",
-   "round": "",
-   "match_date": "2026-08-29",
-   "match_time": "21:10",
-   "kickoff_at": "2026-08-30T03:10:00Z",
-   "home_team": "Santos Laguna",
-   "away_team": "Tigres UANL"
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-30-toluca-fc-juarez",
    "round": "",
@@ -40,6 +31,24 @@
    "kickoff_at": "2026-09-06T01:00:00Z",
    "home_team": "Club America",
    "away_team": "Tijuana"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-05-tigres-uanl-necaxa",
+   "round": "",
+   "match_date": "2026-09-05",
+   "match_time": "19:00",
+   "kickoff_at": "2026-09-06T01:00:00Z",
+   "home_team": "Tigres UANL",
+   "away_team": "Necaxa"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-05-atlas-atlante",
+   "round": "",
+   "match_date": "2026-09-05",
+   "match_time": "21:00",
+   "kickoff_at": "2026-09-06T03:00:00Z",
+   "home_team": "Atlas",
+   "away_team": "Atlante"
   }
  ]
 }
