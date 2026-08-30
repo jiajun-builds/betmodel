@@ -651,3 +651,43 @@ success, and each looked locally reasonable — one read an empty list as an emp
 answer, the other let a step fail so later steps could run. It took an actual
 outage to reveal either. Any place that degrades rather than stops needs
 somewhere downstream that still knows it degraded.
+
+## D20 — The staleness monitor cannot double as the failure channel.
+
+With D19 and D19b in place a broken refresh finally goes red. The question that
+followed — would anyone be told — has a worse answer than expected.
+
+Three channels existed, and none of them reports a failed run promptly:
+
+| channel | what it actually reports |
+|---|---|
+| GitHub email on a failed scheduled run | the run, but only if a per-account notification setting is on |
+| Telegram, from the xG staleness check | data going stale, at a 3-day threshold |
+| Telegram, from the capture timer Worker | whether a `repository_dispatch` was accepted, not what it ran |
+
+The staleness monitor is the one that looks like coverage and is not. It is
+deliberately `if: always()`, precisely so it still runs when the fetch above it
+failed — good design for what it measures. But it measures the age of the data,
+not the health of the run, and at three days a refresh broken on Monday is
+silent until Thursday. Two different events, two different latencies; using one
+as the alarm for the other buys three days of quiet.
+
+The failing step now sends its own alert with the run URL. Two details are
+deliberate:
+
+**It uses `curl`, not the package.** The alert has to arrive when the failure is
+the package refusing to import, which is exactly when the CLI cannot be asked to
+report anything. Routing it through `notify.telegram` would make the alerting
+depend on the thing most likely to be broken.
+
+**The send is best-effort.** A failed alert logs and is swallowed, so it can
+never replace the failure it exists to report.
+
+It also catches `job.status == 'failure'`, so a step failing anywhere in the
+job — not only the two fetches — reports through the same place.
+
+**What is still not covered.** The capture ticks have no such alert. They run
+every five minutes, so alerting per failure would be noise, and the right shape
+there is a digest or a dead-man's switch rather than a per-run message. Left
+undone deliberately, not overlooked: a missed capture is unrecoverable, so it
+deserves a better answer than the one that fits here.

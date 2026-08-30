@@ -109,14 +109,45 @@ jobs:
 
       # Last, so everything above has already run and committed. A fetch that
       # failed is still a failed refresh, whatever was salvaged from disk.
+      #
+      # This also alerts, because the staleness monitor above cannot serve as the
+      # failure channel: it reports data going stale, which is a different event
+      # with a different latency. At a 3-day threshold, two days of a broken
+      # refresh are silent on Telegram, and the only other signal is a GitHub
+      # email that depends on a per-account notification setting.
+      #
+      # Sent with curl rather than through the package, deliberately: this must
+      # still reach the phone when the failure is the package refusing to
+      # import, which is precisely when the CLI cannot be used to report it.
       - name: Fail if a fetch failed
         if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           failed=""
           [ "${{ steps.fixtures.outcome }}" = "failure" ] && failed="$failed fixtures"
           [ "${{ steps.xg.outcome }}" = "failure" ] && failed="$failed xG"
-          if [ -n "$failed" ]; then
-            echo "::error::refresh completed but these fetches failed:$failed"
-            exit 1
+          # A step that failed without continue-on-error already failed the job;
+          # catch that too, so this is the one place a broken refresh is reported.
+          [ "${{ job.status }}" = "failure" ] && failed="$failed (a step failed)"
+
+          if [ -z "$failed" ]; then
+            echo "every fetch succeeded"
+            exit 0
           fi
-          echo "every fetch succeeded"
+
+          echo "::error::refresh failed:$failed"
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            # The alert is best-effort: a send that fails must not replace the
+          # failure it was reporting, so its error is logged and swallowed.
+            text=$(printf 'betmodel refresh failed:%s\n%s' "$failed" "$run_url")
+            curl -sS --max-time 20 -o /dev/null \
+              "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+              --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+              --data-urlencode "text=$text" || echo "alert could not be sent" >&2
+          else
+            echo "no telegram credentials; alerting skipped" >&2
+          fi
+          exit 1
