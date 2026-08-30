@@ -798,8 +798,8 @@ as one declared at 10. The whole cadence came from one line in the timer,
 `minute % 15 === 0`, applied to every book alike.
 
 **Which is backwards, because the two providers have opposite economics.**
-odds-api.io bills 500 per *day* per league; The Odds API bills 500 per *month*
-across both. Polling them at one rate means either starving the cheap one or
+odds-api.io bills 500 per *day* per league; each Odds API account bills 500 per
+*month*, and there are two of them (see D25 for how they are allocated). Polling them at one rate means either starving the cheap one or
 draining the expensive one, and it was draining the expensive one: the anchor was
 being offered 96 ticks a day against a monthly allowance. The account was down to
 49 of 500 with two days left in the period, which is what prompted looking.
@@ -831,3 +831,38 @@ that is a worst case rather than a forecast: requests are spent only while a
 fixture is still pending an open, and the pending set empties as books post their
 lines. If it ever bites, the fix is one number in the YAML, which is now a number
 that means something.
+
+## D25 — One Odds API account per league, not one per role.
+
+The plan allocated the two accounts by role: one for opening polls, one for
+closing captures, reasoning that a continuous job and a bursty job have
+different rhythms and should not share. Measured after a month:
+
+| account | role | used |
+|---|---|---|
+| A | both leagues' anchor opens | **451 / 500** |
+| B | both leagues' closes | 102 / 500 |
+
+553 of 1000 requests used, and one account at 90% while the other sat at 20%.
+Role is the wrong axis precisely *because* the rhythms differ: it puts every
+league's continuous half on one allowance and every league's bursty half on the
+other, so the split is as lopsided as the rhythms are.
+
+Per league, both land near 58%. It also matches how odds-api.io credentials were
+already allocated (D7), so both providers now answer "which key?" the same way,
+and a league that exhausts its quota can no longer starve the other one.
+
+**What this gives up.** A third league needs a third account, or has to share one
+and reintroduce the coupling. Role-based scales to any number of leagues on two
+accounts, which is what the plan was buying. That trade is worth making at two
+leagues and should be revisited at four, not defended.
+
+**Which league got which account** matters this week and not after: the account
+with 49 requests left went to the league that does not play again until after the
+1 September reset, and the healthy one to the league playing tonight.
+
+**The failure mode this hides.** `api_key()` falls back to the shared
+`THE_ODDS_API_KEY` when a league's own variable is missing, so a credential the
+workflow forgets to inject does not fail — it quietly bills the wrong account
+until that account runs out. A test asserts every credential the config names is
+actually passed by the workflow.

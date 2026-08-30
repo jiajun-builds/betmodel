@@ -100,7 +100,7 @@ odds:
       role: anchor               # never bet, never displayed; de-bias input only
       poll_interval_minutes: 180 # was a predicted 12h window that missed 17% of
                                  # opens; polling is cheaper than being wrong
-      credential: opens
+      credential: csl
       schema_prefix: pinnacle
     - key: betfair_ex_eu
       label: Betfair Exchange EU
@@ -114,7 +114,7 @@ odds:
       schema_prefix: null
 
   close:
-    credential: closes
+    credential: csl
     books: [pinnacle, betfair_ex_eu, betfair_ex_uk]
     # Was 60 minutes on a 10-minute trigger, which is six ticks a fixture and
     # still only reached the target band on 27% of them, worst case 33.6 minutes

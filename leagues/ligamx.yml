@@ -109,7 +109,7 @@ odds:
       # Opening lines are irreproducible and no provider sells opener history,
       # so capture starts now even though nothing consumes it yet.
       poll_interval_minutes: 180
-      credential: opens
+      credential: ligamx
       schema_prefix: pinnacle
     - key: betfair_ex_eu
       label: Betfair Exchange EU
@@ -123,7 +123,7 @@ odds:
       schema_prefix: polymarket
 
   close:
-    credential: closes
+    credential: ligamx
     books: [pinnacle, betfair_ex_eu]
     # 20 -> 15 to match the other league. Measured here: the capture that becomes
     # the close sits at p90 9.6 minutes before kickoff and worst case 14.6, so a

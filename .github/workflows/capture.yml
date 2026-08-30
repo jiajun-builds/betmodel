@@ -82,7 +82,12 @@ jobs:
           ODDS_API_IO_KEY_CSL: ${{ secrets.ODDS_API_IO_KEY_CSL }}
           ODDS_API_IO_KEY_LIGAMX: ${{ secrets.ODDS_API_IO_KEY_LIGAMX }}
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
-          THE_ODDS_API_KEY_OPENS: ${{ secrets.THE_ODDS_API_KEY_OPENS }}
+          # One account per league, not one per role. Allocating by role put both
+          # leagues' anchor polling on a single monthly allowance while the other
+          # account sat at 20% used; per league they land near 58% each, and one
+          # league exhausting its quota can no longer starve the other.
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
         # Not `|| true`. Swallowing the exit code costs the only failure signal
         # there is, and it once reported this job green for a run that crashed on
         # a missing import.
@@ -101,7 +106,8 @@ jobs:
         if: always() && steps.plan.outputs.only != 'opens'
         env:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
-          THE_ODDS_API_KEY_CLOSES: ${{ secrets.THE_ODDS_API_KEY_CLOSES }}
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
         run: betmodel ${{ steps.plan.outputs.league }} capture-closes
              ${{ inputs.dry_run && '--dry-run' || '' }}
 
