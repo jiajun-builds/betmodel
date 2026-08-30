@@ -239,8 +239,22 @@ class BookConfig:
         _one_of(self.role, BOOK_ROLES, f"{where}.role")
         if not self.key or self.key != self.key.lower():
             raise ConfigError(f"{where}: key must be lowercase")
-        if self.poll_interval_minutes is not None and self.poll_interval_minutes <= 0:
-            raise ConfigError(f"{where}.poll_interval_minutes must be > 0")
+        if self.poll_interval_minutes is not None:
+            if self.poll_interval_minutes <= 0:
+                raise ConfigError(f"{where}.poll_interval_minutes must be > 0")
+            # The interval is applied as "minutes since midnight is a multiple of
+            # this", so one that does not divide the day evenly would fire at an
+            # inconsistent time each day and skip the slot straddling midnight.
+            if 1440 % self.poll_interval_minutes:
+                raise ConfigError(
+                    f"{where}.poll_interval_minutes must divide 1440 evenly, "
+                    f"got {self.poll_interval_minutes}")
+            # The timer fires every five minutes, so a book asking for a finer
+            # cadence than that would simply never come due on some slots.
+            if self.poll_interval_minutes % 5:
+                raise ConfigError(
+                    f"{where}.poll_interval_minutes must be a multiple of the "
+                    f"5-minute timer tick, got {self.poll_interval_minutes}")
         # The published legacy column names are derived from the key downstream.
         # A prefix that does not follow "<key>_open" is a frozen legacy name and
         # silently blanks every price on the board if it drifts, so it has to be

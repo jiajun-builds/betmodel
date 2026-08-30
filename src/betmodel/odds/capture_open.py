@@ -110,6 +110,36 @@ def books_for(config: LeagueConfig, provider: str) -> tuple[BookConfig, ...]:
     return tuple(b for b in config.odds.polled_books if b.provider == provider)
 
 
+def books_due(
+    config: LeagueConfig, provider: str, now: datetime
+) -> tuple[BookConfig, ...]:
+    """Those of ``provider``'s books whose own interval has come round.
+
+    ``poll_interval_minutes`` was carried into the config for every book and then
+    never read: `polled_books` tests it for truthiness and the number itself was
+    ignored, so a book declared at 180 minutes was polled exactly as often as one
+    declared at 10. The intervals in the YAML described an intent the code did
+    not implement, which is worse than not having them.
+
+    Paced off the clock rather than off stored state. The timer fires on fixed
+    five-minute boundaries, so "minutes since midnight is a multiple of the
+    interval" needs nothing remembered between runs, cannot drift, and is
+    trivially predictable when reading a log. Intervals must divide the day
+    evenly for that to hold, which the schema enforces.
+
+    A missed tick skips that slot rather than delaying it. That is acceptable
+    where it applies: the anchor's opening line appears a median of 165 hours
+    before kickoff, so losing one three-hour slot costs nothing. It would not be
+    acceptable for closes, which is why those are gated on kickoff proximity by
+    the timer instead, and never on a modulus.
+    """
+    minutes = now.hour * 60 + now.minute
+    return tuple(
+        b for b in books_for(config, provider)
+        if minutes % b.poll_interval_minutes == 0
+    )
+
+
 def _row(
     *, fixture: Fixture, book: BookConfig, prices: dict, event: dict, fetched_at: str
 ) -> dict:
@@ -313,8 +343,9 @@ def capture_opens(
     all_unpriced: list[tuple[str, str, str]] = []
 
     for provider in providers:
-        books = books_for(config, provider)
+        books = books_due(config, provider, now)
         if not books:
+            log.info("%s/%s: not due this tick, spending nothing", league, provider)
             continue
         pending = pending_fixtures(
             league, config, books=books, now=now,

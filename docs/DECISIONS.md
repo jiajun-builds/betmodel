@@ -788,3 +788,46 @@ succeeded, 5 failed.
 **It reports without failing the refresh.** Failing its host would conflate a
 capture outage with a refresh outage, and the refresh has its own alert for its
 own failures.
+
+## D24 — The poll interval was in every config and read by nothing.
+
+Every book carried `poll_interval_minutes` — 10 for the bet books, 180 for the
+anchor — and the number was never used. `polled_books` tested it for truthiness
+and threw it away, so a book declared at 180 minutes was polled exactly as often
+as one declared at 10. The whole cadence came from one line in the timer,
+`minute % 15 === 0`, applied to every book alike.
+
+**Which is backwards, because the two providers have opposite economics.**
+odds-api.io bills 500 per *day* per league; The Odds API bills 500 per *month*
+across both. Polling them at one rate means either starving the cheap one or
+draining the expensive one, and it was draining the expensive one: the anchor was
+being offered 96 ticks a day against a monthly allowance. The account was down to
+49 of 500 with two days left in the period, which is what prompted looking.
+
+| | before | after |
+|---|---|---|
+| bet books (500/day each) | every 15m, 288/day, 58% of cap | every 10m, 432/day worst case |
+| anchor (500/month, shared) | every 15m, 192/day | every 180m, 16/day |
+
+**Paced off the clock, not off stored state.** "Minutes since midnight is a
+multiple of the interval" needs nothing remembered between runs, cannot drift,
+and is predictable from a timestamp in a log. The schema now enforces what that
+requires: the interval must divide 1440 evenly, or it would fire at a different
+wall-clock time each day and skip the slot straddling midnight; and it must be a
+multiple of the five-minute tick, or the book would simply never come due.
+
+**A missed tick skips its slot rather than delaying it**, which is only
+acceptable because of what it applies to. The anchor's opening line appears a
+median of 165 hours before kickoff, so losing a three-hour slot costs nothing.
+Closes have a hard deadline and no backfill at any price, so they are gated on
+kickoff proximity in the timer and never on a modulus.
+
+**The timer now offers an open tick every five minutes** and lets the capture
+decline it. Pacing belongs where the differing economics can be expressed, which
+is the league config, not one modulus covering every book.
+
+**Honest about the remaining risk.** 432/day is 86% of the bet books' cap, and
+that is a worst case rather than a forecast: requests are spent only while a
+fixture is still pending an open, and the pending set empties as books post their
+lines. If it ever bites, the fix is one number in the YAML, which is now a number
+that means something.

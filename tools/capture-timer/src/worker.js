@@ -13,8 +13,10 @@
  *   every 5 minutes   close tick, and only when a fixture is near kickoff.
  *                     Gated because an ungated 5-minute tick would spend the
  *                     monthly allowance in days.
- *   every 15 minutes  open tick. Ungated: the pending set is what decides
- *                     whether anything is spent, and an idle tick costs nothing.
+ *   every 5 minutes   open tick, offered every time. What it costs is decided
+ *                     downstream by two gates: each book's own
+ *                     poll_interval_minutes, and the pending set. A book that is
+ *                     not due, or a slate with nothing pending, reads no odds.
  *
  * Leagues are discovered from the published manifest rather than listed here, so
  * adding one needs no change to this file.
@@ -122,7 +124,6 @@ async function dispatch(env, league, kind) {
 export default {
   async scheduled(event, env, ctx) {
     const now = Date.now();
-    const minute = new Date(now).getUTCMinutes();
     const ids = await leagues(env);
     if (ids.length === 0) {
       console.log("no leagues discovered; nothing dispatched");
@@ -130,9 +131,13 @@ export default {
     }
 
     for (const league of ids) {
-      if (minute % 15 === 0) {
-        ctx.waitUntil(dispatch(env, league, "open-tick"));
-      }
+      // Dispatched every tick. This used to fire only on the quarter hours,
+      // which paced every book alike -- including the anchor, whose allowance is
+      // monthly rather than daily. The pacing now lives per book in the league
+      // config, where the differing economics can actually be expressed, so the
+      // timer's job is just to offer each tick and let the capture decline it.
+      // An open tick with nothing due reads no odds and spends nothing.
+      ctx.waitUntil(dispatch(env, league, "open-tick"));
       if (await closeIsDue(env, league, now)) {
         ctx.waitUntil(dispatch(env, league, "close-tick"));
       } else {
