@@ -92,6 +92,7 @@ jobs:
         # there is, and it once reported this job green for a run that crashed on
         # a missing import.
         run: betmodel ${{ steps.plan.outputs.league }} capture-opens
+             ${{ github.event_name == 'workflow_dispatch' && '--ignore-schedule' || '' }}
              ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Commit opening lines

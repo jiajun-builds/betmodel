@@ -77,3 +77,36 @@ def test_an_interval_finer_than_the_timer_is_refused():
 
 def test_a_valid_interval_is_accepted():
     assert _book(poll_interval_minutes=15).poll_interval_minutes == 15
+
+
+def test_a_manual_run_can_ignore_the_pacing(monkeypatch, tmp_path):
+    """The clock must not silence the tool you reach for when something is wrong.
+
+    Verifying the credential change hours before a matchday, a dispatched capture
+    ran at 11:01, declined every provider because 11:01 is not a multiple of 10 or
+    180, and reported success having done nothing. A scheduled tick skipping its
+    turn is the design; a human asking for one and getting a no-op is not.
+    """
+    from betmodel.odds import capture_open as module
+
+    seen = []
+
+    def _fake_pending(league, config, *, books, now, **kw):
+        seen.append(tuple(b.key for b in books))
+        return []
+
+    monkeypatch.setattr(module, "pending_fixtures", _fake_pending)
+    at_an_odd_minute = _at(11, 1)
+
+    module.capture_opens(
+        "csl", CSL, now=at_an_odd_minute, dry_run=True,
+        history_path=str(tmp_path / "h.csv"), fixtures_path=str(tmp_path / "f.csv"),
+    )
+    assert seen == [], "an ordinary tick at 11:01 is due for nothing"
+
+    module.capture_opens(
+        "csl", CSL, now=at_an_odd_minute, dry_run=True, ignore_schedule=True,
+        history_path=str(tmp_path / "h.csv"), fixtures_path=str(tmp_path / "f.csv"),
+    )
+    assert seen, "an override must poll despite the clock"
+    assert {b for group in seen for b in group} == {"onexbet", "duel", "pinnacle"}

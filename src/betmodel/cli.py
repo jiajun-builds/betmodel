@@ -72,6 +72,7 @@ def _capture_opens(league: str, args) -> int:
     stats = capture_opens(
         league, load_league(league), dry_run=args.dry_run,
         providers=tuple(args.providers) if args.providers else ("oddsapiio", "theoddsapi"),
+        ignore_schedule=args.ignore_schedule,
     )
     log.info("%s: opens %s", league, stats)
     return 0
@@ -220,6 +221,10 @@ def build_parser() -> argparse.ArgumentParser:
                              "(season end); refused by default")
     parser.add_argument("--limit", type=int, default=None,
                         help="cap how many per-match fetches one xG run makes")
+    parser.add_argument("--ignore-schedule", action="store_true",
+                        help="poll every book now, whatever its poll interval; "
+                             "for a manual run, which is reached for when "
+                             "something is already wrong")
     parser.add_argument("-v", "--verbose", action="store_true")
     return parser
 

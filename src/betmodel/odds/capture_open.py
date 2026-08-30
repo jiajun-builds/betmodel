@@ -320,6 +320,7 @@ def capture_opens(
     config: LeagueConfig,
     *,
     providers: tuple[str, ...] = ("oddsapiio", "theoddsapi"),
+    ignore_schedule: bool = False,
     now: datetime | None = None,
     dry_run: bool = False,
     history_path: str | None = None,
@@ -343,7 +344,8 @@ def capture_opens(
     all_unpriced: list[tuple[str, str, str]] = []
 
     for provider in providers:
-        books = books_due(config, provider, now)
+        books = (books_for(config, provider) if ignore_schedule
+                 else books_due(config, provider, now))
         if not books:
             log.info("%s/%s: not due this tick, spending nothing", league, provider)
             continue
