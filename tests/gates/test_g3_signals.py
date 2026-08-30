@@ -198,6 +198,51 @@ def rendered(request):
     return request.param, payload, output
 
 
+#: The most of a payload that may be exempted before this gate stops meaning
+#: anything. Every field in ACCEPTED is a field G3 no longer checks, and the
+#: pressure is always one field at a time with a good reason attached, so nothing
+#: catches the erosion except a number that has to be argued with.
+#:
+#: A golden test does not fail when it decays. It keeps passing while checking
+#: less, which is the failure mode worth a guard.
+MAX_ACCEPTED_FRACTION = 0.25
+
+
+def test_the_accepted_list_has_not_eaten_the_gate(rendered):
+    """The exemptions must stay a footnote, not become the content.
+
+    If this fails, the answer is not to raise the bound. It is that the frozen
+    baseline no longer describes the engine closely enough to be evidence, and it
+    should be re-captured from production with the differences re-derived from
+    scratch -- or this gate retired honestly rather than kept as decoration.
+    """
+    league, payload, _ = rendered
+    fields = set(payload["rows"][0])
+    exempt = ACCEPTED & fields
+    fraction = len(exempt) / len(fields)
+    assert fraction <= MAX_ACCEPTED_FRACTION, (
+        f"{league}: {len(exempt)} of {len(fields)} fields are exempted "
+        f"({fraction:.0%}); this gate is checking less than it appears to"
+    )
+
+
+def test_every_exemption_is_still_a_field_that_exists(rendered):
+    """An exemption for a field nobody publishes any more is dead weight.
+
+    It also hides the next one: a stale entry makes ACCEPTED look larger than the
+    surface it actually covers, so the bound above stops measuring what it means.
+    """
+    _, payload, _ = rendered
+    fields = set(payload["rows"][0])
+    for name in ACCEPTED:
+        # Each league publishes its own field set, so an exemption need only exist
+        # in one of them -- but in neither means it is stale.
+        assert any(
+            name in set(_rendered(other)[0]["rows"][0])
+            for other in ("csl", "ligamx")
+        ), f"{name} is exempted but no league publishes it"
+
+
 def test_the_field_set_and_its_order_are_unchanged(rendered):
     """The board reads these by name, and one prefix is frozen at a historical
     spelling precisely because renaming it blanks every price it names."""

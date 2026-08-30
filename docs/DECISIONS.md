@@ -888,12 +888,23 @@ captured from production. Nothing else in the suite covers that surface. The
 trade would be a live regression test for 222 lines of dead-to-production code,
 which is the wrong way round.
 
-**What is deliberately given up.** The baseline ages: it is frozen at the moment
-of the merge, and every legitimate future change to the engine has to be
-registered as an accepted difference rather than silently passing. That is a cost
-paid on purpose — it is the same mechanism that made every behaviour change in
-this migration explicit, and the file's list of accepted differences is the record
-of them.
+**What is deliberately given up, and what now bounds it.** The baseline ages: it
+is frozen at the moment of the merge, so every legitimate future change to the
+engine has to be registered as an accepted difference rather than silently
+passing. That much is the same mechanism that made every behaviour change in this
+migration explicit.
+
+The danger is not that the gate breaks. It is that each exemption is a field G3
+stops checking, the pressure to add one always arrives singly and with a good
+reason, and a golden test that has been hollowed out keeps passing while covering
+less. So the exemption list is bounded: at most a quarter of the published fields,
+currently 6 of 38 and 6 of 31. If that bound is ever hit, the answer is not to
+raise it — it is that the frozen baseline no longer describes the engine closely
+enough to be evidence, and it should be re-captured with the differences
+re-derived, or the gate retired honestly instead of kept as decoration. A second
+test refuses an exemption naming a field no league publishes any more, since a
+stale entry makes the list look larger than the surface it covers and quietly
+breaks the measurement.
 
 The module is relabelled so no one mistakes it for a publishing path. Nothing
 should ever be written against those shapes again.
