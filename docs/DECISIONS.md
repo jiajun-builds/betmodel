@@ -866,3 +866,34 @@ with 49 requests left went to the league that does not play again until after th
 workflow forgets to inject does not fail — it quietly bills the wrong account
 until that account runs out. A test asserts every credential the config names is
 actually passed by the workflow.
+
+## D26 — The compatibility tree is deleted; its renderer is not.
+
+`public/legacy/` existed so the board kept working across the cutover on a
+two-field edit. The board reads `public/index.json` now, so the tree is gone,
+along with the `legacy` publish stage and its place in `all`.
+
+`publish/legacy.py` stays. Its own docstring always gave the reason: rendering
+the pre-merge shapes from the merged engine is the only way to compare its output
+against what the two pipelines actually published, field by field, against a
+frozen baseline — "gate G3, and it is worth more than the compatibility". That
+was true while the compatibility was load-bearing and it is still true now that
+it is not.
+
+**What deleting it would actually cost.** G3 is not a migration artifact that
+expires with the migration. It is a standing regression test on the signal
+engine: change how a price is picked, how a probability is de-biased, how a tie
+between books is broken, and thirty-eight fields per row stop matching a baseline
+captured from production. Nothing else in the suite covers that surface. The
+trade would be a live regression test for 222 lines of dead-to-production code,
+which is the wrong way round.
+
+**What is deliberately given up.** The baseline ages: it is frozen at the moment
+of the merge, and every legitimate future change to the engine has to be
+registered as an accepted difference rather than silently passing. That is a cost
+paid on purpose — it is the same mechanism that made every behaviour change in
+this migration explicit, and the file's list of accepted differences is the record
+of them.
+
+The module is relabelled so no one mistakes it for a publishing path. Nothing
+should ever be written against those shapes again.

@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-08-30T11:03:43Z",
+ "generated_at": "2026-08-30T11:48:29Z",
  "leagues": [
   {
    "id": "csl",
@@ -12,7 +12,7 @@
    "caveat": null,
    "ev_min": 0.2,
    "allow_draw": false,
-   "updated_at": "2026-08-30T11:03:43Z",
+   "updated_at": "2026-08-30T11:48:29Z",
    "files": {
     "signals": "csl/signals.json",
     "results": "csl/results.json",
@@ -29,7 +29,7 @@
    "caveat": "Signals fire at EV >= 10%, backed by a 427-opener walk-forward backtest, but the provenance gate is not yet reflected downstream. Left unvalidated until the board reads the threshold from the manifest.\n",
    "ev_min": 0.1,
    "allow_draw": true,
-   "updated_at": "2026-08-30T11:03:43Z",
+   "updated_at": "2026-08-30T11:48:29Z",
    "files": {
     "signals": "ligamx/signals.json",
     "results": "ligamx/results.json",

@@ -1,12 +1,17 @@
-"""The pre-merge JSON shapes, kept only until the board reads the manifest.
+"""The pre-merge JSON shapes. No longer published; kept as the gate-G3 fixture.
 
-DELETE THIS FILE, and ``public/legacy/``, once ``myevbettracker`` reads
-``public/index.json``. Nothing else should ever be written against these shapes.
+The board reads ``public/index.json`` now, so the compatibility tree is deleted
+and nothing renders these shapes into ``public/`` any more. Nothing should ever be
+written against them again.
 
-They exist so the downstream board keeps working across the cutover on a two-field
-edit, and because rendering them from the merged engine is the only way to compare
-its output with what the two pipelines actually published. That comparison is gate
-G3, and it is worth more than the compatibility.
+This module survives for the reason its own docstring always gave for valuing it:
+rendering the old shapes from the merged engine is the only way to compare its
+output against what the two pipelines actually published, field by field, against
+a frozen baseline. That comparison is gate G3, and it was worth more than the
+compatibility even while the compatibility was load-bearing.
+
+Deleting it would trade a standing regression test on the signal engine for 222
+lines. The migration it proved is finished; the protection it gives is not.
 
 Two leagues, two shapes, and the differences are not cosmetic:
 
