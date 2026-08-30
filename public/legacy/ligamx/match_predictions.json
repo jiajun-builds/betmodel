@@ -2,25 +2,11 @@
  "meta": {
   "competition_code": "MEX",
   "season": "Apertura 2026",
-  "updated_at": "2026-08-30T00:56:17+00:00",
+  "updated_at": "2026-08-30T01:31:18+00:00",
   "model_name": "Negative Binomial with Dixon-Coles Time Decay",
   "model_version": "v1.0"
  },
  "rows": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-08-29-club-america-puebla",
-   "round": "",
-   "match_date": "2026-08-29",
-   "kickoff_at": "2026-08-30T01:05:00Z",
-   "home_team": "Club America",
-   "away_team": "Puebla",
-   "home_win_prob": 0.712092,
-   "draw_prob": 0.185034,
-   "away_win_prob": 0.102874,
-   "home_win_fair_odds": 1.4043,
-   "draw_fair_odds": 5.4044,
-   "away_win_fair_odds": 9.7206
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-08-29-santos-laguna-tigres-uanl",
    "round": "",
@@ -62,6 +48,20 @@
    "home_win_fair_odds": 1.6963,
    "draw_fair_odds": 4.7992,
    "away_win_fair_odds": 4.9473
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-05-club-america-tijuana",
+   "round": "",
+   "match_date": "2026-09-05",
+   "kickoff_at": "2026-09-06T01:00:00Z",
+   "home_team": "Club America",
+   "away_team": "Tijuana",
+   "home_win_prob": 0.59788,
+   "draw_prob": 0.225303,
+   "away_win_prob": 0.176817,
+   "home_win_fair_odds": 1.6726,
+   "draw_fair_odds": 4.4385,
+   "away_win_fair_odds": 5.6556
   }
  ]
 }
