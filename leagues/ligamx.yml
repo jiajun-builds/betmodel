@@ -200,7 +200,23 @@ signals:
   ev_min: 0.10                   # fraction; backed by a 427-opener walk-forward test
   odds_cap: null                 # no cap here
   allow_draw: true
-  require_price_proof: true      # a signal needs a provably-first price, see capture_watch
+  require_price_proof: true
+  # Fifteen weighted matches before a club's fixtures may fire.
+  #
+  # Shrinkage regularises a thin rating; it does not make it bettable. Its target
+  # is the league mean, and for a promoted side that is the wrong prior -- it pulls
+  # a club nobody has seen toward average and so overrates it. Atlante, six matches
+  # in, sat 6.0 points above Pinnacle's no-vig line on its own fixture, which is
+  # the difference between a -1.5% price and a +21.3% signal.
+  #
+  # Keeping those matches in the training set costs nothing: measured walk-forward
+  # over the 48 fixtures since Atlante's first, dropping them moves log loss by
+  # +0.00008 (95% CI [-0.00176, +0.00195]). The problem is not their influence on
+  # the league, it is betting on the club itself.
+  #
+  # Self-expiring, like every threshold here: Atlante is at 5.8 and clears this in
+  # roughly half a season. Established clubs sit at 35-52, so this cannot catch one.
+  min_team_evidence: 15      # a signal needs a provably-first price, see capture_watch
   debias:
     # The model prices the draw worst and the market prices it best, so the draw
     # is replaced by Pinnacle's no-vig OPENING draw and the freed mass returned

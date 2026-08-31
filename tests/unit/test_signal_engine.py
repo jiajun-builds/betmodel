@@ -24,7 +24,7 @@ def _quote(book, side, odds, ev, proof="observed"):
     return Quote(book=book, side=side, odds=odds, ev=ev, proof=proof)
 
 
-def _decide_with(league, quotes, *, method=debias.MARKET_ANCHOR, config=None):
+def _decide_with(league, quotes, *, method=debias.MARKET_ANCHOR, config=None, thin=()):
     """``method`` is what the de-bias actually produced for this fixture.
 
     It defaults to the anchored path because that is the state every other test
@@ -37,7 +37,7 @@ def _decide_with(league, quotes, *, method=debias.MARKET_ANCHOR, config=None):
         if same:
             winner = max(same, key=lambda q: q.odds)
             best[side] = Best(winner.book, winner.odds, winner.ev)
-    return _decide(config, quotes, best, method)
+    return _decide(config, quotes, best, method, thin)
 
 
 # --------------------------------------------------------------------------- #
@@ -346,3 +346,54 @@ def test_the_cutover_expires_by_itself():
     off, so once none predates it the constant is dead and can be deleted."""
     from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER
     assert ANCHOR_PROOF_CUTOVER.tzinfo is not None, "a naive boundary would compare wrong"
+
+
+# --------------------------------------------------------------------------- #
+# thin evidence
+# --------------------------------------------------------------------------- #
+
+def test_a_club_with_too_little_history_cannot_be_bet_on():
+    """Shrinkage regularises a thin rating without making it trustworthy.
+
+    Its target is the league mean, which for a promoted side is the wrong prior:
+    it pulls a club nobody has seen toward average and therefore overrates it.
+    Measured on Atlante six matches in, the model sat 6.0 points above Pinnacle's
+    no-vig line on its own fixture -- the difference between a -1.5% price and a
+    +21.3% signal.
+    """
+    pick, state, ev, books = _decide_with(
+        "csl", [_quote("onexbet", "home", 3.0, 0.25)], thin=("Atlante",)
+    )
+    assert state == "thin_evidence"
+    assert books == (), "surfaced, never bet"
+    assert (pick, ev) == ("home", 0.25), "the edge is still worth showing"
+
+
+def test_a_thin_club_is_reported_before_a_missing_anchor():
+    """Both mean the number is not to be trusted, but only one is fixable by a
+    request: an anchor can be fetched, matches can only be played."""
+    _, state, _, _ = _decide_with(
+        "csl", [_quote("onexbet", "home", 3.0, 0.25)],
+        method=debias.RAW, thin=("Atlante",),
+    )
+    assert state == "thin_evidence"
+
+
+def test_both_clubs_are_checked_not_just_the_one_backed():
+    """A fixture is only as well understood as its worse understood side."""
+    for thin in (("Home FC",), ("Away FC",)):
+        _, state, _, _ = _decide_with(
+            "csl", [_quote("onexbet", "home", 3.0, 0.25)], thin=thin
+        )
+        assert state == "thin_evidence", thin
+
+
+def test_a_league_that_sets_no_threshold_is_unaffected():
+    _, state, _, books = _decide_with("csl", [_quote("onexbet", "home", 3.0, 0.25)])
+    assert (state, books) == ("bet", ("onexbet",))
+
+
+def test_missing_team_stats_disables_the_check_rather_than_muting_the_league(tmp_path):
+    """Failing the other way would make a missing sidecar look like a drought."""
+    from betmodel.signals.engine import team_evidence
+    assert team_evidence("csl", str(tmp_path / "absent.csv")) == {}

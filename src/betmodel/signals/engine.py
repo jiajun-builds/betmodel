@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -65,6 +66,10 @@ STATE_ODDS_CAP = "odds_cap"
 #: the ones to judge with -- the anchor had not been captured when this ran.
 #: Surfaced, never bet.
 STATE_UNANCHORED = "unanchored"
+#: The edge cleared, but one of the teams has too little history for its rating to
+#: be worth betting on. Surfaced, never bet -- and unlike the anchor, no request
+#: fixes it: only matches do.
+STATE_THIN_EVIDENCE = "thin_evidence"
 STATE_NONE = ""
 
 
@@ -211,6 +216,28 @@ def _side_index(side: str) -> int:
     return {"home": 0, "draw": 1, "away": 2}[side]
 
 
+def team_evidence(league: str, path: str | None = None) -> dict[str, float]:
+    """Weighted matches behind each team's rating, from the fitted stats.
+
+    Empty when the file is missing, which disables the check rather than
+    suppressing every signal: a league that has not fitted yet has no signals to
+    suppress anyway, and failing the other way would make a missing sidecar look
+    like a league-wide edge drought.
+    """
+    stats = path or paths.for_league(league).team_stats_csv
+    if not os.path.exists(stats):
+        log.warning("%s: no team_stats at %s; team evidence unchecked", league, stats)
+        return {}
+    frame = pd.read_csv(stats)
+    if "Team" not in frame or "WeightedMatches" not in frame:
+        return {}
+    return {
+        str(t): float(w)
+        for t, w in zip(frame["Team"], frame["WeightedMatches"])
+        if pd.notna(w)
+    }
+
+
 def _anchor_is_a_proven_opener(anchor: dict) -> bool:
     """Whether this anchor may be used to calibrate.
 
@@ -252,6 +279,7 @@ def build_signals(
     """
     now = now or datetime.now(timezone.utc)
     model = _model_probabilities(league, simulations_path)
+    evidence = team_evidence(league) if config.signals.min_team_evidence else {}
     opens = reduce_module.collapse_opens(
         league, config, history_path=history_path, watch_path=watch_path
     )
@@ -327,7 +355,15 @@ def build_signals(
         allowed = {s: b for s, b in best.items() if s in config.signals.sides}
         top_side = max(allowed, key=lambda s: allowed[s].ev) if allowed else ""
 
-        pick, state, pick_ev, books = _decide(config, quotes, best, method)
+        # Both teams, because a fixture is only as well understood as its worse
+        # understood side: a strong rating for one club tells you nothing about a
+        # match against a club nobody has seen.
+        thin = tuple(
+            t for t in (fixture.home, fixture.away)
+            if config.signals.min_team_evidence
+            and evidence.get(t, float("inf")) < config.signals.min_team_evidence
+        )
+        pick, state, pick_ev, books = _decide(config, quotes, best, method, thin)
         signals.append(Signal(
             fixture_id=fixture_id(config, fixture),
             home_team=fixture.home, away_team=fixture.away,
@@ -343,7 +379,8 @@ def build_signals(
 
 
 def _decide(
-    config: LeagueConfig, quotes: list[Quote], best: dict[str, Best], method: str
+    config: LeagueConfig, quotes: list[Quote], best: dict[str, Best], method: str,
+    thin: tuple[str, ...] = (),
 ) -> tuple[str, str, float | None, tuple[str, ...]]:
     """Pick the side, then decide whether it is bettable."""
     signals_config = config.signals
@@ -355,6 +392,15 @@ def _decide(
     chosen = candidates[pick]
     if chosen.ev <= signals_config.ev_min:
         return NO_PICK, STATE_NONE, None, ()
+
+    # The edge cleared, but one of the clubs is barely in the training window, and
+    # shrinkage regularises a thin rating without making it trustworthy: its target
+    # is the league mean, which for a promoted side is the wrong prior and
+    # overrates them. Reported before the anchor check because it is the more
+    # fundamental problem and the one no request can fix -- an anchor can be
+    # fetched, matches can only be played.
+    if thin:
+        return pick, STATE_THIN_EVIDENCE, chosen.ev, ()
 
     # The edge cleared, but on the raw grid: this league is configured to judge
     # against the anchor and the anchor was not captured when this ran. Surfaced

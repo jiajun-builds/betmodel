@@ -495,6 +495,23 @@ class SignalConfig:
     odds_cap: float | None = None
     allow_draw: bool = False
     require_price_proof: bool = False
+    #: Weighted matches a team needs before a fixture of theirs may fire.
+    #:
+    #: Shrinkage regularises a thin rating; it does not make it trustworthy. The
+    #: empirical-Bayes target is the *league* mean, and for a promoted side that is
+    #: the wrong prior -- it pulls a team we have barely seen toward average and
+    #: therefore overrates them. Measured on Atlante, six matches in: the model put
+    #: them 6.0 points above Pinnacle's no-vig line on their own fixture, which
+    #: turned a -1.5% price into a +21.3% signal.
+    #:
+    #: Weighted rather than raw, because that is what the coefficients actually
+    #: rest on. For the case this exists for -- a side promoted mid-window, whose
+    #: matches are all recent and barely decayed -- the two agree within 5%
+    #: (Atlante: 6 raw, 5.8 weighted), while weighting also covers a team that has
+    #: stopped playing.
+    #:
+    #: Zero disables the check.
+    min_team_evidence: float = 0.0
     debias: DebiasConfig = field(default_factory=DebiasConfig)
 
     def __post_init__(self) -> None:
@@ -506,6 +523,8 @@ class SignalConfig:
             )
         if self.odds_cap is not None and self.odds_cap <= 1.0:
             raise ConfigError(f"signals.odds_cap must be > 1.0, got {self.odds_cap}")
+        if self.min_team_evidence < 0:
+            raise ConfigError("signals.min_team_evidence must be >= 0")
 
     @property
     def sides(self) -> tuple[str, ...]:
@@ -518,6 +537,7 @@ class SignalConfig:
             odds_cap=(float(raw["odds_cap"]) if raw.get("odds_cap") is not None else None),
             allow_draw=bool(raw.get("allow_draw", False)),
             require_price_proof=bool(raw.get("require_price_proof", False)),
+            min_team_evidence=float(raw.get("min_team_evidence", 0.0)),
             debias=DebiasConfig.parse(raw.get("debias", {}) or {}),
         )
 

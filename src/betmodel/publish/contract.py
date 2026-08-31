@@ -49,8 +49,10 @@ STATE_ODDS_CAP = "odds_cap"
 #: Would have fired, but the de-bias anchor was missing when it ran. Published
 #: so the board can show it and say why, never with a `bet` attached.
 STATE_UNANCHORED = "unanchored"
+#: Would have fired, but a club in it has too little history to bet on.
+STATE_THIN_EVIDENCE = "thin_evidence"
 STATE_NONE = ""
-STATES = (STATE_BET, STATE_ODDS_CAP, STATE_UNANCHORED, STATE_NONE)
+STATES = (STATE_BET, STATE_ODDS_CAP, STATE_UNANCHORED, STATE_THIN_EVIDENCE, STATE_NONE)
 
 
 class ContractError(ValueError):
