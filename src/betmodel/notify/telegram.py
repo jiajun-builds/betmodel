@@ -62,6 +62,8 @@ KEY_FIELDS = ("fixture_id", "side", "book")
 #: with a caveat attached would add noise to a decision rather than information.
 #: It stays in the published payload for diagnosis; nothing acts on it.
 STATE_UNANCHORED = "unanchored"
+#: A club in the fixture has too little history for its rating to be bettable.
+STATE_THIN_EVIDENCE = "thin_evidence"
 
 
 # --------------------------------------------------------------------------- #
@@ -180,6 +182,11 @@ def withdrawal_reason(config: LeagueConfig, before: dict, after: dict) -> str:
     side = before["bet"]["side"]
     if after.get("state") == STATE_UNANCHORED:
         return "锚定盘开盘价不可用，信号无法校准"
+    if after.get("state") == STATE_THIN_EVIDENCE:
+        return (
+            f"该场有球队的历史样本不足（少于 {config.signals.min_team_evidence:g} 场加权），"
+            "模型对其实力的估计不可靠，不作为可下注信号"
+        )
     if after.get("state") == "odds_cap":
         return "赔率超出该联赛上限"
 
@@ -191,9 +198,14 @@ def withdrawal_reason(config: LeagueConfig, before: dict, after: dict) -> str:
     was = before["bet"].get("odds")
     moved = was is not None and abs(odds - was) > 1e-9
     cause = f"赔率从 {was:.2f} 变为 {odds:.2f}" if moved else "模型更新后概率变化，赔率未动"
-    if ev is not None:
+    if ev is None:
+        return cause
+    # Only call it a threshold miss when it actually is one. A signal can be
+    # withdrawn for a reason that leaves the edge intact, and saying "EV +0.213 is
+    # below +0.100" in that case is not merely unhelpful, it is false.
+    if ev <= config.signals.ev_min:
         return f"{cause}；EV 现为 {ev:+.3f}，低于阈值 {config.signals.ev_min:+.3f}"
-    return cause
+    return f"{cause}；EV 现为 {ev:+.3f}"
 
 
 # --------------------------------------------------------------------------- #

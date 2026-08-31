@@ -308,3 +308,28 @@ def test_a_pick_that_switches_sides_withdraws_the_old_one_and_fires_the_new():
 
     assert len(telegram.withdrawn_signals([after], [before])) == 1
     assert len(telegram.new_signals([after], [before])) == 1
+
+
+def test_a_thin_evidence_withdrawal_says_so_rather_than_blaming_the_edge():
+    """The edge is intact; the club is the problem.
+
+    The fall-through said "EV +0.213, below the threshold +0.100", which is not
+    merely unhelpful -- it is arithmetically false, and it points the reader at
+    the wrong thing to check.
+    """
+    after = _no_longer_firing(ev=0.213, state="thin_evidence")
+    reason = telegram.withdrawal_reason(load_league("ligamx"), _signal(), after)
+    assert "样本不足" in reason
+    assert "低于阈值" not in reason
+
+
+def test_an_edge_that_survives_is_not_reported_as_a_threshold_miss():
+    after = _no_longer_firing(ev=0.40)
+    reason = telegram.withdrawal_reason(load_league("csl"), _signal(), after)
+    assert "低于阈值" not in reason and "+0.400" in reason
+
+
+def test_an_edge_that_really_fell_still_names_the_threshold():
+    after = _no_longer_firing(ev=0.05)
+    reason = telegram.withdrawal_reason(load_league("csl"), _signal(), after)
+    assert "低于阈值" in reason
