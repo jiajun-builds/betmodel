@@ -134,7 +134,8 @@ def test_an_idle_tick_spends_nothing(tmp_path):
         history_path=_history(tmp_path, []),
         watch_path=str(tmp_path / "watch.csv"),
     )
-    assert stats == {"pending": 0, "captured": 0, "appended": 0, "unpriced": 0, "requests": 0}
+    assert stats == {"pending": 0, "captured": 0, "appended": 0, "unpriced": 0,
+                     "requests": 0, "refused": 0}
 
 
 def test_a_dry_run_decides_without_spending(tmp_path):
@@ -170,3 +171,52 @@ def test_a_named_credential_falls_back_to_the_shared_key(monkeypatch):
     monkeypatch.delenv("ODDS_API_IO_KEY_CSL", raising=False)
     monkeypatch.setenv("ODDS_API_IO_KEY", "shared")
     assert oddsapiio.api_key("csl") == "shared"
+
+
+def test_an_account_under_its_floor_is_a_refusal_not_an_empty_tick(tmp_path, monkeypatch):
+    """The two look identical in the numbers, and only one of them is fine.
+
+    A refused tick returns no rows and spends no requests, exactly like a tick
+    with nothing to do, and the workflow step exits green either way. That is how
+    the CSL anchor stopped being captured for three days without anything
+    noticing. `refused` is what tells them apart.
+    """
+    def _refuse(*args, **kwargs):
+        raise co.QuotaRefused("THE_ODDS_API_KEY_CSL has 48 requests left, floor is 50")
+
+    monkeypatch.setattr(co, "_capture_theoddsapi", _refuse)
+    config = load_league("csl")
+    stats = co.capture_opens(
+        "csl", config, providers=("theoddsapi",),
+        now=NOW, ignore_schedule=True,
+        fixtures_path=_fixtures(tmp_path, [("A", "B", NOW + timedelta(days=2))]),
+        history_path=_history(tmp_path, []),
+        watch_path=str(tmp_path / "watch.csv"),
+    )
+    assert stats["refused"] == 1
+    assert stats["captured"] == 0 and stats["requests"] == 0
+
+
+def test_one_provider_running_out_does_not_take_the_other_down(tmp_path, monkeypatch):
+    """The soft books and the anchor are different accounts. Losing both because
+    one is spent would turn a degraded tick into a dead one."""
+    def _refuse(*args, **kwargs):
+        raise co.QuotaRefused("out of credit")
+
+    seen = []
+
+    def _soft(league, config, pending, **kwargs):
+        seen.append("oddsapiio")
+        return [], [], 1
+
+    monkeypatch.setattr(co, "_capture_theoddsapi", _refuse)
+    monkeypatch.setattr(co, "_capture_oddsapiio", _soft)
+    stats = co.capture_opens(
+        "csl", load_league("csl"), providers=("theoddsapi", "oddsapiio"),
+        now=NOW, ignore_schedule=True,
+        fixtures_path=_fixtures(tmp_path, [("A", "B", NOW + timedelta(days=2))]),
+        history_path=_history(tmp_path, []),
+        watch_path=str(tmp_path / "watch.csv"),
+    )
+    assert seen == ["oddsapiio"], "the healthy provider still ran"
+    assert stats["refused"] == 1 and stats["requests"] == 1

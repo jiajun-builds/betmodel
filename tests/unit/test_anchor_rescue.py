@@ -100,3 +100,21 @@ def test_an_anchor_book_that_is_not_in_the_book_list_is_refused_by_the_config():
                 debias=DebiasConfig(method="market_anchor", lam=1.0, anchor_book="gone"),
             ),
         )
+
+
+def test_a_refused_fetch_is_not_reported_as_a_fetch(monkeypatch, spy):
+    """The failure this whole branch exists to stop being silent.
+
+    An account under its quota floor refuses every call while the workflow step
+    still exits green, so the numbers a tick returns look exactly like a tick that
+    found nothing. Reporting `fetched: 1` here would hide it one layer further up.
+    """
+    def refused(league, config, **kwargs):
+        return {"pending": 4, "captured": 0, "appended": 0, "requests": 0, "refused": 1}
+
+    monkeypatch.setattr(anchor_rescue, "build_signals",
+                        lambda *a, **k: [_Signal(STATE_UNANCHORED)])
+    stats = anchor_rescue.rescue("csl", load_league("csl"), capture=refused)
+    assert stats["fetched"] == 0, "nothing was fetched, so nothing was fetched"
+    assert stats["refused"] == 1
+    assert stats["stranded"] == 1

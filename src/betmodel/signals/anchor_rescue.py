@@ -86,4 +86,21 @@ def rescue(
         dry_run=dry_run,
         **kwargs,
     )
+
+    # A refusal is the case that matters most and the one easiest to miss. The
+    # rescue exists because the anchor's interval is slow, but the interval is
+    # not the only thing that can stop it: an account under its quota floor
+    # refuses every call, opens and closes alike, while every workflow step still
+    # exits green. Saying "fetched" here when nothing was fetched would put that
+    # behind the same silence the rescue was written to break.
+    if stats.get("refused"):
+        log.error(
+            "%s: %d edge(s) stranded and the anchor could not be bought -- %s is "
+            "under its quota floor. No code change fixes this; the account needs "
+            "credit, and until it has some this league is also losing closing "
+            "lines, which are unrecoverable.",
+            league, len(stranded), anchor.provider,
+        )
+        return {"stranded": len(stranded), "fetched": 0, **stats}
+
     return {"stranded": len(stranded), "fetched": 1, **stats}

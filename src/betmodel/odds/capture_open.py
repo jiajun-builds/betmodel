@@ -45,6 +45,16 @@ from betmodel.providers import oddsapiio, theoddsapi
 log = logging.getLogger(__name__)
 
 
+class QuotaRefused(RuntimeError):
+    """A metered provider was not called because the account is under its floor.
+
+    Its own exception because the caller has to be able to tell it apart from a
+    tick that legitimately found nothing: one is the pipeline working and the
+    other is the pipeline quietly not running, and they look identical in the
+    numbers a tick returns.
+    """
+
+
 @dataclass(frozen=True)
 class Pending:
     """A fixture still owed an open, and exactly which books still owe it.
@@ -289,10 +299,20 @@ def _capture_theoddsapi(
 
     quota = client.quota()
     if quota.below(config.odds.quota_floor):
+        # Raised, not just logged. A refusal here is indistinguishable in the
+        # returned stats from an honest "nothing new to capture" -- same zero
+        # rows, same zero requests -- and the workflow step still exits green, so
+        # the league silently stops anchoring and nothing downstream notices.
+        # That has already happened once: the CSL account sat under its floor for
+        # three days and only a human reading the config against the output
+        # caught it.
         log.warning("skipping: %s has %s requests left, floor is %d",
                     theoddsapi.key_env_for(credential), quota.remaining,
                     config.odds.quota_floor)
-        return [], [], 0
+        raise QuotaRefused(
+            f"{theoddsapi.key_env_for(credential)} has {quota.remaining} "
+            f"requests left, floor is {config.odds.quota_floor}"
+        )
     if dry_run:
         return [], [], 0
 
@@ -364,10 +384,12 @@ def capture_opens(
     lp = paths.for_league(league)
     history_path = history_path or lp.capture_history_csv
     watch_path = watch_path or lp.capture_watch_csv
-    stats = {"pending": 0, "captured": 0, "appended": 0, "unpriced": 0, "requests": 0}
+    stats = {"pending": 0, "captured": 0, "appended": 0, "unpriced": 0,
+             "requests": 0, "refused": 0}
 
     all_rows: list[dict] = []
     all_unpriced: list[tuple[str, str, str]] = []
+    refusals: list[str] = []
 
     for provider in providers:
         books = (books_for(config, provider) if ignore_schedule
@@ -383,12 +405,21 @@ def capture_opens(
         if not pending:
             log.info("%s/%s: nothing pending, spending nothing", league, provider)
             continue
-        if provider == "oddsapiio":
-            rows, unpriced, used = _capture_oddsapiio(
-                league, config, pending, now=now, dry_run=dry_run)
-        else:
-            rows, unpriced, used = _capture_theoddsapi(
-                league, config, pending, books, now=now, dry_run=dry_run)
+        try:
+            if provider == "oddsapiio":
+                rows, unpriced, used = _capture_oddsapiio(
+                    league, config, pending, now=now, dry_run=dry_run)
+            else:
+                rows, unpriced, used = _capture_theoddsapi(
+                    league, config, pending, books, now=now, dry_run=dry_run)
+        except QuotaRefused as exc:
+            # One provider being out of credit must not stop the other: the soft
+            # books and the anchor are different accounts, and losing both
+            # because one is spent would turn a degraded tick into a dead one.
+            log.warning("%s/%s: refused, %s", league, provider, exc)
+            stats["refused"] += 1
+            refusals.append(f"{provider}: {exc}")
+            continue
         all_rows += rows
         all_unpriced += unpriced
         stats["requests"] += used
