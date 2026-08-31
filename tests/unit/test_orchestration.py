@@ -152,3 +152,41 @@ def test_the_staleness_check_runs_whatever_happened_before_it():
     # And it must sit after the stage it watches, or it measures the old state.
     names = [s.get("name", "") for s in steps]
     assert names.index(check[0]["name"]) > names.index("xG")
+
+
+def test_every_data_file_has_something_that_writes_it():
+    """A data file nobody writes is a snapshot pretending to be state.
+
+    Six of them survived the migration: the old CSL schedule and xG tables, a
+    market comparison, and three Liga MX research files. They sat in `data/`
+    with plausible names and timestamps frozen at the migration, which is exactly
+    what a live file looks like the moment its pipeline stops. One was asked about
+    directly -- "does the workflow update this?" -- and the honest answer was no,
+    and had been no since the day it was copied in.
+
+    The check is against the path helpers rather than a list, so a file added
+    later is covered without editing this test.
+    """
+    import glob
+    import os
+    import re
+
+    from betmodel import paths
+    from betmodel.config import available_leagues
+
+    source = pathlib.Path(paths.__file__).read_text()
+    known = set(re.findall(r'os\.path\.join\(self\.root, "([^"]+)"\)', source))
+    # Directories the helpers name, whose contents are managed as a unit.
+    dirs = {n for n in known if not n.endswith(".csv")}
+
+    orphans = []
+    for league in available_leagues():
+        root = paths.for_league(league).root
+        for path in glob.glob(os.path.join(root, "*.csv")):
+            name = os.path.basename(path)
+            if name not in known and not any(d in path for d in dirs):
+                orphans.append(f"{league}/{name}")
+    assert not orphans, (
+        "no path helper names these, so nothing in the pipeline writes them: "
+        + ", ".join(sorted(orphans))
+    )

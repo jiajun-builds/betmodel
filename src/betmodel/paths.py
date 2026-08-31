@@ -13,7 +13,6 @@ Layout, per league::
         odds_capture_history.csv    append-only capture store  (TRACKED)
         capture_watch.csv           unpriced-observation evidence (TRACKED)
         team_name_mapping.csv       provider namespaces -> canonical name
-        market_comparison.csv       model-vs-market, the signal engine's output
         now_line.csv                current reference line   (ignored, transient)
         model/                      team_stats, simulations, meta sidecars
         research/                   large regenerable stores (ignored)
@@ -155,9 +154,6 @@ class LeaguePaths:
         """
         return os.path.join(self.root, "football_data.csv")
 
-    @property
-    def market_comparison_csv(self) -> str:
-        return os.path.join(self.root, "market_comparison.csv")
 
     @property
     def now_line_csv(self) -> str:
