@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-31T12:01:42Z",
+ "generated_at": "2026-08-31T12:11:49Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-05-wuhan-three-towns-qingdao-west-coast",
@@ -372,6 +372,75 @@
     "ev": 0.06534488624094248,
     "proof": "window",
     "captured_at": "2026-08-31T08:47:02Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-09-06-chongqing-tonglianglong-shanghai-shenhua",
+   "kickoff_utc": "2026-09-06T11:00:00Z",
+   "round": "",
+   "home_team": "Chongqing Tonglianglong",
+   "away_team": "Shanghai Shenhua",
+   "model": {
+    "home": 0.2531523456799764,
+    "draw": 0.2661926794984158,
+    "away": 0.4806549748216077,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 3.45,
+     "ev": -0.12662440740408132,
+     "captured_at": "2026-08-31T12:11:45Z",
+     "last_update": "2026-08-31T11:49:30.122Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.85,
+     "ev": 0.02484181606890079,
+     "captured_at": "2026-08-31T12:11:45Z",
+     "last_update": "2026-08-31T11:49:30.122Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.08,
+     "ev": -0.00023765237105599635,
+     "captured_at": "2026-08-31T12:11:45Z",
+     "last_update": "2026-08-31T11:49:30.122Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 3.45,
+     "ev": -0.12662440740408132
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.85,
+     "ev": 0.02484181606890079
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.08,
+     "ev": -0.00023765237105599635
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.08,
+    "ev": -0.00023765237105599635,
+    "proof": "window",
+    "captured_at": "2026-08-31T12:11:45Z"
    },
    "bet": null,
    "state": ""
