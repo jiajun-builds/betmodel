@@ -59,13 +59,21 @@ model:
   ah_lines: [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
 
 odds:
-  # Low on purpose. The floor is no longer what keeps the monthly account inside
-  # its budget -- the anchor's own 8-day window is -- so its only job is to stop
-  # cleanly rather than to hoard. Hoarding was actively harmful: at 48 remaining
-  # every anchor slot was refused, and a single request is exactly what buys the
-  # calibration a fixture gets one chance at. If this ever binds, the answer is
-  # more credit, not a higher floor.
-  quota_floor: 10
+  # Held at 50 deliberately, and NOT because 50 credits are worth more than an
+  # opener -- they are not. It is the only thing currently stopping a false one.
+  #
+  # `opener_proof`'s `observed` branch asks only whether we once saw the book
+  # unpriced before the price we hold; it assumes we have been watching ever since.
+  # A capture gap voids that assumption silently, and this account has been under
+  # its floor since at least 09:00 on 2026-08-31, so nobody has looked for two
+  # days. Dropping the floor now would fetch Pinnacle's *current* price for
+  # fixtures it priced days ago and certify it `observed` on the strength of a
+  # sighting 2d06h stale -- a signal calibrated on a non-opener, wearing a proof.
+  #
+  # Lower this once the proof requires a recent unpriced sighting rather than any
+  # earlier one. Until then the honest state is that these fixtures have no anchor
+  # and publish no signal.
+  quota_floor: 50
 
   providers:
     theoddsapi:
