@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-08-31T09:17:31Z",
+ "generated_at": "2026-08-31T19:00:23Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-04-puebla-toluca",
@@ -23,7 +23,7 @@
      "ev": -0.11005644621001465,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:24:42.589Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -32,7 +32,7 @@
      "ev": -0.0598732096736323,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:24:42.589Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -41,7 +41,7 @@
      "ev": -0.007530959957042005,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:24:42.589Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -66,7 +66,7 @@
     "book": "duel",
     "odds": 1.68,
     "ev": -0.007530959957042005,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
    },
    "bet": null,
@@ -92,7 +92,7 @@
      "ev": 0.21962398405290395,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:21:41.108Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -101,7 +101,7 @@
      "ev": -0.048678318647985,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:21:41.108Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -110,7 +110,7 @@
      "ev": -0.17348414346211805,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:21:41.108Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -135,7 +135,7 @@
     "book": "duel",
     "odds": 3.7,
     "ev": 0.21962398405290395,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
    },
    "bet": {
@@ -169,7 +169,7 @@
      "ev": 0.4027884457509625,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T08:15:27.58Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -178,7 +178,7 @@
      "ev": -0.0585914411821149,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T08:15:27.58Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -187,7 +187,7 @@
      "ev": -0.22295282786318005,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T08:15:27.58Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -212,7 +212,7 @@
     "book": "duel",
     "odds": 4.2,
     "ev": 0.4027884457509625,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
    },
    "bet": {
@@ -246,7 +246,7 @@
      "ev": 0.23971345992088788,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T08:04:24.742Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -255,7 +255,7 @@
      "ev": -0.057301298634768516,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T08:04:24.742Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -264,7 +264,7 @@
      "ev": -0.1973709885270708,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T08:04:24.742Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -289,7 +289,7 @@
     "book": "duel",
     "odds": 3.45,
     "ev": 0.23971345992088788,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
    },
    "bet": {
@@ -323,7 +323,7 @@
      "ev": -0.03756640026228042,
      "captured_at": "2026-08-30T01:31:14Z",
      "last_update": "2026-08-30T01:30:05.107Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -332,7 +332,7 @@
      "ev": -0.06649205848322304,
      "captured_at": "2026-08-30T01:31:14Z",
      "last_update": "2026-08-30T01:30:05.107Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -341,7 +341,7 @@
      "ev": -0.0179285948561706,
      "captured_at": "2026-08-30T01:31:14Z",
      "last_update": "2026-08-30T01:30:05.107Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -366,7 +366,7 @@
     "book": "duel",
     "odds": 5.4,
     "ev": -0.0179285948561706,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-30T01:31:14Z"
    },
    "bet": null,
@@ -392,7 +392,7 @@
      "ev": -0.0006962011335410745,
      "captured_at": "2026-08-30T03:31:12Z",
      "last_update": "2026-08-30T03:27:45.629Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -401,7 +401,7 @@
      "ev": -0.07604682682476394,
      "captured_at": "2026-08-30T03:31:12Z",
      "last_update": "2026-08-30T03:27:45.629Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -410,7 +410,7 @@
      "ev": -0.12813758367840455,
      "captured_at": "2026-08-30T03:31:12Z",
      "last_update": "2026-08-30T03:27:45.629Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -435,7 +435,7 @@
     "book": "duel",
     "odds": 1.65,
     "ev": -0.0006962011335410745,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-30T03:31:12Z"
    },
    "bet": null,
@@ -461,7 +461,7 @@
      "ev": -0.23497502987704455,
      "captured_at": "2026-08-30T03:31:12Z",
      "last_update": "2026-08-30T03:17:41.98Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -470,7 +470,7 @@
      "ev": 0.07368755268121396,
      "captured_at": "2026-08-30T03:31:12Z",
      "last_update": "2026-08-30T03:17:41.98Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -479,7 +479,7 @@
      "ev": 0.21311569560288057,
      "captured_at": "2026-08-30T03:31:12Z",
      "last_update": "2026-08-30T03:17:41.98Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -504,7 +504,7 @@
     "book": "duel",
     "odds": 3.8,
     "ev": 0.21311569560288057,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-30T03:31:12Z"
    },
    "bet": {
@@ -538,7 +538,7 @@
      "ev": 0.07269572193809437,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:52:02.185Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -547,7 +547,7 @@
      "ev": -0.022616247512212806,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:52:02.185Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -556,7 +556,7 @@
      "ev": -0.26546586817617457,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-31T06:52:02.185Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -581,7 +581,7 @@
     "book": "duel",
     "odds": 2.0,
     "ev": 0.07269572193809437,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
    },
    "bet": null,
@@ -607,7 +607,7 @@
      "ev": -0.008146249707881803,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-30T21:26:48.358Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -616,7 +616,7 @@
      "ev": 0.0015740704842397424,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-30T21:26:48.358Z",
-     "proof": "observed"
+     "proof": "window"
     },
     {
      "book": "duel",
@@ -625,7 +625,7 @@
      "ev": -0.2679724837166835,
      "captured_at": "2026-08-31T08:47:03Z",
      "last_update": "2026-08-30T21:26:48.358Z",
-     "proof": "observed"
+     "proof": "window"
     }
    ],
    "best": {
@@ -650,7 +650,7 @@
     "book": "duel",
     "odds": 5.2,
     "ev": 0.0015740704842397424,
-    "proof": "observed",
+    "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
    },
    "bet": null,

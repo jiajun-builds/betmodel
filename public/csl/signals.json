@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-31T12:21:19Z",
+ "generated_at": "2026-08-31T19:00:23Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-05-wuhan-three-towns-qingdao-west-coast",
@@ -200,17 +200,8 @@
     "proof": "window",
     "captured_at": "2026-08-31T12:21:16Z"
    },
-   "bet": {
-    "side": "away",
-    "book": "onexbet",
-    "odds": 6.65,
-    "ev": 0.49363773698360647,
-    "books": [
-     "onexbet",
-     "duel"
-    ]
-   },
-   "state": "bet"
+   "bet": null,
+   "state": "unanchored"
   },
   {
    "fixture_id": "CSL-2026-0-2026-09-05-shanghai-port-beijing-guoan",
