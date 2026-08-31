@@ -53,7 +53,14 @@ model:
   ah_lines: [-2, -1]
 
 odds:
-  quota_floor: 50                # skip a tick below this many remaining credits
+  # Low on purpose. The floor is no longer what keeps the monthly account inside
+  # its budget -- the anchor's own 8-day window is -- so its only job is to stop
+  # cleanly rather than to hoard. Hoarding was actively harmful: at 48 remaining
+  # every anchor slot was refused, and a single request is exactly what buys the
+  # calibration a fixture gets one chance at. Fifty credits are not worth one
+  # missed opener. If this ever binds, the answer is more credit, not a higher
+  # floor.
+  quota_floor: 10
 
   providers:
     theoddsapi:
@@ -98,8 +105,32 @@ odds:
       label: Pinnacle
       provider: theoddsapi
       role: anchor               # never bet, never displayed; de-bias input only
-      poll_interval_minutes: 180 # was a predicted 12h window that missed 17% of
-                                 # opens; polling is cheaper than being wrong
+      # Pinnacle publishes the next round while the current one is still being
+      # played -- measured on 75 captures, median 6.1 days before kickoff and a
+      # hard ceiling at 7.0. So an 8-day window covers publication with a day of
+      # margin, and asking about anything further out is a request whose answer is
+      # known in advance. Under the league's 21-day lookahead those were most of
+      # the month's allowance, which then ran out at the end of the period exactly
+      # when the anchor mattered.
+      lookahead_days: 8
+      # Hourly inside that window, not three-hourly. What the cadence buys is the
+      # thing the pipeline rests on: being already watching when the line appears,
+      # so `capture_watch` records the fixture unpriced beforehand and the price we
+      # then take is a *proven* opener. A day of pending at this rate is ~24
+      # unpriced sightings, which is proof several times over.
+      #
+      # Sized, not guessed. Simulated minute by minute over the next 30 days of
+      # each fixture list, requests per period including ~96 for closes:
+      #
+      #            30min   60min
+      #   CSL        144     120
+      #   Liga MX    534     315      <- 30min does not fit in 500/month
+      #
+      # and still inside the budget on the pessimistic assumption that Pinnacle
+      # prices at 6 days rather than 7 (Liga MX 396). Faster buys nothing anyway:
+      # the soft books open about a day after the anchor, so an hour of staleness
+      # on the anchor is immaterial next to that gap.
+      poll_interval_minutes: 60
       credential: csl
       schema_prefix: pinnacle
     - key: betfair_ex_eu

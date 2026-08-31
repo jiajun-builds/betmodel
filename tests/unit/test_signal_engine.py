@@ -240,3 +240,68 @@ def test_an_anchored_edge_still_fires_normally():
         "csl", [_quote("onexbet", "home", 3.0, 0.25)], method=debias.MARKET_ANCHOR
     )
     assert (state, books) == ("bet", ("onexbet",))
+
+
+# --------------------------------------------------------------------------- #
+# the anchor must be a proven opener
+# --------------------------------------------------------------------------- #
+
+def _fixture_row(home="A", away="B", days=5):
+    from datetime import timedelta
+    return Fixture(home=home, away=away, round="1",
+                   kickoff=datetime.now(timezone.utc) + timedelta(days=days))
+
+
+def test_an_unproven_anchor_is_treated_as_no_anchor(monkeypatch):
+    """`reduce` has always derived this proof; the signal path never asked.
+
+    A Pinnacle price we simply happen to hold is not evidence of an opening line.
+    It may have been posted after the market moved, and the backtest that
+    validates this strategy was run on true openers, so firing on it would be
+    running an untested variant rather than a weaker version of the same thing.
+    """
+    from betmodel.signals import engine
+
+    priced = {"home_odds": 2.0, "draw_odds": 3.4, "away_odds": 4.0,
+              "captured_at": None, "last_update": "", "provenance": "", "lead_h": 120.0}
+    config = load_league("csl")
+
+    def _opens(*_a, **_k):
+        return {
+            ("A", "B", "pinnacle"): {**priced, "proof": ""},          # unproven
+            ("A", "B", "duel"): {**priced, "proof": "window", "away_odds": 6.0},
+        }
+
+    monkeypatch.setattr(engine.reduce_module, "collapse_opens", _opens)
+    monkeypatch.setattr(engine, "load_upcoming", lambda *_a, **_k: [_fixture_row()])
+    monkeypatch.setattr(engine, "_model_probabilities",
+                        lambda *a, **k: {("A", "B"): (0.30, 0.24, 0.46)},
+                        raising=False)
+
+    built = engine.build_signals("csl", config)
+    assert built, "the fixture is priced, so it must produce a row"
+    assert built[0].debias_method == debias.RAW
+    assert built[0].state != "bet", "an unproven anchor must not produce a bet"
+
+
+def test_a_proven_anchor_still_calibrates(monkeypatch):
+    """The counterpart, so the gate above cannot pass by suppressing everything."""
+    from betmodel.signals import engine
+
+    priced = {"home_odds": 2.0, "draw_odds": 3.4, "away_odds": 4.0,
+              "captured_at": None, "last_update": "", "provenance": "", "lead_h": 120.0}
+    config = load_league("csl")
+
+    def _opens(*_a, **_k):
+        return {
+            ("A", "B", "pinnacle"): {**priced, "proof": "window"},
+            ("A", "B", "duel"): {**priced, "proof": "window", "away_odds": 6.0},
+        }
+
+    monkeypatch.setattr(engine.reduce_module, "collapse_opens", _opens)
+    monkeypatch.setattr(engine, "load_upcoming", lambda *_a, **_k: [_fixture_row()])
+    monkeypatch.setattr(engine, "_model_probabilities",
+                        lambda *a, **k: {("A", "B"): (0.30, 0.24, 0.46)})
+
+    built = engine.build_signals("csl", config)
+    assert built and built[0].debias_method == debias.MARKET_ANCHOR

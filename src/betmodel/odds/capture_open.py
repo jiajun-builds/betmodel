@@ -97,19 +97,35 @@ def pending_fixtures(
     a started match's pre-match line is gone and keeping it pending burns
     requests forever. Kickoff must be inside the lookahead. And some book must
     still owe an open.
+
+    **The lookahead is per book**, because the books do not publish at the same
+    time and their accounts do not bill at the same rate. Asking a book about a
+    fixture it will not price for another fortnight is a request with a known
+    answer, and on a monthly allowance those are what exhaust it.
     """
     now = now or datetime.now(timezone.utc)
-    days = config.odds.open.lookahead_days if lookahead_days is None else lookahead_days
-    horizon = now + timedelta(days=days)
+    default_days = (
+        config.odds.open.lookahead_days if lookahead_days is None else lookahead_days
+    )
+    horizons = {
+        b.key: now + timedelta(
+            days=default_days if lookahead_days is not None or b.lookahead_days is None
+            else b.lookahead_days
+        )
+        for b in books
+    }
     captured = captured_open_books(league, history_path=history_path)
 
     fixtures = fixtures_path or paths.for_league(league).upcoming_fixtures_csv
     pending: list[Pending] = []
     for fixture in load_upcoming(fixtures):
-        if not (now < fixture.kickoff <= horizon):
+        if fixture.kickoff <= now:
             continue
         have = captured.get(fixture.key, set())
-        missing = tuple(b for b in books if b.key not in have)
+        missing = tuple(
+            b for b in books
+            if b.key not in have and fixture.kickoff <= horizons[b.key]
+        )
         if missing:
             pending.append(Pending(fixture, missing))
     return sorted(pending, key=lambda p: p.fixture.kickoff)

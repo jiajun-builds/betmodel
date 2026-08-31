@@ -236,7 +236,23 @@ def build_signals(
             log.debug("no model probabilities for %s", fixture.label)
             continue
 
+        # The anchor has to be a *proven* opener, not merely the earliest price we
+        # happen to hold for that book. `reduce` already derives the proof from
+        # `capture_watch` -- either we saw the book unpriced beforehand, or the
+        # fixture entered the lookahead after capture began -- and until now
+        # nothing asked for it.
+        #
+        # This is the difference between the strategy and an untested variant of
+        # it. The backtest establishing long-run +CLV on the soft books was run on
+        # true opening prices; calibrating against a price Pinnacle posted after
+        # the market had already moved may well be fine, but nothing measured says
+        # so. Unproven is therefore treated as absent, which sends the fixture down
+        # the unanchored path and stops it firing.
         anchor = opens.get((fixture.home, fixture.away, anchor_key)) if anchor_key else None
+        if anchor is not None and not anchor.get("proof"):
+            log.info("%s: anchor for %s is not a proven opener; treating as absent",
+                     league, fixture.label)
+            anchor = None
         anchor_odds = (
             (anchor["home_odds"], anchor["draw_odds"], anchor["away_odds"])
             if anchor else None

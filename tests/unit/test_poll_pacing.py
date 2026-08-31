@@ -25,11 +25,26 @@ def _at(hour: int, minute: int) -> datetime:
     return datetime(2026, 8, 30, hour, minute, tzinfo=timezone.utc)
 
 
+def _anchor_interval() -> int:
+    return CSL.odds.book("pinnacle").poll_interval_minutes
+
+
 def test_the_anchor_comes_due_only_on_its_own_multiple():
-    due = co.books_due(CSL, "theoddsapi", _at(3, 0))
-    assert [b.key for b in due] == ["pinnacle"]
-    assert co.books_due(CSL, "theoddsapi", _at(3, 10)) == ()
-    assert co.books_due(CSL, "theoddsapi", _at(4, 0)) == ()
+    """Derived from the declared interval rather than restating it.
+
+    Written against a hardcoded 180 it had to be edited every time the cadence
+    was retuned, which is the same as not being checked: the assertion moved to
+    match the code instead of holding it.
+    """
+    interval = _anchor_interval()
+    due = co.books_due(CSL, "theoddsapi", _at(0, 0))
+    assert [b.key for b in due] == ["pinnacle"], "midnight is a multiple of everything"
+
+    off_grid = (interval + 5) % 1440
+    assert co.books_due(CSL, "theoddsapi", _at(off_grid // 60, off_grid % 60)) == ()
+
+    on_grid = interval % 1440
+    assert co.books_due(CSL, "theoddsapi", _at(on_grid // 60, on_grid % 60))
 
 
 def test_the_bet_books_come_due_far_more_often():
@@ -53,8 +68,12 @@ def test_a_days_worth_of_ticks_matches_the_declared_rate():
             if co.books_due(CSL, provider, _at(h, m))
         )
         counts[provider] = n
-    assert counts["oddsapiio"] == 144
-    assert counts["theoddsapi"] == 8
+    assert counts["oddsapiio"] == 1440 // CSL.odds.book("duel").poll_interval_minutes
+    assert counts["theoddsapi"] == 1440 // _anchor_interval()
+    assert counts["theoddsapi"] < counts["oddsapiio"], (
+        "the metered book must stay the rarer one; it bills by the month while "
+        "the bet books bill by the day"
+    )
 
 
 def _book(**kw):

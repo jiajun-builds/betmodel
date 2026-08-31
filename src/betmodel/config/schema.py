@@ -228,6 +228,17 @@ class BookConfig:
     provider_name: str = ""        # the provider's own spelling, e.g. "1xbet"
     label: str = ""                # human display name
     poll_interval_minutes: int | None = None   # None = not polled for opens
+    #: How far ahead of kickoff this book is worth asking about. ``None`` falls
+    #: back to ``odds.open.lookahead_days``.
+    #:
+    #: Per book because the books do not publish at the same time and the
+    #: accounts do not bill at the same rate. Pinnacle does not price a fixture
+    #: until roughly a week out -- measured median 6.1 days, max 7.0 -- so under a
+    #: 21-day league lookahead every anchor slot spent a request asking about
+    #: fixtures that provably could not be priced yet. On a monthly allowance that
+    #: is where the allowance went, and it ran out at the end of the period
+    #: exactly when the anchor was needed.
+    lookahead_days: int | None = None
     credential: str = "default"    # which API account to spend
     schema_prefix: str | None = None   # column prefix in matches.csv; None = store only
     legacy_prefix: str | None = None   # published legacy column prefix
@@ -239,6 +250,8 @@ class BookConfig:
         _one_of(self.role, BOOK_ROLES, f"{where}.role")
         if not self.key or self.key != self.key.lower():
             raise ConfigError(f"{where}: key must be lowercase")
+        if self.lookahead_days is not None and self.lookahead_days <= 0:
+            raise ConfigError(f"{where}.lookahead_days must be > 0")
         if self.poll_interval_minutes is not None:
             if self.poll_interval_minutes <= 0:
                 raise ConfigError(f"{where}.poll_interval_minutes must be > 0")
@@ -287,6 +300,10 @@ class BookConfig:
             poll_interval_minutes=(
                 int(raw["poll_interval_minutes"])
                 if raw.get("poll_interval_minutes") is not None else None
+            ),
+            lookahead_days=(
+                int(raw["lookahead_days"])
+                if raw.get("lookahead_days") is not None else None
             ),
             credential=str(raw.get("credential", "default")),
             schema_prefix=raw.get("schema_prefix", key),

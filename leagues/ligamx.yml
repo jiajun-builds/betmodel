@@ -59,7 +59,13 @@ model:
   ah_lines: [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
 
 odds:
-  quota_floor: 50
+  # Low on purpose. The floor is no longer what keeps the monthly account inside
+  # its budget -- the anchor's own 8-day window is -- so its only job is to stop
+  # cleanly rather than to hoard. Hoarding was actively harmful: at 48 remaining
+  # every anchor slot was refused, and a single request is exactly what buys the
+  # calibration a fixture gets one chance at. If this ever binds, the answer is
+  # more credit, not a higher floor.
+  quota_floor: 10
 
   providers:
     theoddsapi:
@@ -125,7 +131,25 @@ odds:
       role: anchor
       # Opening lines are irreproducible and no provider sells opener history,
       # so capture starts now even though nothing consumes it yet.
-      poll_interval_minutes: 180
+      # Pinnacle publishes the next round while the current one is still being
+      # played -- measured on 75 captures, median 6.1 days before kickoff and a
+      # hard ceiling at 7.0. So an 8-day window covers publication with a day of
+      # margin, and asking about anything further out is a request whose answer is
+      # known in advance. Under the league's 21-day lookahead those were most of
+      # the month's allowance, which then ran out at the end of the period exactly
+      # when the anchor mattered.
+      lookahead_days: 8
+      # Hourly inside that window. What the cadence buys is being already watching
+      # when the line appears, so `capture_watch` records the fixture unpriced
+      # beforehand and the price we then take is a *proven* opener -- a day of
+      # pending at this rate is ~24 unpriced sightings.
+      #
+      # Sized against this league's own fixture density, which is roughly four
+      # times CSL's: simulated over the next 30 days, 30-minute polling costs 438
+      # requests plus ~96 for closes and does not fit in 500/month. Hourly costs
+      # 219, and 300 on the pessimistic assumption that Pinnacle prices at 6 days
+      # rather than 7.
+      poll_interval_minutes: 60
       credential: ligamx
       schema_prefix: pinnacle
     - key: betfair_ex_eu
