@@ -89,7 +89,23 @@ odds:
       provider: oddsapiio
       provider_name: Betano UK     # plain "Betano" 403s; the entitlement is the UK book
       role: bet
-      poll_interval_minutes: 10
+      # Declared but never polled. On the 8 fixtures where both books opened,
+      # Duel was the better price on 22 of the 24 outcomes and tied the other 2 --
+      # Betano did not win a single side, so the best-of composite came out at
+      # Duel's own vig (1.040-1.045) rather than Betano's (1.082-1.087). It
+      # contributed nothing to the price we would actually bet.
+      #
+      # Polling it was not merely useless, it was costly: `pending_fixtures`
+      # calls a fixture pending while any polled book still owes an open, and
+      # Betano stopped answering on 2026-08-13, so every Liga MX fixture stayed
+      # pending forever and spent an oddsapiio request every tick chasing a book
+      # that never replied. Dropping the interval is what stops that.
+      #
+      # The entry itself stays: it is part of the frozen legacy column
+      # vocabulary the G3 gate compares against, and deleting it would remove
+      # every `betano_*` column from that baseline -- a change to the evidence,
+      # not to the engine.
+      poll_interval_minutes: null
       schema_prefix: betano
     - key: duel
       label: Duel

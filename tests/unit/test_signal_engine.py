@@ -11,7 +11,10 @@ from datetime import datetime, timezone
 
 import pytest
 
+from dataclasses import replace
+
 from betmodel.config import load_league
+from betmodel.config.schema import DebiasConfig
 from betmodel.fixtures.upcoming import Fixture
 from betmodel.signals import debias
 from betmodel.signals.engine import Best, Quote, _decide, fixture_id
@@ -21,15 +24,20 @@ def _quote(book, side, odds, ev, proof="observed"):
     return Quote(book=book, side=side, odds=odds, ev=ev, proof=proof)
 
 
-def _decide_with(league, quotes):
-    config = load_league(league)
+def _decide_with(league, quotes, *, method=debias.MARKET_ANCHOR, config=None):
+    """``method`` is what the de-bias actually produced for this fixture.
+
+    It defaults to the anchored path because that is the state every other test
+    here is about; the raw case has its own tests below.
+    """
+    config = config or load_league(league)
     best: dict[str, Best] = {}
     for side in ("home", "draw", "away"):
         same = [q for q in quotes if q.side == side]
         if same:
             winner = max(same, key=lambda q: q.odds)
             best[side] = Best(winner.book, winner.odds, winner.ev)
-    return _decide(config, quotes, best)
+    return _decide(config, quotes, best, method)
 
 
 # --------------------------------------------------------------------------- #
@@ -177,3 +185,58 @@ def test_a_fixture_with_no_anchor_ships_the_raw_grid():
     raw = (0.45, 0.25, 0.30)
     out, method = debias.apply(raw, load_league("csl").signals.debias, anchor_odds=None)
     assert (out, method) == (raw, "raw")
+
+
+# --------------------------------------------------------------------------- #
+# the anchor gate
+# --------------------------------------------------------------------------- #
+
+def test_an_edge_found_on_raw_probabilities_is_surfaced_but_never_bet():
+    """The bar was cleared using numbers the league says are the wrong ones.
+
+    A fixture's prices arrive over a window -- the soft books minutes after it
+    appears, the anchor on its own slower poll -- so an edge computed before the
+    anchor lands is an edge against an uncalibrated grid. Measured on 664
+    walk-forward fixtures, anchoring moves log loss by -0.008 (95% CI
+    [-0.015, -0.001]) and shifts a fixture's EV in either direction by several
+    points, which is more than enough to move one across a 0.20 bar.
+    """
+    pick, state, ev, books = _decide_with(
+        "csl", [_quote("onexbet", "home", 3.0, 0.25)], method=debias.RAW
+    )
+    assert state == "unanchored"
+    assert books == (), "an empty book list is what stops it being presented as a bet"
+    assert pick == "home", "the provisional side is still worth showing"
+    assert ev == 0.25
+
+
+def test_the_anchor_gate_only_applies_where_the_league_asked_for_an_anchor():
+    """A league configured `none` is not waiting for anything, so raw IS its answer."""
+    config = load_league("csl")
+    unanchored_league = replace(
+        config,
+        signals=replace(config.signals, debias=DebiasConfig(method="none")),
+    )
+    pick, state, _, books = _decide_with(
+        "csl", [_quote("onexbet", "home", 3.0, 0.25)],
+        method=debias.RAW, config=unanchored_league,
+    )
+    assert (pick, state, books) == ("home", "bet", ("onexbet",))
+
+
+def test_an_unanchored_edge_is_reported_as_unanchored_not_as_over_the_cap():
+    """Both bars are decided from an EV the anchor gate has just called suspect,
+    so the reason given is the one that came first."""
+    _, state, _, books = _decide_with(
+        "csl", [_quote("onexbet", "home", 12.0, 0.9)], method=debias.RAW
+    )
+    assert state == "unanchored", "the cap verdict rests on the same doubtful EV"
+    assert books == ()
+
+
+def test_an_anchored_edge_still_fires_normally():
+    """The gate must not be a blanket suppressor."""
+    _, state, _, books = _decide_with(
+        "csl", [_quote("onexbet", "home", 3.0, 0.25)], method=debias.MARKET_ANCHOR
+    )
+    assert (state, books) == ("bet", ("onexbet",))

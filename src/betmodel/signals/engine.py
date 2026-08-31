@@ -50,6 +50,10 @@ NO_PICK = ""
 
 STATE_BET = "bet"
 STATE_ODDS_CAP = "odds_cap"
+#: The edge cleared, but on probabilities the league's own config says are not
+#: the ones to judge with -- the anchor had not been captured when this ran.
+#: Surfaced, never bet.
+STATE_UNANCHORED = "unanchored"
 STATE_NONE = ""
 
 
@@ -273,7 +277,7 @@ def build_signals(
         allowed = {s: b for s, b in best.items() if s in config.signals.sides}
         top_side = max(allowed, key=lambda s: allowed[s].ev) if allowed else ""
 
-        pick, state, pick_ev, books = _decide(config, quotes, best)
+        pick, state, pick_ev, books = _decide(config, quotes, best, method)
         signals.append(Signal(
             fixture_id=fixture_id(config, fixture),
             home_team=fixture.home, away_team=fixture.away,
@@ -289,7 +293,7 @@ def build_signals(
 
 
 def _decide(
-    config: LeagueConfig, quotes: list[Quote], best: dict[str, Best]
+    config: LeagueConfig, quotes: list[Quote], best: dict[str, Best], method: str
 ) -> tuple[str, str, float | None, tuple[str, ...]]:
     """Pick the side, then decide whether it is bettable."""
     signals_config = config.signals
@@ -301,6 +305,20 @@ def _decide(
     chosen = candidates[pick]
     if chosen.ev <= signals_config.ev_min:
         return NO_PICK, STATE_NONE, None, ()
+
+    # The edge cleared, but on the raw grid: this league is configured to judge
+    # against the anchor and the anchor was not captured when this ran. Surfaced
+    # rather than fired, the same shape the odds cap uses -- `books` stays empty
+    # so a displayed book is always a bet to place, and `bet` stays null so the
+    # board and the notifier reach the same conclusion from the same field.
+    #
+    # Checked before the proof and cap tests because both of those rest on an EV
+    # computed from probabilities we have just said are the wrong ones. The pick
+    # is provisional for the same reason: anchoring replaces the draw and
+    # rescales the other two, so a different side can win once it lands.
+    if (signals_config.debias.method == debias_module.MARKET_ANCHOR
+            and method != debias_module.MARKET_ANCHOR):
+        return pick, STATE_UNANCHORED, chosen.ev, ()
 
     # A price must be provably the book's opener where the league requires it.
     # Deliberately no fallback to a lower-EV side with a proven price: that would

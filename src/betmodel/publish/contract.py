@@ -46,8 +46,11 @@ SIDES = ("home", "draw", "away")
 #: Signal states. Empty means no edge cleared the bar.
 STATE_BET = "bet"
 STATE_ODDS_CAP = "odds_cap"
+#: Would have fired, but the de-bias anchor was missing when it ran. Published
+#: so the board can show it and say why, never with a `bet` attached.
+STATE_UNANCHORED = "unanchored"
 STATE_NONE = ""
-STATES = (STATE_BET, STATE_ODDS_CAP, STATE_NONE)
+STATES = (STATE_BET, STATE_ODDS_CAP, STATE_UNANCHORED, STATE_NONE)
 
 
 class ContractError(ValueError):

@@ -192,3 +192,63 @@ def test_alternate_books_are_listed_with_their_own_prices():
                              "proof": "observed"})
     message = telegram.format_message(load_league("ligamx"), signal)
     assert "备选" in message and "3.50" in message
+
+
+# --------------------------------------------------------------------------- #
+# the anchor gate
+# --------------------------------------------------------------------------- #
+
+def _unanchored(fixture_id="MEX-1", odds=6.65, ev=0.494):
+    return {
+        "fixture_id": fixture_id,
+        "kickoff_utc": "2026-08-29T01:00:00Z",
+        "home_team": "Dalian Yingbo", "away_team": "Qingdao Hainiu",
+        "model": {"home": 0.55, "draw": 0.23, "away": 0.22, "method": "raw"},
+        "quotes": [{"book": "duel", "side": "away", "odds": odds, "ev": ev,
+                    "captured_at": "2026-08-28T12:00:00Z", "last_update": None,
+                    "proof": "window"}],
+        "best": {"away": {"book": "duel", "odds": odds, "ev": ev}},
+        "judged": {"side": "away", "book": "duel", "odds": odds, "ev": ev,
+                   "proof": "window", "captured_at": "2026-08-28T12:00:00Z"},
+        "bet": None,
+        "state": "unanchored",
+    }
+
+
+def test_an_uncalibrated_edge_is_warned_about_rather_than_swallowed():
+    """Silence would be indistinguishable from there being no edge at all."""
+    fresh = telegram.unanchored_signals([_unanchored()], [])
+    assert len(fresh) == 1
+
+
+def test_the_same_uncalibrated_edge_is_only_warned_about_once():
+    previous = [_unanchored()]
+    assert telegram.unanchored_signals([_unanchored()], previous) == []
+
+
+def test_a_row_that_gains_its_anchor_stops_warning_and_starts_alerting():
+    """The transition that matters: the warning must not keep repeating once the
+    anchor lands, and the bet alert must not be suppressed by having warned."""
+    warned = _unanchored()
+    now_firing = _signal()
+    now_firing["fixture_id"] = warned["fixture_id"]
+    assert telegram.unanchored_signals([now_firing], [warned]) == []
+    assert len(telegram.new_signals([now_firing], [warned])) == 1
+
+
+def test_the_warning_never_reads_as_an_instruction():
+    message = telegram.format_unanchored_message(load_league("csl"), _unanchored())
+    assert "未建议下注" in message
+    assert "BET 信号" not in message
+    assert "下注: <a" not in message, "no book link: this is not something to act on"
+    assert "暂定方向" in message, "anchoring can move the pick, so the side is provisional"
+
+
+def test_the_warning_names_the_anchor_by_its_label():
+    message = telegram.format_unanchored_message(load_league("csl"), _unanchored())
+    assert "Pinnacle" in message, "the reader knows the book by its name, not its key"
+
+
+def test_an_unanchored_row_is_never_treated_as_a_bet():
+    """`bet` is null on these, which is what keeps the two paths from crossing."""
+    assert telegram.new_signals([_unanchored()], []) == []

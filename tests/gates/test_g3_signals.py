@@ -11,6 +11,17 @@ One asymmetry worth naming. The frozen Liga MX board has two firing rows, so its
 positive path is covered here. The frozen CSL board has none, its best row
 sitting at 0.196 against a 0.20 bar, so CSL's firing path is covered by
 constructed cases in the unit tests instead.
+
+**That asymmetry has since inverted, and the reason matters.** The Liga MX
+baseline was captured on 2026-08-27, before the anchor was ever captured for that
+league -- its first Pinnacle open lands 2026-08-29 -- so all nine of its rows were
+produced from the raw grid, and the two that fired, fired uncalibrated. The engine
+now refuses to fire un-anchored, so those two replay as `unanchored` and the Liga
+MX replay exercises no firing path at all. The exemption below is narrow and
+derived rather than listed, but the honest reading is that this baseline no longer
+carries the positive-path evidence it was captured for. Re-capturing it from a
+run that has anchors is the real fix; until then the firing path is covered by
+constructed cases in tests/unit/test_signal_engine.py, for both leagues.
 """
 
 from __future__ import annotations
@@ -24,7 +35,8 @@ import pandas as pd
 import pytest
 
 from betmodel.config import load_league
-from betmodel.signals.engine import build_signals
+from betmodel.signals import debias
+from betmodel.signals.engine import STATE_UNANCHORED, build_signals
 
 GOLDEN = "tests/golden"
 EXACT = 1e-12
@@ -136,11 +148,59 @@ def test_the_same_side_is_picked(replay):
             f"{league}: {row['fixture_id']}"
 
 
+#: Fields that follow mechanically from a row being reclassified `unanchored`:
+#: the state itself, and the signal book's clock, which has no signal book left to
+#: come from once `books` is empty.
+ANCHOR_GATE_FIELDS = frozenset({"signal_state", "last_update"})
+
+
+def _anchor_gate_rows(league: str, signals: dict) -> frozenset[str]:
+    """Fixtures the anchor gate legitimately reclassified.
+
+    Derived from the replay, never hand-listed. A row qualifies only when the
+    league asked for an anchor, the replay genuinely produced the raw grid, and
+    the engine landed on `unanchored`. Any other state disagreement is still a
+    failure -- which is the point: `signal_state` is the most load-bearing field
+    this gate checks and must not become a blanket exemption.
+    """
+    if load_league(league).signals.debias.method != debias.MARKET_ANCHOR:
+        return frozenset()
+    return frozenset(
+        fixture_id
+        for fixture_id, signal in signals.items()
+        if signal.state == STATE_UNANCHORED and signal.debias_method == debias.RAW
+    )
+
+
 def test_the_same_state_is_reached(replay):
     league, payload, signals = replay
+    exempt = _anchor_gate_rows(league, signals)
     for row in payload["rows"]:
-        assert _normalise(row.get("signal_state")) == _normalise(signals[row["fixture_id"]].state), \
-            f"{league}: {row['fixture_id']}"
+        fixture_id = row["fixture_id"]
+        golden = _normalise(row.get("signal_state"))
+        ours = _normalise(signals[fixture_id].state)
+        if fixture_id in exempt and golden == "bet":
+            continue  # fired uncalibrated then; the engine refuses to now
+        assert golden == ours, f"{league}: {fixture_id}"
+
+
+def test_the_anchor_exemption_covers_only_what_it_claims_to(replay):
+    """The exemption must not quietly widen.
+
+    It is allowed to explain exactly one transition -- a row that fired in the
+    baseline and is `unanchored` now -- and only on a league configured to anchor.
+    A row that changed state for any other reason has to fail the gate above.
+    """
+    league, payload, signals = replay
+    exempt = _anchor_gate_rows(league, signals)
+    golden_state = {r["fixture_id"]: _normalise(r.get("signal_state")) for r in payload["rows"]}
+    for fixture_id in exempt:
+        assert golden_state[fixture_id] in {"bet", ""}, (
+            f"{league}: {fixture_id} was {golden_state[fixture_id]!r}, which the "
+            "anchor gate does not explain"
+        )
+    if league == "csl":
+        assert not exempt, "CSL's baseline has anchors; nothing here needs exempting"
 
 
 def test_the_positive_path_is_actually_exercised_somewhere(replay):
@@ -260,11 +320,15 @@ def test_every_field_of_every_row_matches_or_is_an_accepted_difference(rendered)
     published row, against what the two pipelines actually shipped."""
     league, payload, output = rendered
     ours = {r["fixture_id"]: r for r in output["rows"]}
+    exempt = _anchor_gate_rows(league, _replay(league)[1])
     unexplained: list[str] = []
     for row in payload["rows"]:
         mine = ours[row["fixture_id"]]
+        anchor_gated = row["fixture_id"] in exempt
         for field, value in row.items():
             if field in ACCEPTED or _equal(value, mine.get(field)):
+                continue
+            if anchor_gated and field in ANCHOR_GATE_FIELDS:
                 continue
             unexplained.append(
                 f"{row['fixture_id']}.{field}: {value!r} != {mine.get(field)!r}"
@@ -277,11 +341,13 @@ def test_the_accepted_differences_are_the_ones_recorded_and_no_others(rendered):
     """A shrinking list is fine; a growing one means a decision went unrecorded."""
     league, payload, output = rendered
     ours = {r["fixture_id"]: r for r in output["rows"]}
+    exempt = _anchor_gate_rows(league, _replay(league)[1])
     differing = {
         field
         for row in payload["rows"]
         for field, value in row.items()
         if not _equal(value, ours[row["fixture_id"]].get(field))
+        and not (row["fixture_id"] in exempt and field in ANCHOR_GATE_FIELDS)
     }
     assert differing <= ACCEPTED, f"{league}: undocumented: {sorted(differing - ACCEPTED)}"
 

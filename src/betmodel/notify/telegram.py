@@ -55,6 +55,10 @@ PICK_LABEL = {"home": "主胜", "draw": "平局", "away": "客胜"}
 #: A signal is the same alert as before when all three match.
 KEY_FIELDS = ("fixture_id", "side", "book")
 
+#: The state the engine uses for an edge it found on uncalibrated probabilities.
+#: Never a bet, but not silence either -- see `unanchored_signals`.
+STATE_UNANCHORED = "unanchored"
+
 
 # --------------------------------------------------------------------------- #
 # baseline
@@ -130,6 +134,28 @@ def new_signals(current: list[dict], previous: list[dict]) -> list[dict]:
     return fresh
 
 
+def unanchored_signals(current: list[dict], previous: list[dict]) -> list[dict]:
+    """Edges the engine found but refused to fire, newly seen.
+
+    These are worth saying out loud rather than swallowing. The alternative --
+    silence -- means a fixture clears the bar, cannot be calibrated, and simply
+    never appears, which is indistinguishable from there being no edge at all.
+
+    No age threshold, deliberately. The pipeline tries to fetch the anchor on
+    demand *before* publishing, so a row still `unanchored` by the time this runs
+    is one the fetch already failed to rescue. Warning on the first sighting is
+    therefore warning once the answer is actually known. If that ordering is ever
+    broken, this becomes noisy, which is the right way for it to fail.
+    """
+    already = {
+        s.get("fixture_id", "") for s in previous if s.get("state") == STATE_UNANCHORED
+    }
+    return [
+        s for s in current
+        if s.get("state") == STATE_UNANCHORED and s.get("fixture_id", "") not in already
+    ]
+
+
 # --------------------------------------------------------------------------- #
 # message
 # --------------------------------------------------------------------------- #
@@ -193,6 +219,42 @@ def format_message(config: LeagueConfig, signal: dict) -> str:
     return "\n".join(lines)
 
 
+def format_unanchored_message(config: LeagueConfig, signal: dict) -> str:
+    """A warning, deliberately shaped so it cannot be misread as an instruction.
+
+    No book link, no "bet" wording, and the price is labelled provisional: the
+    pick itself is provisional, because anchoring replaces the draw and rescales
+    the other two, so a different side can win once the anchor lands.
+    """
+    judged = signal.get("judged") or {}
+    side = judged.get("side", "")
+    kickoff = datetime.fromisoformat(signal["kickoff_utc"].replace("Z", "+00:00"))
+    anchor_key = config.signals.debias.anchor_book or ""
+    anchor = next(
+        (b.label or b.key for b in config.odds.books if b.key == anchor_key),
+        anchor_key or "anchor",
+    )
+    book = next((b for b in config.odds.bet_books if b.key == judged.get("book")), None)
+    label = book.label if book else judged.get("book", "--")
+
+    lines = [
+        "⚠️ <b>信号未校准 — 未建议下注</b>",
+        f"<b>{_escape(config.name)}</b>",
+        f"<b>{_escape(signal['home_team'])} vs {_escape(signal['away_team'])}</b>",
+        f"暂定方向: <b>{_escape(PICK_LABEL.get(side, side))}</b>",
+    ]
+    if judged.get("odds") is not None:
+        lines.append(f"{_escape(label)} 开盘价: <b>{judged['odds']:.2f}</b>")
+    if judged.get("ev") is not None:
+        lines.append(f"未校准 EV: <b>{judged['ev']:+.3f}</b>")
+    lines += [
+        f"原因: 锚定盘 <b>{_escape(anchor)}</b> 的开盘价还没抓到，"
+        f"概率未经市场校准，方向和 EV 都可能变。",
+        f"开赛: {display.moment(kickoff)} {display.label()}",
+    ]
+    return "\n".join(lines)
+
+
 def send(token: str, chat_id: str, text: str, *, timeout: int = 15) -> bool:
     try:
         response = requests.post(
@@ -236,7 +298,8 @@ def notify(
         return 0
 
     fresh = new_signals(current, previous)
-    if not fresh:
+    warnings = unanchored_signals(current, previous)
+    if not fresh and not warnings:
         log.info("%s: no new signals to alert", league)
         return 0
 
@@ -244,12 +307,16 @@ def notify(
     chat_id = os.environ.get(CHAT_ENV, "").strip()
     if not (token and chat_id):
         log.warning("%s: %s or %s unset; %d alert(s) not sent",
-                    league, TOKEN_ENV, CHAT_ENV, len(fresh))
+                    league, TOKEN_ENV, CHAT_ENV, len(fresh) + len(warnings))
         return 0
 
     sent = 0
-    for signal in fresh:
-        message = format_message(config, signal)
+    # Bets first: on a slate that produces both, the actionable message should
+    # not be the one further down the screen.
+    outgoing = [(s, format_message) for s in fresh]
+    outgoing += [(s, format_unanchored_message) for s in warnings]
+    for signal, formatter in outgoing:
+        message = formatter(config, signal)
         if dry_run:
             log.info("%s: would send\n%s", league, message)
             sent += 1
