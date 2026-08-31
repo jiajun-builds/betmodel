@@ -78,6 +78,20 @@ def _capture_opens(league: str, args) -> int:
     return 0
 
 
+def _capture_anchor(league: str, args) -> int:
+    """Fetch the anchor for any edge that cleared the bar without one.
+
+    Run after a capture that appended, before publish: it is what keeps the
+    anchor gate from stranding a real signal for the length of the anchor's own
+    poll interval.
+    """
+    from betmodel.signals.anchor_rescue import rescue
+
+    stats = rescue(league, load_league(league), dry_run=args.dry_run)
+    log.info("%s: anchor rescue %s", league, stats)
+    return 0
+
+
 def _capture_closes(league: str, args) -> int:
     from betmodel.odds.capture_close import capture_closes
 
@@ -147,6 +161,7 @@ STAGES = {
     "freshness": _freshness,
     "model": _model,
     "capture-opens": _capture_opens,
+    "capture-anchor": _capture_anchor,
     "capture-closes": _capture_closes,
     "reduce": _reduce,
     "signals": _signals,

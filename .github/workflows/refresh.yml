@@ -83,6 +83,18 @@ jobs:
         run: betmodel ${{ inputs.league || 'all' }} model
              ${{ inputs.dry_run && '--dry-run' || '' }}
 
+      # Before publish, because the refit is itself a reason a fixture can newly
+      # clear the bar: the prices did not move, the probabilities did. A fixture
+      # that becomes a signal here would otherwise sit stranded until the anchor's
+      # own interval came round, and the engine will not fire it without one.
+      - name: Anchor for a stranded edge
+        if: ${{ !inputs.dry_run }}
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
+        run: betmodel ${{ inputs.league || 'all' }} capture-anchor
+
       - name: Publish
         if: ${{ !inputs.dry_run }}
         env:

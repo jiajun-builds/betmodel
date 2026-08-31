@@ -103,6 +103,30 @@ jobs:
           message: "chore(odds): capture opening lines"
           paths: data
 
+      # An edge can clear the bar minutes after a book opens and hours before the
+      # anchor's own interval comes round, and the engine refuses to fire without
+      # one. So the moment a capture appends a price, ask whether anything is now
+      # stranded and buy the anchor for it. Gated on `appended` for the same
+      # reason the republish is: on an idle tick there is no new price, so there
+      # is nothing that could have become stranded, and a metered provider should
+      # not be touched to discover that.
+      - name: Anchor for a stranded edge
+        if: always() && steps.opens.outputs.appended == 'true'
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
+        run: betmodel ${{ steps.plan.outputs.league }} capture-anchor
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit the anchor
+        id: anchor
+        if: always() && steps.opens.outputs.appended == 'true'
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(odds): capture an anchor for a stranded edge"
+          paths: data
+
       - name: Closing lines
         if: always() && steps.plan.outputs.only != 'opens'
         env:
@@ -127,6 +151,7 @@ jobs:
         if: >-
           always()
           && (steps.opens.outputs.appended == 'true'
+              || steps.anchor.outputs.appended == 'true'
               || steps.closes.outputs.appended == 'true')
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -140,6 +165,7 @@ jobs:
         if: >-
           always()
           && (steps.opens.outputs.appended == 'true'
+              || steps.anchor.outputs.appended == 'true'
               || steps.closes.outputs.appended == 'true')
         uses: ./.github/actions/commit-data
         with:
