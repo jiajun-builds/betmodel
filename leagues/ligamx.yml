@@ -232,11 +232,17 @@ signals:
     anchor_book: pinnacle
 
 publish:
-  validated: false
-  caveat: >
-    Signals fire at EV >= 10%, backed by a 427-opener walk-forward backtest, but
-    the provenance gate is not yet reflected downstream. Left unvalidated until
-    the board reads the threshold from the manifest.
+  # Validated 2026-08-31. The caveat named two blockers and both were downstream,
+  # not here: the board hardcoded CSL's 0.20 bar so every Liga MX signal above its
+  # own threshold read as thin, and it dropped the opener proof the contract had
+  # been carrying all along. Both are fixed and deployed.
+  #
+  # The threshold itself was re-measured rather than taken on trust. Walk-forward
+  # over 464 Betano openers, refitting per matchday, the EV >= 10% rule fired 177
+  # bets and beat Pinnacle's closing line by +0.073 on average, 95% CI
+  # [+0.033, +0.113]. See D31 for what that does and does not establish.
+  validated: true
+  caveat: ""
 
 notify:
   # On. This league is the one that actually fires, and an alert that reaches a

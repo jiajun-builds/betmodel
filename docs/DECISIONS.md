@@ -1057,3 +1057,44 @@ finds no anchor, falls back to raw as it always did, and reproduces the old outp
 exactly. The gate is unaffected because the change cannot reach the inputs it
 replays. That is luck rather than design, and the next behaviour change will not
 have it.
+
+
+## D31 — Liga MX's threshold is validated on closing-line value, not on profit.
+
+The league shipped `validated: false` with a caveat naming two blockers. Both were
+downstream: the board hardcoded CSL's 0.20 bar, so a Liga MX signal between its own
+0.10 threshold and 0.20 was painted as a thin edge the producer had in fact
+backtested and fired on; and the opener proof the contract carries on every quote
+was never displayed, so "opening price" appeared beside prices that had not earned
+the name. Both are fixed and deployed, so the flag is flipped.
+
+**The threshold was re-measured rather than taken on trust.** Walk-forward over the
+464 Betano openers in the match table, refitting per matchday so nothing is scored
+on data it trained on, the EV >= 10% rule fired 177 bets between 2024-03 and
+2026-08 at mean odds 4.09 and a 33.9% strike rate.
+
+| | |
+|---|---|
+| CLV against Pinnacle's no-vig close (n=114) | **+0.0730**, 95% CI [+0.0329, +0.1128] |
+| flat-stake P&L | +30.27 units over 177 bets, ROI +17.1% |
+| per-bet P&L | +0.171, 95% CI [-0.096, +0.463] |
+
+**The CLV interval is the result; the P&L interval is not.** At mean odds above 4
+a 177-bet sample cannot separate a 17% ROI from zero, and quoting the ROI as the
+finding would be reading noise. Beating the close by 7.3 points of expected value,
+with the interval clear of zero and positive in four of five seasons, is the part
+that survives.
+
+**What this does not establish.** It measures the *uncalibrated* rule. The strategy
+that runs today anchors the model on Pinnacle's opening price, and the history has
+33 of those against 464 Betano openers -- 21 fixtures carry both, which is no
+sample at all. So the selection measured here is not quite the selection made
+today. Calibration is a measured improvement to the probabilities (D29, and the
+CSL walk-forward: log loss -0.008, 95% CI [-0.015, -0.001]), so the live rule
+should select at least as well -- but "should" is an inference, and it changes
+*which* bets fire, not just how confident they are.
+
+Closing that gap needs Pinnacle openers to accumulate under the capture the anchor
+work put in place. It is a reason to keep measuring, not a reason to withhold the
+flag: the threshold has real evidence behind it and the board can now show it
+honestly, which is exactly what the caveat asked for.
