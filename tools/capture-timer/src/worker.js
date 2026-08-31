@@ -106,6 +106,28 @@ async function closeIsDue(env, league, now) {
   return false;
 }
 
+/**
+ * Fire the daily full refresh.
+ *
+ * Here rather than on a GitHub `schedule:`, for the same measured reason the
+ * capture ticks are: that scheduler is late by a median of nothing and a p90 of
+ * over two hours, and on two separate days it skipped the 06:17 outright. This
+ * cron has never missed one.
+ *
+ * Not per league -- the workflow refreshes every league in one run, and splitting
+ * it would race two jobs over the same match tables.
+ */
+async function dispatchRefresh(env) {
+  const response = await github(env, `/repos/${OWNER}/${REPO}/dispatches`, {
+    method: "POST",
+    body: JSON.stringify({ event_type: "refresh-tick" }),
+  });
+  console.log(`refresh dispatch: HTTP ${response.status}`);
+  if (response.status !== 204) {
+    await alert(env, `capture-timer: refresh dispatch returned ${response.status}`);
+  }
+}
+
 async function dispatch(env, league, kind) {
   const response = await github(env, `/repos/${OWNER}/${REPO}/dispatches`, {
     method: "POST",
@@ -177,10 +199,20 @@ export default {
       return;
     }
 
-    // Once a day, two hours after the refresh's own 06:17 cron, so a late-but-
-    // present run is not reported as missing. Stateless: this timer fires every
-    // five minutes, so one nominated tick a day needs nothing remembered.
     const at = new Date(now);
+
+    // The daily refresh, on the hour this timer chooses rather than one GitHub
+    // may or may not honour. Late enough that the last kickoff in either league
+    // has settled.
+    if (at.getUTCHours() === 6 && at.getUTCMinutes() >= 15 && at.getUTCMinutes() < 20) {
+      ctx.waitUntil(dispatchRefresh(env));
+    }
+
+    // Two hours later, check it actually ran. The dispatch above can still fail --
+    // an expired token, a GitHub outage -- and the run it asks for can fail on its
+    // own; this is what notices either. It stays outside the refresh for the
+    // reason it was moved out of it: a check inside a job reports nothing when the
+    // job never starts.
     if (at.getUTCHours() === 8 && at.getUTCMinutes() < 5) {
       const state = await refreshIsOverdue(env, now);
       if (state && state.hours > MAX_REFRESH_AGE_HOURS) {

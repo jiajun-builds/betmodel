@@ -8,6 +8,14 @@
 name: refresh
 
 on:
+  # Triggered by the capture timer, not by GitHub's scheduler. Measured on this
+  # project over 299 runs, a requested every-10-minutes GitHub schedule landed at
+  # a median of 10 minutes, a p90 of 137 and a worst case of 232 -- and twice, on
+  # 29 and 31 August, the daily 06:17 did not fire at all. That reasoning already
+  # governed the capture ticks; leaving this one on `schedule:` was an
+  # inconsistency, and it cost two silent days of stale fixtures, results and xG.
+  repository_dispatch:
+    types: [refresh-tick]
   workflow_dispatch:
     inputs:
       league:
@@ -16,9 +24,6 @@ on:
       dry_run:
         type: boolean
         default: false
-  schedule:
-    # Once a day, after the last kickoff in either league has settled.
-    - cron: "17 6 * * *"
 
 permissions:
   contents: write
