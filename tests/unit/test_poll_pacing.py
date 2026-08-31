@@ -9,7 +9,8 @@ against the daily-budget one, which is the wrong way round.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import pathlib
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -82,10 +83,14 @@ def test_a_valid_interval_is_accepted():
 def test_a_manual_run_can_ignore_the_pacing(monkeypatch, tmp_path):
     """The clock must not silence the tool you reach for when something is wrong.
 
-    Verifying the credential change hours before a matchday, a dispatched capture
-    ran at 11:01, declined every provider because 11:01 is not a multiple of 10 or
-    180, and reported success having done nothing. A scheduled tick skipping its
-    turn is the design; a human asking for one and getting a no-op is not.
+    A scheduled tick skipping its turn is the design; a human asking for one and
+    getting a no-op is not. Verifying a credential change hours before a matchday,
+    a dispatched capture declined every provider and reported success having
+    touched nothing, which proved nothing about the credential.
+
+    The time used here is a real tick the timer fires on and a real "no" for a
+    ten-minute book, so the override is what makes the difference rather than an
+    accident of the clock.
     """
     from betmodel.odds import capture_open as module
 
@@ -96,13 +101,13 @@ def test_a_manual_run_can_ignore_the_pacing(monkeypatch, tmp_path):
         return []
 
     monkeypatch.setattr(module, "pending_fixtures", _fake_pending)
-    at_an_odd_minute = _at(11, 1)
+    at_an_odd_minute = _at(11, 6)  # snaps to the 11:05 tick: real, and not due
 
     module.capture_opens(
         "csl", CSL, now=at_an_odd_minute, dry_run=True,
         history_path=str(tmp_path / "h.csv"), fixtures_path=str(tmp_path / "f.csv"),
     )
-    assert seen == [], "an ordinary tick at 11:01 is due for nothing"
+    assert seen == [], "an ordinary tick at 11:05 is due for nothing"
 
     module.capture_opens(
         "csl", CSL, now=at_an_odd_minute, dry_run=True, ignore_schedule=True,
@@ -110,3 +115,49 @@ def test_a_manual_run_can_ignore_the_pacing(monkeypatch, tmp_path):
     )
     assert seen, "an override must poll despite the clock"
     assert {b for group in seen for b in group} == {"onexbet", "duel", "pinnacle"}
+
+
+# --------------------------------------------------------------------------- #
+# the lag between the tick firing and this code running
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("lag_seconds", [0, 20, 60, 90, 170, 290])
+def test_realistic_startup_lag_still_resolves_to_the_tick_that_fired(lag_seconds):
+    """The check runs after the runner starts, not when the timer fires.
+
+    This is the regression that stopped opening-line capture for twenty-two hours
+    while every run reported success: a tick dispatched at :40 evaluated at :41,
+    41 % 10 was never zero, and every provider was declined. Queueing, runner
+    startup and pip install measure 60-90 seconds, so any pacing that reads the
+    wall clock directly is wrong by construction.
+    """
+    fired = _at(8, 40)
+    ran = fired + timedelta(seconds=lag_seconds)
+    assert {b.key for b in co.books_due(CSL, "oddsapiio", ran)} == {"onexbet", "duel"}
+
+
+def test_a_tick_the_timer_never_fires_on_is_still_not_due():
+    # The snap must not turn every minute into a due one: :35 is a real tick and
+    # a real "no" for a ten-minute book.
+    assert co.books_due(CSL, "oddsapiio", _at(8, 36)) == ()
+
+
+def test_lag_past_a_whole_tick_lands_in_the_next_slot():
+    """Documented, not defended: beyond one tick the run is attributed elsewhere.
+
+    Five minutes of startup would be extraordinary -- measured runs take about
+    33 seconds -- and the cost when it happens is one skipped slot, not silence,
+    because the following tick is due on its own.
+    """
+    assert co.books_due(CSL, "oddsapiio", _at(8, 40) + timedelta(minutes=6)) == ()
+    assert {b.key for b in co.books_due(CSL, "oddsapiio", _at(8, 50))} == {"onexbet", "duel"}
+
+
+def test_the_grid_matches_the_timer_that_dispatches():
+    """A mismatch would snap to slots the Worker never fires on."""
+    import re
+
+    toml = pathlib.Path("tools/capture-timer/wrangler.toml").read_text()
+    crons = re.findall(r'"\*/(\d+) \* \* \* \*"', toml)
+    assert crons, "the timer's cron is not in the expected */N form"
+    assert int(crons[0]) == co.TIMER_TICK_MINUTES

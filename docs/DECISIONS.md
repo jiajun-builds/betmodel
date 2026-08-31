@@ -940,3 +940,43 @@ muted, and a muted watchdog is worse than none.
 **The general rule this cost twice to learn:** a check on a scheduled job cannot
 live in that job. It has to be reachable when the thing it watches is not running
 at all, which is the only failure mode where it matters.
+
+## D28 — The clock at execution time is not the clock at dispatch time.
+
+D24 paced each book by `minutes-since-midnight % poll_interval == 0`, reading the
+clock inside the capture. The clock inside the capture is not when the tick fired.
+The workflow has to be queued, a runner started and dependencies installed, which
+lands the check 60 to 90 seconds late — a tick dispatched at :40 evaluates at :41,
+`41 % 10` is never zero, and every provider is declined.
+
+**Opening-line capture stopped completely for twenty-two hours and every run
+reported success.** That is the part worth keeping: a tick that declines to spend
+produces exactly the same log and the same green tick as a tick with nothing
+pending. The stats line even reads `pending: 0`, because the pending set is
+computed after the due check and is never reached. Nothing distinguished "paced
+off" from "nothing to do", so nothing could have alerted.
+
+Measured cost: zero Chinese Super League opens and zero Liga MX opens taken
+automatically in that window; the three Liga MX rows that exist came from two
+manual runs made for an unrelated reason. Opening lines are not recoverable and
+no provider sells them retroactively, so whatever opened in those hours is gone.
+
+**The fix is to ask which tick this run belongs to**, by snapping the clock back
+to the timer's five-minute grid before the modulus. That was always the intended
+question; reading the raw clock was a way of asking it that happens to be wrong by
+one runner startup. It tolerates any lag shorter than a tick, and a longer one
+costs a single skipped slot rather than silence.
+
+**Three guards, because this failed silently:** the grid constant is asserted
+against the Worker's actual cron, so the two cannot drift apart; the due
+resolution is logged with the slot it picked, so a future instance of this is
+visible in one line; and the pacing is tested at six realistic startup lags rather
+than at the instant of the tick, which is the only condition it was ever checked
+under before.
+
+**The wider lesson, which cost the second twenty-two hours today.** Every one of
+these — the swallowed provider outage, the workflow that reported success on zero
+fetches, the schedule that never fired, and now this — is the same shape: a
+component that declines to act looks identical to a component with nothing to do.
+The distinction has to be made explicit at the point where it is known, or it
+cannot be recovered downstream.

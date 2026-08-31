@@ -105,6 +105,13 @@ def pending_fixtures(
     return sorted(pending, key=lambda p: p.fixture.kickoff)
 
 
+#: The timer's dispatch grid. Must match the Worker's cron in
+#: ``tools/capture-timer/wrangler.toml``: the pacing below snaps the clock back to
+#: this grid to recover which tick it is running for, and a mismatch would snap to
+#: slots the timer never fires on.
+TIMER_TICK_MINUTES = 5
+
+
 def books_for(config: LeagueConfig, provider: str) -> tuple[BookConfig, ...]:
     """Polled books belonging to one provider, in declared order."""
     return tuple(b for b in config.odds.polled_books if b.provider == provider)
@@ -127,6 +134,20 @@ def books_due(
     trivially predictable when reading a log. Intervals must divide the day
     evenly for that to hold, which the schema enforces.
 
+    **The clock is snapped back to the timer's grid first, and that is not a
+    detail.** The first version tested ``now`` directly, and ``now`` is when this
+    code runs, not when the tick fired: the workflow has to be queued, a runner
+    started and dependencies installed, which lands the check 60 to 90 seconds
+    late. A tick dispatched at :40 evaluated at :41, ``41 % 10`` was never zero,
+    and every provider was declined on every tick. Opening-line capture stopped
+    dead for twenty-two hours and reported success the whole time, because a tick
+    that declines to spend looks exactly like a tick with nothing pending.
+
+    Snapping means the question asked is "which tick am I", which is the question
+    that was always meant. It tolerates any startup lag shorter than one tick; a
+    run delayed by more than five minutes lands in the next slot and skips, which
+    for a ten-minute book costs ten minutes.
+
     A missed tick skips that slot rather than delaying it. That is acceptable
     where it applies: the anchor's opening line appears a median of 165 hours
     before kickoff, so losing one three-hour slot costs nothing. It would not be
@@ -134,10 +155,15 @@ def books_due(
     the timer instead, and never on a modulus.
     """
     minutes = now.hour * 60 + now.minute
-    return tuple(
+    slot = minutes - (minutes % TIMER_TICK_MINUTES)
+    due = tuple(
         b for b in books_for(config, provider)
-        if minutes % b.poll_interval_minutes == 0
+        if slot % b.poll_interval_minutes == 0
     )
+    log.debug("%s: %02d:%02d resolves to slot %02d:%02d, due: %s",
+              provider, now.hour, now.minute, slot // 60, slot % 60,
+              [b.key for b in due] or "nothing")
+    return due
 
 
 def _row(
