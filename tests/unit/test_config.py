@@ -253,3 +253,28 @@ def test_unknown_league_lists_what_exists(tmp_path):
 def test_league_id_may_not_escape_the_data_directory():
     with pytest.raises(ValueError):
         paths.for_league("../../etc")
+
+
+@pytest.mark.parametrize("league", available_leagues())
+def test_the_close_reserve_is_actually_reserved(league):
+    """The open floor only reserves credit if the close floor sits below it.
+
+    Both were 50. The open floor is there to stop spending the tail of a metered
+    period on opening lines so that closing lines still have credit, but with the
+    two equal the reserve protected nothing: at 48 remaining the opens stopped and
+    so did the closes, leaving the last 50 credits of every period unspendable by
+    anything at all. On 2026-08-31 that took out every CSL anchor slot and every
+    CSL close on the same account, while every workflow run reported success.
+
+    A close has a hard deadline at kickoff and cannot be re-bought at any price,
+    so it must be the last thing to stop, not the first.
+    """
+    config = load_league(league)
+    close = config.odds.close
+    if close is None:
+        pytest.skip(f"{league} captures no closing lines")
+    assert close.min_remaining < config.odds.quota_floor, (
+        f"{league}: closes floor at {close.min_remaining} and opens at "
+        f"{config.odds.quota_floor}; the reserve frees nothing for the one thing "
+        "that cannot be captured later"
+    )

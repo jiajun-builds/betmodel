@@ -147,7 +147,19 @@ odds:
     # 15-minute window loses nothing on this evidence.
     window_minutes: 15
     target_minutes: 10
-    min_remaining: 50
+    # Deliberately far below `odds.quota_floor`, and that gap is the whole
+    # mechanism. The open floor exists to stop spending the tail of the period on
+    # opening lines so that closes -- which have a hard deadline at kickoff and
+    # cannot be bought back at any price -- still have credit. Setting both to 50
+    # meant the reserve protected nothing: at 48 remaining the opens stopped,
+    # correctly, and the closes stopped too, so the last 50 credits of every
+    # period were unspendable by anything. Observed on 2026-08-31, when every
+    # anchor slot and every close was refused against 48 remaining.
+    #
+    # Nothing downstream outranks a close, so this is a stop-cleanly floor rather
+    # than a reserve. At one request per tick and three ticks a fixture, the 45
+    # credits it now frees are about fifteen fixtures' worth.
+    min_remaining: 5
 
   open:
     lookahead_days: 14
