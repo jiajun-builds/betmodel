@@ -80,10 +80,35 @@ def test_csl_anchors_the_draw_on_pinnacle_and_never_bets_it():
     assert c.signals.sides == ("home", "away")
 
 
-def test_ligamx_does_not_debias_and_does_bet_the_draw():
+def test_ligamx_anchors_the_draw_and_does_bet_it():
+    """It bets the draw, which is why anchoring the draw matters most here.
+
+    This league ran without de-bias until it had Pinnacle opening lines to anchor
+    to -- the config said so in as many words, and the condition is now met. The
+    combination is the point: the model prices the draw worst, this league is the
+    one that will actually take a draw, and the anchor is the correction. Turning
+    it on moved one fixture's draw EV by 17 points and dropped a firing signal.
+    """
     c = load_league("ligamx")
-    assert c.signals.debias.enabled is False
+    assert c.signals.debias.enabled is True
+    assert c.signals.debias.anchor_book == "pinnacle"
     assert c.signals.sides == ("home", "draw", "away")
+
+
+def test_no_league_anchors_on_a_book_it_bets():
+    """Structural, not per league.
+
+    Letting the price we intend to take also define the probability we price it
+    against would make every quote look fair by construction. The schema refuses
+    it at load; this asserts no shipped config is relying on that refusal never
+    being tested.
+    """
+    for league in available_leagues():
+        c = load_league(league)
+        anchor = c.signals.debias.anchor_book
+        if not anchor:
+            continue
+        assert anchor not in {b.key for b in c.odds.bet_books}, league
 
 
 def test_onexbet_legacy_prefix_stays_frozen():

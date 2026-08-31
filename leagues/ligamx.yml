@@ -101,11 +101,12 @@ odds:
     - key: pinnacle
       label: Pinnacle
       provider: theoddsapi
-      # Reference for now, anchor later. The intent is that both leagues
-      # calibrate the draw against the Pinnacle OPEN, but this league has zero
-      # Pinnacle opens captured, so there is nothing to anchor to until polling
-      # accumulates them. See docs/DECISIONS.md D1.
-      role: reference
+      # The de-bias anchor. Held at `reference` until this league had Pinnacle
+      # opens to anchor to; it now has them for every priced fixture, which was
+      # the stated precondition. Role only decides what is bettable, and an
+      # anchor is never bet -- letting the price we intend to take also define
+      # the probability we price it against is the mistake this guards.
+      role: anchor
       # Opening lines are irreproducible and no provider sells opener history,
       # so capture starts now even though nothing consumes it yet.
       poll_interval_minutes: 180
@@ -142,10 +143,19 @@ signals:
   allow_draw: true
   require_price_proof: true      # a signal needs a provably-first price, see capture_watch
   debias:
-    # Off. The draw bias the old calibration corrected turned out to be a fitter
-    # bug, and turning market anchoring on instead would change which bets fire.
-    # That needs a backtest and needs Pinnacle opens to exist first. D1.
-    method: none
+    # The model prices the draw worst and the market prices it best, so the draw
+    # is replaced by Pinnacle's no-vig OPENING draw and the freed mass returned
+    # to home and away pro rata. The opening price, never the current one: by the
+    # time a current price exists it has absorbed news the model has not, and
+    # anchoring on it calibrates today's probability against tomorrow's market.
+    #
+    # Turned on once this league had anchors for every priced fixture. It does
+    # change which bets fire -- measured on the Chinese Super League the same
+    # correction moves EV by 2.3 to 6.4 points, downward every time -- so the
+    # effect on this league is recorded in D30 rather than assumed to be small.
+    method: market_anchor
+    lambda: 1.0
+    anchor_book: pinnacle
 
 publish:
   legacy_contract: composite

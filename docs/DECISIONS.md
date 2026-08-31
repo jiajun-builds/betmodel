@@ -1015,3 +1015,45 @@ deliberately forgiving at half the fixtures: early in a round most legitimately
 have no anchor, and an alarm that fires on a normal Monday gets muted. A league
 configured `debias: none` is not judged at all, and neither is a league between
 rounds — dividing by zero would make the check itself the failure.
+
+## D30 — Liga MX anchors the draw too, and the correction runs both ways.
+
+The league's config had carried its own precondition since the merge: "Reference
+for now, anchor later… this league has zero Pinnacle opens captured, so there is
+nothing to anchor to until polling accumulates them." It now has an opening line
+for every priced fixture, so the anchor is on, and Pinnacle's role moves from
+`reference` to `anchor` because the schema requires it — role decides only what is
+bettable, and an anchor is never bet.
+
+**This matters more here than in the other league, because this one bets the
+draw.** `allow_draw` is true for Liga MX and false for the Chinese Super League,
+so the outcome the model prices worst is the one Liga MX will actually take a
+position on, and the anchor is the correction for exactly that.
+
+| | before | after |
+|---|---|---|
+| firing signals | 5 | 4 |
+| UNAM Pumas v Leon | +12.7% | **+7.3%**, below the 10 bar |
+| Atlas v Atlante | +25.9% | +21.3% |
+| Atletico San Luis v Guadalajara | +37.7% | **+40.3%** |
+| Cruz Azul v Santos Laguna, draw | −17.1% | **+0.2%** |
+
+**Correcting an earlier claim.** D29 recorded the correction as "downward every
+time", measured on six Chinese Super League fixtures. That is a property of those
+six, not of the method. Here it moves both ways, because the model's draw estimate
+sits on either side of the market's: where the model over-prices the draw the
+anchor lowers it and hands mass back to home and away, raising their EV. The
+Cruz Azul draw moved seventeen points, from a raw estimate of 0.159 against the
+market's 0.193 — the largest single error the anchor has caught, and on the side
+this league bets.
+
+**A signal was dropped, and that is the point rather than a cost.** UNAM Pumas was
+firing on an under-priced draw. It is exactly the false positive the estimate in
+the plan — 1.3 points, negligible against the bar — said would not happen.
+
+**Gate G3 still passes, and not because it was updated.** The frozen Liga MX
+baseline was captured when this league had no Pinnacle opens at all, so the replay
+finds no anchor, falls back to raw as it always did, and reproduces the old output
+exactly. The gate is unaffected because the change cannot reach the inputs it
+replays. That is luck rather than design, and the next behaviour change will not
+have it.
