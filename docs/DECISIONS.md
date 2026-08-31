@@ -980,3 +980,38 @@ fetches, the schedule that never fired, and now this — is the same shape: a
 component that declines to act looks identical to a component with nothing to do.
 The distinction has to be made explicit at the point where it is known, or it
 cannot be recovered downstream.
+
+## D29 — A whole league falling back to raw is not the fallback working.
+
+`signals.debias.apply` returns the raw grid when a fixture has no anchor price,
+and its docstring calls that fallback silent by design: no anchor book has opened
+that match yet, which is the normal early state of a round, and the `method` label
+on each signal records which path ran. That reasoning is right per fixture and
+wrong per league.
+
+The Chinese Super League is configured for `market_anchor` and published raw
+probabilities for three days. Its last Pinnacle opening line was 23 August, taken
+by the pre-merge pipeline; none of the 41 September fixtures had one, because the
+anchor poll was refused by its own quota floor — 49 requests against a floor of
+50. Every individual fallback was legitimate. The aggregate was a league running
+uncalibrated under a config that said otherwise, and the only thing that surfaced
+it was reading the config and the output side by side by hand.
+
+**The correction is much larger than the plan assumed.** The plan estimated a
+market-anchored draw moves EV by roughly 1.3 percentage points and reasoned that
+this was negligible against a 20-point threshold. Measured across six fixtures it
+is 2.3 to 6.4 points, in the same direction every time: the model under-prices the
+draw, the anchor raises it, home and away surrender mass proportionally, and every
+EV falls. A fixture at 21% raw lands near 15% anchored. That is the difference
+between a signal and a false one, and the estimate that dismissed it was wrong by
+a factor of two to five.
+
+Nothing was lost this time — CSL fired exactly one signal in the raw window and it
+survives the correction, 25.5% to 22.3% — but that is luck, not margin.
+
+**The check is on the published share, not on any single row**, because the
+distinction that matters is exactly the one a per-row check cannot see. It is
+deliberately forgiving at half the fixtures: early in a round most legitimately
+have no anchor, and an alarm that fires on a normal Monday gets muted. A league
+configured `debias: none` is not judged at all, and neither is a league between
+rounds — dividing by zero would make the check itself the failure.

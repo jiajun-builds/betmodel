@@ -104,6 +104,16 @@ jobs:
         run: betmodel ${{ inputs.league || 'all' }} freshness
              ${{ inputs.dry_run && '--dry-run' || '' }}
 
+      # After Publish, because it reads what was published rather than what was
+      # computed: the question is whether the configured de-bias reached the
+      # consumer, not whether the engine could have applied it.
+      - name: De-bias reached the published signals
+        if: ${{ !inputs.dry_run }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/check_debias_applied.py
+
       # Hosted here rather than in the capture workflow itself, because a job
       # that is failing cannot be relied on to report that it is failing, and a
       # five-minute cadence makes a per-run alert noise. Once a day is the right
