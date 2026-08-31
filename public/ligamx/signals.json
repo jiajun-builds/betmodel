@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-08-31T19:00:23Z",
+ "generated_at": "2026-08-31T20:22:17Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-04-puebla-toluca",
@@ -507,16 +507,8 @@
     "proof": "window",
     "captured_at": "2026-08-30T03:31:12Z"
    },
-   "bet": {
-    "side": "away",
-    "book": "duel",
-    "odds": 3.8,
-    "ev": 0.21311569560288057,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
+   "bet": null,
+   "state": "thin_evidence"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-06-unam-pumas-leon",
