@@ -908,3 +908,35 @@ breaks the measurement.
 
 The module is relabelled so no one mistakes it for a publishing path. Nothing
 should ever be written against those shapes again.
+
+## D27 — A watchdog inside the thing it watches reports nothing.
+
+GitHub's scheduled trigger skipped the daily refresh entirely on 29 and 31
+August. Not delayed, not failed — no run at all. The consequence on the 31st: two
+Liga MX matches finished overnight and stayed listed as upcoming fixtures, their
+results and xG unfetched, the model unrefitted, for eight hours.
+
+**Nothing reported it, and the reason is that both alarms were in the wrong
+place.** D20 put a failure alert in the refresh's last step, and D23 put the
+capture dead-man's switch there too, on the reasoning that a daily job is the
+right cadence for a daily check. Both are steps inside `refresh.yml`. A workflow
+that never starts runs none of its steps, so a missing run and a healthy morning
+produce exactly the same evidence: no red run to notice, no message, and a board
+that looks fine because it is faithfully serving yesterday.
+
+The capture dead-man's switch had the same blind spot for the same reason, and
+would have missed a capture outage on any day the refresh did not run.
+
+**Moved to the capture timer**, which is a Cloudflare cron — the one trigger in
+this pipeline that has never missed, and the documented reason that timer exists
+at all rather than using GitHub's scheduler. It checks once a day, two hours
+after the refresh's own cron so a late run is not called a missing one, and it
+asks the Actions API directly when `refresh.yml` last succeeded.
+
+**It declines to alert when it cannot tell.** If the API call fails, the answer is
+"unknown", not "overdue" — a watchdog that cries wolf on its own blind spot gets
+muted, and a muted watchdog is worse than none.
+
+**The general rule this cost twice to learn:** a check on a scheduled job cannot
+live in that job. It has to be reachable when the thing it watches is not running
+at all, which is the only failure mode where it matters.

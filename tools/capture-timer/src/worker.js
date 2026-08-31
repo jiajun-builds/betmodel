@@ -36,6 +36,14 @@ const REPO = "betmodel";
  */
 const CLOSE_LEAD_MINUTES = 20;
 
+/**
+ * How long the daily refresh may go without succeeding before it is reported.
+ *
+ * Just over a day, so one skipped morning is caught while a run that merely
+ * lands late is not.
+ */
+const MAX_REFRESH_AGE_HOURS = 26;
+
 const API = "https://api.github.com";
 
 async function github(env, path, init = {}) {
@@ -105,20 +113,59 @@ async function dispatch(env, league, kind) {
   });
   const ok = response.status === 204;
   console.log(`${league} ${kind}: HTTP ${response.status}`);
-  if (!ok && env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+  if (!ok) {
     // A dispatch that stops working is invisible otherwise: no run appears, and
     // an absent run looks exactly like an idle tick. One outage went unnoticed
     // for roughly 41 hours that way.
+    await alert(env, `capture-timer: ${league} ${kind} dispatch returned ${response.status}`);
+  }
+  return ok;
+}
+
+/** Best-effort Telegram. A failed alert must never replace what it reports. */
+async function alert(env, text) {
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+    console.log(`no telegram credentials; not sent: ${text}`);
+    return;
+  }
+  try {
     await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: env.TELEGRAM_CHAT_ID,
-        text: `capture-timer: ${league} ${kind} dispatch returned ${response.status}`,
-      }),
+      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text }),
     });
+  } catch (err) {
+    console.log(`alert failed: ${err.message}`);
   }
-  return ok;
+}
+
+/**
+ * Has the daily refresh actually run?
+ *
+ * This lives here, and not in the refresh workflow, for a reason learned twice.
+ * That workflow already alerts on its own failures and already hosts the capture
+ * dead-man's switch -- but both are steps *inside* it, so they report nothing
+ * when the run never starts. GitHub's scheduled trigger skipped 06:17 outright on
+ * two separate days, and the silence was identical to a healthy morning: no red
+ * run to notice, no alert, and stale data behind a board that looked fine.
+ *
+ * A watchdog has to sit outside the thing it watches. This timer is the one piece
+ * of the pipeline on a cron that has never missed, which is why it exists at all.
+ */
+async function refreshIsOverdue(env, now) {
+  const response = await github(
+    env,
+    `/repos/${OWNER}/${REPO}/actions/workflows/refresh.yml/runs?status=success&per_page=1`
+  );
+  if (!response.ok) {
+    console.log(`cannot read refresh history: HTTP ${response.status}`);
+    return null; // unknown, not overdue: never alert on our own blind spot
+  }
+  const runs = (await response.json()).workflow_runs ?? [];
+  if (runs.length === 0) return { hours: Infinity, at: null };
+  const at = runs[0].updated_at;
+  const hours = (now - new Date(at).getTime()) / 3600000;
+  return { hours, at };
 }
 
 export default {
@@ -128,6 +175,22 @@ export default {
     if (ids.length === 0) {
       console.log("no leagues discovered; nothing dispatched");
       return;
+    }
+
+    // Once a day, two hours after the refresh's own 06:17 cron, so a late-but-
+    // present run is not reported as missing. Stateless: this timer fires every
+    // five minutes, so one nominated tick a day needs nothing remembered.
+    const at = new Date(now);
+    if (at.getUTCHours() === 8 && at.getUTCMinutes() < 5) {
+      const state = await refreshIsOverdue(env, now);
+      if (state && state.hours > MAX_REFRESH_AGE_HOURS) {
+        const when = state.at ? `last succeeded ${state.at}` : "has never succeeded";
+        ctx.waitUntil(alert(
+          env,
+          `betmodel: the daily refresh ${when} (${Math.round(state.hours)}h ago). ` +
+          `Fixtures, results and xG are not being updated.`
+        ));
+      }
     }
 
     for (const league of ids) {
