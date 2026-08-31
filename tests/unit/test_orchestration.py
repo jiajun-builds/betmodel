@@ -190,3 +190,51 @@ def test_every_data_file_has_something_that_writes_it():
         "no path helper names these, so nothing in the pipeline writes them: "
         + ", ".join(sorted(orphans))
     )
+
+
+# --------------------------------------------------------------------------- #
+# the anchor rescue's position in the pipeline
+# --------------------------------------------------------------------------- #
+
+def _step_names(workflow: str, job: str) -> list[str]:
+    spec = yaml.safe_load((ROOT / f".github/workflows/{workflow}.yml").read_text())
+    return [s.get("name") or "" for s in spec["jobs"][job]["steps"]]
+
+
+@pytest.mark.parametrize("workflow,job", [("capture", "capture"), ("refresh", "refresh")])
+def test_the_anchor_is_fetched_before_anything_is_published(workflow, job):
+    """Order is the whole design, not a detail.
+
+    The engine refuses to fire an edge it could not calibrate, and the notifier
+    warns about one. If publish ran before the rescue, every newly listed fixture
+    would produce a warning first and a bet second -- two messages for one
+    decision, the first of them wrong. Running the rescue first is what makes the
+    warning mean "the fetch was tried and did not help" rather than "the fetch has
+    not happened yet".
+    """
+    names = _step_names(workflow, job)
+    anchor = next(i for i, n in enumerate(names) if "Anchor for a stranded edge" in n)
+    publish = next(i for i, n in enumerate(names) if n in {"Publish", "Republish signals"})
+    assert anchor < publish, f"{workflow}: the rescue must precede publish"
+
+
+def test_the_rescue_is_bought_only_by_a_capture_that_appended():
+    """Spend is bounded by the trigger. On an idle tick no price appeared, so
+    nothing can have become stranded, and a metered provider must not be touched
+    to discover that."""
+    spec = yaml.safe_load((ROOT / ".github/workflows/capture.yml").read_text())
+    step = next(s for s in spec["jobs"]["capture"]["steps"]
+                if "Anchor for a stranded edge" in (s.get("name") or ""))
+    assert "steps.opens.outputs.appended == 'true'" in step["if"]
+
+
+def test_a_tick_where_only_the_anchor_landed_still_republishes():
+    """That tick is precisely the one that turns `unanchored` into a bet.
+
+    Without the anchor step in the republish gate the rescue would write the
+    anchor to disk and never publish the signal it unlocked, which is the whole
+    point of fetching it.
+    """
+    text = (ROOT / ".github/workflows/capture.yml").read_text()
+    republish = text.split("Republish signals", 1)[1].split("- name:", 1)[0]
+    assert "steps.anchor.outputs.appended == 'true'" in republish

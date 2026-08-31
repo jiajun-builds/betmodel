@@ -141,11 +141,20 @@ def unanchored_signals(current: list[dict], previous: list[dict]) -> list[dict]:
     silence -- means a fixture clears the bar, cannot be calibrated, and simply
     never appears, which is indistinguishable from there being no edge at all.
 
-    No age threshold, deliberately. The pipeline tries to fetch the anchor on
-    demand *before* publishing, so a row still `unanchored` by the time this runs
-    is one the fetch already failed to rescue. Warning on the first sighting is
-    therefore warning once the answer is actually known. If that ordering is ever
-    broken, this becomes noisy, which is the right way for it to fail.
+    **This is a fallback, not the normal path.** `capture-anchor` runs before
+    publish on both workflows and buys the anchor the moment an edge is stranded,
+    so in the ordinary case a fixture is calibrated before this code ever sees it
+    and a bet alert goes out instead. What is left over is the three ways that
+    fetch can fail to help: the anchor book has genuinely not listed the fixture
+    yet, the account is under its `quota_floor` and the tick was skipped, or the
+    provider errored.
+
+    No age threshold, deliberately, because that ordering is what does the
+    waiting. A row still `unanchored` by the time this runs is one the fetch
+    already tried and could not rescue, so the first sighting is the moment the
+    answer is actually known. `test_the_anchor_is_fetched_before_anything_is
+    _published` holds the ordering; if it is ever broken this goes noisy, which
+    is the right way for it to fail.
     """
     already = {
         s.get("fixture_id", "") for s in previous if s.get("state") == STATE_UNANCHORED
