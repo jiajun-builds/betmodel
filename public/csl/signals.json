@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-31T12:11:49Z",
+ "generated_at": "2026-08-31T12:21:19Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-05-wuhan-three-towns-qingdao-west-coast",
@@ -121,6 +121,33 @@
    },
    "quotes": [
     {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 1.425,
+     "ev": -0.2207642504449029,
+     "captured_at": "2026-08-31T12:21:16Z",
+     "last_update": "2026-08-31T12:04:59.369Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 4.94,
+     "ev": 0.12908993978307892,
+     "captured_at": "2026-08-31T12:21:16Z",
+     "last_update": "2026-08-31T12:04:59.369Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 6.65,
+     "ev": 0.49363773698360647,
+     "captured_at": "2026-08-31T12:21:16Z",
+     "last_update": "2026-08-31T12:04:59.369Z",
+     "proof": "window"
+    },
+    {
      "book": "duel",
      "side": "home",
      "odds": 1.49,
@@ -155,30 +182,31 @@
      "ev": -0.18522016362309146
     },
     "draw": {
-     "book": "duel",
-     "odds": 4.9,
-     "ev": 0.11994751112086766
+     "book": "onexbet",
+     "odds": 4.94,
+     "ev": 0.12908993978307892
     },
     "away": {
-     "book": "duel",
-     "odds": 6.4,
-     "ev": 0.4374859423601627
+     "book": "onexbet",
+     "odds": 6.65,
+     "ev": 0.49363773698360647
     }
    },
    "judged": {
     "side": "away",
-    "book": "duel",
-    "odds": 6.4,
-    "ev": 0.4374859423601627,
+    "book": "onexbet",
+    "odds": 6.65,
+    "ev": 0.49363773698360647,
     "proof": "window",
-    "captured_at": "2026-08-31T12:01:39Z"
+    "captured_at": "2026-08-31T12:21:16Z"
    },
    "bet": {
     "side": "away",
-    "book": "duel",
-    "odds": 6.4,
-    "ev": 0.4374859423601627,
+    "book": "onexbet",
+    "odds": 6.65,
+    "ev": 0.49363773698360647,
     "books": [
+     "onexbet",
      "duel"
     ]
    },
@@ -389,6 +417,33 @@
     "method": "raw"
    },
    "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 3.42,
+     "ev": -0.13421897777448066,
+     "captured_at": "2026-08-31T12:21:16Z",
+     "last_update": "2026-08-31T12:04:59.369Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 3.64,
+     "ev": -0.031058646625766517,
+     "captured_at": "2026-08-31T12:21:16Z",
+     "last_update": "2026-08-31T12:04:59.369Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 2.05,
+     "ev": -0.014657301615704332,
+     "captured_at": "2026-08-31T12:21:16Z",
+     "last_update": "2026-08-31T12:04:59.369Z",
+     "proof": "window"
+    },
     {
      "book": "duel",
      "side": "home",
