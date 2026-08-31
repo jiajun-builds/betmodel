@@ -270,6 +270,7 @@ def build_signals(
     fixtures_path: str | None = None,
     history_path: str | None = None,
     watch_path: str | None = None,
+    team_stats_path: str | None = None,
 ) -> list[Signal]:
     """Every upcoming fixture that some book has priced.
 
@@ -279,7 +280,10 @@ def build_signals(
     """
     now = now or datetime.now(timezone.utc)
     model = _model_probabilities(league, simulations_path)
-    evidence = team_evidence(league) if config.signals.min_team_evidence else {}
+    evidence = (
+        team_evidence(league, team_stats_path)
+        if config.signals.min_team_evidence else {}
+    )
     opens = reduce_module.collapse_opens(
         league, config, history_path=history_path, watch_path=watch_path
     )

@@ -86,6 +86,9 @@ def _replay(league: str) -> tuple[dict, dict]:
                 f"{GOLDEN}/{league}/inputs/capture_watch.csv"
                 if os.path.exists(f"{GOLDEN}/{league}/inputs/capture_watch.csv") else None
             ),
+            # Frozen too, or the replay reads today's evidence counts against a
+            # baseline captured weeks ago and the gate stops being hermetic.
+            team_stats_path=f"{GOLDEN}/{league}/model/team_stats.csv",
         )
     return payload, {s.fixture_id: s for s in signals}
 
