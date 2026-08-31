@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-08-31T02:01:21Z",
+ "generated_at": "2026-08-31T08:34:56Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-9-2026-03-03-atletico-san-luis-mazatlan",
@@ -1777,6 +1777,30 @@
    "home_goals": 0,
    "away_goals": 0,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-6-2026-08-30-toluca-fc-juarez",
+   "match_date": "2026-08-30",
+   "season": "Apertura 2026",
+   "round": "6",
+   "home_team": "Toluca",
+   "away_team": "FC Juarez",
+   "home_goals": 4,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-6-2026-08-30-monterrey-atletico-san-luis",
+   "match_date": "2026-08-30",
+   "season": "Apertura 2026",
+   "round": "6",
+   "home_team": "Monterrey",
+   "away_team": "Atletico San Luis",
+   "home_goals": 1,
+   "away_goals": 3,
+   "result": "A",
    "status": "played"
   }
  ]

@@ -1,6 +1,4 @@
 Season,Round,Date,Time,Home,Away,kickoff_utc
-Apertura 2026,6,2026-08-30,00:00,Toluca,FC Juarez,2026-08-31T00:00:00Z
-Apertura 2026,6,2026-08-30,02:10,Monterrey,Atletico San Luis,2026-08-31T02:10:00Z
 Apertura 2026,7,2026-09-04,01:00,Puebla,Toluca,2026-09-05T01:00:00Z
 Apertura 2026,7,2026-09-04,03:00,FC Juarez,Pachuca,2026-09-05T03:00:00Z
 Apertura 2026,7,2026-09-05,23:00,Atletico San Luis,Guadalajara,2026-09-05T23:00:00Z
@@ -61,6 +59,8 @@ Apertura 2026,13,2026-10-20,03:00,Tigres UANL,Leon,2026-10-21T03:00:00Z
 Apertura 2026,13,2026-10-20,03:07,Guadalajara,Necaxa,2026-10-21T03:07:00Z
 Apertura 2026,13,2026-10-21,01:00,Atlas,Club America,2026-10-22T01:00:00Z
 Apertura 2026,13,2026-10-21,01:00,Puebla,Monterrey,2026-10-22T01:00:00Z
+Apertura 2026,13,2026-10-21,01:00,Atlas,Club America,2026-10-22T01:00:00Z
+Apertura 2026,13,2026-10-21,01:00,Puebla,Monterrey,2026-10-22T01:00:00Z
 Apertura 2026,13,2026-10-21,01:00,Toluca,Tijuana,2026-10-22T01:00:00Z
 Apertura 2026,13,2026-10-21,03:00,Pachuca,Cruz Azul,2026-10-22T03:00:00Z
 Apertura 2026,13,2026-10-21,03:00,Santos Laguna,UNAM Pumas,2026-10-22T03:00:00Z
@@ -89,8 +89,6 @@ Apertura 2026,16,2026-11-07,00:00,Tigres UANL,Cruz Azul,2026-11-08T00:00:00Z
 Apertura 2026,16,2026-11-07,00:00,Atlas,Pachuca,2026-11-08T00:00:00Z
 Apertura 2026,16,2026-11-07,02:00,Toluca,Monterrey,2026-11-08T02:00:00Z
 Apertura 2026,16,2026-11-07,03:00,UNAM Pumas,Club America,2026-11-08T03:00:00Z
-Apertura 2026,16,2026-11-08,01:00,Queretaro,Puebla,2026-11-09T01:00:00Z
-Apertura 2026,16,2026-11-08,03:00,Leon,Guadalajara,2026-11-09T03:00:00Z
 Apertura 2026,17,2026-11-20,02:00,Puebla,Atletico San Luis,2026-11-21T02:00:00Z
 Apertura 2026,17,2026-11-20,04:00,FC Juarez,Atlas,2026-11-21T04:00:00Z
 Apertura 2026,17,2026-11-20,04:00,Tijuana,Atlante,2026-11-21T04:00:00Z
