@@ -232,7 +232,18 @@ D1_RETIRED_NOW_LINE = frozenset({
 #: When the export ran. Not a property of the data.
 EXPORT_STAMP = frozenset({"fetched_at"})
 
-ACCEPTED = D1_RETIRED_NOW_LINE | EXPORT_STAMP
+#: The opener proof got stricter, so rows the baseline called proven are no longer.
+#:
+#: `observed` used to mean "we once saw this book unpriced before this price".
+#: It now also requires that sighting to be recent, because a gap in capture lets
+#: the book post inside it unobserved -- which is not hypothetical: an exhausted
+#: account refused every Pinnacle call for two days while the old test would still
+#: have certified whatever was fetched afterwards. The baseline predates the last
+#: sighting being recorded at all, so nothing in it can satisfy the new test and
+#: every row falls back to the weaker proof.
+PROOF_TIGHTENED = frozenset({"price_proof"})
+
+ACCEPTED = D1_RETIRED_NOW_LINE | EXPORT_STAMP | PROOF_TIGHTENED
 
 
 def _equal(left, right) -> bool:

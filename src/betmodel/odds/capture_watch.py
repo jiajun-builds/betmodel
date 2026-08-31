@@ -36,7 +36,16 @@ from betmodel import paths
 
 log = logging.getLogger(__name__)
 
-COLUMNS = ["home_team", "away_team", "bookmaker", "first_seen_unpriced_at"]
+COLUMNS = [
+    "home_team", "away_team", "bookmaker",
+    "first_seen_unpriced_at",
+    # Updated on every sighting, unlike the first. The two answer different
+    # questions and only the second one proves an opener: the first bounds how
+    # early we started watching, the last bounds how recently we confirmed the
+    # book still had no price. A price captured long after the last confirmed
+    # sighting may have been posted at any point in that gap.
+    "last_seen_unpriced_at",
+]
 
 #: Proof strengths, strongest first.
 OBSERVED = "observed"
@@ -58,16 +67,30 @@ def load_watch(path: str) -> pd.DataFrame:
     return frame[COLUMNS]
 
 
-def watched_before(path: str) -> dict[tuple[str, str, str], pd.Timestamp]:
-    """``(home, away, book) -> earliest moment seen unpriced``."""
+def _stamps(path: str, column: str, how: str) -> dict[tuple[str, str, str], pd.Timestamp]:
     frame = load_watch(path)
     if frame.empty:
         return {}
     frame = frame.copy()
-    frame["seen"] = pd.to_datetime(frame["first_seen_unpriced_at"], utc=True, errors="coerce")
+    frame["seen"] = pd.to_datetime(frame[column], utc=True, errors="coerce")
     frame = frame.dropna(subset=["seen"])
-    grouped = frame.groupby(["home_team", "away_team", "bookmaker"])["seen"].min()
+    grouped = getattr(frame.groupby(["home_team", "away_team", "bookmaker"])["seen"], how)()
     return {key: value for key, value in grouped.items()}
+
+
+def watched_before(path: str) -> dict[tuple[str, str, str], pd.Timestamp]:
+    """``(home, away, book) -> earliest moment seen unpriced``."""
+    return _stamps(path, "first_seen_unpriced_at", "min")
+
+
+def watched_until(path: str) -> dict[tuple[str, str, str], pd.Timestamp]:
+    """``(home, away, book) -> latest moment confirmed still unpriced``.
+
+    This is the one that proves an opener. Rows written before the column
+    existed have no value here, which is the safe direction: an absent last
+    sighting withholds the proof rather than inventing one.
+    """
+    return _stamps(path, "last_seen_unpriced_at", "max")
 
 
 def record_unpriced(
@@ -75,10 +98,15 @@ def record_unpriced(
 ) -> int:
     """Log each (fixture, book) seen without a price. Returns rows added.
 
-    Only the **first** observation per triple is kept. That one bounds how early
-    we were watching, which is the whole point; keeping every observation would
-    grow the file by every unpriced fixture on every tick, forever, and prove
-    nothing extra.
+    One row per triple, never more. The first sighting is written once and never
+    moves; the last is overwritten on every tick. Keeping every observation as its
+    own row would grow the file by every unpriced fixture on every tick forever,
+    and the only thing the intermediate ones add is already carried by the last.
+
+    The last sighting is not bookkeeping. It is what makes the opener proof
+    survive a gap in capture: an unpriced sighting from two days ago proves
+    nothing about a price captured today, because the book may have posted at any
+    point in between and nobody was looking.
     """
     rows = [
         {
@@ -86,6 +114,7 @@ def record_unpriced(
             "away_team": str(away),
             "bookmaker": str(book),
             "first_seen_unpriced_at": observed_at,
+            "last_seen_unpriced_at": observed_at,
         }
         for home, away, book in observations
     ]
@@ -97,27 +126,28 @@ def record_unpriced(
         existing[["home_team", "away_team", "bookmaker"]].apply(tuple, axis=1)
     ) if not existing.empty else set()
 
-    fresh = [
-        r for r in rows
-        if (r["home_team"], r["away_team"], r["bookmaker"]) not in known
-    ]
     # Two ticks in one run can see the same pair; de-duplicate within the batch.
-    seen_in_batch: set[tuple[str, str, str]] = set()
-    deduped = []
-    for row in fresh:
-        key = (row["home_team"], row["away_team"], row["bookmaker"])
-        if key in seen_in_batch:
-            continue
-        seen_in_batch.add(key)
-        deduped.append(row)
+    batch: dict[tuple[str, str, str], dict] = {}
+    for row in rows:
+        batch[(row["home_team"], row["away_team"], row["bookmaker"])] = row
 
-    if not deduped:
+    # Refresh the last sighting on pairs already on file, and append the rest.
+    touched = 0
+    if not existing.empty:
+        keys = existing[["home_team", "away_team", "bookmaker"]].apply(tuple, axis=1)
+        hit = keys.isin(batch.keys())
+        touched = int(hit.sum())
+        existing.loc[hit, "last_seen_unpriced_at"] = observed_at
+
+    deduped = [row for key, row in batch.items() if key not in known]
+    if not deduped and not touched:
         return 0
 
     combined = pd.concat([existing, pd.DataFrame(deduped)], ignore_index=True)[COLUMNS]
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     combined.to_csv(path, index=False, encoding="utf-8")
-    log.info("recorded %d unpriced observation(s) -> %s", len(deduped), os.path.basename(path))
+    log.info("recorded %d new and refreshed %d unpriced observation(s) -> %s",
+             len(deduped), touched, os.path.basename(path))
     return len(deduped)
 
 
@@ -135,7 +165,8 @@ def watching_since(history: pd.DataFrame) -> pd.Timestamp | None:
 
 
 def opener_proof(
-    *, home, away, bookmaker, captured_at, kickoff, watched, since, horizon
+    *, home, away, bookmaker, captured_at, kickoff, watched, since, horizon,
+    watched_last=None, max_gap=None,
 ) -> str:
     """Why a captured price may be called this book's opener.
 
@@ -144,12 +175,32 @@ def opener_proof(
     reverse case. An empty string means the book may have been quoting before we
     ever looked, so the price is a first *sighting* and not an opener.
 
+    **Both proofs assume we were watching continuously, and one of them now
+    checks.** An unpriced sighting only rules out an earlier price if nobody
+    stopped looking in between; a gap lets the book post at any point inside it,
+    unobserved. That is not hypothetical -- an exhausted API account refused every
+    Pinnacle call for two days while `observed` would still have certified the
+    price fetched afterwards, on the strength of a sighting 2d06h stale.
+
+    So ``observed`` now requires the *last* confirmed unpriced sighting to be
+    within ``max_gap`` of the capture. Callers that pass neither ``watched_last``
+    nor ``max_gap`` get the old behaviour, which is why the anchor path passes
+    both.
+
     One implementation because two callers need the same verdict, and a second
     copy would be free to drift.
     """
-    seen = watched.get((home, away, str(bookmaker)))
+    key = (home, away, str(bookmaker))
+    seen = watched.get(key)
     if seen is not None and captured_at is not None and seen < captured_at:
-        return OBSERVED
+        if max_gap is None:
+            return OBSERVED
+        last = (watched_last or {}).get(key)
+        if last is not None and (captured_at - last) <= max_gap:
+            return OBSERVED
+        # Watched once, then not recently enough for the price to be pinned to a
+        # window we had eyes on. Falls through rather than returning: the window
+        # proof may still cover it on its own terms.
     if kickoff is not None and since is not None and (kickoff - horizon) >= since:
         return WINDOW
     return NONE

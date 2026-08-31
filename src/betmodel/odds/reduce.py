@@ -84,6 +84,27 @@ def _prepared(history: pd.DataFrame, config: LeagueConfig) -> pd.DataFrame:
     return frame[usable]
 
 
+#: How far the last confirmed unpriced sighting may be from the capture before it
+#: stops proving anything. Two and a half poll intervals: one tick may be missed
+#: to a runner delay or a concurrency cancel without voiding the proof, while a
+#: sustained outage -- the case this exists for -- is well outside it.
+PROOF_GAP_INTERVALS = 2.5
+
+
+def _proof_gap(config: LeagueConfig, book: str) -> pd.Timedelta | None:
+    """The tolerated silence for one book, or None when it is not polled.
+
+    None means the old, unchecked behaviour, which is correct for a book whose
+    opens nobody polls for: there is no cadence to measure a gap against.
+    """
+    for candidate in config.odds.books:
+        if candidate.key == book and candidate.poll_interval_minutes:
+            return pd.Timedelta(
+                minutes=candidate.poll_interval_minutes * PROOF_GAP_INTERVALS
+            )
+    return None
+
+
 def collapse_opens(
     league: str,
     config: LeagueConfig,
@@ -105,7 +126,9 @@ def collapse_opens(
     if frame.empty:
         return {}
 
-    watched = capture_watch.watched_before(watch_path or lp.capture_watch_csv)
+    watch_file = watch_path or lp.capture_watch_csv
+    watched = capture_watch.watched_before(watch_file)
+    watched_last = capture_watch.watched_until(watch_file)
     since = capture_watch.watching_since(history)
     horizon = pd.Timedelta(
         days=config.odds.open.lookahead_days if lookahead_days is None else lookahead_days
@@ -125,6 +148,7 @@ def collapse_opens(
             home=home, away=away, bookmaker=book,
             captured_at=first["_at"], kickoff=kickoff,
             watched=watched, since=since, horizon=horizon,
+            watched_last=watched_last, max_gap=_proof_gap(config, str(book)),
         )
         out[(str(home), str(away), str(book))] = {
             "home_odds": float(first.home_odds),
