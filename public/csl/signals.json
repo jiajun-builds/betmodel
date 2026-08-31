@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-08-31T09:51:16Z",
+ "generated_at": "2026-08-31T12:01:42Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-05-wuhan-three-towns-qingdao-west-coast",
@@ -101,6 +101,83 @@
     "book": "duel",
     "odds": 4.0,
     "ev": 0.22255636768267295,
+    "books": [
+     "duel"
+    ]
+   },
+   "state": "bet"
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-09-05-dalian-yingbo-qingdao-hainiu",
+   "kickoff_utc": "2026-09-05T11:35:00Z",
+   "round": "",
+   "home_team": "Dalian Yingbo",
+   "away_team": "Qingdao Hainiu",
+   "model": {
+    "home": 0.5468321049509454,
+    "draw": 0.2285607165552791,
+    "away": 0.2246071784937754,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.49,
+     "ev": -0.18522016362309146,
+     "captured_at": "2026-08-31T12:01:39Z",
+     "last_update": "2026-08-31T11:59:33.152Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.9,
+     "ev": 0.11994751112086766,
+     "captured_at": "2026-08-31T12:01:39Z",
+     "last_update": "2026-08-31T11:59:33.152Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 6.4,
+     "ev": 0.4374859423601627,
+     "captured_at": "2026-08-31T12:01:39Z",
+     "last_update": "2026-08-31T11:59:33.152Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.49,
+     "ev": -0.18522016362309146
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.9,
+     "ev": 0.11994751112086766
+    },
+    "away": {
+     "book": "duel",
+     "odds": 6.4,
+     "ev": 0.4374859423601627
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 6.4,
+    "ev": 0.4374859423601627,
+    "proof": "window",
+    "captured_at": "2026-08-31T12:01:39Z"
+   },
+   "bet": {
+    "side": "away",
+    "book": "duel",
+    "odds": 6.4,
+    "ev": 0.4374859423601627,
     "books": [
      "duel"
     ]
