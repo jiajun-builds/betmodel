@@ -11,3 +11,22 @@ ligamxterminal:
   branch:  main
   commits: 225
   dirty:   0 untracked/modified
+
+2026-08-31: the published/ trees were removed with gate G3.
+
+G3 asked whether the merged engine reproduced the two pre-merge pipelines'
+published *decisions*. It answered that, and passed, when the merge landed. What
+kept it alive afterwards was its use as a net against accidental change -- but the
+changes since have been deliberate ones (a signal must be calibrated, and a club
+the model has barely seen is not bettable), so it could only keep passing by
+exempting them one at a time, and Liga MX reached 23% of fields exempted against
+a 25% bound.
+
+Both of its firing rows were bets the engine now correctly refuses. The shape it
+compared against was no longer published to anyone either: public/legacy/ was
+emptied earlier, and its renderer survived only so this gate could test it.
+
+The inputs/ and model/ trees stay, because gate G1 still uses them and still
+passes with no exemptions at all. That one asks whether the merged *fitter*
+reproduces the frozen coefficients to floating point, which is evidence that
+cannot be recreated -- the source repositories are archived.

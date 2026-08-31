@@ -213,22 +213,13 @@ class LeaguePaths:
     def public_dir(self) -> str:
         return os.path.join(public_dir(), self.league)
 
-    @property
-    def public_legacy_dir(self) -> str:
-        """Pre-merge JSON shapes. Delete once the tracker reads index.json."""
-        return os.path.join(public_dir(), "legacy", self.league)
-
     def public_json(self, name: str) -> str:
         return os.path.join(self.public_dir, f"{name}.json")
 
-    def public_legacy_json(self, name: str) -> str:
-        return os.path.join(self.public_legacy_dir, f"{name}.json")
-
-    # --- helpers -------------------------------------------------------------
     def ensure_dirs(self) -> None:
         """Create every directory this league writes into."""
         for d in (self.root, self.model_dir, self.research_dir, self.cache_dir,
-                  self.public_dir, self.public_legacy_dir):
+                  self.public_dir):
             os.makedirs(d, exist_ok=True)
 
 

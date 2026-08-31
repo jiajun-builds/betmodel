@@ -95,11 +95,6 @@ odds:
       role: bet
       poll_interval_minutes: 10
       schema_prefix: onexbet
-      legacy_prefix: onexbet_open
-      legacy_prefix_note: >
-        Frozen. The published column names are derived from the book key
-        downstream, and every stored row plus the board's own column vocabulary
-        already spell it this way. Renaming blanks every CSL price silently.
     - key: duel
       label: Duel
       provider: oddsapiio
@@ -192,8 +187,6 @@ signals:
     anchor_book: pinnacle
 
 publish:
-  legacy_contract: per_book
-  legacy_ev_unit: fraction
   validated: true
 
 notify:

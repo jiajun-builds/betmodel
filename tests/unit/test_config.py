@@ -111,16 +111,6 @@ def test_no_league_anchors_on_a_book_it_bets():
         assert anchor not in {b.key for b in c.odds.bet_books}, league
 
 
-def test_onexbet_legacy_prefix_stays_frozen():
-    """The board derives CSL's column names from this prefix.
-
-    Letting it fall back to the derived "onexbet_open" would be correct by luck
-    today; the guard is that any change has to be deliberate.
-    """
-    book = load_league("csl").odds.book("onexbet")
-    assert book.effective_legacy_prefix == "onexbet_open"
-    assert book.legacy_prefix_note, "a frozen prefix must record why"
-
 
 def test_ligamx_never_takes_fixtures_from_thesportsdb():
     """A standing constraint, guarded because it is a tempting wrong turn.
@@ -233,10 +223,6 @@ def test_book_needs_a_declared_provider(tmp_path):
     with pytest.raises(ConfigError, match="not declared"):
         load_league("tst", str(tmp_path))
 
-
-def test_nondefault_legacy_prefix_requires_a_reason(tmp_path):
-    with pytest.raises(ConfigError, match="legacy_prefix_note"):
-        load_league("tst", _write(tmp_path, extra=", legacy_prefix: weird_open"))
 
 
 def test_filename_and_id_must_agree(tmp_path):

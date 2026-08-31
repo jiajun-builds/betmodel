@@ -25,9 +25,7 @@ NETWORKS = ("cloud", "residential")
 
 DEBIAS_METHODS = ("none", "market_anchor")
 
-LEGACY_CONTRACTS = ("per_book", "composite")
 
-EV_UNITS = ("fraction", "percent")
 
 
 class ConfigError(ValueError):
@@ -241,8 +239,6 @@ class BookConfig:
     lookahead_days: int | None = None
     credential: str = "default"    # which API account to spend
     schema_prefix: str | None = None   # column prefix in matches.csv; None = store only
-    legacy_prefix: str | None = None   # published legacy column prefix
-    legacy_prefix_note: str = ""       # required when legacy_prefix is non-default
     url: str = ""                      # where a human would go to take this price
 
     def __post_init__(self) -> None:
@@ -268,21 +264,7 @@ class BookConfig:
                 raise ConfigError(
                     f"{where}.poll_interval_minutes must be a multiple of the "
                     f"5-minute timer tick, got {self.poll_interval_minutes}")
-        # The published legacy column names are derived from the key downstream.
-        # A prefix that does not follow "<key>_open" is a frozen legacy name and
-        # silently blanks every price on the board if it drifts, so it has to be
-        # declared with a reason rather than merely written down.
-        if self.legacy_prefix is not None:
-            if self.legacy_prefix != f"{self.key}_open" and not self.legacy_prefix_note:
-                raise ConfigError(
-                    f"{where}: legacy_prefix {self.legacy_prefix!r} differs from the "
-                    f"derived {self.key}_open!r; set legacy_prefix_note to record why "
-                    "it is frozen"
-                )
 
-    @property
-    def effective_legacy_prefix(self) -> str:
-        return self.legacy_prefix or f"{self.key}_open"
 
     @property
     def is_bet_book(self) -> bool:
@@ -307,8 +289,6 @@ class BookConfig:
             ),
             credential=str(raw.get("credential", "default")),
             schema_prefix=raw.get("schema_prefix", key),
-            legacy_prefix=raw.get("legacy_prefix"),
-            legacy_prefix_note=str(raw.get("legacy_prefix_note", "") or ""),
             url=str(raw.get("url", "") or ""),
         )
 
@@ -550,10 +530,8 @@ class SignalConfig:
 class PublishConfig:
     """How this league appears in the published contract.
 
-    ``legacy_contract`` and ``legacy_ev_unit`` describe only the compatibility
-    files under ``public/legacy/``, which exist so the downstream board keeps
-    working across the cutover. The canonical contract under ``public/`` is
-    identical for every league and always expresses EV as a fraction.
+    The canonical contract under ``public/`` is identical for every league and
+    always expresses EV as a fraction.
 
     ``published`` is the difference between a league that exists in this repo and
     a league that is in production. The capture timer discovers its work from the
@@ -564,21 +542,13 @@ class PublishConfig:
     reader to see.
     """
 
-    legacy_contract: str
-    legacy_ev_unit: str = "fraction"
     validated: bool = False
     caveat: str = ""
     published: bool = True
 
-    def __post_init__(self) -> None:
-        _one_of(self.legacy_contract, LEGACY_CONTRACTS, "publish.legacy_contract")
-        _one_of(self.legacy_ev_unit, EV_UNITS, "publish.legacy_ev_unit")
-
     @classmethod
     def parse(cls, raw: Mapping[str, Any], where: str) -> "PublishConfig":
         return cls(
-            legacy_contract=str(_req(raw, "legacy_contract", where)),
-            legacy_ev_unit=str(raw.get("legacy_ev_unit", "fraction")),
             validated=bool(raw.get("validated", False)),
             caveat=str(raw.get("caveat", "") or ""),
             published=bool(raw.get("published", True)),

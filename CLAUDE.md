@@ -93,6 +93,19 @@ about 7 days out. Every anchor slot therefore spends a request asking about
 fixtures that provably cannot be priced yet, which is where the monthly allowance
 goes.
 
+**The golden baseline is G1's, and only G1's.** `tests/golden/<league>/inputs`
+and `model` are the frozen pre-merge match history and coefficients, and G1 asks
+whether the merged fitter reproduces them to floating point. It passes with no
+exemptions and the evidence cannot be recreated -- the source repositories are
+archived -- so do not regenerate those files. G3, which asked the same question
+of the published *decisions*, was retired on 2026-08-31: the changes since the
+merge have been deliberate ones it could only absorb as exemptions, both its
+firing rows were bets the engine now correctly refuses, and the shape it compared
+against had no consumer left. What replaced it is the unit tests that state the
+rules directly -- a signal must be calibrated, a club the model has barely seen is
+not bettable -- which say why a signal fires rather than that one August fixture
+came out a particular way.
+
 **Alert dedup keys on `(fixture_id, side, book)`** and the baseline is the
 previously committed signals file, read with `git show HEAD:`. A run whose commit
 never lands re-alerts next time.

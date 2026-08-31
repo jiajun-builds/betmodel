@@ -114,10 +114,9 @@ odds:
       # pending forever and spent an oddsapiio request every tick chasing a book
       # that never replied. Dropping the interval is what stops that.
       #
-      # The entry itself stays: it is part of the frozen legacy column
-      # vocabulary the G3 gate compares against, and deleting it would remove
-      # every `betano_*` column from that baseline -- a change to the evidence,
-      # not to the engine.
+      # The entry itself stays because the book still exists and could answer
+      # again; nothing is gained by forgetting it. Give it back a
+      # `poll_interval_minutes` if it ever starts quoting Liga MX worth taking.
       poll_interval_minutes: null
       schema_prefix: betano
     - key: duel
@@ -233,10 +232,6 @@ signals:
     anchor_book: pinnacle
 
 publish:
-  legacy_contract: composite
-  legacy_ev_unit: percent        # KNOWINGLY divergent; the canonical contract is
-                                 # always a fraction, this describes only the
-                                 # public/legacy/ compatibility file
   validated: false
   caveat: >
     Signals fire at EV >= 10%, backed by a 427-opener walk-forward backtest, but

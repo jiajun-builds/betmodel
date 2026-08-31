@@ -77,7 +77,7 @@ def test_a_days_worth_of_ticks_matches_the_declared_rate():
 
 
 def _book(**kw):
-    base = dict(key="x", provider="oddsapiio", role="bet", legacy_prefix="x_open")
+    base = dict(key="x", provider="oddsapiio", role="bet")
     base.update(kw)
     return BookConfig.parse(base, "odds.books[0]")
 
