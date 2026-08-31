@@ -305,3 +305,44 @@ def test_a_proven_anchor_still_calibrates(monkeypatch):
 
     built = engine.build_signals("csl", config)
     assert built and built[0].debias_method == debias.MARKET_ANCHOR
+
+
+# --------------------------------------------------------------------------- #
+# the proof cutover
+# --------------------------------------------------------------------------- #
+
+def _anchor(proof, captured):
+    return {"home_odds": 2.0, "draw_odds": 3.4, "away_odds": 4.0,
+            "proof": proof, "captured_at": captured}
+
+
+def test_an_anchor_banked_before_the_cutover_keeps_the_weaker_proof():
+    """Refusing them would retroactively void prices captured correctly under the
+    rules of the day: the evidence the strong proof needs was not being recorded."""
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_is_a_proven_opener
+    from datetime import timedelta
+
+    assert _anchor_is_a_proven_opener(_anchor("window", C - timedelta(days=1)))
+
+
+def test_an_anchor_banked_after_the_cutover_must_earn_the_strong_proof():
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_is_a_proven_opener
+    from datetime import timedelta
+
+    assert not _anchor_is_a_proven_opener(_anchor("window", C + timedelta(days=1)))
+    assert _anchor_is_a_proven_opener(_anchor("observed", C + timedelta(days=1)))
+
+
+def test_no_proof_is_never_enough_on_either_side_of_the_cutover():
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_is_a_proven_opener
+    from datetime import timedelta
+
+    assert not _anchor_is_a_proven_opener(_anchor("", C - timedelta(days=1)))
+    assert not _anchor_is_a_proven_opener(_anchor("", C + timedelta(days=1)))
+
+
+def test_the_cutover_expires_by_itself():
+    """It applies to evidence, not to a stretch of calendar. Every fixture kicks
+    off, so once none predates it the constant is dead and can be deleted."""
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER
+    assert ANCHOR_PROOF_CUTOVER.tzinfo is not None, "a naive boundary would compare wrong"

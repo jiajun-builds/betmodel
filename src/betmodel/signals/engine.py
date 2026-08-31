@@ -38,6 +38,7 @@ import pandas as pd
 from betmodel import paths
 from betmodel.config.schema import LeagueConfig
 from betmodel.fixtures.upcoming import Fixture, load_upcoming
+from betmodel.odds import capture_watch
 from betmodel.odds import reduce as reduce_module
 from betmodel.signals import debias as debias_module
 from betmodel.signals.ev import expected_value
@@ -47,6 +48,16 @@ log = logging.getLogger(__name__)
 #: A fixture with no pick, as published. The two pipelines spelled the empty
 #: state differently; this is the internal one and the legacy exporters render it.
 NO_PICK = ""
+
+#: Anchors captured before this were judged under the old opener proof, which
+#: could not tell a recent unpriced sighting from a stale one -- the last sighting
+#: was simply not recorded. They keep the weaker `window` proof. Anything captured
+#: since has to earn `observed`, because from here the evidence to earn it exists.
+#:
+#: A dated boundary rather than a grace period: it applies to evidence, not to a
+#: stretch of calendar, and it expires by itself because every fixture kicks off.
+#: Delete it once no upcoming fixture has an anchor older than this.
+ANCHOR_PROOF_CUTOVER = datetime(2026, 8, 31, 18, 0, tzinfo=timezone.utc)
 
 STATE_BET = "bet"
 STATE_ODDS_CAP = "odds_cap"
@@ -200,6 +211,29 @@ def _side_index(side: str) -> int:
     return {"home": 0, "draw": 1, "away": 2}[side]
 
 
+def _anchor_is_a_proven_opener(anchor: dict) -> bool:
+    """Whether this anchor may be used to calibrate.
+
+    The strong proof is a confirmed unpriced sighting shortly before the price;
+    the weak one only says the fixture entered the lookahead after capture began,
+    which for a pipeline that has been running for months is satisfied by nearly
+    everything and says nothing about whether anyone was watching when the book
+    actually priced *this* fixture.
+
+    Only the strong proof is accepted from here on. Anchors banked earlier keep the
+    weak one, because the evidence the strong one needs was not being recorded yet
+    and refusing them would retroactively void prices that were captured correctly
+    under the rules of the day.
+    """
+    proof = anchor.get("proof")
+    if not proof:
+        return False
+    captured = anchor.get("captured_at")
+    if captured is None or captured < ANCHOR_PROOF_CUTOVER:
+        return True
+    return proof == capture_watch.OBSERVED
+
+
 def build_signals(
     league: str,
     config: LeagueConfig,
@@ -249,9 +283,9 @@ def build_signals(
         # so. Unproven is therefore treated as absent, which sends the fixture down
         # the unanchored path and stops it firing.
         anchor = opens.get((fixture.home, fixture.away, anchor_key)) if anchor_key else None
-        if anchor is not None and not anchor.get("proof"):
-            log.info("%s: anchor for %s is not a proven opener; treating as absent",
-                     league, fixture.label)
+        if anchor is not None and not _anchor_is_a_proven_opener(anchor):
+            log.info("%s: anchor for %s is not a proven opener (%r); treating as absent",
+                     league, fixture.label, anchor.get("proof") or "no proof")
             anchor = None
         anchor_odds = (
             (anchor["home_odds"], anchor["draw_odds"], anchor["away_odds"])
