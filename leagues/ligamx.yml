@@ -223,6 +223,11 @@ signals:
     # time a current price exists it has absorbed news the model has not, and
     # anchoring on it calibrates today's probability against tomorrow's market.
     #
+    # No-vig by the logarithmic function, engine-wide and not settable here. It
+    # matters most in this league, which is the one that bets the draw: against a
+    # proportional shave the anchored draw comes out 0.2 to 1.1 points lower on
+    # every priced fixture. See D32.
+    #
     # Turned on once this league had anchors for every priced fixture. It does
     # change which bets fire -- measured on the Chinese Super League the same
     # correction moves EV by 2.3 to 6.4 points, downward every time -- so the

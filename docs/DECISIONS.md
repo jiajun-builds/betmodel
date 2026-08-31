@@ -1098,3 +1098,59 @@ Closing that gap needs Pinnacle openers to accumulate under the capture the anch
 work put in place. It is a reason to keep measuring, not a reason to withhold the
 flag: the threshold has real evidence behind it and the board can now show it
 honestly, which is exactly what the caveat asked for.
+
+
+## D32 — The de-vig is the logarithmic function, not a proportional shave.
+
+`ev.devig` normalised the inverse prices: every leg divided by the same total, so
+the book's margin came off each one as a flat fraction. It is now the
+**logarithmic function** method — the margin is modelled as a power applied to the
+fair probability, `q_i = p_i ** (1/k)`, and the fair grid is recovered as
+
+    p_i = q_i ** k,   for the single k with sum(q_i ** k) = 1
+
+found by bisection. `k` is unique because every implied probability sits in
+`(0, 1)`, which makes the sum strictly decreasing in `k`. A margin-free triple
+solves to `k = 1` and comes back untouched, the same fixed point proportional had.
+
+**Why it is a different answer and not a tidier one.** Proportional assumes the
+book charges the same percentage on the favourite and the 12/1 shot. It does not:
+margin is loaded onto the longshot, and the logarithmic function reproduces that
+shape by shaving each leg in proportion to its own log-probability rather than by
+a constant factor. On a real anchor triple (2.10 / 3.30 / 3.40) the two disagree
+by 0.8 points on the favourite and 0.4 on the draw — and the draw is the entire output of `debias.apply`.
+
+**Measured across the current board**, 15 anchored fixtures in the two leagues:
+
+| | |
+|---|---|
+| anchored draw, change vs proportional | **−0.51 pts median**, range −0.20 to −1.07 |
+| direction | down on every one of the 15 |
+| EV on the judged side | **+0.35 to +0.95 pts**, up on all 5 |
+| firing signals | 4 before, 4 after — no row changed state |
+
+The direction is not a coincidence of these fifteen. Legs above a crossover
+implied probability gain against proportional and legs below it lose, and in all
+327 Pinnacle triples in the capture history the draw is never the shortest of the
+three prices — 167 times the longest, 160 times the middle — so it always sits on
+the losing side of that crossover. The de-vigged draw comes out lower on every one
+of the 327. The freed mass goes to home and away pro rata, which is why EV moves
+up on the bet side.
+
+**It is engine-wide and not a league setting.** Two leagues devigging differently
+would make their EV thresholds incomparable, and the whole point of a threshold is
+that it is a backtest result carried across fixtures. `signals.debias` has no
+knob for this, deliberately.
+
+**What this costs, stated rather than buried.** The thresholds are backtest
+results measured under the old devig — including D31's CLV of +0.0730 against
+"Pinnacle's no-vig close", where the close was devigged proportionally. By the
+rule this repo runs on, calibrating differently makes the validating evidence a
+measurement of something adjacent rather than of what ships. The change is smaller
+than the anchor correction itself (D30 moved EV by up to 17 points; this moves it
+by under one) and it did not move a single row across a bar, so nothing is being
+bet today that was not being bet yesterday. But the honest statement is that the
+CLV interval now describes a devig the engine no longer uses, and re-running that
+walk-forward under the logarithmic function is outstanding work, not a formality
+already done.
+

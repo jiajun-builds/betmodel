@@ -5,6 +5,11 @@ the market is unusually good at it. So the draw can be replaced by the anchor
 book's no-vig draw, with the freed probability mass returned to home and away
 pro-rata so their relative strength is preserved.
 
+The anchor's margin is removed with the **logarithmic function** method --
+``ev.devig``, and the only devig in the engine. It is not proportional
+normalisation and the two disagree by a few tenths of a point on the draw, which
+is the number this whole module exists to set. See D32.
+
 ``lam`` controls how far the draw moves. At 1.0 the draw *is* the anchor's no-vig
 draw and the model contributes nothing to it, only splitting what remains.
 

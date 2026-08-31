@@ -10,6 +10,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import pytest
+from scipy.optimize import brentq
 
 from dataclasses import replace
 
@@ -18,6 +19,7 @@ from betmodel.config.schema import DebiasConfig
 from betmodel.fixtures.upcoming import Fixture
 from betmodel.signals import debias
 from betmodel.signals.engine import Best, Quote, _decide, fixture_id
+from betmodel.signals.ev import devig
 
 
 def _quote(book, side, odds, ev, proof="observed"):
@@ -159,6 +161,53 @@ def test_accents_do_not_reach_an_identifier():
 
 
 # --------------------------------------------------------------------------- #
+# de-vig
+# --------------------------------------------------------------------------- #
+
+def _log_devig(odds):
+    """The logarithmic function, solved independently of the implementation.
+
+    ``p_i = q_i ** k`` for the ``k`` that makes the triple sum to one. Solved
+    with a different root finder than the engine's bisection, so this states the
+    method rather than restating the code.
+    """
+    q = [1.0 / o for o in odds]
+    k = brentq(lambda k: sum(x ** k for x in q) - 1.0, 1e-6, 100.0)
+    return tuple(x ** k for x in q)
+
+
+def test_the_devig_is_the_logarithmic_function_not_a_proportional_shave():
+    odds = (2.1, 3.3, 3.4)
+    fair = devig(odds)
+    assert fair == pytest.approx(_log_devig(odds))
+    assert sum(fair) == pytest.approx(1.0)
+
+    # The distinction is not academic: proportional shaves every price by the
+    # same fraction, the logarithmic function shaves the longshot harder. On this
+    # triple the draw moves nearly four tenths of a point, which is the scale the
+    # anchor correction itself operates at.
+    total = sum(1.0 / o for o in odds)
+    proportional = tuple((1.0 / o) / total for o in odds)
+    assert fair[0] > proportional[0]
+    assert fair[1] < proportional[1]
+    assert fair[2] < proportional[2]
+
+
+def test_a_vig_free_triple_is_returned_unchanged():
+    """k solves to exactly 1 when the book has no margin, so the method is the
+    identity there -- the same fixed point proportional normalisation has."""
+    assert devig((3.0, 3.0, 3.0)) == pytest.approx((1 / 3, 1 / 3, 1 / 3))
+    assert devig((2.0, 4.0, 4.0)) == pytest.approx((0.5, 0.25, 0.25))
+
+
+def test_a_price_at_or_below_evens_falls_back_rather_than_failing():
+    """No exponent pulls an implied probability of 1.0 below itself. Callers
+    reject such a triple before it gets here; the function stays total anyway."""
+    fair = devig((1.0, 5.0, 6.0))
+    assert sum(fair) == pytest.approx(1.0)
+
+
+# --------------------------------------------------------------------------- #
 # de-bias
 # --------------------------------------------------------------------------- #
 
@@ -168,7 +217,7 @@ def test_full_anchoring_replaces_the_draw_with_the_market_and_keeps_the_sum():
     probabilities, method = debias.apply((0.45, 0.25, 0.30), config,
                                          anchor_odds=(2.1, 3.3, 3.4))
     assert method == "market_anchor"
-    assert probabilities[1] == pytest.approx(1 / 3.3 / (1 / 2.1 + 1 / 3.3 + 1 / 3.4))
+    assert probabilities[1] == pytest.approx(_log_devig((2.1, 3.3, 3.4))[1])
     assert sum(probabilities) == pytest.approx(1.0)
 
 

@@ -433,6 +433,11 @@ class DebiasConfig:
     shrunk by ``lam``; at ``lam = 1.0`` the model contributes nothing to the draw
     and only splits the remaining mass between home and away. ``none`` leaves the
     model untouched.
+
+    The anchor's margin comes off with the logarithmic function devig
+    (``signals.ev.devig``), not a proportional shave -- see D32. That is a
+    property of the engine rather than a per-league setting: two leagues devigging
+    differently would make their thresholds incomparable.
     """
 
     method: str = "none"

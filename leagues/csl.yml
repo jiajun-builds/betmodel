@@ -182,6 +182,10 @@ signals:
   debias:
     method: market_anchor
     lam: 1.0                     # the draw IS the anchor's no-vig draw
+    # No-vig by the logarithmic function, not a proportional shave: the margin is
+    # taken off as a power of each implied probability, which shaves the longshot
+    # harder than the favourite. Engine-wide, not settable here; see D32.
+    #
     # The anchor is the stored OPENING price, never the current one. The Now line
     # is not fetched at all any more; see docs/DECISIONS.md D1.
     anchor_book: pinnacle
