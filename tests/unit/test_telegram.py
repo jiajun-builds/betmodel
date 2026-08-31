@@ -215,40 +215,96 @@ def _unanchored(fixture_id="MEX-1", odds=6.65, ev=0.494):
     }
 
 
-def test_an_uncalibrated_edge_is_warned_about_rather_than_swallowed():
-    """Silence would be indistinguishable from there being no edge at all."""
-    fresh = telegram.unanchored_signals([_unanchored()], [])
-    assert len(fresh) == 1
+def test_an_uncalibrated_edge_is_never_pushed(monkeypatch, tmp_path):
+    """Silence is the correct output, and a caveat is not a cheaper alternative.
 
+    The backtest that validates this strategy ran on true opening prices, so a row
+    calibrated on anything else is an untested variant rather than a weaker
+    version of the same thing. A message saying so would still be a message about
+    a fake signal, and the cost of that is a decision made with more noise in it.
+    """
+    payload = {"schema": 1, "league": "csl", "generated_at": "2026-08-29T00:00:00Z",
+               "signals": [_unanchored()]}
+    path = tmp_path / "signals.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(telegram, "previous_signals", lambda _p: [])
 
-def test_the_same_uncalibrated_edge_is_only_warned_about_once():
-    previous = [_unanchored()]
-    assert telegram.unanchored_signals([_unanchored()], previous) == []
-
-
-def test_a_row_that_gains_its_anchor_stops_warning_and_starts_alerting():
-    """The transition that matters: the warning must not keep repeating once the
-    anchor lands, and the bet alert must not be suppressed by having warned."""
-    warned = _unanchored()
-    now_firing = _signal()
-    now_firing["fixture_id"] = warned["fixture_id"]
-    assert telegram.unanchored_signals([now_firing], [warned]) == []
-    assert len(telegram.new_signals([now_firing], [warned])) == 1
-
-
-def test_the_warning_never_reads_as_an_instruction():
-    message = telegram.format_unanchored_message(load_league("csl"), _unanchored())
-    assert "未建议下注" in message
-    assert "BET 信号" not in message
-    assert "下注: <a" not in message, "no book link: this is not something to act on"
-    assert "暂定方向" in message, "anchoring can move the pick, so the side is provisional"
-
-
-def test_the_warning_names_the_anchor_by_its_label():
-    message = telegram.format_unanchored_message(load_league("csl"), _unanchored())
-    assert "Pinnacle" in message, "the reader knows the book by its name, not its key"
+    assert telegram.notify("csl", load_league("csl"), signals_path=str(path)) == 0
 
 
 def test_an_unanchored_row_is_never_treated_as_a_bet():
     """`bet` is null on these, which is what keeps the two paths from crossing."""
     assert telegram.new_signals([_unanchored()], []) == []
+
+
+# --------------------------------------------------------------------------- #
+# withdrawal
+# --------------------------------------------------------------------------- #
+
+def _no_longer_firing(ev=0.15, odds=5.6, state=""):
+    """The same fixture as `_signal()`, published again without a bet."""
+    row = _signal()
+    row["bet"] = None
+    row["state"] = state
+    row["best"] = {"home": {"book": "duel", "odds": odds, "ev": ev}}
+    return row
+
+
+def test_a_signal_that_stops_firing_is_withdrawn():
+    """It reached you when it fired, so it has to reach you when it stops."""
+    out = telegram.withdrawn_signals([_no_longer_firing()], [_signal()])
+    assert len(out) == 1
+
+
+def test_a_signal_still_firing_is_not_withdrawn():
+    assert telegram.withdrawn_signals([_signal()], [_signal()]) == []
+
+
+def test_a_fixture_that_has_left_the_file_is_not_a_withdrawal():
+    """It kicked off. That is not news, and announcing it would train you to
+    ignore the channel."""
+    assert telegram.withdrawn_signals([], [_signal()]) == []
+
+
+def test_a_withdrawal_is_announced_once_and_not_again():
+    """Self-deduplicating: once published, the next run's baseline has no bet."""
+    gone = _no_longer_firing()
+    assert telegram.withdrawn_signals([gone], [gone]) == []
+
+
+def test_the_reason_separates_a_moved_line_from_a_changed_model():
+    """The two call for different reactions, so the message must tell them apart."""
+    config = load_league("csl")
+    before = _signal()
+
+    same_price = telegram.withdrawal_reason(
+        config, before, _no_longer_firing(odds=before["bet"]["odds"]))
+    assert "模型更新" in same_price and "赔率未动" in same_price
+
+    moved = telegram.withdrawal_reason(config, before, _no_longer_firing(odds=4.10))
+    assert "赔率从" in moved and "4.10" in moved
+
+
+def test_losing_the_anchor_is_named_as_the_reason():
+    reason = telegram.withdrawal_reason(
+        load_league("csl"), _signal(), _no_longer_firing(state="unanchored"))
+    assert "校准" in reason
+
+
+def test_the_withdrawal_message_cannot_be_read_as_a_new_bet():
+    message = telegram.format_withdrawal_message(
+        load_league("csl"), _signal(), _no_longer_firing())
+    assert "信号撤回" in message
+    assert "BET 信号" not in message
+    assert "原方向" in message and "原 EV" in message
+
+
+def test_a_pick_that_switches_sides_withdraws_the_old_one_and_fires_the_new():
+    """Both messages are correct: one bet is off and a different one is on."""
+    before = _signal()                      # home
+    after = _signal(book="duel")
+    after["bet"]["side"] = "away"
+    after["best"] = {"home": {"book": "duel", "odds": 5.6, "ev": 0.05}}
+
+    assert len(telegram.withdrawn_signals([after], [before])) == 1
+    assert len(telegram.new_signals([after], [before])) == 1

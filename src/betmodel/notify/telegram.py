@@ -56,7 +56,11 @@ PICK_LABEL = {"home": "主胜", "draw": "平局", "away": "客胜"}
 KEY_FIELDS = ("fixture_id", "side", "book")
 
 #: The state the engine uses for an edge it found on uncalibrated probabilities.
-#: Never a bet, but not silence either -- see `unanchored_signals`.
+#: It is never alerted on. An uncalibrated signal is not a weaker signal, it is a
+#: fake one -- the backtest that validates this strategy was run on true opening
+#: prices, so a row calibrated on anything else is an untested variant. Pushing it
+#: with a caveat attached would add noise to a decision rather than information.
+#: It stays in the published payload for diagnosis; nothing acts on it.
 STATE_UNANCHORED = "unanchored"
 
 
@@ -134,35 +138,62 @@ def new_signals(current: list[dict], previous: list[dict]) -> list[dict]:
     return fresh
 
 
-def unanchored_signals(current: list[dict], previous: list[dict]) -> list[dict]:
-    """Edges the engine found but refused to fire, newly seen.
+def withdrawn_signals(current: list[dict], previous: list[dict]) -> list[tuple[dict, dict]]:
+    """Signals alerted before that are no longer bets, paired with their new row.
 
-    These are worth saying out loud rather than swallowing. The alternative --
-    silence -- means a fixture clears the bar, cannot be calibrated, and simply
-    never appears, which is indistinguishable from there being no edge at all.
+    The counterpart of the bet alert, and it exists for the same reason: a signal
+    reaches you when it fires, so it has to reach you when it stops. The model is
+    refitted daily on new results, and a fixture that cleared the bar on Tuesday's
+    probabilities can fail it on Wednesday's without any price moving. Told about
+    the first and not the second, you would be holding a recommendation the tool
+    itself no longer stands behind.
 
-    **This is a fallback, not the normal path.** `capture-anchor` runs before
-    publish on both workflows and buys the anchor the moment an edge is stranded,
-    so in the ordinary case a fixture is calibrated before this code ever sees it
-    and a bet alert goes out instead. What is left over is the three ways that
-    fetch can fail to help: the anchor book has genuinely not listed the fixture
-    yet, the account is under its `quota_floor` and the tick was skipped, or the
-    provider errored.
-
-    No age threshold, deliberately, because that ordering is what does the
-    waiting. A row still `unanchored` by the time this runs is one the fetch
-    already tried and could not rescue, so the first sighting is the moment the
-    answer is actually known. `test_the_anchor_is_fetched_before_anything_is
-    _published` holds the ordering; if it is ever broken this goes noisy, which
-    is the right way for it to fail.
+    A fixture that has left the file entirely is not a withdrawal: it kicked off,
+    which is not news. Self-deduplicating, because the baseline is the previous
+    published file -- once the withdrawal is published, the next run's baseline
+    has no bet to withdraw.
     """
-    already = {
-        s.get("fixture_id", "") for s in previous if s.get("state") == STATE_UNANCHORED
-    }
-    return [
-        s for s in current
-        if s.get("state") == STATE_UNANCHORED and s.get("fixture_id", "") not in already
-    ]
+    latest = {s.get("fixture_id", ""): s for s in current}
+    out = []
+    for before in previous:
+        bet = before.get("bet")
+        if not bet:
+            continue
+        after = latest.get(before.get("fixture_id", ""))
+        if after is None:
+            continue
+        still_on = after.get("bet")
+        if still_on and still_on.get("side") == bet.get("side"):
+            continue
+        out.append((before, after))
+    return out
+
+
+def withdrawal_reason(config: LeagueConfig, before: dict, after: dict) -> str:
+    """Why it stopped, told apart by what actually changed.
+
+    The price and the probability are the only two inputs, so comparing the side's
+    price across the two publishes says which of them moved. That distinction is
+    the whole value of the message: a model that changed its mind is a different
+    thing to react to than a line that moved.
+    """
+    side = before["bet"]["side"]
+    if after.get("state") == STATE_UNANCHORED:
+        return "锚定盘开盘价不可用，信号无法校准"
+    if after.get("state") == "odds_cap":
+        return "赔率超出该联赛上限"
+
+    best = (after.get("best") or {}).get(side) or {}
+    odds, ev = best.get("odds"), best.get("ev")
+    if odds is None:
+        return "该方向已无可用报价"
+
+    was = before["bet"].get("odds")
+    moved = was is not None and abs(odds - was) > 1e-9
+    cause = f"赔率从 {was:.2f} 变为 {odds:.2f}" if moved else "模型更新后概率变化，赔率未动"
+    if ev is not None:
+        return f"{cause}；EV 现为 {ev:+.3f}，低于阈值 {config.signals.ev_min:+.3f}"
+    return cause
 
 
 # --------------------------------------------------------------------------- #
@@ -228,40 +259,24 @@ def format_message(config: LeagueConfig, signal: dict) -> str:
     return "\n".join(lines)
 
 
-def format_unanchored_message(config: LeagueConfig, signal: dict) -> str:
-    """A warning, deliberately shaped so it cannot be misread as an instruction.
+def format_withdrawal_message(config: LeagueConfig, before: dict, after: dict) -> str:
+    """A retraction, shaped so the reader knows immediately it is not a new bet."""
+    bet = before["bet"]
+    side = bet["side"]
+    kickoff = datetime.fromisoformat(before["kickoff_utc"].replace("Z", "+00:00"))
+    book = next((b for b in config.odds.bet_books if b.key == bet.get("book")), None)
+    label = book.label if book else bet.get("book", "--")
 
-    No book link, no "bet" wording, and the price is labelled provisional: the
-    pick itself is provisional, because anchoring replaces the draw and rescales
-    the other two, so a different side can win once the anchor lands.
-    """
-    judged = signal.get("judged") or {}
-    side = judged.get("side", "")
-    kickoff = datetime.fromisoformat(signal["kickoff_utc"].replace("Z", "+00:00"))
-    anchor_key = config.signals.debias.anchor_book or ""
-    anchor = next(
-        (b.label or b.key for b in config.odds.books if b.key == anchor_key),
-        anchor_key or "anchor",
-    )
-    book = next((b for b in config.odds.bet_books if b.key == judged.get("book")), None)
-    label = book.label if book else judged.get("book", "--")
-
-    lines = [
-        "⚠️ <b>信号未校准 — 未建议下注</b>",
+    return "\n".join([
+        "🔴 <b>信号撤回</b>",
         f"<b>{_escape(config.name)}</b>",
-        f"<b>{_escape(signal['home_team'])} vs {_escape(signal['away_team'])}</b>",
-        f"暂定方向: <b>{_escape(PICK_LABEL.get(side, side))}</b>",
-    ]
-    if judged.get("odds") is not None:
-        lines.append(f"{_escape(label)} 开盘价: <b>{judged['odds']:.2f}</b>")
-    if judged.get("ev") is not None:
-        lines.append(f"未校准 EV: <b>{judged['ev']:+.3f}</b>")
-    lines += [
-        f"原因: 锚定盘 <b>{_escape(anchor)}</b> 的开盘价还没抓到，"
-        f"概率未经市场校准，方向和 EV 都可能变。",
+        f"<b>{_escape(before['home_team'])} vs {_escape(before['away_team'])}</b>",
+        f"原方向: <b>{_escape(PICK_LABEL.get(side, side))}</b>"
+        f" @ {bet['odds']:.2f} ({_escape(label)})",
+        f"原 EV: <b>{bet['ev']:+.3f}</b>",
+        f"原因: {_escape(withdrawal_reason(config, before, after))}",
         f"开赛: {display.moment(kickoff)} {display.label()}",
-    ]
-    return "\n".join(lines)
+    ])
 
 
 def send(token: str, chat_id: str, text: str, *, timeout: int = 15) -> bool:
@@ -307,8 +322,8 @@ def notify(
         return 0
 
     fresh = new_signals(current, previous)
-    warnings = unanchored_signals(current, previous)
-    if not fresh and not warnings:
+    withdrawn = withdrawn_signals(current, previous)
+    if not fresh and not withdrawn:
         log.info("%s: no new signals to alert", league)
         return 0
 
@@ -316,21 +331,21 @@ def notify(
     chat_id = os.environ.get(CHAT_ENV, "").strip()
     if not (token and chat_id):
         log.warning("%s: %s or %s unset; %d alert(s) not sent",
-                    league, TOKEN_ENV, CHAT_ENV, len(fresh) + len(warnings))
+                    league, TOKEN_ENV, CHAT_ENV, len(fresh) + len(withdrawn))
         return 0
 
     sent = 0
-    # Bets first: on a slate that produces both, the actionable message should
-    # not be the one further down the screen.
-    outgoing = [(s, format_message) for s in fresh]
-    outgoing += [(s, format_unanchored_message) for s in warnings]
-    for signal, formatter in outgoing:
-        message = formatter(config, signal)
+    # Withdrawals first. A retraction that arrives under a fresh bet reads as part
+    # of it; on its own above, it is unambiguous.
+    outgoing = [format_withdrawal_message(config, b, a) for b, a in withdrawn]
+    outgoing += [format_message(config, s) for s in fresh]
+    for message in outgoing:
         if dry_run:
             log.info("%s: would send\n%s", league, message)
             sent += 1
             continue
         if send(token, chat_id, message):
             sent += 1
-    log.info("%s: %d alert(s) %s", league, sent, "prepared" if dry_run else "sent")
+    log.info("%s: %d alert(s) %s (%d new, %d withdrawn)",
+             league, sent, "prepared" if dry_run else "sent", len(fresh), len(withdrawn))
     return sent
