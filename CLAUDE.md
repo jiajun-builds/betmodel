@@ -27,7 +27,7 @@ them is the most expensive mistake available in this repo.
 
 | Capture | Why | Timing |
 |---|---|---|
-| **Pinnacle opening price** | calibrates the model. The model is worst at the draw and the market is best at it, so `debias.apply` replaces the model's draw with the anchor's no-vig draw | Pinnacle publishes first — measured median 6.1 days before kickoff, max 7.0 |
+| **Pinnacle opening price** | calibrates the model. The model is worst at the draw and the market is best at it, so `debias.apply` replaces the model's draw with the anchor's no-vig draw (logarithmic-function devig, D32) | Pinnacle publishes first — measured median 6.1 days before kickoff, max 7.0 |
 | **Betting platform opening prices** (1xBet, Duel) | the price you actually bet. Soft books open slowly and move slowly, and the edge lives in the gap between the calibrated model and that slow opener | measured median ~6 days before kickoff |
 | **Pinnacle closing price** | after the fact, for CLV. The closing line is the market's final word and the yardstick for whether the strategy has edge | a 15-minute window before kickoff |
 
