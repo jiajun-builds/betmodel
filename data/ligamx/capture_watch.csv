@@ -1,89 +1,89 @@
-home_team,away_team,bookmaker,first_seen_unpriced_at
-Monterrey,FC Juarez,betano,2026-08-12T11:28:15Z
-Santos Laguna,Guadalajara,betano,2026-08-12T11:28:15Z
-Necaxa,Leon,betano,2026-08-12T11:28:15Z
-Pachuca,Puebla,betano,2026-08-12T11:28:15Z
-FC Juarez,Club America,betano,2026-08-12T11:28:15Z
-Queretaro,Toluca,betano,2026-08-12T11:28:15Z
-Guadalajara,Tijuana,betano,2026-08-12T11:28:15Z
-Leon,Monterrey,betano,2026-08-12T11:28:15Z
-Puebla,Santos Laguna,betano,2026-08-12T11:28:15Z
-Cruz Azul,Atlas,betano,2026-08-12T11:28:15Z
-Atletico San Luis,Pachuca,betano,2026-08-12T11:28:15Z
-UNAM Pumas,Necaxa,betano,2026-08-12T11:28:15Z
-Tigres UANL,Atlante,duel,2026-08-12T11:28:15Z
-FC Juarez,Club America,duel,2026-08-12T11:28:15Z
-Queretaro,Toluca,duel,2026-08-12T11:28:15Z
-Guadalajara,Tijuana,duel,2026-08-12T11:28:15Z
-Leon,Monterrey,duel,2026-08-12T11:28:15Z
-Puebla,Santos Laguna,duel,2026-08-12T11:28:15Z
-Cruz Azul,Atlas,duel,2026-08-12T11:28:15Z
-Atletico San Luis,Pachuca,duel,2026-08-12T11:28:15Z
-UNAM Pumas,Necaxa,duel,2026-08-12T11:28:15Z
-Tigres UANL,Atlante,betano,2026-08-12T11:38:44Z
-Atlante,Leon,betano,2026-08-15T01:01:06Z
-Necaxa,Cruz Azul,betano,2026-08-15T01:01:06Z
-Atlante,Leon,duel,2026-08-15T01:01:06Z
-Necaxa,Cruz Azul,duel,2026-08-15T01:01:06Z
-Tijuana,UNAM Pumas,betano,2026-08-15T03:01:05Z
-Tijuana,UNAM Pumas,duel,2026-08-15T03:01:05Z
-Pachuca,Guadalajara,betano,2026-08-15T23:00:43Z
-Atlas,Queretaro,betano,2026-08-15T23:00:43Z
-Pachuca,Guadalajara,duel,2026-08-15T23:00:43Z
-Atlas,Queretaro,duel,2026-08-15T23:00:43Z
-Club America,Puebla,betano,2026-08-16T01:00:44Z
-Club America,Puebla,duel,2026-08-16T01:00:44Z
-Santos Laguna,Tigres UANL,betano,2026-08-16T03:00:41Z
-Santos Laguna,Tigres UANL,duel,2026-08-16T03:00:41Z
-Toluca,FC Juarez,betano,2026-08-17T00:00:37Z
-Toluca,FC Juarez,duel,2026-08-17T00:00:37Z
-Monterrey,Atletico San Luis,betano,2026-08-17T02:00:41Z
-Monterrey,Atletico San Luis,duel,2026-08-17T02:00:41Z
-Puebla,Toluca,betano,2026-08-22T01:00:20Z
-Puebla,Toluca,duel,2026-08-22T01:00:20Z
-FC Juarez,Pachuca,betano,2026-08-22T03:00:25Z
-FC Juarez,Pachuca,duel,2026-08-22T03:00:25Z
-Atletico San Luis,Guadalajara,betano,2026-08-22T23:01:12Z
-Queretaro,Monterrey,betano,2026-08-22T23:01:12Z
-Atletico San Luis,Guadalajara,duel,2026-08-22T23:01:12Z
-Queretaro,Monterrey,duel,2026-08-22T23:01:12Z
-Club America,Tijuana,betano,2026-08-23T01:00:34Z
-Tigres UANL,Necaxa,betano,2026-08-23T01:00:34Z
-Club America,Tijuana,duel,2026-08-23T01:00:34Z
-Tigres UANL,Necaxa,duel,2026-08-23T01:00:34Z
-Atlas,Atlante,betano,2026-08-23T03:00:34Z
-Atlas,Atlante,duel,2026-08-23T03:00:34Z
-UNAM Pumas,Leon,betano,2026-08-23T18:00:36Z
-UNAM Pumas,Leon,duel,2026-08-23T18:00:36Z
-Cruz Azul,Santos Laguna,betano,2026-08-24T02:00:34Z
-Cruz Azul,Santos Laguna,duel,2026-08-24T02:00:34Z
-Necaxa,Puebla,betano,2026-08-29T01:01:07Z
-Necaxa,Puebla,duel,2026-08-29T01:01:07Z
-Atlante,Pachuca,betano,2026-08-29T03:01:44Z
-Tijuana,Queretaro,betano,2026-08-29T03:01:44Z
-Atlante,Pachuca,duel,2026-08-29T03:01:44Z
-Tijuana,Queretaro,duel,2026-08-29T03:01:44Z
-Cruz Azul,Club America,betano,2026-08-29T06:01:08Z
-Toluca,Atlas,betano,2026-08-29T06:01:08Z
-Cruz Azul,Club America,duel,2026-08-29T06:01:08Z
-Toluca,Atlas,duel,2026-08-29T06:01:08Z
-Puebla,Toluca,pinnacle,2026-08-29T10:01:39.918058Z
-FC Juarez,Pachuca,pinnacle,2026-08-29T10:01:39.918058Z
-Atletico San Luis,Guadalajara,pinnacle,2026-08-29T10:01:39.918058Z
-Queretaro,Monterrey,pinnacle,2026-08-29T10:01:39.918058Z
-Club America,Tijuana,pinnacle,2026-08-29T10:01:39.918058Z
-Tigres UANL,Necaxa,pinnacle,2026-08-29T10:01:39.918058Z
-Atlas,Atlante,pinnacle,2026-08-29T10:01:39.918058Z
-UNAM Pumas,Leon,pinnacle,2026-08-29T10:01:39.918058Z
-Cruz Azul,Santos Laguna,pinnacle,2026-08-29T10:01:39.918058Z
-Necaxa,Puebla,pinnacle,2026-08-29T10:01:39.918058Z
-Atlante,Pachuca,pinnacle,2026-08-29T10:01:39.918058Z
-Tijuana,Queretaro,pinnacle,2026-08-29T10:01:39.918058Z
-Cruz Azul,Club America,pinnacle,2026-08-29T10:01:39.918058Z
-Toluca,Atlas,pinnacle,2026-08-29T10:01:39.918058Z
-Leon,Atletico San Luis,betano,2026-08-30T00:01:14Z
-Leon,Atletico San Luis,duel,2026-08-30T00:01:14Z
-Leon,Atletico San Luis,pinnacle,2026-08-30T11:03:38Z
-Guadalajara,UNAM Pumas,pinnacle,2026-08-31T08:47:03Z
-Santos Laguna,FC Juarez,pinnacle,2026-08-31T08:47:03Z
-Monterrey,Tigres UANL,pinnacle,2026-08-31T08:47:03Z
+home_team,away_team,bookmaker,first_seen_unpriced_at,last_seen_unpriced_at
+Monterrey,FC Juarez,betano,2026-08-12T11:28:15Z,
+Santos Laguna,Guadalajara,betano,2026-08-12T11:28:15Z,
+Necaxa,Leon,betano,2026-08-12T11:28:15Z,
+Pachuca,Puebla,betano,2026-08-12T11:28:15Z,
+FC Juarez,Club America,betano,2026-08-12T11:28:15Z,
+Queretaro,Toluca,betano,2026-08-12T11:28:15Z,
+Guadalajara,Tijuana,betano,2026-08-12T11:28:15Z,
+Leon,Monterrey,betano,2026-08-12T11:28:15Z,
+Puebla,Santos Laguna,betano,2026-08-12T11:28:15Z,
+Cruz Azul,Atlas,betano,2026-08-12T11:28:15Z,
+Atletico San Luis,Pachuca,betano,2026-08-12T11:28:15Z,
+UNAM Pumas,Necaxa,betano,2026-08-12T11:28:15Z,
+Tigres UANL,Atlante,duel,2026-08-12T11:28:15Z,
+FC Juarez,Club America,duel,2026-08-12T11:28:15Z,
+Queretaro,Toluca,duel,2026-08-12T11:28:15Z,
+Guadalajara,Tijuana,duel,2026-08-12T11:28:15Z,
+Leon,Monterrey,duel,2026-08-12T11:28:15Z,
+Puebla,Santos Laguna,duel,2026-08-12T11:28:15Z,
+Cruz Azul,Atlas,duel,2026-08-12T11:28:15Z,
+Atletico San Luis,Pachuca,duel,2026-08-12T11:28:15Z,
+UNAM Pumas,Necaxa,duel,2026-08-12T11:28:15Z,
+Tigres UANL,Atlante,betano,2026-08-12T11:38:44Z,
+Atlante,Leon,betano,2026-08-15T01:01:06Z,
+Necaxa,Cruz Azul,betano,2026-08-15T01:01:06Z,
+Atlante,Leon,duel,2026-08-15T01:01:06Z,
+Necaxa,Cruz Azul,duel,2026-08-15T01:01:06Z,
+Tijuana,UNAM Pumas,betano,2026-08-15T03:01:05Z,
+Tijuana,UNAM Pumas,duel,2026-08-15T03:01:05Z,
+Pachuca,Guadalajara,betano,2026-08-15T23:00:43Z,
+Atlas,Queretaro,betano,2026-08-15T23:00:43Z,
+Pachuca,Guadalajara,duel,2026-08-15T23:00:43Z,
+Atlas,Queretaro,duel,2026-08-15T23:00:43Z,
+Club America,Puebla,betano,2026-08-16T01:00:44Z,
+Club America,Puebla,duel,2026-08-16T01:00:44Z,
+Santos Laguna,Tigres UANL,betano,2026-08-16T03:00:41Z,
+Santos Laguna,Tigres UANL,duel,2026-08-16T03:00:41Z,
+Toluca,FC Juarez,betano,2026-08-17T00:00:37Z,
+Toluca,FC Juarez,duel,2026-08-17T00:00:37Z,
+Monterrey,Atletico San Luis,betano,2026-08-17T02:00:41Z,
+Monterrey,Atletico San Luis,duel,2026-08-17T02:00:41Z,
+Puebla,Toluca,betano,2026-08-22T01:00:20Z,
+Puebla,Toluca,duel,2026-08-22T01:00:20Z,
+FC Juarez,Pachuca,betano,2026-08-22T03:00:25Z,
+FC Juarez,Pachuca,duel,2026-08-22T03:00:25Z,
+Atletico San Luis,Guadalajara,betano,2026-08-22T23:01:12Z,
+Queretaro,Monterrey,betano,2026-08-22T23:01:12Z,
+Atletico San Luis,Guadalajara,duel,2026-08-22T23:01:12Z,
+Queretaro,Monterrey,duel,2026-08-22T23:01:12Z,
+Club America,Tijuana,betano,2026-08-23T01:00:34Z,
+Tigres UANL,Necaxa,betano,2026-08-23T01:00:34Z,
+Club America,Tijuana,duel,2026-08-23T01:00:34Z,
+Tigres UANL,Necaxa,duel,2026-08-23T01:00:34Z,
+Atlas,Atlante,betano,2026-08-23T03:00:34Z,
+Atlas,Atlante,duel,2026-08-23T03:00:34Z,
+UNAM Pumas,Leon,betano,2026-08-23T18:00:36Z,
+UNAM Pumas,Leon,duel,2026-08-23T18:00:36Z,
+Cruz Azul,Santos Laguna,betano,2026-08-24T02:00:34Z,
+Cruz Azul,Santos Laguna,duel,2026-08-24T02:00:34Z,
+Necaxa,Puebla,betano,2026-08-29T01:01:07Z,
+Necaxa,Puebla,duel,2026-08-29T01:01:07Z,
+Atlante,Pachuca,betano,2026-08-29T03:01:44Z,
+Tijuana,Queretaro,betano,2026-08-29T03:01:44Z,
+Atlante,Pachuca,duel,2026-08-29T03:01:44Z,
+Tijuana,Queretaro,duel,2026-08-29T03:01:44Z,
+Cruz Azul,Club America,betano,2026-08-29T06:01:08Z,
+Toluca,Atlas,betano,2026-08-29T06:01:08Z,
+Cruz Azul,Club America,duel,2026-08-29T06:01:08Z,
+Toluca,Atlas,duel,2026-08-29T06:01:08Z,
+Puebla,Toluca,pinnacle,2026-08-29T10:01:39.918058Z,
+FC Juarez,Pachuca,pinnacle,2026-08-29T10:01:39.918058Z,
+Atletico San Luis,Guadalajara,pinnacle,2026-08-29T10:01:39.918058Z,
+Queretaro,Monterrey,pinnacle,2026-08-29T10:01:39.918058Z,
+Club America,Tijuana,pinnacle,2026-08-29T10:01:39.918058Z,
+Tigres UANL,Necaxa,pinnacle,2026-08-29T10:01:39.918058Z,
+Atlas,Atlante,pinnacle,2026-08-29T10:01:39.918058Z,
+UNAM Pumas,Leon,pinnacle,2026-08-29T10:01:39.918058Z,
+Cruz Azul,Santos Laguna,pinnacle,2026-08-29T10:01:39.918058Z,
+Necaxa,Puebla,pinnacle,2026-08-29T10:01:39.918058Z,2026-09-04T01:01:29Z
+Atlante,Pachuca,pinnacle,2026-08-29T10:01:39.918058Z,
+Tijuana,Queretaro,pinnacle,2026-08-29T10:01:39.918058Z,
+Cruz Azul,Club America,pinnacle,2026-08-29T10:01:39.918058Z,
+Toluca,Atlas,pinnacle,2026-08-29T10:01:39.918058Z,
+Leon,Atletico San Luis,betano,2026-08-30T00:01:14Z,
+Leon,Atletico San Luis,duel,2026-08-30T00:01:14Z,
+Leon,Atletico San Luis,pinnacle,2026-08-30T11:03:38Z,
+Guadalajara,UNAM Pumas,pinnacle,2026-08-31T08:47:03Z,
+Santos Laguna,FC Juarez,pinnacle,2026-08-31T08:47:03Z,
+Monterrey,Tigres UANL,pinnacle,2026-08-31T08:47:03Z,
