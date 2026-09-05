@@ -1,85 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-05T02:51:30Z",
+ "generated_at": "2026-09-05T03:01:32Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-09-04-fc-juarez-pachuca",
-   "kickoff_utc": "2026-09-05T03:00:00Z",
-   "round": "",
-   "home_team": "FC Juarez",
-   "away_team": "Pachuca",
-   "model": {
-    "home": 0.3314509575953095,
-    "draw": 0.25324083553822774,
-    "away": 0.41530820686646247,
-    "method": "market_anchor"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 3.7,
-     "ev": 0.2263685431026452,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-31T06:21:41.108Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.7,
-     "ev": -0.06300890850855734,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-31T06:21:41.108Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.0,
-     "ev": -0.16938358626707506,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-31T06:21:41.108Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 3.7,
-     "ev": 0.2263685431026452
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.7,
-     "ev": -0.06300890850855734
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.0,
-     "ev": -0.16938358626707506
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 3.7,
-    "ev": 0.2263685431026452,
-    "proof": "window",
-    "captured_at": "2026-08-31T08:47:03Z"
-   },
-   "bet": {
-    "side": "home",
-    "book": "duel",
-    "odds": 3.7,
-    "ev": 0.2263685431026452,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-05-atletico-san-luis-guadalajara",
    "kickoff_utc": "2026-09-05T23:00:00Z",
