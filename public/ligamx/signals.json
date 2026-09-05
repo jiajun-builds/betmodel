@@ -1,77 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-05T00:01:34Z",
+ "generated_at": "2026-09-05T01:01:32Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-09-04-puebla-toluca",
-   "kickoff_utc": "2026-09-05T01:00:00Z",
-   "round": "",
-   "home_team": "Puebla",
-   "away_team": "Toluca",
-   "model": {
-    "home": 0.18736627219976423,
-    "draw": 0.21691012765020962,
-    "away": 0.5957236001500261,
-    "method": "market_anchor"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 4.8,
-     "ev": -0.10064189344113172,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-31T06:24:42.589Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 4.2,
-     "ev": -0.08897746386911953,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-31T06:24:42.589Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 1.68,
-     "ev": 0.0008156482520438324,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-31T06:24:42.589Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 4.8,
-     "ev": -0.10064189344113172
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 4.2,
-     "ev": -0.08897746386911953
-    },
-    "away": {
-     "book": "duel",
-     "odds": 1.68,
-     "ev": 0.0008156482520438324
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 1.68,
-    "ev": 0.0008156482520438324,
-    "proof": "window",
-    "captured_at": "2026-08-31T08:47:03Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-04-fc-juarez-pachuca",
    "kickoff_utc": "2026-09-05T03:00:00Z",
