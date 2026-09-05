@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-05T03:01:32Z",
+ "generated_at": "2026-09-05T03:51:26Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-05-atletico-san-luis-guadalajara",
@@ -567,6 +567,75 @@
     "ev": 0.07719311735751244,
     "proof": "window",
     "captured_at": "2026-08-31T08:47:03Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-11-tijuana-queretaro",
+   "kickoff_utc": "2026-09-12T03:00:00Z",
+   "round": "",
+   "home_team": "Tijuana",
+   "away_team": "Queretaro",
+   "model": {
+    "home": 0.52915493566338,
+    "draw": 0.2442062448591071,
+    "away": 0.2266388194775127,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.06,
+     "ev": 0.09005916746656295,
+     "captured_at": "2026-09-05T03:51:22Z",
+     "last_update": "2026-09-05T03:51:21.582Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.4,
+     "ev": -0.1696987674790359,
+     "captured_at": "2026-09-05T03:51:22Z",
+     "last_update": "2026-09-05T03:51:21.582Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 3.8,
+     "ev": -0.13877248598545178,
+     "captured_at": "2026-09-05T03:51:22Z",
+     "last_update": "2026-09-05T03:51:21.582Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.06,
+     "ev": 0.09005916746656295
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.4,
+     "ev": -0.1696987674790359
+    },
+    "away": {
+     "book": "duel",
+     "odds": 3.8,
+     "ev": -0.13877248598545178
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.06,
+    "ev": 0.09005916746656295,
+    "proof": "window",
+    "captured_at": "2026-09-05T03:51:22Z"
    },
    "bet": null,
    "state": ""
