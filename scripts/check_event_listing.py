@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from betmodel import teams
 from betmodel.config import load_league
@@ -45,6 +45,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("league")
     parser.add_argument("--odds", action="store_true",
                         help="spend one more request on odds/multi for matched events")
+    parser.add_argument("--lookback", type=int, default=0, metavar="DAYS",
+                        help="also start the window this many days in the PAST. A "
+                             "postponed match replayed weeks later may still be "
+                             "listed under the date it was originally due, which "
+                             "a window starting at now would never see.")
+    parser.add_argument("--lookahead", type=int, default=None, metavar="DAYS",
+                        help="override the league's own open lookahead")
     args = parser.parse_args(argv)
 
     config = load_league(args.league)
@@ -56,10 +63,24 @@ def main(argv: list[str] | None = None) -> int:
         credential=provider.get("credential", "default"),
     )
 
-    lookahead = config.odds.open.lookahead_days
-    events = client.upcoming_events(lookahead)
-    print(f"listing: {len(events)} event(s) within {lookahead} days "
-          f"on slugs {provider.require('league_slugs')}\n")
+    lookahead = args.lookahead or config.odds.open.lookahead_days
+    now = datetime.now(timezone.utc)
+    start = now - timedelta(days=args.lookback)
+    end = now + timedelta(days=lookahead)
+    slugs = provider.require("league_slugs")
+    print(f"query: sport={provider.get('sport', 'football')} slugs={slugs}")
+    print(f"       from {start.isoformat()} to {end.isoformat()}")
+    events = client.list_events(start, end)
+    print(f"listing: {len(events)} event(s)\n")
+
+    if events:
+        # The id is what `odds/multi` is asked about, and `str(None)` is a
+        # perfectly well-formed way to ask about nothing. Printing the raw keys
+        # of one event is how you find out the field is not called what the code
+        # thinks it is called -- which would look exactly like a book that has
+        # not opened.
+        print(f"first event's raw keys: {sorted(events[0])}")
+        print(f"first event's id: {events[0].get('id')!r}\n")
 
     mapping = teams.for_league(args.league)
     by_key: dict[tuple[str, str], dict] = {}

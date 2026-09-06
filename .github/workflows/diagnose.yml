@@ -1,0 +1,57 @@
+# Run a read-only diagnostic where the working keys are.
+#
+# The capture keys live in this repository's secrets and nowhere else, so a
+# question about what a provider is actually returning cannot be answered from a
+# laptop. Reproducing one by hand also means reproducing the exact window, slug
+# and book list the capture uses, and a diagnosis run against slightly different
+# parameters answers a slightly different question.
+#
+# Manual only, and it spends provider requests, so it is not on a schedule.
+name: diagnose
+
+on:
+  workflow_dispatch:
+    inputs:
+      league:
+        description: A league id
+        default: csl
+      lookback:
+        description: Days of PAST to include in the event window
+        default: "0"
+      lookahead:
+        description: Days ahead, or blank for the league's own open lookahead
+        default: ""
+      odds:
+        description: Also ask odds/multi about whatever matched (one more request)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Deliberately not the `capture` group. This reads and writes nothing, so it
+# cannot conflict with a tick -- and queueing it behind one would mean a
+# diagnostic that runs after the state it was meant to diagnose has moved.
+concurrency:
+  group: diagnose
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: Event listing
+        env:
+          ODDS_API_IO_KEY_CSL: ${{ secrets.ODDS_API_IO_KEY_CSL }}
+          ODDS_API_IO_KEY_LIGAMX: ${{ secrets.ODDS_API_IO_KEY_LIGAMX }}
+        run: |
+          python scripts/check_event_listing.py "${{ inputs.league }}" \
+            --lookback "${{ inputs.lookback }}" \
+            ${{ inputs.lookahead && format('--lookahead {0}', inputs.lookahead) || '' }} \
+            ${{ inputs.odds && '--odds' || '' }}
