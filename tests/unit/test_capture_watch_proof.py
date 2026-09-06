@@ -89,3 +89,51 @@ def test_re_sighting_a_pair_does_not_add_a_row(tmp_path):
     for stamp in ("2026-08-27T10:00:00Z", "2026-08-28T10:00:00Z", "2026-08-29T10:00:00Z"):
         cw.record_unpriced([("A", "B", "pinnacle")], path=path, observed_at=stamp)
     assert len(cw.load_watch(path)) == 1
+
+
+def test_one_row_s_precision_does_not_decide_whether_the_others_parse(tmp_path):
+    """The bug that cost Necaxa v Puebla its anchor on 2026-09-06.
+
+    Rows written before `dates.stamp` existed carry microseconds. Read without an
+    explicit format, pandas infers one from the first row and coerces the rest to
+    NaT -- so the fourteen Pinnacle rows, all of them stamped in the same
+    pre-`stamp` tick, vanished together. The engine then saw no unpriced sighting,
+    withheld `observed`, treated a genuine opener as absent and published
+    `unanchored` on a fixture whose edge cleared the bar.
+
+    Both orderings, because the one that survives is whichever pandas happens to
+    see first, and that is not a property to depend on.
+    """
+    coarse = "2026-08-27T10:00:00Z"
+    fine = "2026-08-29T10:01:39.918058Z"
+    for name, (first, second) in {
+        "coarse first": ((coarse, "X"), (fine, "Y")),
+        "fine first": ((fine, "Y"), (coarse, "X")),
+    }.items():
+        path = str(tmp_path / f"{name}.csv")
+        pd.DataFrame(
+            [
+                {"home_team": "A", "away_team": away, "bookmaker": "pinnacle",
+                 "first_seen_unpriced_at": at, "last_seen_unpriced_at": at}
+                for at, away in (first, second)
+            ]
+        ).to_csv(path, index=False)
+        assert len(cw.watched_before(path)) == 2, name
+        assert len(cw.watched_until(path)) == 2, name
+
+
+def test_a_value_nothing_can_parse_withholds_a_proof_rather_than_raising(tmp_path):
+    """One unreadable row must not take the league's other captures down with it."""
+    path = str(tmp_path / "watch.csv")
+    pd.DataFrame(
+        [
+            {"home_team": "A", "away_team": "B", "bookmaker": "pinnacle",
+             "first_seen_unpriced_at": "not a time", "last_seen_unpriced_at": ""},
+            {"home_team": "C", "away_team": "D", "bookmaker": "pinnacle",
+             "first_seen_unpriced_at": "2026-08-27T10:00:00Z",
+             "last_seen_unpriced_at": "2026-08-29T10:00:00Z"},
+        ]
+    ).to_csv(path, index=False)
+    seen = cw.watched_before(path)
+    assert ("A", "B", "pinnacle") not in seen
+    assert ("C", "D", "pinnacle") in seen

@@ -72,7 +72,20 @@ def _stamps(path: str, column: str, how: str) -> dict[tuple[str, str, str], pd.T
     if frame.empty:
         return {}
     frame = frame.copy()
-    frame["seen"] = pd.to_datetime(frame[column], utc=True, errors="coerce")
+    # ``format="ISO8601"`` accepts each value on its own terms. Without it pandas
+    # infers one format from the first row and coerces everything that does not
+    # match it to NaT -- so a single row's precision decides whether the *other*
+    # rows are readable. That is not hypothetical: rows written before
+    # `dates.stamp` existed carry microseconds, they sorted after the
+    # second-precision ones, and every one of them silently vanished. They were
+    # the anchor book's rows, which cost a fixture its proof and its bet.
+    #
+    # `errors="coerce"` stays for a genuinely unparseable value: dropping it
+    # withholds a proof, which is the safe direction, where raising would take
+    # the whole league's captures down with it.
+    frame["seen"] = pd.to_datetime(
+        frame[column], utc=True, format="ISO8601", errors="coerce"
+    )
     frame = frame.dropna(subset=["seen"])
     grouped = getattr(frame.groupby(["home_team", "away_team", "bookmaker"])["seen"], how)()
     return {key: value for key, value in grouped.items()}

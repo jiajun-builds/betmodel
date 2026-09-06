@@ -24,6 +24,7 @@ import sys
 import pandas as pd
 
 from betmodel import paths
+from betmodel.dates import stamp
 from betmodel.odds import capture_store, capture_watch
 
 SOURCES = {
@@ -132,11 +133,17 @@ def _append_preserving_type(upstream: pd.DataFrame, path: str) -> int:
 
 
 def _restore_watch_times(upstream: pd.DataFrame, path: str) -> None:
-    """Keep each observation's original timestamp.
+    """Keep each observation's original timestamp, in this store's own format.
 
     The moment we first saw a fixture unpriced is the evidence itself; stamping
     it with now would claim we started watching later than we did and silently
     downgrade every opener proof that depends on it.
+
+    The *moment* is restored; the *spelling* is not. Upstream wrote whatever
+    precision its clock handed over, and a value carried across verbatim reaches
+    a column every other row spells to the second. Nothing here measures
+    fractions of a second, so normalising loses no evidence -- and mixing the two
+    formats in one column has already cost a bet.
     """
     local = capture_watch.load_watch(path)
     if local.empty:
@@ -146,11 +153,21 @@ def _restore_watch_times(upstream: pd.DataFrame, path: str) -> None:
         for r in upstream.itertuples()
     }
     local["first_seen_unpriced_at"] = [
-        known.get((r.home_team, r.away_team, r.bookmaker), r.first_seen_unpriced_at)
-        or r.first_seen_unpriced_at
+        _restamp(
+            known.get((r.home_team, r.away_team, r.bookmaker), r.first_seen_unpriced_at)
+            or r.first_seen_unpriced_at
+        )
         for r in local.itertuples()
     ]
     local.to_csv(path, index=False, encoding="utf-8")
+
+
+def _restamp(value: str) -> str:
+    """One stored timestamp, in the one storage format. Unparseable is left alone."""
+    if not value:
+        return value
+    moment = pd.to_datetime(value, utc=True, format="ISO8601", errors="coerce")
+    return value if pd.isna(moment) else stamp(moment.to_pydatetime())
 
 
 if __name__ == "__main__":
