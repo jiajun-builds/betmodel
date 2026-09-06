@@ -52,6 +52,12 @@ def main(argv: list[str] | None = None) -> int:
                              "a window starting at now would never see.")
     parser.add_argument("--lookahead", type=int, default=None, metavar="DAYS",
                         help="override the league's own open lookahead")
+    parser.add_argument("--no-window", action="store_true",
+                        help="ask for events with no from/to filter at all. A "
+                             "postponed fixture may carry no date, or its "
+                             "original one, and either is invisible to a window "
+                             "that starts at now -- which is the only way we "
+                             "have ever asked.")
     parser.add_argument("--anchor-books", metavar="REGIONS",
                         help="ask The Odds API which bookmakers it carries for "
                              "this sport in these regions (e.g. 'eu,uk'). Costs "
@@ -140,7 +146,17 @@ def main(argv: list[str] | None = None) -> int:
     slugs = provider.require("league_slugs")
     print(f"query: sport={provider.get('sport', 'football')} slugs={slugs}")
     print(f"       from {start.isoformat()} to {end.isoformat()}")
-    events = client.list_events(start, end)
+    if args.no_window:
+        print("       (no from/to filter -- asking for everything the slug has)")
+        events = []
+        for slug in slugs:
+            got = client.get("events", sport=provider.get("sport", "football"),
+                             league=slug, limit=100)
+            events.extend(got or [])
+            if got:
+                break
+    else:
+        events = client.list_events(start, end)
     print(f"listing: {len(events)} event(s)\n")
 
     if events:

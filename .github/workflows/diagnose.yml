@@ -28,6 +28,10 @@ on:
       leagues:
         description: List the provider's league slugs matching this, instead of events
         default: ""
+      no_window:
+        description: Ask for events with no from/to filter at all
+        type: boolean
+        default: false
       anchor_books:
         description: Regions to ask The Odds API which bookmakers it carries (e.g. eu,uk)
         default: ""
@@ -64,4 +68,5 @@ jobs:
             ${{ inputs.lookahead && format('--lookahead {0}', inputs.lookahead) || '' }} \
             ${{ inputs.odds && '--odds' || '' }} \
             ${{ inputs.leagues && format('--leagues {0}', inputs.leagues) || '' }} \
-            ${{ inputs.anchor_books && format('--anchor-books {0}', inputs.anchor_books) || '' }}
+            ${{ inputs.anchor_books && format('--anchor-books {0}', inputs.anchor_books) || '' }} \
+            ${{ inputs.no_window && '--no-window' || '' }}
