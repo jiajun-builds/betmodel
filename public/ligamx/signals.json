@@ -1,77 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-06T22:50:47Z",
+ "generated_at": "2026-09-06T23:00:49Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-09-06-cruz-azul-santos-laguna",
-   "kickoff_utc": "2026-09-06T23:00:00Z",
-   "round": "",
-   "home_team": "Cruz Azul",
-   "away_team": "Santos Laguna",
-   "model": {
-    "home": 0.7146208921826247,
-    "draw": 0.18214137758611926,
-    "away": 0.10323773023125583,
-    "method": "market_anchor"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.4,
-     "ev": 0.00046924905567458097,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-30T21:26:48.358Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 5.2,
-     "ev": -0.052864836552179884,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-30T21:26:48.358Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 7.4,
-     "ev": -0.23604079628870678,
-     "captured_at": "2026-08-31T08:47:03Z",
-     "last_update": "2026-08-30T21:26:48.358Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.4,
-     "ev": 0.00046924905567458097
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 5.2,
-     "ev": -0.052864836552179884
-    },
-    "away": {
-     "book": "duel",
-     "odds": 7.4,
-     "ev": -0.23604079628870678
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 1.4,
-    "ev": 0.00046924905567458097,
-    "proof": "window",
-    "captured_at": "2026-08-31T08:47:03Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-11-necaxa-puebla",
    "kickoff_utc": "2026-09-12T01:00:00Z",
