@@ -1,32 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-06T06:01:34Z",
+ "generated_at": "2026-09-06T06:19:05Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-08-toluca-fc-juarez",
-   "match_date": "2026-03-08",
-   "season": "Clausura 2026",
-   "round": "10",
-   "home_team": "Toluca",
-   "away_team": "FC Juarez",
-   "home_goals": 3,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-10-2026-03-08-tijuana-santos-laguna",
-   "match_date": "2026-03-08",
-   "season": "Clausura 2026",
-   "round": "10",
-   "home_team": "Tijuana",
-   "away_team": "Santos Laguna",
-   "home_goals": 1,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-11-2026-03-13-puebla-necaxa",
    "match_date": "2026-03-13",
@@ -1633,6 +1609,42 @@
    "home_goals": 0,
    "away_goals": 2,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-7-2026-09-05-atletico-san-luis-guadalajara",
+   "match_date": "2026-09-05",
+   "season": "Apertura 2026",
+   "round": "7",
+   "home_team": "Atletico San Luis",
+   "away_team": "Guadalajara",
+   "home_goals": 0,
+   "away_goals": 3,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-7-2026-09-05-tigres-uanl-necaxa",
+   "match_date": "2026-09-05",
+   "season": "Apertura 2026",
+   "round": "7",
+   "home_team": "Tigres UANL",
+   "away_team": "Necaxa",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-7-2026-09-05-atlas-atlante",
+   "match_date": "2026-09-05",
+   "season": "Apertura 2026",
+   "round": "7",
+   "home_team": "Atlas",
+   "away_team": "Atlante",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
    "status": "played"
   }
  ]

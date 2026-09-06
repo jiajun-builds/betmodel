@@ -1,104 +1,8 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-06T06:01:05Z",
+ "generated_at": "2026-09-06T06:19:05Z",
  "results": [
-  {
-   "fixture_id": "CSL-2026-1-2026-03-06-chengdu-rongcheng-shenzhen-xinpengcheng",
-   "match_date": "2026-03-06",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Chengdu Rongcheng",
-   "away_team": "Shenzhen Xinpengcheng",
-   "home_goals": 5,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-07-shandong-taishan-liaoning-tieren",
-   "match_date": "2026-03-07",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Shandong Taishan",
-   "away_team": "Liaoning Tieren",
-   "home_goals": 3,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-07-tianjin-jinmen-tiger-chongqing-tonglianglong",
-   "match_date": "2026-03-07",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Tianjin Jinmen Tiger",
-   "away_team": "Chongqing Tonglianglong",
-   "home_goals": 0,
-   "away_goals": 0,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-07-shanghai-shenhua-dalian-yingbo",
-   "match_date": "2026-03-07",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Shanghai Shenhua",
-   "away_team": "Dalian Yingbo",
-   "home_goals": 5,
-   "away_goals": 3,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-07-yunnan-yukun-qingdao-hainiu",
-   "match_date": "2026-03-07",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Yunnan Yukun",
-   "away_team": "Qingdao Hainiu",
-   "home_goals": 3,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-07-shanghai-port-henan-songshan-longmen",
-   "match_date": "2026-03-07",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Shanghai Port",
-   "away_team": "Henan Songshan Longmen",
-   "home_goals": 1,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-08-zhejiang-professional-qingdao-west-coast",
-   "match_date": "2026-03-08",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Zhejiang Professional",
-   "away_team": "Qingdao West Coast",
-   "home_goals": 2,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-1-2026-03-08-wuhan-three-towns-beijing-guoan",
-   "match_date": "2026-03-08",
-   "season": "2026",
-   "round": "1",
-   "home_team": "Wuhan Three Towns",
-   "away_team": "Beijing Guoan",
-   "home_goals": 0,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
   {
    "fixture_id": "CSL-2026-2-2026-03-13-wuhan-three-towns-dalian-yingbo",
    "match_date": "2026-03-13",
@@ -2365,6 +2269,54 @@
    "home_goals": 1,
    "away_goals": 0,
    "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-26-2026-09-05-wuhan-three-towns-qingdao-west-coast",
+   "match_date": "2026-09-05",
+   "season": "2026",
+   "round": "26",
+   "home_team": "Wuhan Three Towns",
+   "away_team": "Qingdao West Coast",
+   "home_goals": 2,
+   "away_goals": 2,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-26-2026-09-05-dalian-yingbo-qingdao-hainiu",
+   "match_date": "2026-09-05",
+   "season": "2026",
+   "round": "26",
+   "home_team": "Dalian Yingbo",
+   "away_team": "Qingdao Hainiu",
+   "home_goals": 2,
+   "away_goals": 1,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-26-2026-09-05-shanghai-port-beijing-guoan",
+   "match_date": "2026-09-05",
+   "season": "2026",
+   "round": "26",
+   "home_team": "Shanghai Port",
+   "away_team": "Beijing Guoan",
+   "home_goals": 0,
+   "away_goals": 0,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-26-2026-09-05-shandong-taishan-shenzhen-xinpengcheng",
+   "match_date": "2026-09-05",
+   "season": "2026",
+   "round": "26",
+   "home_team": "Shandong Taishan",
+   "away_team": "Shenzhen Xinpengcheng",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
    "status": "played"
   }
  ]
