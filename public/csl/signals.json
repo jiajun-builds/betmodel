@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-06T21:01:08Z",
+ "generated_at": "2026-09-06T22:00:30Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-12-tianjin-jinmen-tiger-liaoning-tieren",
@@ -22,71 +22,20 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-09-18-zhejiang-professional-wuhan-three-towns",
-   "kickoff_utc": "2026-09-18T11:35:00Z",
+   "fixture_id": "CSL-2026-0-2026-09-12-wuhan-three-towns-henan-songshan-longmen",
+   "kickoff_utc": "2026-09-12T11:35:00Z",
    "round": "",
-   "home_team": "Zhejiang Professional",
-   "away_team": "Wuhan Three Towns",
+   "home_team": "Wuhan Three Towns",
+   "away_team": "Henan Songshan Longmen",
    "model": {
-    "home": 0.5608662861948226,
-    "draw": 0.21634380295083402,
-    "away": 0.22278991085434308,
+    "home": 0.35158694768795207,
+    "draw": 0.25529925668051495,
+    "away": 0.3931137956315328,
     "method": "market_anchor"
    },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 1.71,
-     "ev": -0.0409186506068534,
-     "captured_at": "2026-08-01T14:09:41Z",
-     "last_update": "2026-08-01T14:08:20Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 4.28,
-     "ev": -0.07404852337043033,
-     "captured_at": "2026-08-01T14:09:41Z",
-     "last_update": "2026-08-01T14:08:20Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 4.38,
-     "ev": -0.02418019045797737,
-     "captured_at": "2026-08-01T14:09:41Z",
-     "last_update": "2026-08-01T14:08:20Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "onexbet",
-     "odds": 1.71,
-     "ev": -0.0409186506068534
-    },
-    "draw": {
-     "book": "onexbet",
-     "odds": 4.28,
-     "ev": -0.07404852337043033
-    },
-    "away": {
-     "book": "onexbet",
-     "odds": 4.38,
-     "ev": -0.02418019045797737
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "onexbet",
-    "odds": 4.38,
-    "ev": -0.02418019045797737,
-    "proof": "window",
-    "captured_at": "2026-08-01T14:09:41Z"
-   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   }
