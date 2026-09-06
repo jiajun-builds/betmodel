@@ -1,8 +1,26 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-06T12:01:03Z",
+ "generated_at": "2026-09-06T13:01:03Z",
  "signals": [
+  {
+   "fixture_id": "CSL-2026-0-2026-09-12-tianjin-jinmen-tiger-liaoning-tieren",
+   "kickoff_utc": "2026-09-12T11:00:00Z",
+   "round": "",
+   "home_team": "Tianjin Jinmen Tiger",
+   "away_team": "Liaoning Tieren",
+   "model": {
+    "home": 0.47020007403676917,
+    "draw": 0.26123819130436665,
+    "away": 0.26856173465886396,
+    "method": "market_anchor"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
   {
    "fixture_id": "CSL-2026-0-2026-09-18-zhejiang-professional-wuhan-three-towns",
    "kickoff_utc": "2026-09-18T11:35:00Z",
