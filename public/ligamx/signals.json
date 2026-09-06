@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-06T03:01:06Z",
+ "generated_at": "2026-09-06T03:31:25Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-06-unam-pumas-leon",
@@ -278,6 +278,75 @@
    },
    "bet": null,
    "state": "unanchored"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-11-atlante-pachuca",
+   "kickoff_utc": "2026-09-12T03:00:00Z",
+   "round": "",
+   "home_team": "Atlante",
+   "away_team": "Pachuca",
+   "model": {
+    "home": 0.3896973258235052,
+    "draw": 0.2772258847572139,
+    "away": 0.333076789419281,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 3.75,
+     "ev": 0.4613649718381445,
+     "captured_at": "2026-09-06T03:31:20Z",
+     "last_update": "2026-09-06T03:30:50.197Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.6,
+     "ev": -0.001986814874029963,
+     "captured_at": "2026-09-06T03:31:20Z",
+     "last_update": "2026-09-06T03:30:50.197Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.0,
+     "ev": -0.33384642116143803,
+     "captured_at": "2026-09-06T03:31:20Z",
+     "last_update": "2026-09-06T03:30:50.197Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 3.75,
+     "ev": 0.4613649718381445
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.6,
+     "ev": -0.001986814874029963
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.0,
+     "ev": -0.33384642116143803
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 3.75,
+    "ev": 0.4613649718381445,
+    "proof": "window",
+    "captured_at": "2026-09-06T03:31:20Z"
+   },
+   "bet": null,
+   "state": "thin_evidence"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-11-tijuana-queretaro",
