@@ -212,10 +212,18 @@ class OddsApiIoClient:
                             f"readable reset; refusing rather than guessing"
                         ) from exc
                     if parked + wait > self.max_park_seconds:
+                        # The allowance goes in the message. A reset an hour out
+                        # is not a burst to ride out, it is a window we are over
+                        # for the period, and the only way to tell those apart
+                        # from a log is the size of the window and what is left
+                        # of it.
+                        limit = exc.headers.get("x-ratelimit-limit", "?")
+                        left = exc.headers.get("x-ratelimit-remaining", "?")
                         raise RateLimited(
-                            f"odds-api.io rate limited on {path}; its window "
-                            f"resets in {wait:.0f}s, past this call's "
-                            f"{self.max_park_seconds:.0f}s park budget"
+                            f"odds-api.io rate limited on {path} for credential "
+                            f"{self.credential!r}; window resets in {wait:.0f}s "
+                            f"(limit {limit}, remaining {left}), past this "
+                            f"call's {self.max_park_seconds:.0f}s park budget"
                         ) from exc
                     parked += wait
                     log.info("odds-api.io rate limited, parking %.0fs for the "

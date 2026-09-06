@@ -80,11 +80,18 @@ def main(argv: list[str] | None = None) -> int:
         from betmodel.providers import theoddsapi
 
         spec = config.odds.providers["theoddsapi"]
+        # The credential lives on the book, not the provider block: one provider
+        # serves both leagues from separate accounts.
+        credential = next(
+            (b.credential for b in config.odds.books
+             if b.provider == "theoddsapi" and b.credential),
+            "default",
+        )
         anchor = theoddsapi.TheOddsApiClient(
             spec.require("sport_key"),
             base_url=spec.get("base_url", theoddsapi.BASE_URL),
             market=spec.get("market", "h2h"),
-            credential=spec.get("credential", "default"),
+            credential=credential,
         )
         events = anchor.odds(regions=args.anchor_books)
         print(f"the-odds-api: {len(events)} event(s) in regions "
