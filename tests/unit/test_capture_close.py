@@ -135,13 +135,36 @@ def test_prices_for_fixtures_outside_the_window_are_discarded():
                          {"name": "Shanghai Port", "price": 3.4},
                          {"name": "Draw", "price": 3.3}]}]}],
     }]
-    wanted_none = cc.extract_rows("csl", events, set(), "2026-08-28T11:55:00Z")
+    config = load_league("csl")
+    wanted_none = cc.extract_rows("csl", config, events, set(), "2026-08-28T11:55:00Z")
     assert wanted_none == [], "a fixture we are not in-window for must be dropped"
 
-    wanted = {("Beijing Guoan", "Shanghai Port")}
-    rows = cc.extract_rows("csl", events, wanted, "2026-08-28T11:55:00Z")
+    wanted = {("Beijing Guoan", "Shanghai Port", "2026-08-28")}
+    rows = cc.extract_rows("csl", config, events, wanted, "2026-08-28T11:55:00Z")
     assert len(rows) == 1
     assert rows[0]["home_team"] == "Beijing Guoan", "names are canonicalised"
+
+
+def test_the_other_meeting_of_the_same_pair_is_not_this_one_s_close():
+    """The slate carries every fixture, including the pair's next meeting.
+
+    Matched on names alone that entry passes the window filter and is stored as
+    this fixture's close. It happened: UNAM Pumas v Leon kicked off 2026-09-06
+    and what landed as its close was their 2026-09-11 price, five days out. The
+    match that actually closed ended up with no close at all.
+    """
+    config = load_league("csl")
+    events = [{
+        "id": "later", "commence_time": "2026-09-11T12:10:00Z",
+        "home_team": "Beijing FC", "away_team": "Shanghai Port",
+        "bookmakers": [{"key": "pinnacle", "markets": [{
+            "key": "h2h", "last_update": "2026-08-28T11:55:00Z",
+            "outcomes": [{"name": "Beijing FC", "price": 2.1},
+                         {"name": "Shanghai Port", "price": 3.4},
+                         {"name": "Draw", "price": 3.3}]}]}],
+    }]
+    wanted = {("Beijing Guoan", "Shanghai Port", "2026-08-28")}
+    assert cc.extract_rows("csl", config, events, wanted, "2026-08-28T11:55:00Z") == []
 
 
 def test_a_book_quoting_only_two_ways_is_not_a_1x2_close():
@@ -153,5 +176,6 @@ def test_a_book_quoting_only_two_ways_is_not_a_1x2_close():
                                        {"name": "Shanghai Port", "price": 2.5}]}]}],
     }]
     assert cc.extract_rows(
-        "csl", events, {("Beijing Guoan", "Shanghai Port")}, "2026-08-28T11:55:00Z"
+        "csl", load_league("csl"), events,
+        {("Beijing Guoan", "Shanghai Port", "2026-08-28")}, "2026-08-28T11:55:00Z"
     ) == []

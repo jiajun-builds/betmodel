@@ -39,7 +39,7 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from betmodel import paths, teams
-from betmodel.dates import stamp
+from betmodel.dates import local_matchday, stamp
 from betmodel.config.schema import LeagueConfig
 from betmodel.fixtures.upcoming import Fixture, load_upcoming
 from betmodel.odds import capture_store
@@ -61,11 +61,14 @@ def finalisation_book(config: LeagueConfig) -> str:
 
 
 def finalised_fixtures(league: str, config: LeagueConfig, *, history_path: str | None = None
-                       ) -> set[tuple[str, str]]:
+                       ) -> set[tuple[str, str, str]]:
     """Fixtures whose close already landed inside the target band.
 
     Keyed on team names rather than the provider's event id, because the point is
-    to stop spending on the *fixture* however it happens to be identified.
+    to stop spending on the *fixture* however it happens to be identified -- and
+    on the local matchday alongside them, because a pair of names is not a
+    fixture. Without the matchday one meeting's close finalises the other, and
+    the second of two meetings would never be captured at all.
     """
     path = history_path or paths.for_league(league).capture_history_csv
     history = capture_store.load_history(path)
@@ -76,14 +79,17 @@ def finalised_fixtures(league: str, config: LeagueConfig, *, history_path: str |
         (history["snapshot_type"] == "close") & (history["bookmaker"] == book)
     ]
     target = config.odds.close.target_minutes * 60
-    done: set[tuple[str, str]] = set()
+    done: set[tuple[str, str, str]] = set()
     for row in closes.itertuples(index=False):
         kickoff = pd.to_datetime(row.commence_time, utc=True, errors="coerce")
         fetched = pd.to_datetime(row.fetched_at, utc=True, errors="coerce")
         if pd.isna(kickoff) or pd.isna(fetched):
             continue
         if 0 <= (kickoff - fetched).total_seconds() <= target:
-            done.add((str(row.home_team), str(row.away_team)))
+            done.add((
+                str(row.home_team), str(row.away_team),
+                local_matchday(kickoff.to_pydatetime(), config.timezone),
+            ))
     return done
 
 
@@ -106,14 +112,16 @@ def fixtures_in_window(
     return sorted(
         (
             f for f in load_upcoming(path)
-            if f.kickoff - window <= now < f.kickoff and f.key not in done
+            if f.kickoff - window <= now < f.kickoff
+            and (*f.key, local_matchday(f.kickoff, config.timezone)) not in done
         ),
         key=lambda f: f.kickoff,
     )
 
 
 def extract_rows(
-    league: str, events: list[dict], wanted: set[tuple[str, str]], fetched_at: str
+    league: str, config: LeagueConfig, events: list[dict],
+    wanted: set[tuple[str, str, str]], fetched_at: str,
 ) -> list[dict]:
     """Rows for the fixtures we are actually in-window for, and no others.
 
@@ -122,6 +130,16 @@ def extract_rows(
     captured a median of thirty-five hours out into the closing columns, carrying
     a 105.5% overround against 103.4% for real closes. Everything outside the
     window is discarded here rather than filtered later.
+
+    **`wanted` carries the matchday, and it is the whole guard.** On team names
+    alone the discard above does not discard: when two clubs meet twice, the
+    slate's entry for the *other* meeting matches the pair and is stored as this
+    one's close. That is the same thirty-five-hours-out mistake arriving by a
+    different door -- and it happened. UNAM Pumas v Leon kicked off on
+    2026-09-06, and what went into the store as its close was the price of their
+    2026-09-11 meeting, five days from kickoff, filed under 2026-09-11. The
+    fixture that actually closed has no close at all, and its closing-line value
+    cannot be recovered at any price.
     """
     mapping = teams.for_league(league)
     rows: list[dict] = []
@@ -136,7 +154,14 @@ def extract_rows(
                 "(fixture skipped)", api_home, api_away,
             )
             continue
-        if (home, away) not in wanted:
+        kickoff = pd.to_datetime(record["commence_time"], utc=True, errors="coerce")
+        if pd.isna(kickoff):
+            continue
+        # The provider's own kickoff decides which meeting this price belongs to.
+        # A day rather than an instant, because the two sources disagree by
+        # minutes on the same match -- see `local_matchday`.
+        day = local_matchday(kickoff.to_pydatetime(), config.timezone)
+        if (home, away, day) not in wanted:
             continue
         outcomes = record["outcomes"]
         odds = (outcomes.get(api_home), outcomes.get("Draw"), outcomes.get(api_away))
@@ -205,7 +230,11 @@ def capture_closes(
     stats["requests"] = 1
 
     fetched_at = stamp(now)
-    rows = extract_rows(league, events, {f.key for f in due}, fetched_at)
+    rows = extract_rows(
+        league, config, events,
+        {(*f.key, local_matchday(f.kickoff, config.timezone)) for f in due},
+        fetched_at,
+    )
     stats["captured"] = len(rows)
     if not rows:
         return stats
