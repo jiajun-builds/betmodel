@@ -25,6 +25,9 @@ on:
         description: Also ask odds/multi about whatever matched (one more request)
         type: boolean
         default: false
+      leagues:
+        description: List the provider's league slugs matching this, instead of events
+        default: ""
 
 permissions:
   contents: read
@@ -54,4 +57,5 @@ jobs:
           python scripts/check_event_listing.py "${{ inputs.league }}" \
             --lookback "${{ inputs.lookback }}" \
             ${{ inputs.lookahead && format('--lookahead {0}', inputs.lookahead) || '' }} \
-            ${{ inputs.odds && '--odds' || '' }}
+            ${{ inputs.odds && '--odds' || '' }} \
+            ${{ inputs.leagues && format('--leagues {0}', inputs.leagues) || '' }}

@@ -52,6 +52,12 @@ def main(argv: list[str] | None = None) -> int:
                              "a window starting at now would never see.")
     parser.add_argument("--lookahead", type=int, default=None, metavar="DAYS",
                         help="override the league's own open lookahead")
+    parser.add_argument("--leagues", metavar="SUBSTRING",
+                        help="instead of listing events, list the provider's own "
+                             "league slugs matching this. A fixture absent from "
+                             "the slug we ask about may be filed under another: "
+                             "postponed matches are sometimes carried as a "
+                             "separate competition.")
     args = parser.parse_args(argv)
 
     config = load_league(args.league)
@@ -62,6 +68,26 @@ def main(argv: list[str] | None = None) -> int:
         base_url=provider.get("base_url", oddsapiio.BASE_URL),
         credential=provider.get("credential", "default"),
     )
+
+    if args.leagues:
+        needle = args.leagues.lower()
+        for path in ("leagues", "competitions"):
+            try:
+                payload = client.get(path, sport=provider.get("sport", "football"))
+            except Exception as exc:  # noqa: BLE001 - probing an undocumented path
+                print(f"{path}: {type(exc).__name__}: {exc}")
+                continue
+            rows = payload if isinstance(payload, list) else (payload or {}).get("data", [])
+            hits = [
+                r for r in rows
+                if needle in str(r).lower()
+            ]
+            print(f"{path}: {len(rows)} entr(y/ies), {len(hits)} matching {needle!r}")
+            for hit in hits:
+                print(f"   {hit}")
+            if rows:
+                return 0
+        return 0
 
     lookahead = args.lookahead or config.odds.open.lookahead_days
     now = datetime.now(timezone.utc)
