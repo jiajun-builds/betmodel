@@ -28,6 +28,9 @@ on:
       leagues:
         description: List the provider's league slugs matching this, instead of events
         default: ""
+      anchor_books:
+        description: Regions to ask The Odds API which bookmakers it carries (e.g. eu,uk)
+        default: ""
 
 permissions:
   contents: read
@@ -53,9 +56,12 @@ jobs:
         env:
           ODDS_API_IO_KEY_CSL: ${{ secrets.ODDS_API_IO_KEY_CSL }}
           ODDS_API_IO_KEY_LIGAMX: ${{ secrets.ODDS_API_IO_KEY_LIGAMX }}
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
         run: |
           python scripts/check_event_listing.py "${{ inputs.league }}" \
             --lookback "${{ inputs.lookback }}" \
             ${{ inputs.lookahead && format('--lookahead {0}', inputs.lookahead) || '' }} \
             ${{ inputs.odds && '--odds' || '' }} \
-            ${{ inputs.leagues && format('--leagues {0}', inputs.leagues) || '' }}
+            ${{ inputs.leagues && format('--leagues {0}', inputs.leagues) || '' }} \
+            ${{ inputs.anchor_books && format('--anchor-books {0}', inputs.anchor_books) || '' }}

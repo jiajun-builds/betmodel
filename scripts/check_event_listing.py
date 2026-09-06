@@ -52,6 +52,13 @@ def main(argv: list[str] | None = None) -> int:
                              "a window starting at now would never see.")
     parser.add_argument("--lookahead", type=int, default=None, metavar="DAYS",
                         help="override the league's own open lookahead")
+    parser.add_argument("--anchor-books", metavar="REGIONS",
+                        help="ask The Odds API which bookmakers it carries for "
+                             "this sport in these regions (e.g. 'eu,uk'). Costs "
+                             "one request against the monthly account. The "
+                             "question it answers: when odds-api.io has no "
+                             "fixture, can the other provider supply the same "
+                             "book for it?")
     parser.add_argument("--leagues", metavar="SUBSTRING",
                         help="instead of listing events, list the provider's own "
                              "league slugs matching this. A fixture absent from "
@@ -68,6 +75,36 @@ def main(argv: list[str] | None = None) -> int:
         base_url=provider.get("base_url", oddsapiio.BASE_URL),
         credential=provider.get("credential", "default"),
     )
+
+    if args.anchor_books:
+        from betmodel.providers import theoddsapi
+
+        spec = config.odds.providers["theoddsapi"]
+        anchor = theoddsapi.TheOddsApiClient(
+            spec.require("sport_key"),
+            base_url=spec.get("base_url", theoddsapi.BASE_URL),
+            market=spec.get("market", "h2h"),
+            credential=spec.get("credential", "default"),
+        )
+        events = anchor.odds(regions=args.anchor_books)
+        print(f"the-odds-api: {len(events)} event(s) in regions "
+              f"{args.anchor_books!r}\n")
+        books: dict[str, int] = {}
+        for event in events:
+            for book in event.get("bookmakers") or []:
+                books[str(book.get("key"))] = books.get(str(book.get("key")), 0) + 1
+        print("bookmakers carried, and on how many of those events:")
+        for key in sorted(books, key=lambda k: -books[k]):
+            print(f"   {key:24s} {books[key]}")
+        print("\nevents, and whether the books we bet are on them:")
+        wanted = {b.key for b in config.odds.books if b.role == "bet"}
+        for event in sorted(events, key=lambda e: str(e.get("commence_time"))):
+            have = {str(b.get("key")) for b in (event.get("bookmakers") or [])}
+            hit = sorted(wanted & have)
+            print(f"   {str(event.get('commence_time'))[:16]}  "
+                  f"{event.get('home_team')} v {event.get('away_team')}: "
+                  f"{hit or 'none of ' + str(sorted(wanted))}")
+        return 0
 
     if args.leagues:
         needle = args.leagues.lower()
