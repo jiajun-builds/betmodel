@@ -153,7 +153,7 @@ def test_a_reset_beyond_the_budget_refuses_instead_of_waiting(monkeypatch):
     """
     from betmodel.providers import oddsapiio
 
-    client, slept = _io_client(monkeypatch, [_limited(400)], max_park_seconds=60.0)
+    client, slept = _io_client(monkeypatch, [_limited(3415)], max_park_seconds=120.0)
     with pytest.raises(oddsapiio.RateLimited, match="park budget"):
         client.get("events")
     assert slept == [], "it must not have waited at all"
@@ -168,20 +168,39 @@ def test_an_unreadable_reset_refuses_rather_than_guessing(monkeypatch):
     assert slept == []
 
 
-def test_the_park_budget_covers_the_whole_call_not_each_attempt(monkeypatch):
+def test_the_park_budget_spans_every_call_the_client_makes(monkeypatch):
     """Five waits each under a per-attempt cap still outlast the tick.
 
-    That arithmetic is what turned a rate limit into a fifteen-minute hang, so
-    the budget is cumulative and the second wait here is refused.
+    That arithmetic is what turned a rate limit into a fifteen-minute hang. The
+    budget is therefore cumulative *and* per client rather than per call: a
+    capture makes three requests, and three separate per-call budgets bound
+    nothing that has to fit inside the five-minute tick.
     """
     from betmodel.providers import oddsapiio
 
     client, slept = _io_client(
-        monkeypatch, [_limited(20), _limited(20), _Resp()], max_park_seconds=30.0
+        monkeypatch,
+        [_limited(20), _Resp(payload=[{"id": "1"}]), _limited(20), _Resp()],
+        max_park_seconds=30.0,
     )
+    assert client.get("events") == [{"id": "1"}]      # first call parks 20-ish
     with pytest.raises(oddsapiio.RateLimited, match="park budget"):
-        client.get("events")
+        client.get("odds/multi")                       # second has nothing left
     assert len(slept) == 1 and sum(slept) <= 30.0, slept
+
+
+def test_a_window_that_resets_inside_the_tick_is_waited_out(monkeypatch):
+    """A 68-second reset is a burst, and riding it out costs a fifth of a tick.
+
+    Measured: this provider answered one 429 with a 68s reset and another with
+    3415s. Refusing both would throw away the requests the first would have won,
+    and an earlier 60s budget did exactly that, by eight seconds.
+    """
+    from betmodel.providers import oddsapiio
+
+    client, slept = _io_client(monkeypatch, [_limited(68), _Resp(payload=[1])])
+    assert client.get("events") == [1]
+    assert 68 <= sum(slept) <= 71, slept
 
 
 def test_a_rate_limit_is_a_refusal_and_the_other_provider_still_runs(

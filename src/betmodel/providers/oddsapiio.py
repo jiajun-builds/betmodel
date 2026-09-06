@@ -125,7 +125,7 @@ class OddsApiIoClient:
         base_url: str = BASE_URL,
         credential: str = "default",
         timeout: float = 30.0,
-        max_park_seconds: float = 60.0,
+        max_park_seconds: float = 120.0,
     ) -> None:
         if not league_slugs:
             raise ValueError("at least one league slug is required")
@@ -133,11 +133,20 @@ class OddsApiIoClient:
         self.sport = sport
         self.credential = credential
         self.base_url = base_url.rstrip("/")
-        #: Total seconds one `get` may spend parked, across every attempt. A
-        #: budget for the whole call rather than a cap per wait: five waits each
-        #: inside a per-attempt cap still adds up to longer than the tick that
-        #: contains them, which is how a rate limit turned into a blocked queue.
+        #: Total seconds this client may spend parked, across every call it
+        #: makes. A budget for the client and not for one `get`, because a
+        #: capture makes three calls and three per-call budgets bound nothing
+        #: that matters: what must fit inside the five-minute tick is the whole
+        #: capture, not each request in it.
+        #:
+        #: 120s because this provider's rate window is about a minute -- measured
+        #: resets of 68s and, separately, 3415s. The first is a burst worth
+        #: riding out and comfortably fits the tick; the second is a window spent
+        #: for the period, where waiting is not a delay but a different strategy.
+        #: A budget between the two takes the first and refuses the second, and
+        #: an earlier 60s setting refused a 68s wait it should have taken.
         self.max_park_seconds = max_park_seconds
+        self._parked = 0.0
         # Retries are handled here, not by the policy: a 429 needs the reset
         # header, and a 403 must never be retried at all.
         self._http = http.client("oddsapiio", retry=http.NO_RETRY, timeout=timeout)
@@ -184,7 +193,6 @@ class OddsApiIoClient:
         """
         params["apiKey"] = api_key(self.credential)
         url = f"{self.base_url}/{path.lstrip('/')}"
-        parked = 0.0
         for attempt in range(1, 6):
             try:
                 response = self._http.get(url, params=params)
@@ -211,7 +219,7 @@ class OddsApiIoClient:
                             f"odds-api.io rate limited on {path} and sent no "
                             f"readable reset; refusing rather than guessing"
                         ) from exc
-                    if parked + wait > self.max_park_seconds:
+                    if self._parked + wait > self.max_park_seconds:
                         # The allowance goes in the message. A reset an hour out
                         # is not a burst to ride out, it is a window we are over
                         # for the period, and the only way to tell those apart
@@ -223,18 +231,18 @@ class OddsApiIoClient:
                             f"odds-api.io rate limited on {path} for credential "
                             f"{self.credential!r}; window resets in {wait:.0f}s "
                             f"(limit {limit}, remaining {left}), past this "
-                            f"call's {self.max_park_seconds:.0f}s park budget"
+                            f"client's {self.max_park_seconds:.0f}s park budget"
                         ) from exc
-                    parked += wait
+                    self._parked += wait
                     log.info("odds-api.io rate limited, parking %.0fs for the "
                              "window reset (%.0fs of %.0fs budget used)",
-                             wait, parked, self.max_park_seconds)
+                             wait, self._parked, self.max_park_seconds)
                     time.sleep(wait)
                     continue
                 raise
             wait = self._park(response) or 0.0
             if wait:
-                if parked + wait > self.max_park_seconds:
+                if self._parked + wait > self.max_park_seconds:
                     # The response is in hand and valid; the park was only to
                     # keep the *next* call off a spent window. Returning it and
                     # letting the next call meet the 429 is strictly better than
@@ -242,7 +250,7 @@ class OddsApiIoClient:
                     log.info("odds-api.io window nearly spent and its reset is "
                              "past this call's park budget; returning now")
                     return response.json()
-                parked += wait
+                self._parked += wait
                 log.info("odds-api.io window nearly spent, parking %.0fs", wait)
                 time.sleep(wait)
             return response.json()
