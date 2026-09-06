@@ -37,6 +37,14 @@ concurrency:
 jobs:
   capture:
     runs-on: ubuntu-latest
+    # A backstop, not the mechanism. The client now refuses a rate limit rather
+    # than parking through it, so a tick should finish in seconds; this only
+    # bounds the damage if something else ever learns to hang. It matters because
+    # the concurrency group above is shared with the closing-line captures, so a
+    # stuck run does not just fail itself, it cancels whatever queued behind it --
+    # and a close missed cannot be bought back at any price. Generous enough for
+    # a slow provider, far short of the fifteen minutes that did the damage.
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

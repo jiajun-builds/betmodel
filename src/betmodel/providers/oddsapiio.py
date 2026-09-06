@@ -44,6 +44,23 @@ RATE_FLOOR = 2
 ML_MARKET = "ML"
 
 
+class RateLimited(RuntimeError):
+    """The rate window is spent and waiting it out would outlive this tick.
+
+    Its own exception, and deliberately not a hard failure. A tick that cannot
+    reach the provider has spent nothing and decided nothing, which is the same
+    shape as a quota refusal and is handled the same way: reported, counted, and
+    survived, with the other provider left to run.
+
+    What it replaces was a blind escalating backoff -- 60, 120, 180, 240, 300
+    seconds -- ending in an unhandled error. On a five-minute tick sharing one
+    concurrency group with the closing-line captures, that held the runner for
+    fifteen minutes and cancelled everything queued behind it. Three of those on
+    2026-09-06 cancelled fifteen ticks. None of them happened to be a close, and
+    a close missed cannot be bought back at any price.
+    """
+
+
 class EntitlementError(RuntimeError):
     """A bookmaker outside the plan was requested, so the whole call failed.
 
@@ -108,7 +125,7 @@ class OddsApiIoClient:
         base_url: str = BASE_URL,
         credential: str = "default",
         timeout: float = 30.0,
-        max_park_seconds: float = 900.0,
+        max_park_seconds: float = 60.0,
     ) -> None:
         if not league_slugs:
             raise ValueError("at least one league slug is required")
@@ -116,33 +133,58 @@ class OddsApiIoClient:
         self.sport = sport
         self.credential = credential
         self.base_url = base_url.rstrip("/")
+        #: Total seconds one `get` may spend parked, across every attempt. A
+        #: budget for the whole call rather than a cap per wait: five waits each
+        #: inside a per-attempt cap still adds up to longer than the tick that
+        #: contains them, which is how a rate limit turned into a blocked queue.
         self.max_park_seconds = max_park_seconds
         # Retries are handled here, not by the policy: a 429 needs the reset
         # header, and a 403 must never be retried at all.
         self._http = http.client("oddsapiio", retry=http.NO_RETRY, timeout=timeout)
 
-    def _park(self, response) -> float:
-        """Seconds to wait for the rate window to reset, 0 if no need."""
-        remaining = response.headers.get("x-ratelimit-remaining")
-        reset = response.headers.get("x-ratelimit-reset")
+    def _seconds_to_reset(self, headers, *, status: int | None = None) -> float | None:
+        """Seconds until the rate window resets, or ``None`` if it cannot be read.
+
+        ``None`` and ``0.0`` are different answers and the caller acts on the
+        difference: zero means no need to wait, ``None`` means we do not know
+        how long waiting would take. Guessing in that case is what produced the
+        blind backoff.
+        """
+        remaining = headers.get("x-ratelimit-remaining")
+        reset = headers.get("x-ratelimit-reset")
         if reset is None:
-            return 0.0
+            return None
         try:
             if remaining is not None and int(remaining) > RATE_FLOOR:
-                if response.status_code != 429:
+                if status != 429:
                     return 0.0
         except (TypeError, ValueError):
             pass
         try:
             when = datetime.fromisoformat(str(reset).replace("Z", "+00:00"))
         except ValueError:
-            return 0.0
-        wait = (when - datetime.now(timezone.utc)).total_seconds() + 2
-        return max(0.0, min(wait, self.max_park_seconds))
+            return None
+        return max(0.0, (when - datetime.now(timezone.utc)).total_seconds() + 2)
+
+    def _park(self, response) -> float | None:
+        """Seconds to wait before this response's window resets."""
+        return self._seconds_to_reset(response.headers,
+                                      status=response.status_code)
 
     def get(self, path: str, **params: Any) -> Any:
+        """One request, parking only as long as the window actually needs.
+
+        **Nothing here may outlive the tick that contains it.** These run on a
+        five-minute dispatch inside a concurrency group shared with the closing-
+        line captures, so a call that parks longer than its slot does not merely
+        arrive late -- it holds the group and cancels whatever queued behind it,
+        which on the wrong tick is a close, and a close missed is unrecoverable.
+        So `parked` is a budget for the whole call, and running out of it is a
+        `RateLimited` refusal now rather than a longer wait for the same answer.
+        """
         params["apiKey"] = api_key(self.credential)
         url = f"{self.base_url}/{path.lstrip('/')}"
+        parked = 0.0
         for attempt in range(1, 6):
             try:
                 response = self._http.get(url, params=params)
@@ -160,19 +202,45 @@ class OddsApiIoClient:
                         f"{detail}".strip()
                     ) from exc
                 if exc.status == 429:
-                    # HttpError already means the body is gone, so park on a
-                    # conservative default rather than on a reset we cannot read.
-                    wait = min(60.0 * attempt, self.max_park_seconds)
-                    log.info("odds-api.io rate limited, parking %.0fs", wait)
+                    # The reset moment travels on the error now, so this waits
+                    # for the window rather than guessing at it. Unreadable is
+                    # not a reason to guess: refuse, and let the next tick ask.
+                    wait = self._seconds_to_reset(exc.headers, status=429)
+                    if wait is None:
+                        raise RateLimited(
+                            f"odds-api.io rate limited on {path} and sent no "
+                            f"readable reset; refusing rather than guessing"
+                        ) from exc
+                    if parked + wait > self.max_park_seconds:
+                        raise RateLimited(
+                            f"odds-api.io rate limited on {path}; its window "
+                            f"resets in {wait:.0f}s, past this call's "
+                            f"{self.max_park_seconds:.0f}s park budget"
+                        ) from exc
+                    parked += wait
+                    log.info("odds-api.io rate limited, parking %.0fs for the "
+                             "window reset (%.0fs of %.0fs budget used)",
+                             wait, parked, self.max_park_seconds)
                     time.sleep(wait)
                     continue
                 raise
-            wait = self._park(response)
+            wait = self._park(response) or 0.0
             if wait:
+                if parked + wait > self.max_park_seconds:
+                    # The response is in hand and valid; the park was only to
+                    # keep the *next* call off a spent window. Returning it and
+                    # letting the next call meet the 429 is strictly better than
+                    # sitting on a finished answer past the end of the tick.
+                    log.info("odds-api.io window nearly spent and its reset is "
+                             "past this call's park budget; returning now")
+                    return response.json()
+                parked += wait
                 log.info("odds-api.io window nearly spent, parking %.0fs", wait)
                 time.sleep(wait)
             return response.json()
-        raise RuntimeError(f"odds-api.io rate limited five times on {path}")
+        raise RateLimited(
+            f"odds-api.io rate limited on every attempt at {path}"
+        )
 
     # --- endpoints ----------------------------------------------------------
     def list_events(self, start: datetime, end: datetime) -> list[dict]:

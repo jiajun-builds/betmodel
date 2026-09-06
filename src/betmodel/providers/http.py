@@ -78,7 +78,7 @@ class HttpError(RuntimeError):
     """A request failed after exhausting its retry policy."""
 
     def __init__(self, message: str, *, status: int | None = None,
-                 attempts: int = 1, body: str = ""):
+                 attempts: int = 1, body: str = "", headers: dict | None = None):
         super().__init__(message)
         self.status = status
         self.attempts = attempts
@@ -86,6 +86,14 @@ class HttpError(RuntimeError):
         #: the precise reason, and discarding it turns a self-explaining error
         #: into a guess.
         self.body = body
+        #: Response headers, for the same reason as the body and one more: a 429
+        #: carries the moment its window resets, and that is the only number that
+        #: says how long waiting is worth. Discarding it forced the one caller
+        #: that handles 429 into a blind escalating backoff -- the exact
+        #: behaviour its own module docstring warns against -- which parked a
+        #: five-minute tick for fifteen minutes and blocked everything queued
+        #: behind it.
+        self.headers = dict(headers or {})
 
 
 def _redact(url: str) -> str:
@@ -218,6 +226,7 @@ class HttpClient:
                     status=status,
                     attempts=attempt,
                     body=_body_of(response),
+                    headers=getattr(response, "headers", None),
                 )
             log.debug(
                 "%s: HTTP %d on attempt %d, retrying", self.name, status, attempt

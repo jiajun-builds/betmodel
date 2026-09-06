@@ -515,10 +515,16 @@ def capture_opens(
             else:
                 rows, unpriced, used = _capture_theoddsapi(
                     league, config, pending, books, now=now, dry_run=dry_run)
-        except QuotaRefused as exc:
+        except (QuotaRefused, oddsapiio.RateLimited) as exc:
             # One provider being out of credit must not stop the other: the soft
             # books and the anchor are different accounts, and losing both
             # because one is spent would turn a degraded tick into a dead one.
+            #
+            # A rate limit is the same shape and belongs here rather than in a
+            # traceback. It used to escape, failing the step after fifteen
+            # minutes of blind backoff, which held the shared concurrency group
+            # and cancelled the ticks behind it. Nothing was captured either way;
+            # the difference is entirely in what it costs everything else.
             log.warning("%s/%s: refused, %s", league, provider, exc)
             stats["refused"] += 1
             refusals.append(f"{provider}: {exc}")

@@ -13,6 +13,8 @@ did not.
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from betmodel.providers import http, sofascore
@@ -74,3 +76,150 @@ def test_a_failing_league_makes_the_run_fail(monkeypatch):
     code = cli.main(["all", "xg"])
     assert code == 1
     assert len(calls) > 1, "the other leagues must still have been attempted"
+
+
+# --------------------------------------------------------------------------- #
+# a rate limit must not outlive the tick that met it
+# --------------------------------------------------------------------------- #
+
+class _Resp:
+    """Minimal stand-in for a requests response."""
+
+    def __init__(self, headers=None, status_code=200, payload=None):
+        self.headers = headers or {}
+        self.status_code = status_code
+        self._payload = payload if payload is not None else []
+
+    def json(self):
+        return self._payload
+
+
+def _io_client(monkeypatch, responses, **kwargs):
+    """A client whose transport replays `responses`, recording every sleep."""
+    from betmodel.providers import oddsapiio
+
+    client = oddsapiio.OddsApiIoClient(["a-league"], credential="default", **kwargs)
+    calls = iter(responses)
+
+    class _Transport:
+        # Replaces the whole client: HttpClient is a frozen dataclass, so its
+        # `get` cannot be patched in place.
+        def get(self, url, params=None):
+            outcome = next(calls)
+            if isinstance(outcome, Exception):
+                raise outcome
+            return outcome
+
+    client._http = _Transport()
+    slept: list[float] = []
+    monkeypatch.setattr(oddsapiio.time, "sleep", slept.append)
+    monkeypatch.setenv("ODDS_API_IO_KEY", "test")
+    return client, slept
+
+
+def _limited(reset_in_seconds=None):
+    from betmodel.providers import http
+
+    headers = {}
+    if reset_in_seconds is not None:
+        when = datetime.now(timezone.utc) + timedelta(seconds=reset_in_seconds)
+        headers["x-ratelimit-reset"] = when.isoformat().replace("+00:00", "Z")
+        headers["x-ratelimit-remaining"] = "0"
+    return http.HttpError("429", status=429, body="", headers=headers)
+
+
+def test_a_429_now_parks_for_the_window_rather_than_a_guess(monkeypatch):
+    """The reset moment reaches the handler, so the wait is the real one.
+
+    It could not before: `HttpError` discarded the headers, so the only 429 path
+    fell back on an escalating 60/120/180/240/300 -- the blind backoff this
+    module's own docstring says not to do.
+    """
+    from betmodel.providers import oddsapiio
+
+    client, slept = _io_client(monkeypatch, [_limited(8), _Resp(payload=[{"id": "1"}])])
+    assert client.get("events") == [{"id": "1"}]
+    assert len(slept) == 1
+    assert 8 <= slept[0] <= 11, slept  # the window, plus the two-second margin
+
+
+def test_a_reset_beyond_the_budget_refuses_instead_of_waiting(monkeypatch):
+    """The tick is five minutes long and shares its runner with the closes.
+
+    Waiting out a long window does not merely arrive late, it holds the
+    concurrency group and cancels whatever queued behind it. Refusing now and
+    letting the next tick ask costs nothing, because nothing was going to be
+    captured in either case.
+    """
+    from betmodel.providers import oddsapiio
+
+    client, slept = _io_client(monkeypatch, [_limited(400)], max_park_seconds=60.0)
+    with pytest.raises(oddsapiio.RateLimited, match="park budget"):
+        client.get("events")
+    assert slept == [], "it must not have waited at all"
+
+
+def test_an_unreadable_reset_refuses_rather_than_guessing(monkeypatch):
+    from betmodel.providers import oddsapiio
+
+    client, slept = _io_client(monkeypatch, [_limited(None)])
+    with pytest.raises(oddsapiio.RateLimited, match="no readable reset"):
+        client.get("events")
+    assert slept == []
+
+
+def test_the_park_budget_covers_the_whole_call_not_each_attempt(monkeypatch):
+    """Five waits each under a per-attempt cap still outlast the tick.
+
+    That arithmetic is what turned a rate limit into a fifteen-minute hang, so
+    the budget is cumulative and the second wait here is refused.
+    """
+    from betmodel.providers import oddsapiio
+
+    client, slept = _io_client(
+        monkeypatch, [_limited(20), _limited(20), _Resp()], max_park_seconds=30.0
+    )
+    with pytest.raises(oddsapiio.RateLimited, match="park budget"):
+        client.get("events")
+    assert len(slept) == 1 and sum(slept) <= 30.0, slept
+
+
+def test_a_rate_limit_is_a_refusal_and_the_other_provider_still_runs(
+    tmp_path, monkeypatch
+):
+    """Same handling as a quota refusal: counted, reported, survived.
+
+    It used to escape as an unhandled error and fail the step.
+    """
+    from betmodel.config import load_league
+    from betmodel.fixtures.upcoming import Fixture
+    from betmodel.odds import capture_open as co
+    from betmodel.providers import oddsapiio
+
+    seen: list[str] = []
+
+    def _limit(*_a, **_k):
+        raise oddsapiio.RateLimited("window spent")
+
+    def _anchor(*_a, **_k):
+        seen.append("theoddsapi")
+        return [], [], 0
+
+    # Both providers must have something to do, or the second one is skipped for
+    # an unrelated reason and the test passes without testing anything.
+    def _pending(_league, _config, *, books, **_kwargs):
+        return [co.Pending(
+            Fixture(home="A", away="B", round="1",
+                    kickoff=datetime(2026, 8, 31, 9, 0, tzinfo=timezone.utc)),
+            tuple(books),
+        )]
+
+    monkeypatch.setattr(co, "pending_fixtures", _pending)
+    monkeypatch.setattr(co, "_capture_oddsapiio", _limit)
+    monkeypatch.setattr(co, "_capture_theoddsapi", _anchor)
+    stats = co.capture_opens(
+        "csl", load_league("csl"), providers=("oddsapiio", "theoddsapi"),
+        ignore_schedule=True, now=datetime(2026, 8, 28, 9, 0, tzinfo=timezone.utc),
+    )
+    assert stats["refused"] == 1
+    assert seen == ["theoddsapi"], "the anchor must still be polled"

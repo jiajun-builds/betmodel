@@ -69,29 +69,58 @@ line exists only while the bookmaker shows it and no provider sells opener
 history at any tier, so `data/<league>/odds_capture_history.csv` is append-only
 and committed. A model can be refitted; a missed price cannot be bought back.
 
-**The anchor's provenance is computed but not yet checked.** `reduce.py` derives a
-`proof` for every opening price via `capture_watch.opener_proof`, and
-`capture_watch.csv` records when a (fixture, book) was seen *unpriced* — which is
-what proves a later price is genuinely the book's first. But `build_signals` reads
-the anchor with a plain `opens.get(...)` and never looks at that proof, and
-`require_price_proof` covers only the bet price. So the tool can tell whether an
-anchor is a real opener and does not ask.
+**The anchor's proof is checked, and it is the strictest gate in the tool.**
+`reduce.py` derives a `proof` for every opening price via
+`capture_watch.opener_proof`, from what `capture_watch.csv` recorded about seeing
+a (fixture, book) *unpriced* beforehand. `build_signals` then refuses any anchor
+that is not `observed` — the strong proof — for anything captured after
+`ANCHOR_PROOF_CUTOVER`, and an anchor refused means the fixture publishes
+`unanchored` and cannot fire.
 
-**A quota refusal is not an idle tick, and used to look like one.** Both return no
-rows and no requests, and the workflow step exits green either way. The CSL Odds
-API account sat under its floor and stopped anchoring the league — twice, once for
-three days. `QuotaRefused` now makes the two distinguishable; keep it that way.
+Expect that gate to be where a missing signal turns out to live. On 2026-09-06 a
+Necaxa v Puebla edge of +15.5% went unpublished because fourteen rows of
+`capture_watch.csv` were written with microsecond timestamps and a reader that
+inferred one format from the first row dropped every one of them. The proof was
+withheld, the real opener was treated as absent, and everything downstream
+behaved exactly as designed. When a signal is missing, read the proof first.
+
+**The bet price is gated far more weakly**, and knowing the difference matters.
+`require_price_proof` accepts any non-empty proof, so `window` passes — and
+`window` says only that the fixture entered the lookahead after capture began,
+which for a pipeline running since July is very nearly a tautology. The polled
+soft books have earned `observed` nought times in 117 opening prices.
+
+**A tick that could not reach a provider is not an idle tick, and they keep
+looking alike.** Both return no rows, and the workflow step exits green either
+way. Three cases have now had to be told apart by hand, so assume a fourth. The
+CSL Odds API account sat under its floor and stopped anchoring the league —
+twice, once for three days; `QuotaRefused` made that one legible. Then
+odds-api.io began returning a listing with none of our fixtures in it and
+`_capture_oddsapiio` returned at `if not matched` saying nothing, six days of it.
+Then a 429 escaped as an unhandled error after fifteen minutes of blind backoff,
+which on a concurrency group shared with the closes cancels the ticks queued
+behind it. Each now says what it is. **Keep it that way: a path that spends a
+request and records nothing must log why, and nothing may outlive its
+five-minute tick.**
 
 **The two providers have opposite economics.** odds-api.io bills 500 per *day* per
 league; each Odds API account bills 500 per *month*. Polling them at one rate
 either starves the cheap one or drains the expensive one. See D25 in
 `docs/DECISIONS.md`.
 
-**The open lookahead is shared by every book, and it should not be.** It is 21
-days for CSL and 14 for Liga MX, while Pinnacle does not price a fixture until
-about 7 days out. Every anchor slot therefore spends a request asking about
-fixtures that provably cannot be priced yet, which is where the monthly allowance
-goes.
+**The open lookahead is per book now.** The league-wide value (21 days for CSL,
+14 for Liga MX) is the default, and Pinnacle overrides it to 8 in both — it does
+not price a fixture until about 7 days out, so a longer window spent the monthly
+allowance asking questions whose answer was known. A book's own
+`lookahead_days` beats the league's.
+
+**A fixture is a pairing on a matchday, never a pairing.** Two clubs meet twice a
+season and again whenever a postponed match is replayed, so every key that
+identifies a fixture carries `dates.local_matchday`. It is a *day* and not a
+kickoff on purpose: providers nudge kickoff times by minutes, and a key that
+treats drift as a new fixture sends the capture to write today's mid-market line
+into an open slot. Keyed on the pair alone, four fixtures were being served an
+earlier meeting's opening price, one of them from a match six weeks past.
 
 **The golden baseline is G1's, and only G1's.** `tests/golden/<league>/inputs`
 and `model` are the frozen pre-merge match history and coefficients, and G1 asks
