@@ -245,15 +245,40 @@ def _capture_oddsapiio(
 
     mapping = teams.for_league(league)
     by_key: dict[tuple[str, str], dict] = {}
+    unmapped: list[str] = []
     for event in events:
-        home = mapping.to_standard(str(event.get("home") or ""))
-        away = mapping.to_standard(str(event.get("away") or ""))
+        raw_home = str(event.get("home") or "")
+        raw_away = str(event.get("away") or "")
+        home = mapping.to_standard(raw_home)
+        away = mapping.to_standard(raw_away)
         if home and away:
             by_key[(home, away)] = event
+        else:
+            unmapped.append(f"{raw_home} v {raw_away}")
 
     matched = [(p, by_key[p.fixture.key]) for p in pending if p.fixture.key in by_key]
     if not matched:
+        # Say so, and say it with the join that failed. This return spends the
+        # listing request, records no unpriced sighting and appends nothing, so
+        # without a line here it is indistinguishable from a tick that had
+        # nothing to do -- and it repeats every poll interval for as long as the
+        # condition lasts. CSL's soft books went six days like this, green the
+        # whole way, on `captured: 0` and nothing else.
+        #
+        # The two names are the diagnosis. A fixture absent from the listing is
+        # the provider's to fix; one present but unmapped is a row in
+        # team_name_mapping.csv.
+        log.warning(
+            "%s/oddsapiio: listing has %d event(s), none of the %d pending "
+            "fixture(s) among them; pending=%s; unmapped in listing=%s",
+            league, len(events), len(pending),
+            [p.fixture.label for p in pending], unmapped or "none",
+        )
         return [], [], requests_used
+    if len(matched) < len(pending):
+        log.info("%s/oddsapiio: %d of %d pending fixture(s) in the listing; absent=%s",
+                 league, len(matched), len(pending),
+                 [p.fixture.label for p in pending if p.fixture.key not in by_key])
 
     fetched_at = stamp(now)
     rows: list[dict] = []
@@ -261,6 +286,11 @@ def _capture_oddsapiio(
     budget = config.odds.open.max_requests
 
     ids = [str(event.get("id")) for _, event in matched]
+    #: Event ids we actually paid to ask about. A batch skipped for budget was
+    #: never asked, so its silence says nothing and must not be reported as if
+    #: the provider had withheld an answer.
+    asked: set[str] = set()
+    answered: set[str] = set()
     for batch in client.iter_batches(ids):
         if requests_used >= budget:
             log.info("request budget %d reached; %d pending left for the next tick",
@@ -268,7 +298,9 @@ def _capture_oddsapiio(
             break
         quoted = client.multi_odds(batch, oddsapiio.books_from_config(config.odds.books))
         requests_used += 1
+        asked.update(batch)
         quoted_by_id = {str(q.get("id", q.get("eventId", ""))): q for q in quoted}
+        answered.update(quoted_by_id)
         for pend, event in matched:
             quote = quoted_by_id.get(str(event.get("id")))
             if quote is None:
@@ -286,6 +318,19 @@ def _capture_oddsapiio(
                     continue
                 rows.append(_row(fixture=pend.fixture, book=book, prices=prices,
                                  event=event, fetched_at=fetched_at))
+
+    # An event we paid to ask about and got no entry back for. That is not the
+    # same as "the book has not opened yet": that case comes back as an entry
+    # without the book's market, lands in `unpriced`, and is the evidence the
+    # opener proof runs on. Here we learn nothing and record nothing, having paid
+    # for the call. Liga MX was spending two of these a tick in silence.
+    silent = [
+        p.fixture.label for p, e in matched
+        if str(e.get("id")) in asked and str(e.get("id")) not in answered
+    ]
+    if silent:
+        log.warning("%s/oddsapiio: odds/multi returned no entry for %d of the %d "
+                    "event(s) asked about: %s", league, len(silent), len(asked), silent)
     return rows, unpriced, requests_used
 
 

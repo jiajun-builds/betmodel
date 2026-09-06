@@ -220,3 +220,95 @@ def test_one_provider_running_out_does_not_take_the_other_down(tmp_path, monkeyp
     )
     assert seen == ["oddsapiio"], "the healthy provider still ran"
     assert stats["refused"] == 1 and stats["requests"] == 1
+
+
+# --------------------------------------------------------------------------- #
+# a spent request that answers nothing must say so
+# --------------------------------------------------------------------------- #
+
+class _StubClient:
+    """Stands in for the odds-api.io client, spending nothing."""
+
+    def __init__(self, events, quoted=None):
+        self._events = events
+        self._quoted = quoted or []
+        self.batches: list[list[str]] = []
+
+    def upcoming_events(self, lookahead_days):
+        return self._events
+
+    def iter_batches(self, event_ids):
+        for i in range(0, len(event_ids), 10):
+            yield list(event_ids[i:i + 10])
+
+    def multi_odds(self, event_ids, books):
+        self.batches.append(list(event_ids))
+        return [q for q in self._quoted if str(q.get("id")) in set(event_ids)]
+
+
+def _one_pending(tmp_path):
+    return _pending(
+        tmp_path,
+        [("Wuhan Three Towns", "Henan Songshan Longmen", NOW + timedelta(days=6))],
+        [],
+    )
+
+
+def _run(monkeypatch, tmp_path, client):
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: client)
+    return co._capture_oddsapiio(
+        "csl", load_league("csl"), _one_pending(tmp_path), now=NOW, dry_run=False,
+    )
+
+
+def test_a_listing_without_our_fixtures_says_so(monkeypatch, tmp_path, caplog):
+    """Six days of CSL blackout printed `captured: 0` and nothing else.
+
+    The request is spent, no unpriced sighting is recorded, and the tick is
+    indistinguishable from one that had nothing to do -- every ten minutes, for
+    as long as it lasts. The names are the diagnosis, so they are in the line.
+    """
+    client = _StubClient([{"id": "1", "home": "Some Other", "away": "Fixture"}])
+    with caplog.at_level("WARNING"):
+        rows, unpriced, used = _run(monkeypatch, tmp_path, client)
+    assert (rows, unpriced, used) == ([], [], 1)
+    assert client.batches == [], "nothing matched, so nothing should be asked"
+    message = caplog.text
+    assert "none of the" in message
+    assert "Wuhan Three Towns v Henan Songshan Longmen" in message
+
+
+def test_a_listing_name_our_mapping_cannot_resolve_is_named(monkeypatch, tmp_path, caplog):
+    """The other half of the diagnosis, and the half we can actually fix."""
+    client = _StubClient([{"id": "1", "home": "Wuhan Yangtze", "away": "Henan FC"}])
+    with caplog.at_level("WARNING"):
+        _run(monkeypatch, tmp_path, client)
+    assert "Wuhan Yangtze v Henan FC" in caplog.text
+
+
+def test_an_event_asked_about_and_not_answered_is_not_silence(monkeypatch, tmp_path, caplog):
+    """Distinct from "the book has not opened yet", which lands in `unpriced`."""
+    event = {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen"}
+    client = _StubClient([event], quoted=[])
+    with caplog.at_level("WARNING"):
+        rows, unpriced, used = _run(monkeypatch, tmp_path, client)
+    assert (rows, unpriced) == ([], [])
+    assert client.batches == [["7"]], "it was asked about"
+    assert "returned no entry" in caplog.text
+
+
+def test_a_book_that_simply_has_not_opened_is_not_reported_as_missing(
+    monkeypatch, tmp_path, caplog
+):
+    """`unpriced` is the normal state and the opener proof's evidence.
+
+    Warning on it would make the log noisiest exactly when the pipeline is
+    working, which is how a real warning stops being read.
+    """
+    event = {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen"}
+    client = _StubClient([event], quoted=[{"id": "7", "bookmakers": {}}])
+    with caplog.at_level("WARNING"):
+        rows, unpriced, _ = _run(monkeypatch, tmp_path, client)
+    assert rows == []
+    assert {u[2] for u in unpriced} == {"onexbet", "duel"}
+    assert "returned no entry" not in caplog.text
