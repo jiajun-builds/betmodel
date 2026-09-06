@@ -286,15 +286,59 @@ def test_a_listing_name_our_mapping_cannot_resolve_is_named(monkeypatch, tmp_pat
     assert "Wuhan Yangtze v Henan FC" in caplog.text
 
 
-def test_an_event_asked_about_and_not_answered_is_not_silence(monkeypatch, tmp_path, caplog):
-    """Distinct from "the book has not opened yet", which lands in `unpriced`."""
+def test_a_whole_batch_coming_back_empty_records_no_sighting(monkeypatch, tmp_path, caplog):
+    """Indistinguishable from a provider-side blank, so it proves nothing.
+
+    An unpriced sighting is what lets a later price be certified `observed`.
+    Minting one from an empty response would certify a price captured after an
+    outage as the book's opener, which is exactly the failure the proof exists
+    to prevent. Withholding costs a weaker proof; inventing costs the series.
+    """
     event = {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen"}
     client = _StubClient([event], quoted=[])
-    with caplog.at_level("WARNING"):
-        rows, unpriced, used = _run(monkeypatch, tmp_path, client)
+    with caplog.at_level("INFO"):
+        rows, unpriced, _ = _run(monkeypatch, tmp_path, client)
     assert (rows, unpriced) == ([], [])
     assert client.batches == [["7"]], "it was asked about"
-    assert "returned no entry" in caplog.text
+    assert "returned nothing for a whole batch" in caplog.text
+    assert "WARNING" not in caplog.text, "ordinary a week out; must not cry wolf"
+
+
+def test_an_event_missing_from_a_populated_response_is_an_unpriced_sighting(
+    monkeypatch, tmp_path
+):
+    """The fix. `odds/multi` omits the whole event until a market is posted.
+
+    That omission is evidence nobody has priced it -- the same evidence as an
+    entry that omits the book -- and it was being thrown away. The polled soft
+    books had earned `observed` nought times in 117 opening prices because of it.
+
+    Two fixtures asked about and one answered, because that is what makes the
+    silence about the other meaningful: the provider answered and had data.
+    """
+    pending = _pending(
+        tmp_path,
+        [("Wuhan Three Towns", "Henan Songshan Longmen", NOW + timedelta(days=6)),
+         ("Shanghai Port", "Beijing Guoan", NOW + timedelta(days=6))],
+        [],
+    )
+    events = [
+        {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen"},
+        {"id": "8", "home": "Shanghai Port", "away": "Beijing Guoan"},
+    ]
+    client = _StubClient(events, quoted=[{"id": "8", "bookmakers": {}}])
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: client)
+    rows, unpriced, _ = co._capture_oddsapiio(
+        "csl", load_league("csl"), pending, now=NOW, dry_run=False,
+    )
+    assert rows == []
+    # Both: the one the response omitted entirely, and the one it carried
+    # without a market. They mean the same thing and are recorded the same way.
+    assert {u[:2] for u in unpriced} == {
+        ("Wuhan Three Towns", "Henan Songshan Longmen"),
+        ("Shanghai Port", "Beijing Guoan"),
+    }
+    assert {u[2] for u in unpriced} == {"onexbet", "duel"}
 
 
 def test_a_book_that_simply_has_not_opened_is_not_reported_as_missing(
@@ -312,3 +356,28 @@ def test_a_book_that_simply_has_not_opened_is_not_reported_as_missing(
     assert rows == []
     assert {u[2] for u in unpriced} == {"onexbet", "duel"}
     assert "returned no entry" not in caplog.text
+
+
+def test_a_priced_book_still_produces_a_row(monkeypatch, tmp_path):
+    """The happy path, pinned because the batch loop was restructured around it.
+
+    Only the book that is actually quoted yields a row; the other is recorded as
+    unpriced from the same entry, which is the per-book gate doing its job.
+    """
+    event = {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen"}
+    quote = {
+        "id": "7",
+        "bookmakers": {
+            "1xbet": [{
+                "name": oddsapiio.ML_MARKET,
+                "odds": [{"home": 2.1, "draw": 3.3, "away": 3.4}],
+                "updatedAt": "2026-08-28T08:00:00Z",
+            }],
+        },
+    }
+    client = _StubClient([event], quoted=[quote])
+    rows, unpriced, used = _run(monkeypatch, tmp_path, client)
+    assert [(r["bookmaker"], r["home_odds"]) for r in rows] == [("onexbet", 2.1)]
+    assert rows[0]["home_team"] == "Wuhan Three Towns"
+    assert [u[2] for u in unpriced] == ["duel"], "the book with no market"
+    assert used == 2, "one listing, one odds/multi"

@@ -286,11 +286,9 @@ def _capture_oddsapiio(
     budget = config.odds.open.max_requests
 
     ids = [str(event.get("id")) for _, event in matched]
-    #: Event ids we actually paid to ask about. A batch skipped for budget was
-    #: never asked, so its silence says nothing and must not be reported as if
-    #: the provider had withheld an answer.
-    asked: set[str] = set()
-    answered: set[str] = set()
+    matched_by_id = {str(event.get("id")): (p, event) for p, event in matched}
+    #: Fixtures in a batch the endpoint answered with nothing at all. See below.
+    blank: list[str] = []
     for batch in client.iter_batches(ids):
         if requests_used >= budget:
             log.info("request budget %d reached; %d pending left for the next tick",
@@ -298,39 +296,58 @@ def _capture_oddsapiio(
             break
         quoted = client.multi_odds(batch, oddsapiio.books_from_config(config.odds.books))
         requests_used += 1
-        asked.update(batch)
         quoted_by_id = {str(q.get("id", q.get("eventId", ""))): q for q in quoted}
-        answered.update(quoted_by_id)
-        for pend, event in matched:
-            quote = quoted_by_id.get(str(event.get("id")))
-            if quote is None:
+
+        # **An empty response records nothing.** `odds/multi` omits a book, or
+        # the whole event, until a market is posted, so an event missing from a
+        # response that carried other events is evidence nobody has priced it.
+        # A response carrying nothing at all is not: it is equally what a
+        # provider-side blank looks like, and the two are indistinguishable from
+        # here. Manufacturing a sighting from it would let a later price be
+        # certified `observed` on an outage, which is the one thing this whole
+        # mechanism exists to prevent. Withholding costs a `window` proof;
+        # inventing costs the series its meaning.
+        if not quoted_by_id:
+            blank += [
+                matched_by_id[i][0].fixture.label for i in batch if i in matched_by_id
+            ]
+            continue
+
+        for event_id in batch:
+            entry = matched_by_id.get(event_id)
+            if entry is None:
                 continue
+            pend, event = entry
+            quote = quoted_by_id.get(event_id)
             for book in pend.missing:
                 if book.provider != "oddsapiio":
                     continue
-                prices = oddsapiio.extract_ml(
-                    quote, oddsapiio.Book(book.provider_name or book.key, book.key)
+                prices = (
+                    oddsapiio.extract_ml(
+                        quote, oddsapiio.Book(book.provider_name or book.key, book.key)
+                    )
+                    if quote is not None else None
                 )
                 if prices is None:
                     # Absent is not an error: it is what "has not opened yet"
                     # looks like, and it is the evidence the opener proof needs.
+                    # Absent because the entry omitted this book, and absent
+                    # because the response omitted the whole event, mean the same
+                    # thing here and are recorded the same way. Only the first
+                    # used to be, which is why the polled soft books had earned
+                    # `observed` nought times in 117 opening prices.
                     unpriced.append((pend.fixture.home, pend.fixture.away, book.key))
                     continue
                 rows.append(_row(fixture=pend.fixture, book=book, prices=prices,
                                  event=event, fetched_at=fetched_at))
 
-    # An event we paid to ask about and got no entry back for. That is not the
-    # same as "the book has not opened yet": that case comes back as an entry
-    # without the book's market, lands in `unpriced`, and is the evidence the
-    # opener proof runs on. Here we learn nothing and record nothing, having paid
-    # for the call. Liga MX was spending two of these a tick in silence.
-    silent = [
-        p.fixture.label for p, e in matched
-        if str(e.get("id")) in asked and str(e.get("id")) not in answered
-    ]
-    if silent:
-        log.warning("%s/oddsapiio: odds/multi returned no entry for %d of the %d "
-                    "event(s) asked about: %s", league, len(silent), len(asked), silent)
+    if blank:
+        # INFO, not WARNING. Every fixture in a batch being unpriced is ordinary
+        # a week out, and a warning that fires on the ordinary case is one nobody
+        # reads by the time it matters.
+        log.info("%s/oddsapiio: odds/multi returned nothing for a whole batch; "
+                 "no sighting recorded for %d fixture(s): %s",
+                 league, len(blank), blank)
     return rows, unpriced, requests_used
 
 
