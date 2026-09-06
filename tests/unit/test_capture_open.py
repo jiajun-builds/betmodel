@@ -45,9 +45,13 @@ def _history(tmp_path, rows):
     return path
 
 
-def _open_row(home, away, book):
+def _open_row(home, away, book, kickoff=None):
+    # The kickoff must be the fixture's own: the pending gate keys on the local
+    # matchday, so a row filed under a different day is a different fixture.
+    kickoff = kickoff or (NOW + timedelta(days=3))
     return {
-        "event_id": f"{home}-{away}-{book}", "commence_time": "2026-09-01T12:00:00Z",
+        "event_id": f"{home}-{away}-{book}",
+        "commence_time": kickoff.isoformat().replace("+00:00", "Z"),
         "api_home_team": home, "api_away_team": away,
         "home_team": home, "away_team": away,
         "home_odds": "2.1", "draw_odds": "3.3", "away_odds": "3.4",
@@ -381,3 +385,48 @@ def test_a_priced_book_still_produces_a_row(monkeypatch, tmp_path):
     assert rows[0]["home_team"] == "Wuhan Three Towns"
     assert [u[2] for u in unpriced] == ["duel"], "the book with no market"
     assert used == 2, "one listing, one odds/multi"
+
+
+# --------------------------------------------------------------------------- #
+# two meetings of the same pair are two fixtures
+# --------------------------------------------------------------------------- #
+
+def test_a_second_meeting_is_not_covered_by_the_first_meeting_s_open(tmp_path):
+    """Keyed on the pair alone, the replay was never asked about again.
+
+    Two clubs meet twice a season, and again whenever a postponed match is
+    replayed. UNAM Pumas v Leon was published twice, both rows quoting duel at
+    2.00 from the one capture taken for the earlier date; CSL's postponed
+    Zhejiang v Wuhan was carrying a price captured six weeks before its new
+    kickoff. Neither book was ever re-asked, because the pair already had an open.
+    """
+    first = NOW + timedelta(days=3)
+    replay = NOW + timedelta(days=10)
+    pending = _pending(
+        tmp_path,
+        [("A", "B", first), ("A", "B", replay)],
+        [_open_row("A", "B", "duel", first), _open_row("A", "B", "onexbet", first)],
+    )
+    assert [p.fixture.kickoff for p in pending] == [replay], (
+        "the first meeting is covered; the second is a different fixture"
+    )
+    assert [b.key for b in pending[0].missing] == ["onexbet", "duel"]
+
+
+def test_a_kickoff_nudged_within_the_day_is_still_the_same_fixture(tmp_path):
+    """Drift must not mint a fixture, or the capture writes a mid-market open.
+
+    Every repeated pairing in the current stores but one differs by 5 to 120
+    minutes on the same local day -- a schedule provider adjusting a time, not a
+    second match. Treating those as new would send the capture to fetch an
+    "opening" price for a fixture that opened weeks ago, which is exactly the
+    failure the per-book gate exists to prevent.
+    """
+    scheduled = NOW + timedelta(days=3)
+    pending = _pending(
+        tmp_path,
+        [("A", "B", scheduled + timedelta(minutes=10))],
+        [_open_row("A", "B", "duel", scheduled),
+         _open_row("A", "B", "onexbet", scheduled)],
+    )
+    assert pending == []

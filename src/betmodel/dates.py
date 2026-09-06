@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -26,6 +27,30 @@ def stamp(moment: datetime | None = None) -> str:
         .isoformat(timespec="seconds")
         .replace("+00:00", "Z")
     )
+
+
+def local_matchday(moment: datetime, timezone_name: str) -> str:
+    """The league-local day a kickoff belongs to, ``YYYY-MM-DD``.
+
+    The same notion :func:`betmodel.signals.engine.fixture_id` builds an
+    identifier from, factored out because three more places now need to tell two
+    meetings of the same pair apart and a second definition would be free to
+    drift from the first.
+
+    **A day, not a timestamp, and that is the whole design.** Keyed on the exact
+    kickoff, a schedule provider nudging a match by ten minutes would mint a new
+    fixture -- and a fixture with no opening price on file is one the capture
+    goes and opens, writing whatever the book shows now into an open slot. That
+    is precisely the mid-market-price-as-opener failure the capture gate exists
+    to prevent, so the key has to absorb drift. Measured on the current stores,
+    every repeated pairing but one differs by 5 to 120 minutes on the same local
+    day; the exception is a genuine reschedule, which a day-level key separates
+    and a timestamp-level key would separate for the wrong reason.
+
+    Local, because a 19:00 kickoff in a UTC-6 league falls on the next UTC day
+    and calling that its matchday names it by a day nobody played on.
+    """
+    return moment.astimezone(ZoneInfo(timezone_name)).strftime(DATE_ONLY_FORMAT)
 
 
 def parse_date_only_series(series: pd.Series) -> pd.Series:

@@ -38,7 +38,7 @@ import pandas as pd
 
 from betmodel import paths
 from betmodel.config.schema import LeagueConfig
-from betmodel.dates import parse_date_only_series
+from betmodel.dates import local_matchday, parse_date_only_series
 from betmodel.odds import capture_store, capture_watch, provenance
 
 log = logging.getLogger(__name__)
@@ -71,6 +71,13 @@ def _prepared(history: pd.DataFrame, config: LeagueConfig) -> pd.DataFrame:
     for side in ("home_odds", "draw_odds", "away_odds"):
         frame[side] = pd.to_numeric(frame[side], errors="coerce")
     frame["_prefix"] = frame["bookmaker"].map(schema_prefixes(config))
+    # The league-local day the fixture was played on, and part of every key
+    # below. Without it two meetings of the same pair collapse into one and the
+    # later is served the earlier's opening price -- see `local_matchday`.
+    frame["_day"] = [
+        local_matchday(k.to_pydatetime(), config.timezone) if pd.notna(k) else ""
+        for k in frame["_ko"]
+    ]
     frame["_provenance"] = [
         provenance.classify(s, r)
         for s, r in zip(frame["snapshot_type"], frame["capture_reason"])
@@ -112,13 +119,19 @@ def collapse_opens(
     lookahead_days: int | None = None,
     history_path: str | None = None,
     watch_path: str | None = None,
-) -> dict[tuple[str, str, str], dict]:
-    """Earliest usable open per ``(home, away, book)``, with its proof.
+) -> dict[tuple[str, str, str, str], dict]:
+    """Earliest usable open per ``(home, away, local matchday, book)``, with proof.
 
     Shared by the reducer and the signal engine so the two cannot disagree about
     what an opening price is. They used to: the reducer applied a proof test that
     the signal path did not, so a price the match table refused could still fire
     a bet.
+
+    **The matchday is in the key for the same reason it is in the pending gate.**
+    Two clubs meet more than once, and keyed on the pair alone the earliest open
+    ever captured for them was returned for every later meeting. UNAM Pumas v
+    Leon on 2026-09-10 was published carrying the 2026-09-06 match's price, both
+    fixtures quoting duel at 2.00 from a single capture.
     """
     lp = paths.for_league(league)
     history = capture_store.load_history(history_path or lp.capture_history_csv)
@@ -138,9 +151,9 @@ def collapse_opens(
         (frame["snapshot_type"] == "open")
         & frame["_provenance"].map(provenance.is_opening_price)
     ]
-    out: dict[tuple[str, str, str], dict] = {}
-    for (home, away, book), group in opens.groupby(
-        ["home_team", "away_team", "bookmaker"], dropna=False
+    out: dict[tuple[str, str, str, str], dict] = {}
+    for (home, away, day, book), group in opens.groupby(
+        ["home_team", "away_team", "_day", "bookmaker"], dropna=False
     ):
         first = group.loc[group["_at"].idxmin()]
         kickoff = group["_ko"].max()
@@ -150,7 +163,7 @@ def collapse_opens(
             watched=watched, since=since, horizon=horizon,
             watched_last=watched_last, max_gap=_proof_gap(config, str(book)),
         )
-        out[(str(home), str(away), str(book))] = {
+        out[(str(home), str(away), str(day), str(book))] = {
             "home_odds": float(first.home_odds),
             "draw_odds": float(first.draw_odds),
             "away_odds": float(first.away_odds),
@@ -184,12 +197,23 @@ def build_records(
     )
 
     records: list[dict] = []
-    for (home, away, prefix), group in frame.groupby(
-        ["home_team", "away_team", "_prefix"], dropna=False
+    # Grouped by matchday as well as pair, so a second meeting gets its own
+    # record. Grouped on the pair alone, every capture the two clubs ever
+    # produced landed in one group: `_ko.max()` named it by the latest of them
+    # and the open came from `_at.idxmin()`, which for a repeated pairing is a
+    # different match -- so the master table could be filled with one fixture's
+    # opening price under another fixture's date.
+    for (home, away, day, prefix), group in frame.groupby(
+        ["home_team", "away_team", "_day", "_prefix"], dropna=False
     ):
         kickoff = group["_ko"].max()
         record = {
             "home": home, "away": away, "prefix": prefix,
+            # Still the UTC day, unchanged. `_day` separates the groups; what
+            # `_find_row` matches against the master table is a different
+            # question, and that column already means three things depending on
+            # where the row came from. Changing it here would be a silent
+            # re-targeting of the merge, not part of this fix.
             "date": kickoff.strftime("%Y/%m/%d"),
             "open_h": None, "open_d": None, "open_a": None, "open_lead_h": None,
             "close_h": None, "close_d": None, "close_a": None, "close_lead_h": None,

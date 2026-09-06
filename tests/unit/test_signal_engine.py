@@ -15,6 +15,7 @@ from scipy.optimize import brentq
 from dataclasses import replace
 
 from betmodel.config import load_league
+from betmodel.dates import local_matchday
 from betmodel.config.schema import DebiasConfig
 from betmodel.fixtures.upcoming import Fixture
 from betmodel.signals import debias
@@ -315,14 +316,17 @@ def test_an_unproven_anchor_is_treated_as_no_anchor(monkeypatch):
               "captured_at": None, "last_update": "", "provenance": "", "lead_h": 120.0}
     config = load_league("csl")
 
+    row = _fixture_row()
+    day = local_matchday(row.kickoff, config.timezone)
+
     def _opens(*_a, **_k):
         return {
-            ("A", "B", "pinnacle"): {**priced, "proof": ""},          # unproven
-            ("A", "B", "duel"): {**priced, "proof": "window", "away_odds": 6.0},
+            ("A", "B", day, "pinnacle"): {**priced, "proof": ""},      # unproven
+            ("A", "B", day, "duel"): {**priced, "proof": "window", "away_odds": 6.0},
         }
 
     monkeypatch.setattr(engine.reduce_module, "collapse_opens", _opens)
-    monkeypatch.setattr(engine, "load_upcoming", lambda *_a, **_k: [_fixture_row()])
+    monkeypatch.setattr(engine, "load_upcoming", lambda *_a, **_k: [row])
     monkeypatch.setattr(engine, "_model_probabilities",
                         lambda *a, **k: {("A", "B"): (0.30, 0.24, 0.46)},
                         raising=False)
@@ -341,14 +345,17 @@ def test_a_proven_anchor_still_calibrates(monkeypatch):
               "captured_at": None, "last_update": "", "provenance": "", "lead_h": 120.0}
     config = load_league("csl")
 
+    row = _fixture_row()
+    day = local_matchday(row.kickoff, config.timezone)
+
     def _opens(*_a, **_k):
         return {
-            ("A", "B", "pinnacle"): {**priced, "proof": "window"},
-            ("A", "B", "duel"): {**priced, "proof": "window", "away_odds": 6.0},
+            ("A", "B", day, "pinnacle"): {**priced, "proof": "window"},
+            ("A", "B", day, "duel"): {**priced, "proof": "window", "away_odds": 6.0},
         }
 
     monkeypatch.setattr(engine.reduce_module, "collapse_opens", _opens)
-    monkeypatch.setattr(engine, "load_upcoming", lambda *_a, **_k: [_fixture_row()])
+    monkeypatch.setattr(engine, "load_upcoming", lambda *_a, **_k: [row])
     monkeypatch.setattr(engine, "_model_probabilities",
                         lambda *a, **k: {("A", "B"): (0.30, 0.24, 0.46)})
 

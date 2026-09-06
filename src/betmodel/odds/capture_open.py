@@ -36,7 +36,7 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from betmodel import paths, teams
-from betmodel.dates import stamp
+from betmodel.dates import local_matchday, stamp
 from betmodel.config.schema import BookConfig, LeagueConfig
 from betmodel.fixtures.upcoming import Fixture, load_upcoming
 from betmodel.odds import capture_store, capture_watch
@@ -67,17 +67,40 @@ class Pending:
     missing: tuple[BookConfig, ...]
 
 
-def captured_open_books(league: str, *, history_path: str | None = None) -> dict[tuple[str, str], set[str]]:
-    """``(home, away) -> books that already have an open row``."""
+def captured_open_books(
+    league: str, config: LeagueConfig, *, history_path: str | None = None
+) -> dict[tuple[str, str, str], set[str]]:
+    """``(home, away, local matchday) -> books that already have an open row``.
+
+    **The matchday is part of the key, and leaving it out cost real captures.**
+    Two clubs meet more than once -- twice a season in a double round-robin, and
+    again whenever a postponed match is replayed weeks later. Keyed on the pair
+    alone, the first meeting's open marked every later one as already captured,
+    so the book was never asked again and the later fixture was served a price
+    from a match that had already been played. Four live instances when this
+    landed, including UNAM Pumas v Leon on 2026-09-10 carrying the 2026-09-06
+    meeting's opener, and CSL's postponed Zhejiang v Wuhan, moved to 2026-09-18,
+    carrying the price captured for its original 2026-08-08 date.
+    """
     history = capture_store.load_history(
         history_path or paths.for_league(league).capture_history_csv
     )
     if history.empty:
         return {}
     opens = history[history["snapshot_type"] == "open"]
-    out: dict[tuple[str, str], set[str]] = {}
-    for home, away, book in zip(opens["home_team"], opens["away_team"], opens["bookmaker"]):
-        out.setdefault((str(home), str(away)), set()).add(str(book))
+    kickoffs = pd.to_datetime(opens["commence_time"], utc=True,
+                              format="ISO8601", errors="coerce")
+    out: dict[tuple[str, str, str], set[str]] = {}
+    for home, away, book, kickoff in zip(
+        opens["home_team"], opens["away_team"], opens["bookmaker"], kickoffs
+    ):
+        if pd.isna(kickoff):
+            # No usable kickoff means no matchday to file it under. Skipping
+            # leaves the fixture pending, which spends a request; claiming it
+            # under some other matchday would suppress one silently.
+            continue
+        day = local_matchday(kickoff.to_pydatetime(), config.timezone)
+        out.setdefault((str(home), str(away), day), set()).add(str(book))
     return out
 
 
@@ -114,14 +137,16 @@ def pending_fixtures(
         )
         for b in books
     }
-    captured = captured_open_books(league, history_path=history_path)
+    captured = captured_open_books(league, config, history_path=history_path)
 
     fixtures = fixtures_path or paths.for_league(league).upcoming_fixtures_csv
     pending: list[Pending] = []
     for fixture in load_upcoming(fixtures):
         if fixture.kickoff <= now:
             continue
-        have = captured.get(fixture.key, set())
+        have = captured.get(
+            (*fixture.key, local_matchday(fixture.kickoff, config.timezone)), set()
+        )
         missing = tuple(
             b for b in books
             if b.key not in have and fixture.kickoff <= horizons[b.key]

@@ -38,6 +38,7 @@ import pandas as pd
 
 from betmodel import paths
 from betmodel.config.schema import LeagueConfig
+from betmodel.dates import local_matchday
 from betmodel.fixtures.upcoming import Fixture, load_upcoming
 from betmodel.odds import capture_watch
 from betmodel.odds import reduce as reduce_module
@@ -314,7 +315,13 @@ def build_signals(
         # the market had already moved may well be fine, but nothing measured says
         # so. Unproven is therefore treated as absent, which sends the fixture down
         # the unanchored path and stops it firing.
-        anchor = opens.get((fixture.home, fixture.away, anchor_key)) if anchor_key else None
+        # Keyed by matchday too, so a second meeting of the same two clubs
+        # cannot be handed the first meeting's price. See `local_matchday`.
+        day = local_matchday(fixture.kickoff, config.timezone)
+        anchor = (
+            opens.get((fixture.home, fixture.away, day, anchor_key))
+            if anchor_key else None
+        )
         if anchor is not None and not _anchor_is_a_proven_opener(anchor):
             log.info("%s: anchor for %s is not a proven opener (%r); treating as absent",
                      league, fixture.label, anchor.get("proof") or "no proof")
@@ -329,7 +336,7 @@ def build_signals(
 
         quotes: list[Quote] = []
         for book in config.odds.bet_books:
-            record = opens.get((fixture.home, fixture.away, book.key))
+            record = opens.get((fixture.home, fixture.away, day, book.key))
             if record is None:
                 continue  # no price is not a price
             for side in ("home", "draw", "away"):
