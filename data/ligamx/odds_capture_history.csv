@@ -330,3 +330,5 @@ oddsapiio:72055156,2026-09-12T01:00:00Z,Club Necaxa,Club Puebla,Necaxa,Puebla,2.
 oddsapiio:72055158,2026-09-12T03:00:00Z,Atlante FC,CF Pachuca,Atlante,Pachuca,3.75,3.60,2.00,duel,h2h,oddsapiio,2026-09-06T03:30:50.197Z,2026-09-06T03:31:20Z,open,,first-seen open price @ 2026-09-06T03:31:20Z
 f7d518afad8d0039a076e5bc7537cd80,2026-09-12T03:00:00Z,Atlante FC,Pachuca,Atlante,Pachuca,3.58,3.46,2.02,pinnacle,h2h,theoddsapi,2026-09-06T03:31:17Z,2026-09-06T03:31:23Z,open,,first-seen open price @ 2026-09-06T03:31:23Z
 aa8a987efee9de3e4c2b32f340a27605,2026-09-12T06:00:00Z,Toluca,Atlas,Toluca,Atlas,1.34,5.05,8.04,pinnacle,h2h,theoddsapi,2026-09-06T03:31:17Z,2026-09-06T03:31:23Z,open,,first-seen open price @ 2026-09-06T03:31:23Z
+68f28a19d5c06190d3ba9b39b13f3e04,2026-09-11T03:00:00Z,Pumas,León,UNAM Pumas,Leon,2.03,3.61,3.54,pinnacle,h2h,theoddsapi,2026-09-06T17:46:12Z,2026-09-06T17:46:18Z,close,,pre-kickoff close tick @ 2026-09-06T17:46:18Z (T-14m)
+68f28a19d5c06190d3ba9b39b13f3e04,2026-09-11T03:00:00Z,Pumas,León,UNAM Pumas,Leon,2.24,4.2,4.6,betfair_ex_eu,h2h,theoddsapi,2026-09-06T17:45:49Z,2026-09-06T17:46:18Z,close,,pre-kickoff close tick @ 2026-09-06T17:46:18Z (T-14m)
