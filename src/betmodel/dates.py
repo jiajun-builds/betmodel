@@ -33,9 +33,9 @@ def local_matchday(moment: datetime, timezone_name: str) -> str:
     """The league-local day a kickoff belongs to, ``YYYY-MM-DD``.
 
     The same notion :func:`betmodel.signals.engine.fixture_id` builds an
-    identifier from, factored out because three more places now need to tell two
-    meetings of the same pair apart and a second definition would be free to
-    drift from the first.
+    identifier from, factored out because four more places now need to tell a
+    rescheduled fixture from the date it was moved off, and a second definition
+    would be free to drift from the first.
 
     **A day, not a timestamp, and that is the whole design.** Keyed on the exact
     kickoff, a schedule provider nudging a match by ten minutes would mint a new
@@ -43,9 +43,9 @@ def local_matchday(moment: datetime, timezone_name: str) -> str:
     goes and opens, writing whatever the book shows now into an open slot. That
     is precisely the mid-market-price-as-opener failure the capture gate exists
     to prevent, so the key has to absorb drift. Measured on the current stores,
-    every repeated pairing but one differs by 5 to 120 minutes on the same local
-    day; the exception is a genuine reschedule, which a day-level key separates
-    and a timestamp-level key would separate for the wrong reason.
+    most repeated pairings differ by 5 to 120 minutes on the same local day; the
+    exceptions are genuine reschedules -- days or weeks -- which a day-level key
+    separates and a timestamp-level key would separate for the wrong reason.
 
     Local, because a 19:00 kickoff in a UTC-6 league falls on the next UTC day
     and calling that its matchday names it by a day nobody played on.

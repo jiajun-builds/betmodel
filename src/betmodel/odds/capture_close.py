@@ -67,8 +67,8 @@ def finalised_fixtures(league: str, config: LeagueConfig, *, history_path: str |
     Keyed on team names rather than the provider's event id, because the point is
     to stop spending on the *fixture* however it happens to be identified -- and
     on the local matchday alongside them, because a pair of names is not a
-    fixture. Without the matchday one meeting's close finalises the other, and
-    the second of two meetings would never be captured at all.
+    fixture. Without the matchday, a postponed fixture's close would finalise its
+    own replacement, which would then never be captured at all.
     """
     path = history_path or paths.for_league(league).capture_history_csv
     history = capture_store.load_history(path)
@@ -132,14 +132,17 @@ def extract_rows(
     window is discarded here rather than filtered later.
 
     **`wanted` carries the matchday, and it is the whole guard.** On team names
-    alone the discard above does not discard: when two clubs meet twice, the
-    slate's entry for the *other* meeting matches the pair and is stored as this
-    one's close. That is the same thirty-five-hours-out mistake arriving by a
-    different door -- and it happened. UNAM Pumas v Leon kicked off on
-    2026-09-06, and what went into the store as its close was the price of their
-    2026-09-11 meeting, five days from kickoff, filed under 2026-09-11. The
-    fixture that actually closed has no close at all, and its closing-line value
-    cannot be recovered at any price.
+    alone the discard above does not discard: an ordered pair repeats in a season
+    only when a match is rescheduled, and the slate's entry for the replacement
+    matches the pair and is stored as the original's close. That is the same
+    thirty-five-hours-out mistake arriving by a different door.
+
+    It happened, on a fixture list that still carried the postponed date. UNAM
+    Pumas v Leon was due 2026-09-06 18:00Z, was moved to 2026-09-11, and the
+    close ticks fired anyway against the stale entry. What they stored as a close
+    was the replacement's price, five days from its kickoff. No closing line was
+    lost -- there was no match to close -- but a request was spent on a fixture
+    that did not exist and four rows went in mislabelled.
     """
     mapping = teams.for_league(league)
     rows: list[dict] = []

@@ -114,13 +114,22 @@ not price a fixture until about 7 days out, so a longer window spent the monthly
 allowance asking questions whose answer was known. A book's own
 `lookahead_days` beats the league's.
 
-**A fixture is a pairing on a matchday, never a pairing.** Two clubs meet twice a
-season and again whenever a postponed match is replayed, so every key that
-identifies a fixture carries `dates.local_matchday`. It is a *day* and not a
-kickoff on purpose: providers nudge kickoff times by minutes, and a key that
-treats drift as a new fixture sends the capture to write today's mid-market line
-into an open slot. Keyed on the pair alone, four fixtures were being served an
-earlier meeting's opening price, one of them from a match six weeks past.
+**A fixture is a pairing on a matchday, never a pairing.** Every key that
+identifies a fixture carries `dates.local_matchday`. An ordered pair repeats
+within a season only when a match is **rescheduled** — a double round-robin
+gives A v B and B v A, which are different keys — so a repeat is one match on
+two dates, and serving the original's price for the replacement quotes a market
+that was cancelled. Four fixtures were doing exactly that, one from six weeks
+earlier. It is a *day* and not a kickoff on purpose: providers nudge kickoff
+times by minutes, and a key that treats drift as a new fixture sends the capture
+to write today's mid-market line into an open slot.
+
+**A rescheduled fixture cannot inherit its old opener's proof, and should not.**
+It re-enters the pending set under its new date with nothing on file, so it is
+polled while unpriced and the replacement market's opener is banked with
+`observed`. The ones already in flight when this landed have only `window` and
+the anchor gate refuses them, which is right: nobody was watching those
+listings, so nothing proves the price we hold was first.
 
 **The golden baseline is G1's, and only G1's.** `tests/golden/<league>/inputs`
 and `model` are the frozen pre-merge match history and coefficients, and G1 asks

@@ -73,14 +73,33 @@ def captured_open_books(
     """``(home, away, local matchday) -> books that already have an open row``.
 
     **The matchday is part of the key, and leaving it out cost real captures.**
-    Two clubs meet more than once -- twice a season in a double round-robin, and
-    again whenever a postponed match is replayed weeks later. Keyed on the pair
-    alone, the first meeting's open marked every later one as already captured,
-    so the book was never asked again and the later fixture was served a price
-    from a match that had already been played. Four live instances when this
-    landed, including UNAM Pumas v Leon on 2026-09-10 carrying the 2026-09-06
-    meeting's opener, and CSL's postponed Zhejiang v Wuhan, moved to 2026-09-18,
-    carrying the price captured for its original 2026-08-08 date.
+    Keyed on the pair alone, the original date's open marked the replacement as
+    already captured, so the book was never asked again and the rescheduled
+    fixture was served the price of a listing that no longer existed. Four live
+    instances when this landed, including UNAM Pumas v Leon moved from 2026-09-06
+    to 2026-09-10, and CSL's Zhejiang v Wuhan moved from 2026-08-08 to 2026-09-18
+    -- six weeks.
+
+    **An ordered pair repeats only when a match is rescheduled.** A double
+    round-robin gives A v B and B v A, which are different keys, so the same
+    ordered pair appearing twice in a season is one match on two dates -- the
+    original and its replacement. Every instance found when this landed was
+    exactly that, and each pair carried the same round number to prove it:
+    UNAM Pumas v Leon and Puebla v Toluca both round 7, Zhejiang v Wuhan both
+    round 22.
+
+    What the matchday stops is therefore not a mix-up between two meetings but a
+    voided market being quoted as a live one. A postponed fixture's original
+    price belongs to a market that was cancelled; serving it as the replacement's
+    opening price prices a bet you cannot place.
+
+    The replacement now returns to the pending set, which is also what lets its
+    new opener be *proven*: it gets polled while still unpriced, and
+    `capture_watch` banks the sighting. The four already in flight cannot have
+    that -- nobody was watching them under their new dates -- so they carry the
+    weak `window` proof and the anchor gate will refuse them. That is the
+    conservative outcome and it is correct; it self-corrects from the next
+    postponement onward.
     """
     history = capture_store.load_history(
         history_path or paths.for_league(league).capture_history_csv

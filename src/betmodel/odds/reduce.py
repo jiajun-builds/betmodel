@@ -128,10 +128,12 @@ def collapse_opens(
     a bet.
 
     **The matchday is in the key for the same reason it is in the pending gate.**
-    Two clubs meet more than once, and keyed on the pair alone the earliest open
-    ever captured for them was returned for every later meeting. UNAM Pumas v
-    Leon on 2026-09-10 was published carrying the 2026-09-06 match's price, both
-    fixtures quoting duel at 2.00 from a single capture.
+    An ordered pair repeats within a season only when a match is rescheduled --
+    a double round-robin gives A v B and B v A, different keys -- and keyed on
+    the pair alone the original date's open was returned for the replacement.
+    UNAM Pumas v Leon, postponed from 2026-09-06 to 2026-09-10, was published
+    under both dates quoting duel at 2.00 from the single capture taken for the
+    first, a price on a listing that no longer existed.
     """
     lp = paths.for_league(league)
     history = capture_store.load_history(history_path or lp.capture_history_csv)
