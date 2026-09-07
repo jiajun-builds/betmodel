@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-07T06:01:01Z",
+ "generated_at": "2026-09-07T06:18:48Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-11-2026-03-13-puebla-necaxa",
@@ -1645,6 +1645,18 @@
    "home_goals": 1,
    "away_goals": 1,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-7-2026-09-06-cruz-azul-santos-laguna",
+   "match_date": "2026-09-06",
+   "season": "Apertura 2026",
+   "round": "7",
+   "home_team": "Cruz Azul",
+   "away_team": "Santos Laguna",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
    "status": "played"
   }
  ]
