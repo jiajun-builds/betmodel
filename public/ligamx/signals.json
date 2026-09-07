@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-07T00:01:04Z",
+ "generated_at": "2026-09-07T00:31:32Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-10-unam-pumas-leon",
@@ -376,6 +376,83 @@
     "book": "duel",
     "odds": 3.5,
     "ev": 0.12277805181250279,
+    "books": [
+     "duel"
+    ]
+   },
+   "state": "bet"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-13-santos-laguna-fc-juarez",
+   "kickoff_utc": "2026-09-14T00:00:00Z",
+   "round": "",
+   "home_team": "Santos Laguna",
+   "away_team": "FC Juarez",
+   "model": {
+    "home": 0.4078515181936905,
+    "draw": 0.25483071363796816,
+    "away": 0.33731776816834114,
+    "method": "market_anchor"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.08,
+     "ev": -0.15166884215712373,
+     "captured_at": "2026-09-07T00:31:27Z",
+     "last_update": "2026-09-07T00:22:08.871Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.75,
+     "ev": -0.04438482385761944,
+     "captured_at": "2026-09-07T00:31:27Z",
+     "last_update": "2026-09-07T00:22:08.871Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 3.4,
+     "ev": 0.1468804117723599,
+     "captured_at": "2026-09-07T00:31:27Z",
+     "last_update": "2026-09-07T00:22:08.871Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.08,
+     "ev": -0.15166884215712373
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.75,
+     "ev": -0.04438482385761944
+    },
+    "away": {
+     "book": "duel",
+     "odds": 3.4,
+     "ev": 0.1468804117723599
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 3.4,
+    "ev": 0.1468804117723599,
+    "proof": "window",
+    "captured_at": "2026-09-07T00:31:27Z"
+   },
+   "bet": {
+    "side": "away",
+    "book": "duel",
+    "odds": 3.4,
+    "ev": 0.1468804117723599,
     "books": [
      "duel"
     ]
