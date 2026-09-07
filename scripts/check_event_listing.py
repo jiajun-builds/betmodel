@@ -118,6 +118,12 @@ def main(argv: list[str] | None = None) -> int:
                              "question it answers: when odds-api.io has no "
                              "fixture, can the other provider supply the same "
                              "book for it?")
+    parser.add_argument("--books", metavar="NAMES",
+                        help="with --odds, override the bookmakers asked for "
+                             "(provider spelling, comma separated). The plan is "
+                             "limited to a fixed set and naming one outside it "
+                             "fails the whole request, so a book that has gone "
+                             "stale in config can silence the ones beside it.")
     parser.add_argument("--emit-rows", action="store_true",
                         help="with --anchor-books, print the bet books' prices as "
                              "capture-store rows. Printed rather than written: "
@@ -275,7 +281,13 @@ def main(argv: list[str] | None = None) -> int:
               "request on what the books quote for them.")
         return 0
 
-    wanted = oddsapiio.books_from_config(config.odds.books)
+    if args.books:
+        wanted = tuple(oddsapiio.Book(n.strip(), n.strip())
+                       for n in args.books.split(",") if n.strip())
+    else:
+        wanted = oddsapiio.books_from_config(config.odds.books)
+    print(f"\nasking odds/multi for bookmakers: "
+          f"{[b.provider_name for b in wanted]}")
     quoted = client.multi_odds([str(e.get("id")) for _, e in matched][:10], wanted)
     quoted_by_id = {str(q.get("id", q.get("eventId", ""))): q for q in quoted}
     print(f"\nodds/multi returned {len(quoted)} entr(y/ies):")

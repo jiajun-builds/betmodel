@@ -32,6 +32,9 @@ on:
         description: Ask for events with no from/to filter at all
         type: boolean
         default: false
+      books:
+        description: With odds, override the bookmakers asked for (provider spelling)
+        default: ""
       emit_rows:
         description: With anchor_books, print the bet books' prices as store rows
         type: boolean
@@ -74,4 +77,5 @@ jobs:
             ${{ inputs.leagues && format('--leagues {0}', inputs.leagues) || '' }} \
             ${{ inputs.anchor_books && format('--anchor-books {0}', inputs.anchor_books) || '' }} \
             ${{ inputs.no_window && '--no-window' || '' }} \
-            ${{ inputs.emit_rows && '--emit-rows' || '' }}
+            ${{ inputs.emit_rows && '--emit-rows' || '' }} \
+            ${{ inputs.books && format('--books {0}', inputs.books) || '' }}
