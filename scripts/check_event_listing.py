@@ -284,13 +284,19 @@ def main(argv: list[str] | None = None) -> int:
         if quote is None:
             print(f"  {pend.fixture.label}: no entry returned")
             continue
+        # Which books the provider holds for this event at all. Without it,
+        # "Duel has no market" and "the provider's Duel feed is missing this
+        # fixture" print the same line, and they are different problems with
+        # different owners.
+        carried = sorted((quote.get("bookmakers") or {}).keys())
+        print(f"  {pend.fixture.label}: provider carries {carried or 'no books'}")
         for book in pend.missing:
             if book.provider != "oddsapiio":
                 continue
             prices = oddsapiio.extract_ml(
                 quote, oddsapiio.Book(book.provider_name or book.key, book.key)
             )
-            print(f"  {pend.fixture.label}: {book.key} -> "
+            print(f"      {book.key} ({book.provider_name or book.key}) -> "
                   f"{prices if prices else 'not priced yet (would record unpriced)'}")
     return 0
 
