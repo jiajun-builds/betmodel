@@ -32,6 +32,10 @@ on:
         description: Ask for events with no from/to filter at all
         type: boolean
         default: false
+      emit_rows:
+        description: With anchor_books, print the bet books' prices as store rows
+        type: boolean
+        default: false
       anchor_books:
         description: Regions to ask The Odds API which bookmakers it carries (e.g. eu,uk)
         default: ""
@@ -69,4 +73,5 @@ jobs:
             ${{ inputs.odds && '--odds' || '' }} \
             ${{ inputs.leagues && format('--leagues {0}', inputs.leagues) || '' }} \
             ${{ inputs.anchor_books && format('--anchor-books {0}', inputs.anchor_books) || '' }} \
-            ${{ inputs.no_window && '--no-window' || '' }}
+            ${{ inputs.no_window && '--no-window' || '' }} \
+            ${{ inputs.emit_rows && '--emit-rows' || '' }}

@@ -40,6 +40,59 @@ from betmodel.odds import capture_open
 from betmodel.providers import oddsapiio
 
 
+def _emit_rows(league: str, config, events: list[dict]) -> None:
+    """The bet books' 1X2, as lines the capture store would accept.
+
+    Provenance is `manual-backfill` and that is not a formality: these prices
+    come from a provider the capture path does not source this book from, and
+    nobody watched the book unpriced beforehand, so nothing here shows the price
+    was the first it posted. `provenance.MANUAL` says exactly that -- plausible,
+    unverifiable, and dependent on a source outside this system.
+    """
+    from betmodel import teams
+    from betmodel.dates import stamp
+    from betmodel.odds import capture_store
+    from betmodel.providers import theoddsapi
+
+    mapping = teams.for_league(league)
+    wanted = {b.key for b in config.odds.books if b.role == "bet"}
+    fetched_at = stamp()
+    print(f"\n{','.join(capture_store.HISTORY_COLUMNS)}")
+    for record in theoddsapi.iter_prices(events):
+        if str(record["bookmaker"]) not in wanted:
+            continue
+        api_home = str(record["api_home_team"])
+        api_away = str(record["api_away_team"])
+        home = mapping.to_standard(api_home)
+        away = mapping.to_standard(api_away)
+        if not home or not away:
+            print(f"# UNMAPPED {api_home} v {api_away} -- skipped")
+            continue
+        outcomes = record["outcomes"]
+        odds = (outcomes.get(api_home), outcomes.get("Draw"), outcomes.get(api_away))
+        if not all(odds):
+            continue
+        row = {
+            "event_id": capture_store.stored_event_id(
+                "theoddsapi", record["event_id"]),
+            "commence_time": record["commence_time"],
+            "api_home_team": api_home, "api_away_team": api_away,
+            "home_team": home, "away_team": away,
+            "home_odds": odds[0], "draw_odds": odds[1], "away_odds": odds[2],
+            "bookmaker": record["bookmaker"], "market": "h2h",
+            "regions": "theoddsapi",
+            "last_update": record["last_update"],
+            "fetched_at": fetched_at,
+            "snapshot_type": "open",
+            "target_round": "",
+            "capture_reason": (
+                "manual-backfill from theoddsapi: odds-api.io carries no event "
+                f"for this fixture; first sighting @ {fetched_at}"
+            ),
+        }
+        print(",".join(str(row[c]) for c in capture_store.HISTORY_COLUMNS))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("league")
@@ -65,6 +118,12 @@ def main(argv: list[str] | None = None) -> int:
                              "question it answers: when odds-api.io has no "
                              "fixture, can the other provider supply the same "
                              "book for it?")
+    parser.add_argument("--emit-rows", action="store_true",
+                        help="with --anchor-books, print the bet books' prices as "
+                             "capture-store rows. Printed rather than written: "
+                             "this is a manual backfill for a fixture the usual "
+                             "provider does not carry, and the store is "
+                             "append-only, so a human copies the lines in.")
     parser.add_argument("--leagues", metavar="SUBSTRING",
                         help="instead of listing events, list the provider's own "
                              "league slugs matching this. A fixture absent from "
@@ -109,6 +168,10 @@ def main(argv: list[str] | None = None) -> int:
         print("bookmakers carried, and on how many of those events:")
         for key in sorted(books, key=lambda k: -books[k]):
             print(f"   {key:24s} {books[key]}")
+        if args.emit_rows:
+            _emit_rows(args.league, config, events)
+            return 0
+
         print("\nevents, and whether the books we bet are on them:")
         wanted = {b.key for b in config.odds.books if b.role == "bet"}
         for event in sorted(events, key=lambda e: str(e.get("commence_time"))):
