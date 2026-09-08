@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-08T06:00:56Z",
+ "generated_at": "2026-09-08T06:18:49Z",
  "competition": {
   "code": "MEX",
   "name": "Liga MX",
@@ -12,13 +12,13 @@
  "model": {
   "name": "Negative Binomial with Dixon-Coles Time Decay",
   "version": "v1.0",
-  "updated_at": "2026-09-07T00:18:47-06:00"
+  "updated_at": "2026-09-08T00:18:47-06:00"
  },
  "data": {
-  "fixtures_updated_at": "2026-09-07T06:17:05+00:00",
+  "fixtures_updated_at": "2026-09-08T06:17:09+00:00",
   "matches_played": 1076,
   "last_completed_match": "2026-09-06",
-  "next_fixture": "2026-09-11T03:00:00Z",
+  "next_fixture": "2026-09-11T03:05:00Z",
   "xg_coverage": 1076
  }
 }
