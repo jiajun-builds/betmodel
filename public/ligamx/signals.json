@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-08T07:40:35Z",
+ "generated_at": "2026-09-08T07:50:54Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-10-unam-pumas-leon",
@@ -352,6 +352,75 @@
     "ev": 0.08796707659821434,
     "proof": "observed",
     "captured_at": "2026-09-08T00:30:50Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-12-leon-atletico-san-luis",
+   "kickoff_utc": "2026-09-12T23:00:00Z",
+   "round": "",
+   "home_team": "Leon",
+   "away_team": "Atletico San Luis",
+   "model": {
+    "home": 0.4469393550142093,
+    "draw": 0.2486403279743899,
+    "away": 0.3044203170114005,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.3,
+     "ev": 0.02796051653268128,
+     "captured_at": "2026-09-08T07:50:49Z",
+     "last_update": "2026-09-08T07:49:52.984Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.55,
+     "ev": -0.11732683569091595,
+     "captured_at": "2026-09-08T07:50:49Z",
+     "last_update": "2026-09-08T07:49:52.984Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 3.1,
+     "ev": -0.05629701726465841,
+     "captured_at": "2026-09-08T07:50:49Z",
+     "last_update": "2026-09-08T07:49:52.984Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.3,
+     "ev": 0.02796051653268128
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.55,
+     "ev": -0.11732683569091595
+    },
+    "away": {
+     "book": "duel",
+     "odds": 3.1,
+     "ev": -0.05629701726465841
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.3,
+    "ev": 0.02796051653268128,
+    "proof": "window",
+    "captured_at": "2026-09-08T07:50:49Z"
    },
    "bet": null,
    "state": ""
