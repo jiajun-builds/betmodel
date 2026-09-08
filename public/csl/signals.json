@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-08T10:00:50Z",
+ "generated_at": "2026-09-08T12:50:28Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-12-tianjin-jinmen-tiger-liaoning-tieren",
@@ -111,32 +111,59 @@
      "captured_at": "2026-09-07T00:45:38Z",
      "last_update": "2026-09-07T00:44:42Z",
      "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.76,
+     "ev": -0.021472829888620648,
+     "captured_at": "2026-09-08T12:50:24Z",
+     "last_update": "2026-09-08T12:36:18.811Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.75,
+     "ev": -0.04262778744806894,
+     "captured_at": "2026-09-08T12:50:24Z",
+     "last_update": "2026-09-08T12:36:18.811Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.5,
+     "ev": -0.02459521607753712,
+     "captured_at": "2026-09-08T12:50:24Z",
+     "last_update": "2026-09-08T12:36:18.811Z",
+     "proof": "window"
     }
    ],
    "best": {
     "home": {
-     "book": "onexbet",
-     "odds": 2.67,
-     "ev": -0.05338132456616562
+     "book": "duel",
+     "odds": 2.76,
+     "ev": -0.021472829888620648
     },
     "draw": {
-     "book": "onexbet",
-     "odds": 3.71,
-     "ev": -0.05283975771528948
+     "book": "duel",
+     "odds": 3.75,
+     "ev": -0.04262778744806894
     },
     "away": {
-     "book": "onexbet",
-     "odds": 2.48,
-     "ev": -0.03239845434891675
+     "book": "duel",
+     "odds": 2.5,
+     "ev": -0.02459521607753712
     }
    },
    "judged": {
-    "side": "away",
-    "book": "onexbet",
-    "odds": 2.48,
-    "ev": -0.03239845434891675,
+    "side": "home",
+    "book": "duel",
+    "odds": 2.76,
+    "ev": -0.021472829888620648,
     "proof": "window",
-    "captured_at": "2026-09-07T00:45:38Z"
+    "captured_at": "2026-09-08T12:50:24Z"
    },
    "bet": null,
    "state": ""
