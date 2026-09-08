@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-08T10:00:50Z",
+ "generated_at": "2026-09-08T10:41:00Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-10-unam-pumas-leon",
@@ -644,6 +644,75 @@
     "ev": 0.010082942332112932,
     "proof": "window",
     "captured_at": "2026-09-08T07:20:58Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-15-puebla-toluca",
+   "kickoff_utc": "2026-09-16T01:00:00Z",
+   "round": "",
+   "home_team": "Puebla",
+   "away_team": "Toluca",
+   "model": {
+    "home": 0.1832411444384171,
+    "draw": 0.2222145896136474,
+    "away": 0.5945442659479354,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 4.7,
+     "ev": -0.1387666211394396,
+     "captured_at": "2026-09-08T10:40:54Z",
+     "last_update": "2026-09-08T09:28:47.042Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.2,
+     "ev": -0.06669872362268092,
+     "captured_at": "2026-09-08T10:40:54Z",
+     "last_update": "2026-09-08T09:28:47.042Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 1.7,
+     "ev": 0.010725252111490224,
+     "captured_at": "2026-09-08T10:40:54Z",
+     "last_update": "2026-09-08T09:28:47.042Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 4.7,
+     "ev": -0.1387666211394396
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.2,
+     "ev": -0.06669872362268092
+    },
+    "away": {
+     "book": "duel",
+     "odds": 1.7,
+     "ev": 0.010725252111490224
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 1.7,
+    "ev": 0.010725252111490224,
+    "proof": "window",
+    "captured_at": "2026-09-08T10:40:54Z"
    },
    "bet": null,
    "state": ""
