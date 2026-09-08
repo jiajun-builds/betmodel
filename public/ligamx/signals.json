@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-08T00:20:36Z",
+ "generated_at": "2026-09-08T00:30:56Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-10-unam-pumas-leon",
@@ -299,9 +299,60 @@
     "away": 0.12282469506584595,
     "method": "market_anchor"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.54,
+     "ev": 0.08794482703325146,
+     "captured_at": "2026-09-08T00:30:50Z",
+     "last_update": "2026-09-07T18:41:19.315Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.3,
+     "ev": -0.26591421231754153,
+     "captured_at": "2026-09-08T00:30:50Z",
+     "last_update": "2026-09-07T18:41:19.315Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 6.4,
+     "ev": -0.21392195157858584,
+     "captured_at": "2026-09-08T00:30:50Z",
+     "last_update": "2026-09-07T18:41:19.315Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.54,
+     "ev": 0.08794482703325146
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.3,
+     "ev": -0.26591421231754153
+    },
+    "away": {
+     "book": "duel",
+     "odds": 6.4,
+     "ev": -0.21392195157858584
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 1.54,
+    "ev": 0.08794482703325146,
+    "proof": "observed",
+    "captured_at": "2026-09-08T00:30:50Z"
+   },
    "bet": null,
    "state": ""
   },
