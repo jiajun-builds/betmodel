@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-09T03:40:28Z",
+ "generated_at": "2026-09-09T06:18:56Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-12-tianjin-jinmen-tiger-liaoning-tieren",
@@ -10,9 +10,9 @@
    "home_team": "Tianjin Jinmen Tiger",
    "away_team": "Liaoning Tieren",
    "model": {
-    "home": 0.4825006720213966,
+    "home": 0.4825128508811824,
     "draw": 0.26123819130436665,
-    "away": 0.25626113667423656,
+    "away": 0.2562489578144509,
     "method": "market_anchor"
    },
    "quotes": [
@@ -20,7 +20,7 @@
      "book": "onexbet",
      "side": "home",
      "odds": 1.95,
-     "ev": -0.059123689558276626,
+     "ev": -0.05909994078169434,
      "captured_at": "2026-09-07T00:45:38Z",
      "last_update": "2026-09-07T00:44:42Z",
      "proof": "window"
@@ -38,7 +38,7 @@
      "book": "onexbet",
      "side": "away",
      "odds": 3.87,
-     "ev": -0.008269401070704507,
+     "ev": -0.00831653325807502,
      "captured_at": "2026-09-07T00:45:38Z",
      "last_update": "2026-09-07T00:44:42Z",
      "proof": "window"
@@ -47,7 +47,7 @@
      "book": "duel",
      "side": "home",
      "odds": 1.97,
-     "ev": -0.0494736761178487,
+     "ev": -0.04944968376407066,
      "captured_at": "2026-09-09T03:40:25Z",
      "last_update": "2026-09-08T01:23:26.955Z",
      "proof": "window"
@@ -65,7 +65,7 @@
      "book": "duel",
      "side": "away",
      "odds": 3.95,
-     "ev": 0.012231489863234524,
+     "ev": 0.012183383367081024,
      "captured_at": "2026-09-09T03:40:25Z",
      "last_update": "2026-09-08T01:23:26.955Z",
      "proof": "window"
@@ -75,7 +75,7 @@
     "home": {
      "book": "duel",
      "odds": 1.97,
-     "ev": -0.0494736761178487
+     "ev": -0.04944968376407066
     },
     "draw": {
      "book": "duel",
@@ -85,14 +85,14 @@
     "away": {
      "book": "duel",
      "odds": 3.95,
-     "ev": 0.012231489863234524
+     "ev": 0.012183383367081024
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 3.95,
-    "ev": 0.012231489863234524,
+    "ev": 0.012183383367081024,
     "proof": "window",
     "captured_at": "2026-09-09T03:40:25Z"
    },
@@ -106,9 +106,9 @@
    "home_team": "Wuhan Three Towns",
    "away_team": "Henan Songshan Longmen",
    "model": {
-    "home": 0.3545388297504998,
+    "home": 0.35455766755358226,
     "draw": 0.25529925668051495,
-    "away": 0.39016191356898516,
+    "away": 0.39014307576590235,
     "method": "market_anchor"
    },
    "quotes": [
@@ -116,7 +116,7 @@
      "book": "onexbet",
      "side": "home",
      "odds": 2.67,
-     "ev": -0.05338132456616562,
+     "ev": -0.053331027631935424,
      "captured_at": "2026-09-07T00:45:38Z",
      "last_update": "2026-09-07T00:44:42Z",
      "proof": "window"
@@ -134,7 +134,7 @@
      "book": "onexbet",
      "side": "away",
      "odds": 2.48,
-     "ev": -0.03239845434891675,
+     "ev": -0.03244517210056219,
      "captured_at": "2026-09-07T00:45:38Z",
      "last_update": "2026-09-07T00:44:42Z",
      "proof": "window"
@@ -143,7 +143,7 @@
      "book": "duel",
      "side": "home",
      "odds": 2.76,
-     "ev": -0.021472829888620648,
+     "ev": -0.021420837552113103,
      "captured_at": "2026-09-08T12:50:24Z",
      "last_update": "2026-09-08T12:36:18.811Z",
      "proof": "window"
@@ -161,7 +161,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.5,
-     "ev": -0.02459521607753712,
+     "ev": -0.02464231058524413,
      "captured_at": "2026-09-08T12:50:24Z",
      "last_update": "2026-09-08T12:36:18.811Z",
      "proof": "window"
@@ -171,7 +171,7 @@
     "home": {
      "book": "duel",
      "odds": 2.76,
-     "ev": -0.021472829888620648
+     "ev": -0.021420837552113103
     },
     "draw": {
      "book": "duel",
@@ -181,14 +181,14 @@
     "away": {
      "book": "duel",
      "odds": 2.5,
-     "ev": -0.02459521607753712
+     "ev": -0.02464231058524413
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 2.76,
-    "ev": -0.021472829888620648,
+    "ev": -0.021420837552113103,
     "proof": "window",
     "captured_at": "2026-09-08T12:50:24Z"
    },
