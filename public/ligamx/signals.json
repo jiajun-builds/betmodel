@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-11T04:01:17Z",
+ "generated_at": "2026-09-11T04:04:21Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-11-necaxa-puebla",
@@ -294,17 +294,17 @@
    "home_team": "Leon",
    "away_team": "Atletico San Luis",
    "model": {
-    "home": 0.4469506160719563,
-    "draw": 0.2486330071185273,
-    "away": 0.3044163768095163,
-    "method": "raw"
+    "home": 0.4369945877991075,
+    "draw": 0.2653700486515656,
+    "away": 0.2976353635493269,
+    "method": "market_anchor"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 2.3,
-     "ev": 0.027986416965499306,
+     "ev": 0.005087551937947188,
      "captured_at": "2026-09-08T07:50:49Z",
      "last_update": "2026-09-08T07:49:52.984Z",
      "proof": "window"
@@ -313,7 +313,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.55,
-     "ev": -0.11735282472922814,
+     "ev": -0.0579363272869422,
      "captured_at": "2026-09-08T07:50:49Z",
      "last_update": "2026-09-08T07:49:52.984Z",
      "proof": "window"
@@ -322,7 +322,7 @@
      "book": "duel",
      "side": "away",
      "odds": 3.1,
-     "ev": -0.05630923189049952,
+     "ev": -0.07733037299708656,
      "captured_at": "2026-09-08T07:50:49Z",
      "last_update": "2026-09-08T07:49:52.984Z",
      "proof": "window"
@@ -332,24 +332,24 @@
     "home": {
      "book": "duel",
      "odds": 2.3,
-     "ev": 0.027986416965499306
+     "ev": 0.005087551937947188
     },
     "draw": {
      "book": "duel",
      "odds": 3.55,
-     "ev": -0.11735282472922814
+     "ev": -0.0579363272869422
     },
     "away": {
      "book": "duel",
      "odds": 3.1,
-     "ev": -0.05630923189049952
+     "ev": -0.07733037299708656
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 2.3,
-    "ev": 0.027986416965499306,
+    "ev": 0.005087551937947188,
     "proof": "window",
     "captured_at": "2026-09-08T07:50:49Z"
    },
