@@ -1,85 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-12T00:51:44Z",
+ "generated_at": "2026-09-12T01:01:29Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-09-11-necaxa-puebla",
-   "kickoff_utc": "2026-09-12T01:00:00Z",
-   "round": "",
-   "home_team": "Necaxa",
-   "away_team": "Puebla",
-   "model": {
-    "home": 0.5442019723077166,
-    "draw": 0.2558497603650418,
-    "away": 0.1999482673272414,
-    "method": "market_anchor"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.04,
-     "ev": 0.11017202350774191,
-     "captured_at": "2026-09-06T01:31:24Z",
-     "last_update": "2026-09-06T01:28:11.733Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.75,
-     "ev": -0.04056339863109315,
-     "captured_at": "2026-09-06T01:31:24Z",
-     "last_update": "2026-09-06T01:28:11.733Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 3.5,
-     "ev": -0.3001810643546551,
-     "captured_at": "2026-09-06T01:31:24Z",
-     "last_update": "2026-09-06T01:28:11.733Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.04,
-     "ev": 0.11017202350774191
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.75,
-     "ev": -0.04056339863109315
-    },
-    "away": {
-     "book": "duel",
-     "odds": 3.5,
-     "ev": -0.3001810643546551
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.04,
-    "ev": 0.11017202350774191,
-    "proof": "window",
-    "captured_at": "2026-09-06T01:31:24Z"
-   },
-   "bet": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.04,
-    "ev": 0.11017202350774191,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-11-atlante-pachuca",
    "kickoff_utc": "2026-09-12T03:00:00Z",
