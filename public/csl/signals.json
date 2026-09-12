@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-12T12:01:43Z",
+ "generated_at": "2026-09-12T12:11:54Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-18-zhejiang-professional-wuhan-three-towns",
@@ -15,9 +15,87 @@
     "away": 0.2265861270506001,
     "method": "market_anchor"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 1.74,
+     "ev": -0.016820901018656298,
+     "captured_at": "2026-09-12T12:11:50Z",
+     "last_update": "2026-09-12T12:09:31.053Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 4.34,
+     "ev": -0.09568108426111721,
+     "captured_at": "2026-09-12T12:11:50Z",
+     "last_update": "2026-09-12T12:09:31.053Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 4.04,
+     "ev": -0.08459204671557552,
+     "captured_at": "2026-09-12T12:11:50Z",
+     "last_update": "2026-09-12T12:09:31.053Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.77,
+     "ev": 0.0001304627568841088,
+     "captured_at": "2026-09-12T12:11:50Z",
+     "last_update": "2026-09-12T11:56:31.345Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.5,
+     "ev": -0.0623421380587621,
+     "captured_at": "2026-09-12T12:11:50Z",
+     "last_update": "2026-09-12T11:56:31.345Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 4.2,
+     "ev": -0.04833826638747951,
+     "captured_at": "2026-09-12T12:11:50Z",
+     "last_update": "2026-09-12T11:56:31.345Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.77,
+     "ev": 0.0001304627568841088
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.5,
+     "ev": -0.0623421380587621
+    },
+    "away": {
+     "book": "duel",
+     "odds": 4.2,
+     "ev": -0.04833826638747951
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 1.77,
+    "ev": 0.0001304627568841088,
+    "proof": "window",
+    "captured_at": "2026-09-12T12:11:50Z"
+   },
    "bet": null,
    "state": ""
   }
