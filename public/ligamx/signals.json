@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-13T06:19:01Z",
+ "generated_at": "2026-09-13T06:21:23Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-13-santos-laguna-fc-juarez",
@@ -291,6 +291,75 @@
     "ev": 0.004937267500140896,
     "proof": "window",
     "captured_at": "2026-09-08T10:40:54Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-19-monterrey-cruz-azul",
+   "kickoff_utc": "2026-09-20T01:00:00Z",
+   "round": "",
+   "home_team": "Monterrey",
+   "away_team": "Cruz Azul",
+   "model": {
+    "home": 0.3970471028818738,
+    "draw": 0.2415246282324472,
+    "away": 0.3614282688856792,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.44,
+     "ev": -0.031205068968227945,
+     "captured_at": "2026-09-13T06:21:19Z",
+     "last_update": "2026-09-13T04:30:56.138Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.6,
+     "ev": -0.13051133836319007,
+     "captured_at": "2026-09-13T06:21:19Z",
+     "last_update": "2026-09-13T04:30:56.138Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.84,
+     "ev": 0.026456283635328814,
+     "captured_at": "2026-09-13T06:21:19Z",
+     "last_update": "2026-09-13T04:30:56.138Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.44,
+     "ev": -0.031205068968227945
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.6,
+     "ev": -0.13051133836319007
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.84,
+     "ev": 0.026456283635328814
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.84,
+    "ev": 0.026456283635328814,
+    "proof": "window",
+    "captured_at": "2026-09-13T06:21:19Z"
    },
    "bet": null,
    "state": ""
