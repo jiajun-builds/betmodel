@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-13T21:04:02Z",
+ "generated_at": "2026-09-14T06:19:18Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-09-18-zhejiang-professional-wuhan-three-towns",
@@ -10,9 +10,9 @@
    "home_team": "Zhejiang Professional",
    "away_team": "Wuhan Three Towns",
    "model": {
-    "home": 0.5650715872719144,
+    "home": 0.5676288501946848,
     "draw": 0.20836841376471954,
-    "away": 0.22655999896336604,
+    "away": 0.22400273604059595,
     "method": "market_anchor"
    },
    "quotes": [
@@ -20,7 +20,7 @@
      "book": "onexbet",
      "side": "home",
      "odds": 1.74,
-     "ev": -0.016775438146868882,
+     "ev": -0.012325800661248443,
      "captured_at": "2026-09-12T12:11:50Z",
      "last_update": "2026-09-12T12:09:31.053Z",
      "proof": "window"
@@ -38,7 +38,7 @@
      "book": "onexbet",
      "side": "away",
      "odds": 4.04,
-     "ev": -0.08469760418800121,
+     "ev": -0.09502894639599235,
      "captured_at": "2026-09-12T12:11:50Z",
      "last_update": "2026-09-12T12:09:31.053Z",
      "proof": "window"
@@ -47,7 +47,7 @@
      "book": "duel",
      "side": "home",
      "odds": 1.77,
-     "ev": 0.00017670947128856085,
+     "ev": 0.004703064844592042,
      "captured_at": "2026-09-12T12:11:50Z",
      "last_update": "2026-09-12T11:56:31.345Z",
      "proof": "window"
@@ -65,7 +65,7 @@
      "book": "duel",
      "side": "away",
      "odds": 4.2,
-     "ev": -0.04844800435386265,
+     "ev": -0.05918850862949698,
      "captured_at": "2026-09-12T12:11:50Z",
      "last_update": "2026-09-12T11:56:31.345Z",
      "proof": "window"
@@ -75,7 +75,7 @@
     "home": {
      "book": "duel",
      "odds": 1.77,
-     "ev": 0.00017670947128856085
+     "ev": 0.004703064844592042
     },
     "draw": {
      "book": "duel",
@@ -85,14 +85,14 @@
     "away": {
      "book": "duel",
      "odds": 4.2,
-     "ev": -0.04844800435386265
+     "ev": -0.05918850862949698
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 1.77,
-    "ev": 0.00017670947128856085,
+    "ev": 0.004703064844592042,
     "proof": "window",
     "captured_at": "2026-09-12T12:11:50Z"
    },
