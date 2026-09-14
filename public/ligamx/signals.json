@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-14T00:02:13Z",
+ "generated_at": "2026-09-14T00:31:21Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-13-santos-laguna-fc-juarez",
@@ -360,6 +360,75 @@
     "ev": 0.026456283635328814,
     "proof": "window",
     "captured_at": "2026-09-13T06:21:19Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-20-pachuca-tijuana",
+   "kickoff_utc": "2026-09-21T00:00:00Z",
+   "round": "",
+   "home_team": "Pachuca",
+   "away_team": "Tijuana",
+   "model": {
+    "home": 0.498015101028627,
+    "draw": 0.2499323800822203,
+    "away": 0.2520525188891525,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.91,
+     "ev": -0.04879115703532244,
+     "captured_at": "2026-09-14T00:31:17Z",
+     "last_update": "2026-09-14T00:30:16.517Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.7,
+     "ev": -0.0752501936957849,
+     "captured_at": "2026-09-14T00:31:17Z",
+     "last_update": "2026-09-14T00:30:16.517Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 4.0,
+     "ev": 0.008210075556609908,
+     "captured_at": "2026-09-14T00:31:17Z",
+     "last_update": "2026-09-14T00:30:16.517Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.91,
+     "ev": -0.04879115703532244
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.7,
+     "ev": -0.0752501936957849
+    },
+    "away": {
+     "book": "duel",
+     "odds": 4.0,
+     "ev": 0.008210075556609908
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 4.0,
+    "ev": 0.008210075556609908,
+    "proof": "window",
+    "captured_at": "2026-09-14T00:31:17Z"
    },
    "bet": null,
    "state": ""
