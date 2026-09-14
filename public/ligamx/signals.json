@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-14T13:21:48Z",
+ "generated_at": "2026-09-14T13:31:39Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-14-leon-atletico-san-luis",
@@ -357,6 +357,75 @@
    "state": ""
   },
   {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-19-atletico-san-luis-necaxa",
+   "kickoff_utc": "2026-09-19T23:00:00Z",
+   "round": "",
+   "home_team": "Atletico San Luis",
+   "away_team": "Necaxa",
+   "model": {
+    "home": 0.46549961112356,
+    "draw": 0.2390385090792376,
+    "away": 0.2954618797972023,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.22,
+     "ev": 0.03340913669430323,
+     "captured_at": "2026-09-14T13:31:36Z",
+     "last_update": "2026-09-14T13:26:49.2Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.6,
+     "ev": -0.13946136731474468,
+     "captured_at": "2026-09-14T13:31:36Z",
+     "last_update": "2026-09-14T13:26:49.2Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 3.2,
+     "ev": -0.05452198464895264,
+     "captured_at": "2026-09-14T13:31:36Z",
+     "last_update": "2026-09-14T13:26:49.2Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.22,
+     "ev": 0.03340913669430323
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.6,
+     "ev": -0.13946136731474468
+    },
+    "away": {
+     "book": "duel",
+     "odds": 3.2,
+     "ev": -0.05452198464895264
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.22,
+    "ev": 0.03340913669430323,
+    "proof": "observed",
+    "captured_at": "2026-09-14T13:31:36Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
    "fixture_id": "MEX-apertura-2026-0-2026-09-19-monterrey-cruz-azul",
    "kickoff_utc": "2026-09-20T01:00:00Z",
    "round": "",
@@ -567,6 +636,75 @@
     "ev": 0.0035929754468089214,
     "proof": "window",
     "captured_at": "2026-09-14T00:31:17Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-20-queretaro-leon",
+   "kickoff_utc": "2026-09-21T02:00:00Z",
+   "round": "",
+   "home_team": "Queretaro",
+   "away_team": "Leon",
+   "model": {
+    "home": 0.4592131520598121,
+    "draw": 0.2639183361192972,
+    "away": 0.2768685118208904,
+    "method": "raw"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.38,
+     "ev": 0.09292730190235288,
+     "captured_at": "2026-09-14T13:31:36Z",
+     "last_update": "2026-09-14T13:26:49.2Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.6,
+     "ev": -0.04989398997052996,
+     "captured_at": "2026-09-14T13:31:36Z",
+     "last_update": "2026-09-14T13:26:49.2Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.9,
+     "ev": -0.1970813157194179,
+     "captured_at": "2026-09-14T13:31:36Z",
+     "last_update": "2026-09-14T13:26:49.2Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.38,
+     "ev": 0.09292730190235288
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.6,
+     "ev": -0.04989398997052996
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.9,
+     "ev": -0.1970813157194179
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.38,
+    "ev": 0.09292730190235288,
+    "proof": "observed",
+    "captured_at": "2026-09-14T13:31:36Z"
    },
    "bet": null,
    "state": ""
