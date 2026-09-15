@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-14T16:02:33Z",
+ "generated_at": "2026-09-15T06:19:19Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-9-2026-03-18-guadalajara-leon",
@@ -1655,6 +1655,18 @@
    "home_team": "Guadalajara",
    "away_team": "UNAM Pumas",
    "home_goals": 3,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-8-2026-09-14-leon-atletico-san-luis",
+   "match_date": "2026-09-14",
+   "season": "Apertura 2026",
+   "round": "8",
+   "home_team": "Leon",
+   "away_team": "Atletico San Luis",
+   "home_goals": 2,
    "away_goals": 0,
    "result": "H",
    "status": "played"
