@@ -1,20 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-16T00:51:12Z",
+ "generated_at": "2026-09-16T06:19:01Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-9-2026-03-18-guadalajara-leon",
-   "match_date": "2026-03-18",
-   "season": "Clausura 2026",
-   "round": "9",
-   "home_team": "Guadalajara",
-   "away_team": "Leon",
-   "home_goals": 5,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-12-2026-03-21-atlas-queretaro",
    "match_date": "2026-03-21",
@@ -1669,6 +1657,18 @@
    "home_goals": 2,
    "away_goals": 0,
    "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-7-2026-09-15-puebla-toluca",
+   "match_date": "2026-09-15",
+   "season": "Apertura 2026",
+   "round": "7",
+   "home_team": "Puebla",
+   "away_team": "Toluca",
+   "home_goals": 0,
+   "away_goals": 1,
+   "result": "A",
    "status": "played"
   }
  ]
