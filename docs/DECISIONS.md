@@ -1154,3 +1154,71 @@ CLV interval now describes a devig the engine no longer uses, and re-running tha
 walk-forward under the logarithmic function is outstanding work, not a formality
 already done.
 
+
+## D33 — The anchor gate can be opened by hand, once, in writing, for one price.
+
+`_anchor_admission` is the strictest gate in the tool and D29 says why: the
+evidence establishing +CLV on the soft books was gathered on true opening prices,
+so calibrating on anything else publishes an untested variant under a config that
+claims otherwise. Until now the gate had no override at all, which was the right
+place to start — a gate with an escape hatch built before anyone needs one gets
+used before anyone needs one.
+
+**What made one necessary.** On 2026-09-13 Pinnacle's opening price for
+Monterrey v Cruz Azul was captured with the weak `window` proof. Not because the
+price was doubtful:
+
+| | |
+|---|---|
+| confirmed unpriced | 2026-09-12T19:01:57Z |
+| captured | 2026-09-13T07:01:54Z, **12.0h blind** |
+| lead time | 162.0h — 6.75 days before kickoff |
+| Pinnacle's own publication window | median 6.1 days, hard max 7.0 |
+
+The price sits inside the window in which Pinnacle demonstrably opens, and we
+have a confirmed sighting of the book unpriced twelve hours earlier. What is
+missing is not evidence about the price, it is our own observation: no capture of
+any kind was committed on either league between 2026-09-12T19:02Z and
+2026-09-13T06:19Z. The cause is no longer recoverable — by the time it was
+investigated on 09-18, Actions log retention had passed.
+
+That distinction is the whole basis for the exemption, and it is the one the
+`max_gap` test cannot make. The test asks "was anyone watching", which is exactly
+right as a default, because the usual reason for a gap is that the book was
+already quoting. Here the gap has an identified shape and the fixture has a
+sighting of its own.
+
+**An exemption is pinned to a capture, not granted to a fixture.** Every field —
+`captured_at`, all three prices — is checked against what the reducer produces. A
+repaired row, an earlier price found, a rescheduled fixture: any of them detaches
+the pin and the fixture returns to `unanchored` rather than extending the
+exemption to a price nobody looked at. A test reduces the real history and fails
+if the pin has detached, because a pin that has quietly come loose is doing
+nothing and looks identical to one that is working.
+
+It relaxes `observed` to `window`. It does not relax it to nothing: an anchor
+with no proof at all may have been quoting before anyone ever looked, which is
+the case no reasoning after the fact can settle.
+
+**What it buys, stated plainly: not a bet.** Anchored, the fixture's best side
+goes from +2.5% to **−0.3%** and fires nothing. Nothing was recovered and nothing
+is now being bet that was not being bet before. What changes is that four of nine
+published rows were carrying probabilities the league's own config says are not
+the ones to judge with, and now five of nine are not — which is also what stops
+D29's alert, at 56% against its 50% bar. Silencing an alert is a bad reason to
+open a gate, so it is worth being explicit that the alert moving is a consequence
+here and not the motive: the motive is that the probabilities on that row were
+wrong in a direction we can measure, by 2.8 points on the judged side.
+
+**The published payload now says which case a row is.** `model.anchor_proof`
+carries `observed`, `exempt`, `legacy` or null beside `model.method`. `method`
+says the correction ran; this says what it was allowed to run on. A board that
+cannot tell an exempted anchor from a proven one is D29's failure in miniature,
+and the run log says it too — at WARNING, because a gate a human can open by hand
+stops being a deliberate act the moment nobody reads the line.
+
+**The four fixtures this does not cover.** Puebla v Atlante, Atletico San Luis v
+Necaxa, Toluca v Santos Laguna and Queretaro v Leon have no Pinnacle opener at
+all: the Liga MX account fell under its floor at 2026-09-14T17:01Z and every
+anchor poll was refused for four days. There is nothing to exempt. An opening
+line not taken is gone, and no provider sells it back.

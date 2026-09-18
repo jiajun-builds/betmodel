@@ -174,6 +174,10 @@ class Signal:
     anchor_odds: tuple[float, float, float] | None = None
     anchor_last_update: str = ""
     anchor_captured_at: str = ""
+    #: Why the anchor was admitted: "observed", "exempt", "legacy", or "" when
+    #: the fixture is not anchored at all. Published, because "market_anchor"
+    #: alone cannot tell a proven opener from one a human waved through.
+    anchor_proof: str = ""
 
     @property
     def fires(self) -> bool:
@@ -239,8 +243,80 @@ def team_evidence(league: str, path: str | None = None) -> dict[str, float]:
     }
 
 
-def _anchor_is_a_proven_opener(anchor: dict) -> bool:
-    """Whether this anchor may be used to calibrate.
+@dataclass(frozen=True)
+class AnchorExemption:
+    """One anchor admitted to calibrate although its proof is the weak one.
+
+    **Pinned to a single capture, not to a fixture.** Every field below is
+    checked against the anchor the reducer actually produces, so the exemption
+    covers one price taken at one moment and nothing else. If the capture history
+    changes -- a row repaired, an earlier price found, a fixture rescheduled --
+    the pin stops matching and the fixture returns to `unanchored` rather than
+    quietly extending the exemption to a price nobody examined.
+
+    ``why`` is not decoration. An exemption is a human overriding the one gate
+    that stands between the published probabilities and an untested variant of
+    the strategy, and the only thing separating that from a rubber stamp is a
+    statement of what was examined.
+    """
+
+    captured_at: datetime
+    odds: tuple[float, float, float]
+    #: Last moment the anchor book was CONFIRMED unpriced. The gap between this
+    #: and ``captured_at`` is the whole question: it is how long the price could
+    #: have been up before we took it.
+    last_seen_unpriced: datetime
+    why: str
+
+    @property
+    def blind_hours(self) -> float:
+        return (self.captured_at - self.last_seen_unpriced).total_seconds() / 3600.0
+
+
+#: ``(league, home, away, local matchday, book) -> AnchorExemption``.
+#:
+#: **Read the whole of this before adding one.** `_anchor_is_a_proven_opener` is
+#: the strictest gate in the tool and it exists because the evidence validating
+#: the strategy was gathered on true opening prices. Every entry here is a bet
+#: that a particular price is an opener on grounds other than the proof, and the
+#: cost of being wrong is not a bad bet -- it is a published probability that the
+#: backtest does not describe.
+#:
+#: The bar is therefore narrow. An entry is justified when the blind window
+#: exists because *we* stopped watching, not because the book was already
+#: quoting: a confirmed unpriced sighting on the same fixture, a capture outage
+#: with an identified cause, and a lead time still inside the book's own
+#: publication window. Being fairly sure the price looks like an opener is not a
+#: reason; the gate refuses that on purpose.
+ANCHOR_PROOF_EXEMPTIONS: dict[tuple[str, str, str, str, str], AnchorExemption] = {
+    ("ligamx", "Monterrey", "Cruz Azul", "2026-09-19", "pinnacle"): AnchorExemption(
+        captured_at=datetime(2026, 9, 13, 7, 1, 54, tzinfo=timezone.utc),
+        odds=(2.34, 3.59, 2.90),
+        last_seen_unpriced=datetime(2026, 9, 12, 19, 1, 57, tzinfo=timezone.utc),
+        why=(
+            "Pinnacle was confirmed unpriced at 2026-09-12T19:01:57Z and this "
+            "price was taken 12h later, 162h (6.75 days) before kickoff -- "
+            "inside Pinnacle's own measured publication window of 6.1 days "
+            "median and 7.0 max, so it is an opener by every test except the "
+            "one we could not run. The blind window is ours: no capture of any "
+            "kind was committed between 2026-09-12T19:02Z and 2026-09-13T06:19Z "
+            "on either league, an outage whose cause is no longer recoverable "
+            "-- Actions log retention had passed by the time it was "
+            "investigated on 09-18. Nothing about the price is in doubt; what "
+            "is missing is our own sighting."
+        ),
+    ),
+}
+
+#: Why an anchor was admitted, published so a consumer can tell the cases apart.
+ANCHOR_OBSERVED = capture_watch.OBSERVED
+ANCHOR_EXEMPT = "exempt"
+#: Captured before the cutover, when the strong proof was not yet being recorded.
+ANCHOR_LEGACY = "legacy"
+
+
+def _anchor_admission(key: tuple[str, str, str, str, str], anchor: dict) -> str:
+    """Why this anchor may calibrate, or "" if it may not.
 
     The strong proof is a confirmed unpriced sighting shortly before the price;
     the weak one only says the fixture entered the lookahead after capture began,
@@ -252,14 +328,31 @@ def _anchor_is_a_proven_opener(anchor: dict) -> bool:
     weak one, because the evidence the strong one needs was not being recorded yet
     and refusing them would retroactively void prices that were captured correctly
     under the rules of the day.
+
+    Returning the reason rather than a boolean is what lets the published payload
+    say which case a row is. An exempted anchor calibrates exactly like an
+    observed one and a board that cannot tell them apart is the failure D29
+    describes, in miniature.
     """
     proof = anchor.get("proof")
     if not proof:
-        return False
+        return ""
     captured = anchor.get("captured_at")
     if captured is None or captured < ANCHOR_PROOF_CUTOVER:
-        return True
-    return proof == capture_watch.OBSERVED
+        return ANCHOR_LEGACY
+    if proof == capture_watch.OBSERVED:
+        return ANCHOR_OBSERVED
+
+    exemption = ANCHOR_PROOF_EXEMPTIONS.get(key)
+    if exemption is None:
+        return ""
+    # Every field, because the point of the pin is that it covers one price.
+    if captured != exemption.captured_at:
+        return ""
+    held = (anchor.get("home_odds"), anchor.get("draw_odds"), anchor.get("away_odds"))
+    if tuple(held) != exemption.odds:
+        return ""
+    return ANCHOR_EXEMPT
 
 
 def build_signals(
@@ -322,10 +415,26 @@ def build_signals(
             opens.get((fixture.home, fixture.away, day, anchor_key))
             if anchor_key else None
         )
-        if anchor is not None and not _anchor_is_a_proven_opener(anchor):
+        admission = (
+            _anchor_admission((league, fixture.home, fixture.away, day, anchor_key),
+                              anchor)
+            if anchor is not None else ""
+        )
+        if anchor is not None and not admission:
             log.info("%s: anchor for %s is not a proven opener (%r); treating as absent",
                      league, fixture.label, anchor.get("proof") or "no proof")
             anchor = None
+        elif admission == ANCHOR_EXEMPT:
+            # WARNING, not INFO. This is the one gate a human can open by hand,
+            # and a line nobody reads is how it stops being a deliberate act.
+            log.warning(
+                "%s: anchor for %s admitted by exemption, not by proof "
+                "(%r, blind for %.1fh)",
+                league, fixture.label, anchor.get("proof") or "no proof",
+                ANCHOR_PROOF_EXEMPTIONS[
+                    (league, fixture.home, fixture.away, day, anchor_key)
+                ].blind_hours,
+            )
         anchor_odds = (
             (anchor["home_odds"], anchor["draw_odds"], anchor["away_odds"])
             if anchor else None
@@ -385,6 +494,7 @@ def build_signals(
             anchor_odds=anchor_odds,
             anchor_last_update=(anchor or {}).get("last_update", ""),
             anchor_captured_at=_iso((anchor or {}).get("captured_at")),
+            anchor_proof=admission if anchor else "",
         ))
     return signals
 

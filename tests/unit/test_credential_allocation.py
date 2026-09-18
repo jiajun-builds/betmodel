@@ -13,6 +13,7 @@ credentials were already allocated.
 
 from __future__ import annotations
 
+import datetime
 import pathlib
 import re
 
@@ -20,6 +21,29 @@ from betmodel.config import available_leagues, load_all, load_league
 from betmodel.providers.theoddsapi import key_env_for
 
 WORKFLOW = pathlib.Path(__file__).parents[2] / ".github/workflows/capture.yml"
+
+#: ``league -> (the account it is borrowing, the day it must stop)``.
+#:
+#: Borrowing defeats the allocation this whole file exists to enforce, so it is
+#: not allowed to be a quiet edit to a YAML line. It is declared here, and it
+#: carries the day the lending account resets -- after which
+#: :func:`test_a_borrowed_account_is_returned` fails.
+#:
+#: **The expiry is the mechanism, not documentation.** A comment saying "change
+#: this back on the 24th" is read once, by the person who wrote it. A red suite
+#: is read by whoever runs it next. Liga MX's own account was exhausted on
+#: 2026-09-14 with the round after it still unpriced, and CSL has no fixture
+#: before 2026-10-09, so the lend costs that league nothing it needs; what it
+#: would cost if it were forgotten is CSL's own openers in October.
+BORROWED: dict[str, tuple[str, datetime.date]] = {
+    "ligamx": ("csl", datetime.date(2026, 9, 24)),
+}
+
+
+def _entitled(league: str) -> set[str]:
+    """The accounts a league may legitimately name today."""
+    borrowed = BORROWED.get(league)
+    return {league} | ({borrowed[0]} if borrowed else set())
 
 
 def _theoddsapi_credentials(config):
@@ -33,16 +57,58 @@ def _theoddsapi_credentials(config):
 
 
 def test_a_league_uses_exactly_one_account():
+    """One account per league, opens and closes alike -- even while borrowing.
+
+    Splitting a league across two accounts is the failure this prevents in
+    either direction: it is what role-based allocation did, and it is also the
+    tempting half-measure when an account runs dry ("move just the opens").
+    """
     for league, config in load_all().items():
-        assert _theoddsapi_credentials(config) == {league}, league
+        creds = _theoddsapi_credentials(config)
+        assert len(creds) == 1, f"{league} is split across {sorted(creds)}"
+        assert creds <= _entitled(league), (
+            f"{league} names {sorted(creds)}; it may use "
+            f"{sorted(_entitled(league))}"
+        )
 
 
 def test_no_two_leagues_share_an_account():
-    seen = {}
+    """Except where BORROWED says so, and then only one way round.
+
+    The lender must not still be spending its own account through a second
+    league, which would be the shared-allowance arrangement this replaced.
+    """
+    seen: dict[str, str] = {}
     for league, config in load_all().items():
         for cred in _theoddsapi_credentials(config):
-            assert cred not in seen, f"{league} shares {cred!r} with {seen[cred]}"
-            seen[cred] = league
+            if cred in seen:
+                lender = BORROWED.get(league, (None, None))[0]
+                assert cred == lender and seen[cred] == cred, (
+                    f"{league} shares {cred!r} with {seen[cred]}"
+                )
+            seen.setdefault(cred, league)
+
+
+def test_a_borrowed_account_is_returned():
+    """Fails the day the lending account resets. That is the point.
+
+    When this goes red the fix is in the failure message: put the borrowing
+    league's own credential back in its YAML and delete its BORROWED entry. The
+    borrowed allowance is not free after the reset -- it is the lender's next
+    month.
+    """
+    today = datetime.date.today()
+    overdue = {
+        league: (lender, until)
+        for league, (lender, until) in BORROWED.items()
+        if today >= until
+    }
+    assert not overdue, "; ".join(
+        f"{league} has been on {lender}'s account since before {until}: set "
+        f"`credential: {league}` in leagues/{league}.yml (the anchor book and "
+        f"odds.close) and drop it from BORROWED"
+        for league, (lender, until) in sorted(overdue.items())
+    )
 
 
 def test_every_credential_the_config_names_is_injected_by_the_workflow():
