@@ -42,6 +42,10 @@ on:
       anchor_books:
         description: Regions to ask The Odds API which bookmakers it carries (e.g. eu,uk)
         default: ""
+      quota_only:
+        description: Only report each account's remaining allowance. Spends nothing.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -63,7 +67,18 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -e .
+      # Free: the allowance is in the headers of /sports. Runs on every
+      # diagnosis because knowing what is left is never not worth knowing.
+      - name: Remaining allowance
+        env:
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
+          THE_ODDS_API_KEY_OPENS: ${{ secrets.THE_ODDS_API_KEY_OPENS }}
+          THE_ODDS_API_KEY_CLOSES: ${{ secrets.THE_ODDS_API_KEY_CLOSES }}
+        run: python scripts/check_quota.py
+
       - name: Event listing
+        if: ${{ !inputs.quota_only }}
         env:
           ODDS_API_IO_KEY_CSL: ${{ secrets.ODDS_API_IO_KEY_CSL }}
           ODDS_API_IO_KEY_LIGAMX: ${{ secrets.ODDS_API_IO_KEY_LIGAMX }}
