@@ -372,29 +372,141 @@ def _anchor(proof, captured):
             "proof": proof, "captured_at": captured}
 
 
+#: A key no exemption covers, for the cases that are about the proof alone.
+UNEXEMPT = ("csl", "A", "B", "2026-09-01", "pinnacle")
+
+
 def test_an_anchor_banked_before_the_cutover_keeps_the_weaker_proof():
     """Refusing them would retroactively void prices captured correctly under the
     rules of the day: the evidence the strong proof needs was not being recorded."""
-    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_is_a_proven_opener
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_admission
     from datetime import timedelta
 
-    assert _anchor_is_a_proven_opener(_anchor("window", C - timedelta(days=1)))
+    assert _anchor_admission(UNEXEMPT, _anchor("window", C - timedelta(days=1)))
 
 
 def test_an_anchor_banked_after_the_cutover_must_earn_the_strong_proof():
-    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_is_a_proven_opener
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_admission
     from datetime import timedelta
 
-    assert not _anchor_is_a_proven_opener(_anchor("window", C + timedelta(days=1)))
-    assert _anchor_is_a_proven_opener(_anchor("observed", C + timedelta(days=1)))
+    assert not _anchor_admission(UNEXEMPT, _anchor("window", C + timedelta(days=1)))
+    assert _anchor_admission(UNEXEMPT, _anchor("observed", C + timedelta(days=1)))
 
 
 def test_no_proof_is_never_enough_on_either_side_of_the_cutover():
-    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_is_a_proven_opener
+    from betmodel.signals.engine import ANCHOR_PROOF_CUTOVER as C, _anchor_admission
     from datetime import timedelta
 
-    assert not _anchor_is_a_proven_opener(_anchor("", C - timedelta(days=1)))
-    assert not _anchor_is_a_proven_opener(_anchor("", C + timedelta(days=1)))
+    assert not _anchor_admission(UNEXEMPT, _anchor("", C - timedelta(days=1)))
+    assert not _anchor_admission(UNEXEMPT, _anchor("", C + timedelta(days=1)))
+
+
+def test_the_admission_says_which_case_it_was():
+    """A boolean cannot be published. `market_anchor` alone does not distinguish
+    a proven opener from one a human waved through, and the board reads the
+    published payload rather than this function."""
+    from betmodel.signals import engine
+    from datetime import timedelta
+
+    C = engine.ANCHOR_PROOF_CUTOVER
+    assert _anchor_admission_of("observed", C + timedelta(days=1)) == engine.ANCHOR_OBSERVED
+    assert _anchor_admission_of("window", C - timedelta(days=1)) == engine.ANCHOR_LEGACY
+
+
+def _anchor_admission_of(proof, captured):
+    from betmodel.signals.engine import _anchor_admission
+    return _anchor_admission(UNEXEMPT, _anchor(proof, captured))
+
+
+# --------------------------------------------------------------------------- #
+# exemptions: a human opening the strictest gate by hand
+# --------------------------------------------------------------------------- #
+
+def _exempted_case():
+    """One declared exemption and the anchor it is pinned to."""
+    from betmodel.signals.engine import ANCHOR_PROOF_EXEMPTIONS
+    key, ex = next(iter(ANCHOR_PROOF_EXEMPTIONS.items()))
+    anchor = {
+        "home_odds": ex.odds[0], "draw_odds": ex.odds[1], "away_odds": ex.odds[2],
+        "proof": "window", "captured_at": ex.captured_at,
+    }
+    return key, ex, anchor
+
+
+def test_an_exemption_admits_the_capture_it_names():
+    from betmodel.signals.engine import ANCHOR_EXEMPT, _anchor_admission
+    key, _, anchor = _exempted_case()
+    assert _anchor_admission(key, anchor) == ANCHOR_EXEMPT
+
+
+def test_an_exemption_does_not_travel_to_a_different_capture():
+    """The pin is the point. A repaired row, an earlier price found, a fixture
+    rescheduled -- any of them means the price under the exemption is not the one
+    that was examined, and the fixture goes back to unanchored."""
+    from betmodel.signals.engine import _anchor_admission
+    from datetime import timedelta
+    key, ex, anchor = _exempted_case()
+
+    assert not _anchor_admission(key, {**anchor, "captured_at": ex.captured_at + timedelta(minutes=1)})
+    assert not _anchor_admission(key, {**anchor, "home_odds": ex.odds[0] + 0.01})
+    assert not _anchor_admission(key, {**anchor, "draw_odds": ex.odds[1] + 0.01})
+    assert not _anchor_admission(key, {**anchor, "away_odds": ex.odds[2] + 0.01})
+
+
+def test_an_exemption_does_not_travel_to_another_fixture_or_book():
+    from betmodel.signals.engine import _anchor_admission
+    key, _, anchor = _exempted_case()
+    league, home, away, day, book = key
+
+    for other in (
+        (league, home, away, day, "betfair_ex_eu"),
+        (league, home, "Someone Else", day, book),
+        (league, home, away, "2026-09-20", book),
+        ("csl", home, away, day, book),
+    ):
+        assert not _anchor_admission(other, anchor), other
+
+
+def test_an_exemption_still_needs_some_proof():
+    """It relaxes `observed` to `window`, not to nothing. An anchor with no proof
+    at all may have been quoting before anyone ever looked, which is the case no
+    amount of reasoning after the fact can settle."""
+    from betmodel.signals.engine import _anchor_admission
+    key, _, anchor = _exempted_case()
+    assert not _anchor_admission(key, {**anchor, "proof": ""})
+
+
+def test_every_exemption_states_what_was_examined():
+    """The only thing between an exemption and a rubber stamp is the reason, and
+    a reason nobody had to write is one nobody had to have."""
+    from betmodel.signals.engine import ANCHOR_PROOF_EXEMPTIONS
+    for key, ex in ANCHOR_PROOF_EXEMPTIONS.items():
+        assert len(ex.why) > 200, f"{key}: say what was examined"
+        assert ex.last_seen_unpriced < ex.captured_at, key
+        assert ex.blind_hours > 0, key
+
+
+def test_every_exemption_still_matches_the_data_it_was_written_against():
+    """A pin that has quietly detached is doing nothing, and looks identical to
+    one that is working. Reducing the real capture history is what tells them
+    apart: if this fails the price on file is not the price that was examined."""
+    from betmodel.config import load_league
+    from betmodel.odds import reduce as reduce_module
+    from betmodel.signals.engine import ANCHOR_PROOF_EXEMPTIONS
+
+    by_league: dict[str, dict] = {}
+    for (league, home, away, day, book), ex in ANCHOR_PROOF_EXEMPTIONS.items():
+        if league not in by_league:
+            by_league[league] = reduce_module.collapse_opens(league, load_league(league))
+        anchor = by_league[league].get((home, away, day, book))
+        assert anchor is not None, f"{league} {home} v {away} {day}: no anchor on file"
+        assert anchor["captured_at"] == ex.captured_at, f"{home} v {away}: captured_at moved"
+        held = (anchor["home_odds"], anchor["draw_odds"], anchor["away_odds"])
+        assert held == ex.odds, f"{home} v {away}: the price on file is {held}"
+        assert anchor["proof"] != "observed", (
+            f"{home} v {away}: this anchor now earns the strong proof on its own; "
+            "delete the exemption"
+        )
 
 
 def test_the_cutover_expires_by_itself():

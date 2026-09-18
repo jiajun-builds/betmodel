@@ -67,6 +67,11 @@ def signals_payload(
                 "draw": signal.probabilities[1],
                 "away": signal.probabilities[2],
                 "method": signal.debias_method,
+                # Why the anchor was admitted, when there is one: "observed",
+                # "exempt" or "legacy". `method` says the correction ran; this
+                # says what it was allowed to run on, which is a different
+                # question and the one a reader checking calibration is asking.
+                "anchor_proof": signal.anchor_proof or None,
             },
             "quotes": [
                 {
