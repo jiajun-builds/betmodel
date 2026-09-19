@@ -1,86 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-19T02:51:13Z",
+ "generated_at": "2026-09-19T03:01:52Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-09-18-fc-juarez-tigres-uanl",
-   "kickoff_utc": "2026-09-19T03:00:00Z",
-   "round": "",
-   "home_team": "FC Juarez",
-   "away_team": "Tigres UANL",
-   "model": {
-    "home": 0.27727583302358755,
-    "draw": 0.24404445897544663,
-    "away": 0.4786797080009657,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 4.2,
-     "ev": 0.1645584986990678,
-     "captured_at": "2026-09-14T01:31:40Z",
-     "last_update": "2026-09-14T01:25:24.222Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.8,
-     "ev": -0.07263105589330288,
-     "captured_at": "2026-09-14T01:31:40Z",
-     "last_update": "2026-09-14T01:25:24.222Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 1.86,
-     "ev": -0.1096557431182037,
-     "captured_at": "2026-09-14T01:31:40Z",
-     "last_update": "2026-09-14T01:25:24.222Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 4.2,
-     "ev": 0.1645584986990678
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.8,
-     "ev": -0.07263105589330288
-    },
-    "away": {
-     "book": "duel",
-     "odds": 1.86,
-     "ev": -0.1096557431182037
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 4.2,
-    "ev": 0.1645584986990678,
-    "proof": "window",
-    "captured_at": "2026-09-14T01:31:40Z"
-   },
-   "bet": {
-    "side": "home",
-    "book": "duel",
-    "odds": 4.2,
-    "ev": 0.1645584986990678,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-19-atlas-unam-pumas",
    "kickoff_utc": "2026-09-19T23:00:00Z",
