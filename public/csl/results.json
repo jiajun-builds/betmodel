@@ -1,104 +1,8 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-18T06:18:48Z",
+ "generated_at": "2026-09-19T06:18:51Z",
  "results": [
-  {
-   "fixture_id": "CSL-2026-3-2026-03-20-dalian-yingbo-shanghai-port",
-   "match_date": "2026-03-20",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Dalian Yingbo",
-   "away_team": "Shanghai Port",
-   "home_goals": 1,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-20-qingdao-hainiu-zhejiang-professional",
-   "match_date": "2026-03-20",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Qingdao Hainiu",
-   "away_team": "Zhejiang Professional",
-   "home_goals": 1,
-   "away_goals": 4,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-21-beijing-guoan-shanghai-shenhua",
-   "match_date": "2026-03-21",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Beijing Guoan",
-   "away_team": "Shanghai Shenhua",
-   "home_goals": 1,
-   "away_goals": 1,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-21-liaoning-tieren-tianjin-jinmen-tiger",
-   "match_date": "2026-03-21",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Liaoning Tieren",
-   "away_team": "Tianjin Jinmen Tiger",
-   "home_goals": 3,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-21-henan-songshan-longmen-wuhan-three-towns",
-   "match_date": "2026-03-21",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Henan Songshan Longmen",
-   "away_team": "Wuhan Three Towns",
-   "home_goals": 1,
-   "away_goals": 1,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-21-chongqing-tonglianglong-chengdu-rongcheng",
-   "match_date": "2026-03-21",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Chongqing Tonglianglong",
-   "away_team": "Chengdu Rongcheng",
-   "home_goals": 3,
-   "away_goals": 3,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-21-qingdao-west-coast-shenzhen-xinpengcheng",
-   "match_date": "2026-03-21",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Qingdao West Coast",
-   "away_team": "Shenzhen Xinpengcheng",
-   "home_goals": 1,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-3-2026-03-21-yunnan-yukun-shandong-taishan",
-   "match_date": "2026-03-21",
-   "season": "2026",
-   "round": "3",
-   "home_team": "Yunnan Yukun",
-   "away_team": "Shandong Taishan",
-   "home_goals": 4,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
   {
    "fixture_id": "CSL-2026-4-2026-04-03-chengdu-rongcheng-qingdao-west-coast",
    "match_date": "2026-04-03",
@@ -2292,6 +2196,18 @@
    "away_team": "Liaoning Tieren",
    "home_goals": 1,
    "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-22-2026-09-18-zhejiang-professional-wuhan-three-towns",
+   "match_date": "2026-09-18",
+   "season": "2026",
+   "round": "22",
+   "home_team": "Zhejiang Professional",
+   "away_team": "Wuhan Three Towns",
+   "home_goals": 4,
+   "away_goals": 1,
    "result": "H",
    "status": "played"
   }
