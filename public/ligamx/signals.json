@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-20T18:01:54Z",
+ "generated_at": "2026-09-20T18:41:25Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-20-toluca-santos-laguna",
@@ -349,6 +349,76 @@
     "ev": 0.03269020863372796,
     "proof": "window",
     "captured_at": "2026-09-20T01:31:02Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-27-unam-pumas-atletico-san-luis",
+   "kickoff_utc": "2026-09-27T18:00:00Z",
+   "round": "",
+   "home_team": "UNAM Pumas",
+   "away_team": "Atletico San Luis",
+   "model": {
+    "home": 0.5360317430480558,
+    "draw": 0.25473867586028914,
+    "away": 0.2092295810916547,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.0,
+     "ev": 0.07206348609611157,
+     "captured_at": "2026-09-20T18:41:20Z",
+     "last_update": "2026-09-20T18:22:47.736Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.7,
+     "ev": -0.057466899316930165,
+     "captured_at": "2026-09-20T18:41:20Z",
+     "last_update": "2026-09-20T18:22:47.736Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 3.7,
+     "ev": -0.2258505499608775,
+     "captured_at": "2026-09-20T18:41:20Z",
+     "last_update": "2026-09-20T18:22:47.736Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.0,
+     "ev": 0.07206348609611157
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.7,
+     "ev": -0.057466899316930165
+    },
+    "away": {
+     "book": "duel",
+     "odds": 3.7,
+     "ev": -0.2258505499608775
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.0,
+    "ev": 0.07206348609611157,
+    "proof": "window",
+    "captured_at": "2026-09-20T18:41:20Z"
    },
    "bet": null,
    "state": ""
