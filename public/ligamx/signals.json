@@ -1,86 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-20T03:06:13Z",
+ "generated_at": "2026-09-20T04:01:35Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-09-19-club-america-guadalajara",
-   "kickoff_utc": "2026-09-20T03:15:00Z",
-   "round": "",
-   "home_team": "Club America",
-   "away_team": "Guadalajara",
-   "model": {
-    "home": 0.4709505452485497,
-    "draw": 0.27796242619028855,
-    "away": 0.25108702856116183,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.66,
-     "ev": 0.2527284503611422,
-     "captured_at": "2026-09-14T01:41:21Z",
-     "last_update": "2026-09-14T01:25:24.222Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.5,
-     "ev": -0.02713150833399003,
-     "captured_at": "2026-09-14T01:41:21Z",
-     "last_update": "2026-09-14T01:25:24.222Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.66,
-     "ev": -0.3321085040273095,
-     "captured_at": "2026-09-14T01:41:21Z",
-     "last_update": "2026-09-14T01:25:24.222Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.66,
-     "ev": 0.2527284503611422
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.5,
-     "ev": -0.02713150833399003
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.66,
-     "ev": -0.3321085040273095
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.66,
-    "ev": 0.2527284503611422,
-    "proof": "observed",
-    "captured_at": "2026-09-14T01:41:21Z"
-   },
-   "bet": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.66,
-    "ev": 0.2527284503611422,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-20-toluca-santos-laguna",
    "kickoff_utc": "2026-09-21T00:00:00Z",
