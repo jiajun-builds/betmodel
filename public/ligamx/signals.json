@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-20T05:01:37Z",
+ "generated_at": "2026-09-20T06:01:32Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-20-toluca-santos-laguna",
@@ -10,18 +10,18 @@
    "home_team": "Toluca",
    "away_team": "Santos Laguna",
    "model": {
-    "home": 0.7732318993371408,
-    "draw": 0.1427782296789612,
-    "away": 0.0839898709838979,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.7819285400648919,
+    "draw": 0.13313694384106486,
+    "away": 0.08493451609404312,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 1.26,
-     "ev": -0.025727806835202593,
+     "ev": -0.014770039518236189,
      "captured_at": "2026-09-14T13:41:53Z",
      "last_update": "2026-09-14T13:27:58.469Z",
      "proof": "observed"
@@ -30,7 +30,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 6.4,
-     "ev": -0.08621933005464832,
+     "ev": -0.14792355941718482,
      "captured_at": "2026-09-14T13:41:53Z",
      "last_update": "2026-09-14T13:27:58.469Z",
      "proof": "observed"
@@ -39,7 +39,7 @@
      "book": "duel",
      "side": "away",
      "odds": 10.0,
-     "ev": -0.16010129016102104,
+     "ev": -0.15065483905956878,
      "captured_at": "2026-09-14T13:41:53Z",
      "last_update": "2026-09-14T13:27:58.469Z",
      "proof": "observed"
@@ -49,24 +49,24 @@
     "home": {
      "book": "duel",
      "odds": 1.26,
-     "ev": -0.025727806835202593
+     "ev": -0.014770039518236189
     },
     "draw": {
      "book": "duel",
      "odds": 6.4,
-     "ev": -0.08621933005464832
+     "ev": -0.14792355941718482
     },
     "away": {
      "book": "duel",
      "odds": 10.0,
-     "ev": -0.16010129016102104
+     "ev": -0.15065483905956878
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 1.26,
-    "ev": -0.025727806835202593,
+    "ev": -0.014770039518236189,
     "proof": "observed",
     "captured_at": "2026-09-14T13:41:53Z"
    },
