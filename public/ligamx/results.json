@@ -1,44 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-20T06:01:32Z",
+ "generated_at": "2026-09-20T06:19:06Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-22-pachuca-toluca",
-   "match_date": "2026-03-22",
-   "season": "Clausura 2026",
-   "round": "12",
-   "home_team": "Pachuca",
-   "away_team": "Toluca",
-   "home_goals": 1,
-   "away_goals": 1,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-22-santos-laguna-puebla",
-   "match_date": "2026-03-22",
-   "season": "Clausura 2026",
-   "round": "12",
-   "home_team": "Santos Laguna",
-   "away_team": "Puebla",
-   "home_goals": 2,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-12-2026-03-22-fc-juarez-tigres-uanl",
-   "match_date": "2026-03-22",
-   "season": "Clausura 2026",
-   "round": "12",
-   "home_team": "FC Juarez",
-   "away_team": "Tigres UANL",
-   "home_goals": 2,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-13-2026-04-03-puebla-fc-juarez",
    "match_date": "2026-04-03",
@@ -1621,6 +1585,54 @@
    "home_goals": 2,
    "away_goals": 0,
    "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-19-atletico-san-luis-necaxa",
+   "match_date": "2026-09-19",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Atletico San Luis",
+   "away_team": "Necaxa",
+   "home_goals": 3,
+   "away_goals": 1,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-19-atlas-unam-pumas",
+   "match_date": "2026-09-19",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Atlas",
+   "away_team": "UNAM Pumas",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-19-monterrey-cruz-azul",
+   "match_date": "2026-09-19",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Monterrey",
+   "away_team": "Cruz Azul",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-19-club-america-guadalajara",
+   "match_date": "2026-09-19",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Club America",
+   "away_team": "Guadalajara",
+   "home_goals": 2,
+   "away_goals": 2,
+   "result": "D",
    "status": "played"
   }
  ]
