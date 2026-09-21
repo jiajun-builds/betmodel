@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-21T03:31:02Z",
+ "generated_at": "2026-09-21T04:01:26Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-25-atlante-monterrey",
@@ -586,18 +586,18 @@
    "home_team": "Necaxa",
    "away_team": "Club America",
    "model": {
-    "home": 0.2721893504791759,
-    "draw": 0.2492991902334239,
-    "away": 0.4785114592874001,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.2744751128783951,
+    "draw": 0.24299503586071608,
+    "away": 0.4825298512608888,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 4.0,
-     "ev": 0.08875740191670367,
+     "ev": 0.0979004515135804,
      "captured_at": "2026-09-21T03:30:58Z",
      "last_update": "2026-09-21T03:30:12.045Z",
      "proof": "observed"
@@ -606,7 +606,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.8,
-     "ev": -0.05266307711298923,
+     "ev": -0.07661886372927895,
      "captured_at": "2026-09-21T03:30:58Z",
      "last_update": "2026-09-21T03:30:12.045Z",
      "proof": "observed"
@@ -615,7 +615,7 @@
      "book": "duel",
      "side": "away",
      "odds": 1.89,
-     "ev": -0.09561334194681392,
+     "ev": -0.08801858111692018,
      "captured_at": "2026-09-21T03:30:58Z",
      "last_update": "2026-09-21T03:30:12.045Z",
      "proof": "observed"
@@ -625,24 +625,24 @@
     "home": {
      "book": "duel",
      "odds": 4.0,
-     "ev": 0.08875740191670367
+     "ev": 0.0979004515135804
     },
     "draw": {
      "book": "duel",
      "odds": 3.8,
-     "ev": -0.05266307711298923
+     "ev": -0.07661886372927895
     },
     "away": {
      "book": "duel",
      "odds": 1.89,
-     "ev": -0.09561334194681392
+     "ev": -0.08801858111692018
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 4.0,
-    "ev": 0.08875740191670367,
+    "ev": 0.0979004515135804,
     "proof": "observed",
     "captured_at": "2026-09-21T03:30:58Z"
    },
