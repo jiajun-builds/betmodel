@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-21T04:01:26Z",
+ "generated_at": "2026-09-21T06:18:53Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-13-2026-04-03-puebla-fc-juarez",
@@ -1632,6 +1632,42 @@
    "away_team": "Guadalajara",
    "home_goals": 2,
    "away_goals": 2,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-20-pachuca-tijuana",
+   "match_date": "2026-09-20",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Pachuca",
+   "away_team": "Tijuana",
+   "home_goals": 2,
+   "away_goals": 2,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-20-toluca-santos-laguna",
+   "match_date": "2026-09-20",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Toluca",
+   "away_team": "Santos Laguna",
+   "home_goals": 2,
+   "away_goals": 3,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-9-2026-09-20-queretaro-leon",
+   "match_date": "2026-09-20",
+   "season": "Apertura 2026",
+   "round": "9",
+   "home_team": "Queretaro",
+   "away_team": "Leon",
+   "home_goals": 1,
+   "away_goals": 1,
    "result": "D",
    "status": "played"
   }
