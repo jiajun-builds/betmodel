@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-21T03:11:08Z",
+ "generated_at": "2026-09-21T03:31:02Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-25-atlante-monterrey",
@@ -578,6 +578,76 @@
     ]
    },
    "state": "bet"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-09-27-necaxa-club-america",
+   "kickoff_utc": "2026-09-28T03:00:00Z",
+   "round": "",
+   "home_team": "Necaxa",
+   "away_team": "Club America",
+   "model": {
+    "home": 0.2721893504791759,
+    "draw": 0.2492991902334239,
+    "away": 0.4785114592874001,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 4.0,
+     "ev": 0.08875740191670367,
+     "captured_at": "2026-09-21T03:30:58Z",
+     "last_update": "2026-09-21T03:30:12.045Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.8,
+     "ev": -0.05266307711298923,
+     "captured_at": "2026-09-21T03:30:58Z",
+     "last_update": "2026-09-21T03:30:12.045Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 1.89,
+     "ev": -0.09561334194681392,
+     "captured_at": "2026-09-21T03:30:58Z",
+     "last_update": "2026-09-21T03:30:12.045Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 4.0,
+     "ev": 0.08875740191670367
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.8,
+     "ev": -0.05266307711298923
+    },
+    "away": {
+     "book": "duel",
+     "odds": 1.89,
+     "ev": -0.09561334194681392
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 4.0,
+    "ev": 0.08875740191670367,
+    "proof": "observed",
+    "captured_at": "2026-09-21T03:30:58Z"
+   },
+   "bet": null,
+   "state": ""
   }
  ]
 }
