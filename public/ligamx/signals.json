@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-21T03:01:30Z",
+ "generated_at": "2026-09-21T03:11:08Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-25-atlante-monterrey",
@@ -226,11 +226,70 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
-   "bet": null,
-   "state": ""
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.42,
+     "ev": -0.07556693648179258,
+     "captured_at": "2026-09-21T03:11:05Z",
+     "last_update": "2026-09-21T02:52:42.385Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 5.2,
+     "ev": -0.1269583420102186,
+     "captured_at": "2026-09-21T03:11:05Z",
+     "last_update": "2026-09-21T02:52:42.385Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 7.0,
+     "ev": 0.2676872166195581,
+     "captured_at": "2026-09-21T03:11:05Z",
+     "last_update": "2026-09-21T02:52:42.385Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.42,
+     "ev": -0.07556693648179258
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 5.2,
+     "ev": -0.1269583420102186
+    },
+    "away": {
+     "book": "duel",
+     "odds": 7.0,
+     "ev": 0.2676872166195581
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 7.0,
+    "ev": 0.2676872166195581,
+    "proof": "window",
+    "captured_at": "2026-09-21T03:11:05Z"
+   },
+   "bet": {
+    "side": "away",
+    "book": "duel",
+    "odds": 7.0,
+    "ev": 0.2676872166195581,
+    "books": [
+     "duel"
+    ]
+   },
+   "state": "bet"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-26-tigres-uanl-puebla",
