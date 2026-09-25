@@ -204,7 +204,12 @@ odds:
 signals:
   ev_min: 0.10                   # fraction; backed by a 427-opener walk-forward test
   odds_cap: null                 # no cap here
-  allow_draw: true
+  # Off until a draw bet has evidence of its own. Under the anchor the draw IS
+  # Pinnacle's no-vig opening draw, so a draw signal is only Betano or Duel
+  # against Pinnacle -- a different bet from the one validated, which held 1
+  # draw in 145 (D31, re-run in D32). None of the 12 bets fired since 09-01 was
+  # a draw, so turning it off withdraws nothing. See D34.
+  allow_draw: false
   require_price_proof: true
   # Fifteen weighted matches before a club's fixtures may fire.
   #

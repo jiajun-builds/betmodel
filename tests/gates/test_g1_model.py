@@ -15,6 +15,8 @@ the merge with the two source commit SHAs recorded alongside.
 
 from __future__ import annotations
 
+import dataclasses
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -28,6 +30,15 @@ GOLDEN = "tests/golden"
 #: Which optimiser settings each league's frozen output was produced with.
 PRE_MERGE_OPTIONS = {"csl": poisson.LEGACY_CSL, "ligamx": poisson.LEGACY_LIGAMX}
 
+#: The model settings the frozen output was produced with, pinned here rather
+#: than read from today's league config. G1 asks whether the fitter reproduces
+#: the pre-merge one; a deliberate change to a league's settings (D34 moved CSL's
+#: decay) is a different question, and must not read as a porting bug.
+PRE_MERGE_MODEL = {
+    "csl": {"xi": 0.001, "lookback_months": 18},
+    "ligamx": {"xi": 0.0015, "lookback_months": 24},
+}
+
 #: Floating-point noise. Anything above this is a real difference.
 EXACT = 1e-12
 
@@ -35,8 +46,14 @@ EXACT = 1e-12
 UNIFIED_OPTION_DRIFT = {"csl": 1e-3, "ligamx": EXACT}
 
 
-def _fit(league, options):
+def _pre_merge_config(league):
     config = load_league(league)
+    model = dataclasses.replace(config.model, **PRE_MERGE_MODEL[league])
+    return dataclasses.replace(config, model=model)
+
+
+def _fit(league, options):
+    config = _pre_merge_config(league)
     return fit_from_csv(f"{GOLDEN}/{league}/inputs/matches.csv", config, options=options)[0]
 
 
@@ -96,7 +113,7 @@ def test_shrinkage_moves_low_evidence_clubs_and_preserves_the_league_mean():
     # Only the spread is regularised; the overall scoring level is untouched.
     from betmodel.models.dc import effective_n
     train = fit_from_csv(
-        f"{GOLDEN}/ligamx/inputs/matches.csv", load_league("ligamx"),
+        f"{GOLDEN}/ligamx/inputs/matches.csv", _pre_merge_config("ligamx"),
         options=PRE_MERGE_OPTIONS["ligamx"],
     )[1]
     eff = effective_n(fit.teams, fit.weights, train["Home"], train["Away"])

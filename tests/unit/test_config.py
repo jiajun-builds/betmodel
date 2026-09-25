@@ -42,22 +42,15 @@ def test_available_leagues_is_discovered_not_hardcoded():
     assert len(on_disk) >= 2
 
 
-@pytest.mark.parametrize(
-    "league,xi,window,ev_min",
-    [("csl", 0.001, 18, 0.20), ("ligamx", 0.0015, 24, 0.10)],
-)
-def test_model_and_signal_params_match_the_pre_merge_constants(
-    league, xi, window, ev_min
-):
-    """These values are the ones the golden outputs were produced with.
+@pytest.mark.parametrize("league,ev_min", [("csl", 0.20), ("ligamx", 0.10)])
+def test_the_ev_threshold_is_the_validated_one(league, ev_min):
+    """The threshold is a backtest result, not a taste (D31, D34).
 
-    If one drifts, gates G1 and G3 fail for a reason that has nothing to do with
-    the code being ported, so pin them here where the failure is legible.
+    Moving it needs a new walk-forward -- `scripts/walkforward.py` -- and a
+    decision record, so a drift fails here where it is legible. The model
+    settings the golden outputs were produced with are pinned in G1 itself.
     """
-    c = load_league(league)
-    assert c.model.xi == xi
-    assert c.model.lookback_months == window
-    assert c.signals.ev_min == ev_min
+    assert load_league(league).signals.ev_min == ev_min
 
 
 @pytest.mark.parametrize("league", ["csl", "ligamx"])
@@ -80,19 +73,20 @@ def test_csl_anchors_the_draw_on_pinnacle_and_never_bets_it():
     assert c.signals.sides == ("home", "away")
 
 
-def test_ligamx_anchors_the_draw_and_does_bet_it():
-    """It bets the draw, which is why anchoring the draw matters most here.
+def test_ligamx_anchors_the_draw_and_does_not_bet_it_yet():
+    """The anchor stays on; betting the draw is off until it has evidence.
 
     This league ran without de-bias until it had Pinnacle opening lines to anchor
-    to -- the config said so in as many words, and the condition is now met. The
-    combination is the point: the model prices the draw worst, this league is the
-    one that will actually take a draw, and the anchor is the correction. Turning
-    it on moved one fixture's draw EV by 17 points and dropped a firing signal.
+    to, and turning the anchor on moved one fixture's draw EV by 17 points and
+    dropped a firing signal (D30). But the anchor makes the draw *be* Pinnacle's
+    no-vig draw, so a draw signal is a soft book against Pinnacle -- a bet the
+    backtest behind the threshold held once in 145. Off until it is measured
+    (D34).
     """
     c = load_league("ligamx")
     assert c.signals.debias.enabled is True
     assert c.signals.debias.anchor_book == "pinnacle"
-    assert c.signals.sides == ("home", "draw", "away")
+    assert c.signals.sides == ("home", "away")
 
 
 def test_no_league_anchors_on_a_book_it_bets():
