@@ -18,7 +18,7 @@ import pytest
 from betmodel.config import load_league
 from betmodel.odds import capture_open as co
 from betmodel.odds import capture_store
-from betmodel.providers import oddsapiio
+from betmodel.providers import oddsapiio, theoddsapi
 
 NOW = datetime(2026, 8, 28, 9, 0, tzinfo=timezone.utc)
 
@@ -430,3 +430,129 @@ def test_a_kickoff_nudged_within_the_day_is_still_the_same_fixture(tmp_path):
          _open_row("A", "B", "onexbet", scheduled)],
     )
     assert pending == []
+
+
+# --------------------------------------------------------------------------- #
+# the anchor path: what an unpriced sighting may be minted from
+# --------------------------------------------------------------------------- #
+
+class _StubOddsApi:
+    """Stands in for The Odds API client, spending nothing."""
+
+    def __init__(self, events):
+        self._events = events
+
+    def quota(self):
+        return theoddsapi.Quota(remaining=400, used=100, sport_available=True)
+
+    def odds(self, *, bookmakers=None, **kwargs):
+        return self._events
+
+
+def _run_anchor(monkeypatch, tmp_path, events, kickoff=NOW + timedelta(days=6)):
+    monkeypatch.setattr(theoddsapi, "TheOddsApiClient", lambda *a, **k: _StubOddsApi(events))
+    config = load_league("csl")
+    books = co.books_for(config, "theoddsapi")
+    pending = co.pending_fixtures(
+        "csl", config, books=books, now=NOW,
+        fixtures_path=_fixtures(
+            tmp_path, [("Wuhan Three Towns", "Henan Songshan Longmen", kickoff)]),
+        history_path=_history(tmp_path, []),
+    )
+    return co._capture_theoddsapi("csl", config, pending, books, now=NOW, dry_run=False)
+
+
+def _event(home, away):
+    return {"id": "e1", "commence_time": "2026-09-03T11:00:00Z",
+            "home_team": home, "away_team": away, "bookmakers": []}
+
+
+def test_an_unnamed_event_that_could_be_the_fixture_mints_no_sighting(
+        monkeypatch, tmp_path, caplog):
+    """The fixture may be right there under a name we cannot resolve.
+
+    Recording it unpriced every tick until the mapping is fixed would let the
+    first price taken afterwards, however late, be certified `observed`.
+    """
+    with caplog.at_level("WARNING"):
+        rows, unpriced, used = _run_anchor(
+            monkeypatch, tmp_path, [_event("Wuhan Yangtze", "Henan Songshan Longmen")])
+    assert (rows, unpriced, used) == ([], [], 1)
+    assert "Wuhan Yangtze v Henan Songshan Longmen" in caplog.text
+
+
+def test_an_unnamed_event_that_cannot_be_the_fixture_withholds_nothing(
+        monkeypatch, tmp_path):
+    """A side that maps to a different club rules the fixture out."""
+    _, unpriced, _ = _run_anchor(
+        monkeypatch, tmp_path, [_event("Unknown FC", "Shanghai Port")])
+    assert unpriced == [("Wuhan Three Towns", "Henan Songshan Longmen", "pinnacle")]
+
+
+def test_an_empty_response_still_records_the_sighting(monkeypatch, tmp_path, caplog):
+    """Between rounds the book has priced nothing, and that is the observation.
+
+    Withholding it would leave every round that opens from an empty slate with
+    the weak proof, which the anchor gate refuses. It is logged instead.
+    """
+    with caplog.at_level("INFO"):
+        rows, unpriced, _ = _run_anchor(monkeypatch, tmp_path, [])
+    assert rows == []
+    assert unpriced == [("Wuhan Three Towns", "Henan Songshan Longmen", "pinnacle")]
+    assert "carried no events" in caplog.text
+
+
+# --------------------------------------------------------------------------- #
+# the provider's own kickoff decides which meeting a price belongs to
+# --------------------------------------------------------------------------- #
+
+def _priced(commence):
+    home, away = "Wuhan Three Towns", "Henan Songshan Longmen"
+    return {
+        "id": "e1", "commence_time": commence, "home_team": home, "away_team": away,
+        "bookmakers": [{"key": "pinnacle", "markets": [{
+            "key": "h2h", "last_update": "2026-08-28T08:00:00Z",
+            "outcomes": [{"name": home, "price": 2.1}, {"name": "Draw", "price": 3.3},
+                         {"name": away, "price": 3.4}],
+        }]}],
+    }
+
+
+def test_a_price_for_another_meeting_is_not_banked_as_this_one_s_opener(
+        monkeypatch, tmp_path):
+    """Leon v Atletico San Luis was listed on 09-12 and on 09-14, and one
+    Pinnacle event was written as the opener of both. Pending here is the
+    stale date alone, as it was on the tick that banked the second copy."""
+    rows, _, _ = _run_anchor(monkeypatch, tmp_path, [_priced("2026-09-02T11:00:00Z")],
+                             kickoff=NOW + timedelta(days=2, hours=2))  # 2026-08-30
+    assert rows == []
+
+
+def test_a_kickoff_nudged_within_the_day_is_still_banked(monkeypatch, tmp_path):
+    rows, _, _ = _run_anchor(monkeypatch, tmp_path, [_priced("2026-09-03T09:40:00Z")])
+    assert [(r["bookmaker"], r["home_odds"]) for r in rows] == [("pinnacle", 2.1)]
+
+
+def test_an_event_without_a_kickoff_falls_back_to_the_pair(monkeypatch, tmp_path):
+    """Refusing it would stop the capture on a provider that omits the field."""
+    rows, _, _ = _run_anchor(monkeypatch, tmp_path, [_priced(None)])
+    assert len(rows) == 1
+
+
+def test_a_listed_event_on_another_day_is_not_this_fixture(monkeypatch, tmp_path):
+    """The same guard on the soft books' path, which banked Duel twice for the
+    same Leon v Atletico San Luis event."""
+    event = {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen",
+             "date": "2026-09-10T11:00:00Z"}
+    client = _StubClient([event])
+    rows, unpriced, used = _run(monkeypatch, tmp_path, client)
+    assert (rows, unpriced, used) == ([], [], 1)
+    assert client.batches == [], "no other meeting of the pair may be asked about"
+
+
+def test_a_listed_event_on_the_same_day_is_asked_about(monkeypatch, tmp_path):
+    event = {"id": "7", "home": "Wuhan Three Towns", "away": "Henan Songshan Longmen",
+             "date": "2026-09-03T11:00:00Z"}
+    client = _StubClient([event])
+    _run(monkeypatch, tmp_path, client)
+    assert client.batches == [["7"]]
