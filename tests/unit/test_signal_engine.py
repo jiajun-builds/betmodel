@@ -108,8 +108,19 @@ def test_a_league_that_does_not_bet_the_draw_never_picks_it():
 
 
 def test_a_league_that_bets_the_draw_can_pick_it():
-    pick, state, _, _ = _decide_with("ligamx", [_quote("duel", "draw", 4.0, 0.30)])
+    """No shipped league bets the draw since D34; the capability still holds."""
+    config = load_league("ligamx")
+    config = replace(config, signals=replace(config.signals, allow_draw=True))
+    pick, state, _, _ = _decide_with("ligamx", [_quote("duel", "draw", 4.0, 0.30)],
+                                     config=config)
     assert (pick, state) == ("draw", "bet")
+
+
+def test_liga_mx_does_not_pick_the_draw_until_it_has_evidence():
+    """Under the anchor a draw signal is a soft book against Pinnacle's no-vig
+    draw, a bet the validating backtest held once in 145 (D34)."""
+    pick, state, _, _ = _decide_with("ligamx", [_quote("duel", "draw", 4.0, 0.30)])
+    assert (pick, state) == ("", "")
 
 
 # --------------------------------------------------------------------------- #

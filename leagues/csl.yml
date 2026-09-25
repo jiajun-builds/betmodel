@@ -13,7 +13,7 @@ timezone: Europe/London          # display tz; source CSVs store UTC
 total_rounds: 35
 
 model_name: Weighted Poisson on xG with Dixon-Coles Time Decay
-model_version: v2.8
+model_version: v2.9
 
 sources:
   fixtures:
@@ -38,7 +38,14 @@ sources:
     period_strategy: all_first
 
 model:
-  xi: 0.001                      # Dixon-Coles time decay
+  # Dixon-Coles time decay, per day: a half-life of about 173 days. Was 0.001
+  # (693 days), which weighted a match from last season almost as heavily as last
+  # week's. Chosen on 2024 alone and held out on 2025-26, 0.004 predicted
+  # Pinnacle's close better and lifted the rule's CLV from +10.7% to +14.3% at
+  # the same 0.20 bar. It halves each club's weighted evidence, which is the scale
+  # any future `min_team_evidence` must be set against. See D34;
+  # `scripts/walkforward.py csl --xi 0.004` reproduces it.
+  xi: 0.004
   lookback_months: 18
   min_train: 100
   # Highest scoreline modelled, so the grid is 10 cells a side. Stated

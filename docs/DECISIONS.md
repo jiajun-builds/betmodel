@@ -1154,6 +1154,39 @@ CLV interval now describes a devig the engine no longer uses, and re-running tha
 walk-forward under the logarithmic function is outstanding work, not a formality
 already done.
 
+**Re-run, 2026-09-25.** `scripts/walkforward.py ligamx` refits the production
+recipe before every match date from 2024-01. It replays the rule as it stood:
+EV >= 10% on the best Betano or Duel opener, draws allowed, the evidence gate
+applied, and the anchor wherever a Pinnacle opener exists. Every bet is scored
+against Pinnacle's close under the logarithmic devig.
+
+| | bets | CLV |
+|---|---|---|
+| all | 145 | **+0.0473**, 95% CI [+0.0120, +0.0835] |
+| Clausura 2024 | 52 | +0.0378 |
+| Apertura 2024 | 33 | +0.0666 |
+| Apertura 2025 | 37 | +0.0845 |
+| Clausura 2026 | 7 | +0.0760 |
+| Apertura 2026 | 16 | **-0.0601**, [-0.1027, -0.0152] |
+
+The finding survives: the interval is clear of zero, and four of the five
+tournaments that fired are positive. The devig accounts for under a point of
+the gap from D31's +0.0730; on the same bets the proportional close gives about
+0.8 points more. The rest is sample. This replay adds the Apertura 2026 closes
+that the reducer had been failing to join, and applies the evidence gate that
+D31's did not.
+
+**The current tournament is the exception, and the live bets agree with it.**
+Since 09-01 the engine has fired 12 Liga MX bets and 8 have a close. They
+average **-7.6% CLV**, and 1 of 8 is positive. All 12 were on Duel, while the
+evidence above is almost entirely Betano openers: the match table holds 42
+played fixtures with a Duel opener against 464 with Betano. So the live rule is
+betting a book the
+threshold was never measured on. That is recorded here, not acted on, and it
+is the next thing to measure.
+
+Draws were 1 of the 145 bets, which is why D34 turns them off.
+
 
 ## D33 — The anchor gate can be opened by hand, once, in writing, for one price.
 
@@ -1222,3 +1255,76 @@ Necaxa, Toluca v Santos Laguna and Queretaro v Leon have no Pinnacle opener at
 all: the Liga MX account fell under its floor at 2026-09-14T17:01Z and every
 anchor poll was refused for four days. There is nothing to exempt. An opening
 line not taken is gone, and no provider sells it back.
+
+
+## D34 — CSL's time decay is 0.004. Liga MX's settings were trialled and left. Liga MX stops betting the draw.
+
+**Decided 2026-09-25.** Every number below comes from `scripts/walkforward.py`,
+which refits the production recipe before every match date and replays the
+signal rule on the historical openers. Each change was chosen on an earlier
+period and judged on a later one; a setting picked and scored on the same data
+proves nothing.
+
+**CSL: `xi` 0.001 -> 0.004.** At 0.001 the decay has a half-life of 693 days,
+so last season weighs almost as much as last week. Chosen on 2024 alone, faster
+decay predicted Pinnacle's close better, all the way to the edge of the grid.
+Held out on 2025-26:
+
+| `xi` | cross-entropy vs close | log loss | bets | CLV at EV > 0.20 |
+|---|---|---|---|---|
+| 0.001 | 0.5957 | 0.9876 | 72 | +0.1065 [+0.0412, +0.1756] |
+| **0.004** | **0.5927** | 0.9882 | 65 | **+0.1427** [+0.0726, +0.2121] |
+| 0.008 | 0.5927 | 0.9925 | 76 | +0.1343 [+0.0680, +0.1991] |
+
+Cross-entropy is on the home share, the only part the model still sets once the
+anchor has fixed the draw. 0.004 is taken over 0.008 for three reasons:
+
+- The two predict the close equally well.
+- 0.008's log loss on results is worse.
+- At 0.008 the current clubs' ratings would rest on a median of 14 weighted
+  matches.
+
+The log-loss move at 0.004 is +0.0006, well inside noise, which is why D31's
+rule is followed: judged on the close, not on the result. Over the whole sample
+the rule goes from +0.0898 on 123 bets to +0.1370 on 104. The EV threshold
+stays at 0.20: CLV at 0.20 improved without moving it, so no new bar is needed.
+
+**What it changes elsewhere.** A club's weighted evidence roughly halves: the
+median for the current field falls from 41 to 23. CSL has no
+`min_team_evidence` today, but any future one must be set on this scale.
+
+G1 used to fit with the live league config, so changing `xi` would have failed
+the frozen-baseline gate for a reason unrelated to the fitter. G1 now pins the
+pre-merge `xi` and window itself. It still asks only whether the fitter
+reproduces the frozen output; the golden files are untouched.
+
+No CSL fixture was priced when this landed, so no published signal moved. The
+daily refresh refits under the new decay, and the round of 2026-10-09 is the
+first priced by it. `model_version` is v2.9.
+
+**Liga MX: trialled, not changed.** The full-sample search suggested
+`xi` 0.004, blend 0.5 and shrinkage off, at +0.0769 CLV on 130 bets against
++0.0469 on 144. It did not survive holding out 2026:
+
+| from 2026-01 | cross-entropy vs close | log loss | bets | CLV at EV > 0.10 |
+|---|---|---|---|---|
+| unchanged | 0.6147 | 1.0381 | 23 | -0.0187 |
+| blend 0.5 | 0.6120 | 1.0338 | 16 | -0.0463 |
+| `xi` 0.003, blend 0.5 | 0.6115 | 1.0340 | 20 | -0.0582 |
+| `xi` 0.004, blend 0.5, no shrinkage | 0.6096 | 1.0413 | 15 | -0.0432 |
+
+Every candidate predicts the close better, but none selects better bets, and
+selection is the job. Dropping shrinkage loses the most on results, because it
+is what holds a thin club like Atlante near the mean. The settings stay as
+they are. Revisit once Apertura 2026 has played out: its closes are back in the
+table now that the reducer joins them.
+
+**Liga MX stops betting the draw.** D30 anchored the draw because this league
+bet it. But the anchor makes the model's draw *be* Pinnacle's no-vig opening
+draw, so a draw signal is only a soft book's draw against Pinnacle's. The bet
+the threshold was validated on held that once in 145 (D32's re-run), and none
+of the 12 bets fired since 09-01 was a draw. That makes an anchored draw
+exactly what CLAUDE.md calls an untested variant, so `allow_draw` is off until
+anchored draw quotes have CLV evidence of their own. Nothing is withdrawn by
+it. The anchor stays on: it still corrects the home and away probabilities, and
+the draw EV stays visible on every quote.
