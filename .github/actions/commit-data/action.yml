@@ -37,6 +37,14 @@ outputs:
   appended:
     description: '"true" only when new rows were committed AND pushed successfully.'
     value: ${{ steps.push.outputs.appended }}
+  priced:
+    description: >
+      "true" only when the pushed commit touched an odds_capture_history.csv --
+      a new price, not merely a refreshed unpriced sighting. Every polled tick
+      rewrites capture_watch.csv, so `appended` is true on almost every tick;
+      gating on it ran the anchor rescue (a billed request) and the republish
+      on 732 of 778 watch commits in September that carried no price at all.
+    value: ${{ steps.push.outputs.priced }}
 
 runs:
   using: composite
@@ -53,6 +61,7 @@ runs:
         # Default false. Flipped to true only after a successful push, so a failed
         # push can never report data as landed on main when it is not.
         echo "appended=false" >> "$GITHUB_OUTPUT"
+        echo "priced=false" >> "$GITHUB_OUTPUT"
 
         # shellcheck disable=SC2086 -- STAGE_PATHS is intentionally word-split.
         existing=""
@@ -71,6 +80,12 @@ runs:
         if git diff --cached --quiet; then
           echo "No new rows; nothing to commit."
           exit 0
+        fi
+        # Decided before the rebase, from what this commit carries. Not `grep -q`:
+        # under pipefail an early exit can SIGPIPE git and read as no match.
+        priced=false
+        if git diff --cached --name-only | grep 'odds_capture_history\.csv$' > /dev/null; then
+          priced=true
         fi
 
         git config user.name "github-actions[bot]"
@@ -146,3 +161,4 @@ runs:
           exit 1
         fi
         echo "appended=true" >> "$GITHUB_OUTPUT"
+        echo "priced=$priced" >> "$GITHUB_OUTPUT"

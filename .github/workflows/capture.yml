@@ -9,7 +9,10 @@ name: capture
 
 on:
   repository_dispatch:
-    types: [open-tick, close-tick]
+    # `tick` is the Worker's one dispatch per five minutes, every league at once.
+    # The per-kind types are what it sent before; kept so a Worker not yet
+    # redeployed still captures.
+    types: [tick, open-tick, close-tick]
   workflow_dispatch:
     inputs:
       league:
@@ -69,12 +72,14 @@ jobs:
         env:
           DISPATCH_LEAGUE: ${{ github.event.client_payload.league }}
           DISPATCH_TYPE: ${{ github.event.action }}
+          DISPATCH_ONLY: ${{ github.event.client_payload.only }}
           INPUT_LEAGUE: ${{ inputs.league }}
           INPUT_ONLY: ${{ inputs.only }}
         run: |
           set -euo pipefail
           league="${DISPATCH_LEAGUE:-${INPUT_LEAGUE:-all}}"
           case "$DISPATCH_TYPE" in
+            tick)       only="${DISPATCH_ONLY:-both}" ;;
             open-tick)  only=opens ;;
             close-tick) only=closes ;;
             *)          only="${INPUT_ONLY:-both}" ;;
@@ -83,8 +88,27 @@ jobs:
           echo "only=$only" >> "$GITHUB_OUTPUT"
           echo "Capturing $only for $league"
 
+      # Closes first. A close has a hard deadline at kickoff and no backfill at
+      # any price; an open that waits a few seconds behind it loses nothing.
+      - name: Closing lines
+        if: always() && steps.plan.outputs.only != 'opens'
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
+        run: betmodel ${{ steps.plan.outputs.league }} capture-closes
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit closing lines
+        id: closes
+        if: always() && steps.plan.outputs.only != 'opens'
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(odds): capture closing lines"
+          paths: data
+
       - name: Opening lines
-        if: steps.plan.outputs.only != 'closes'
+        if: always() && steps.plan.outputs.only != 'closes'
         env:
           ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           ODDS_API_IO_KEY_CSL: ${{ secrets.ODDS_API_IO_KEY_CSL }}
@@ -114,12 +138,13 @@ jobs:
       # An edge can clear the bar minutes after a book opens and hours before the
       # anchor's own interval comes round, and the engine refuses to fire without
       # one. So the moment a capture appends a price, ask whether anything is now
-      # stranded and buy the anchor for it. Gated on `appended` for the same
+      # stranded and buy the anchor for it. Gated on `priced` for the same
       # reason the republish is: on an idle tick there is no new price, so there
       # is nothing that could have become stranded, and a metered provider should
-      # not be touched to discover that.
+      # not be touched to discover that. Not `appended`: every polled tick
+      # refreshes capture_watch.csv, so that is true on almost every tick.
       - name: Anchor for a stranded edge
-        if: always() && steps.opens.outputs.appended == 'true'
+        if: always() && steps.opens.outputs.priced == 'true'
         env:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
           THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
@@ -129,38 +154,22 @@ jobs:
 
       - name: Commit the anchor
         id: anchor
-        if: always() && steps.opens.outputs.appended == 'true'
+        if: always() && steps.opens.outputs.priced == 'true'
         uses: ./.github/actions/commit-data
         with:
           message: "chore(odds): capture an anchor for a stranded edge"
           paths: data
 
-      - name: Closing lines
-        if: always() && steps.plan.outputs.only != 'opens'
-        env:
-          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
-          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
-          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
-        run: betmodel ${{ steps.plan.outputs.league }} capture-closes
-             ${{ inputs.dry_run && '--dry-run' || '' }}
-
-      - name: Commit closing lines
-        id: closes
-        if: always() && steps.plan.outputs.only != 'opens'
-        uses: ./.github/actions/commit-data
-        with:
-          message: "chore(odds): capture closing lines"
-          paths: data
-
-      # Only when something was actually appended. Republishing on an idle tick
-      # would rewrite the published tree several times an hour with an identical
-      # payload and a fresh timestamp.
+      # Only when a price actually landed. Republishing on an idle tick would
+      # rewrite the published tree several times an hour with an identical
+      # payload and a fresh timestamp -- which gating on `appended` did, because a
+      # refreshed unpriced sighting counts as appended and changes no signal.
       - name: Republish signals
         if: >-
           always()
-          && (steps.opens.outputs.appended == 'true'
-              || steps.anchor.outputs.appended == 'true'
-              || steps.closes.outputs.appended == 'true')
+          && (steps.opens.outputs.priced == 'true'
+              || steps.anchor.outputs.priced == 'true'
+              || steps.closes.outputs.priced == 'true')
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -172,9 +181,9 @@ jobs:
       - name: Commit the published tree
         if: >-
           always()
-          && (steps.opens.outputs.appended == 'true'
-              || steps.anchor.outputs.appended == 'true'
-              || steps.closes.outputs.appended == 'true')
+          && (steps.opens.outputs.priced == 'true'
+              || steps.anchor.outputs.priced == 'true'
+              || steps.closes.outputs.priced == 'true')
         uses: ./.github/actions/commit-data
         with:
           message: "chore(publish): republish after a capture"

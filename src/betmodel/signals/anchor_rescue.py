@@ -13,8 +13,8 @@ something at stake. If any fixture is sitting in `unanchored`, the anchor is
 worth a request right now.
 
 **Spend is bounded by the trigger, not by a timer.** The caller runs this only on
-a tick where the capture actually appended something -- the same gate the
-republish already uses -- so the number of attempts for a stranded fixture is
+a tick where the capture actually appended a price -- the same `priced` gate the
+republish uses -- so the number of attempts for a stranded fixture is
 bounded by the number of price appends, not by the clock. A fixture the anchor
 book has genuinely not listed yet is retried when the next book opens on it and
 then stops, rather than looping every five minutes until kickoff.
@@ -28,7 +28,8 @@ from __future__ import annotations
 import logging
 
 from betmodel.config.schema import LeagueConfig
-from betmodel.odds.capture_open import capture_opens
+from betmodel.dates import local_matchday
+from betmodel.odds.capture_open import capture_opens, captured_open_books
 from betmodel.signals import debias
 from betmodel.signals.engine import STATE_UNANCHORED, build_signals
 
@@ -75,6 +76,24 @@ def rescue(
     for signal in stranded:
         log.info("%s: stranded without an anchor: %s v %s (EV %.4f)",
                  league, signal.home_team, signal.away_team, signal.ev or 0.0)
+
+    # A fetch only helps a fixture the anchor book has not priced yet. One that
+    # already holds an anchor price is stranded because the proof gate refused
+    # it, and no request changes that -- the pending set will not even ask about
+    # it. Spending anyway bought the rest of the slate early: 112 Liga MX rescues
+    # on 2026-09-07 for a single fixture in exactly this state, and the account
+    # ran dry a week later.
+    held = captured_open_books(league, config, history_path=kwargs.get("history_path"))
+    fetchable = [
+        s for s in stranded
+        if anchor_key not in held.get(
+            (s.home_team, s.away_team, local_matchday(s.kickoff, config.timezone)), set()
+        )
+    ]
+    if not fetchable:
+        log.info("%s: %d stranded edge(s) already hold an anchor price the proof gate "
+                 "refused; a fetch cannot help, spending nothing", league, len(stranded))
+        return {"stranded": len(stranded), "fetched": 0}
 
     # `ignore_schedule` because the whole point is that the anchor's own interval
     # has not come round. `pending_fixtures` still gates it: a league whose

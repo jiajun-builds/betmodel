@@ -9,6 +9,7 @@ otherwise.
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import datetime, timezone
 
 import pytest
 
@@ -18,9 +19,13 @@ from betmodel.signals import anchor_rescue
 from betmodel.signals.engine import STATE_BET, STATE_UNANCHORED
 
 
+KICKOFF = datetime(2026, 10, 3, 11, 0, tzinfo=timezone.utc)
+
+
 class _Signal:
-    def __init__(self, state, home="A", away="B", ev=0.3):
+    def __init__(self, state, home="A", away="B", ev=0.3, kickoff=KICKOFF):
         self.state, self.home_team, self.away_team, self.ev = state, home, away, ev
+        self.kickoff = kickoff
 
 
 class _Spy:
@@ -54,6 +59,34 @@ def test_nothing_stranded_spends_nothing(monkeypatch, spy):
     stats = _rescue(monkeypatch, spy, [_Signal(STATE_BET), _Signal("")])
     assert stats == {"stranded": 0, "fetched": 0}
     assert spy.calls == [], "an idle tick must not touch a metered provider"
+
+
+def test_an_edge_whose_anchor_price_is_already_held_spends_nothing(monkeypatch, spy):
+    """Stranded because the proof gate refused the price we hold, not because
+    there is none. A request cannot change that, and buying one anyway bought
+    the whole slate early: 112 Liga MX rescues in one day for one such fixture."""
+    held = {("A", "B", "2026-10-03"): {"pinnacle"}}
+    monkeypatch.setattr(anchor_rescue, "captured_open_books", lambda *a, **k: held)
+    stats = _rescue(monkeypatch, spy, [_Signal(STATE_UNANCHORED)])
+    assert stats == {"stranded": 1, "fetched": 0}
+    assert spy.calls == []
+
+
+def test_one_fetchable_edge_among_held_ones_still_buys_the_fetch(monkeypatch, spy):
+    held = {("A", "B", "2026-10-03"): {"pinnacle"}}
+    monkeypatch.setattr(anchor_rescue, "captured_open_books", lambda *a, **k: held)
+    stats = _rescue(monkeypatch, spy, [_Signal(STATE_UNANCHORED),
+                                       _Signal(STATE_UNANCHORED, home="C", away="D")])
+    assert stats["stranded"] == 2 and stats["fetched"] == 1
+    assert len(spy.calls) == 1
+
+
+def test_a_held_price_for_another_matchday_does_not_count(monkeypatch, spy):
+    """A rescheduled fixture's old opener belongs to a cancelled market."""
+    held = {("A", "B", "2026-09-26"): {"pinnacle"}}
+    monkeypatch.setattr(anchor_rescue, "captured_open_books", lambda *a, **k: held)
+    stats = _rescue(monkeypatch, spy, [_Signal(STATE_UNANCHORED)])
+    assert stats["fetched"] == 1
 
 
 def test_five_stranded_fixtures_still_cost_one_request(monkeypatch, spy):
