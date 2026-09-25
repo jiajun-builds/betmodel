@@ -80,12 +80,18 @@ def test_every_workflow_parses(workflow):
     yaml.safe_load((ROOT / f".github/workflows/{workflow}.yml").read_text())
 
 
-def test_the_capture_workflow_republishes_only_when_something_was_appended():
+def test_the_capture_workflow_republishes_only_when_a_price_landed():
     """Otherwise the published tree is rewritten several times an hour with an
-    identical payload and a fresh timestamp."""
+    identical payload and a fresh timestamp.
+
+    On `priced`, not `appended`. Every polled tick refreshes capture_watch.csv,
+    so `appended` was true on almost every tick, and the rescue it also gated is
+    a billed request: 240 of them in September, most with nothing to rescue.
+    """
     text = (ROOT / ".github/workflows/capture.yml").read_text()
-    assert "steps.opens.outputs.appended == 'true'" in text
-    assert "steps.closes.outputs.appended == 'true'" in text
+    assert "steps.opens.outputs.priced == 'true'" in text
+    assert "steps.closes.outputs.priced == 'true'" in text
+    assert "outputs.appended" not in text, "a gate still fires on a watch-only commit"
 
 
 def test_the_published_commit_does_not_skip_ci():
@@ -218,14 +224,14 @@ def test_the_anchor_is_fetched_before_anything_is_published(workflow, job):
     assert anchor < publish, f"{workflow}: the rescue must precede publish"
 
 
-def test_the_rescue_is_bought_only_by_a_capture_that_appended():
+def test_the_rescue_is_bought_only_by_a_capture_that_priced():
     """Spend is bounded by the trigger. On an idle tick no price appeared, so
     nothing can have become stranded, and a metered provider must not be touched
-    to discover that."""
+    to discover that. A refreshed unpriced sighting is not a price."""
     spec = yaml.safe_load((ROOT / ".github/workflows/capture.yml").read_text())
     step = next(s for s in spec["jobs"]["capture"]["steps"]
                 if "Anchor for a stranded edge" in (s.get("name") or ""))
-    assert "steps.opens.outputs.appended == 'true'" in step["if"]
+    assert "steps.opens.outputs.priced == 'true'" in step["if"]
 
 
 def test_a_tick_where_only_the_anchor_landed_still_republishes():
@@ -237,4 +243,34 @@ def test_a_tick_where_only_the_anchor_landed_still_republishes():
     """
     text = (ROOT / ".github/workflows/capture.yml").read_text()
     republish = text.split("Republish signals", 1)[1].split("- name:", 1)[0]
-    assert "steps.anchor.outputs.appended == 'true'" in republish
+    assert "steps.anchor.outputs.priced == 'true'" in republish
+
+
+# --------------------------------------------------------------------------- #
+# one dispatch per tick
+# --------------------------------------------------------------------------- #
+
+def test_the_worker_sends_one_capture_dispatch_a_tick():
+    """The capture group keeps one pending run and each dispatch replaces it.
+
+    One dispatch per league per kind -- up to four a tick -- meant a queued
+    close was routinely replaced by the next open tick: 16 of 26 CSL and 34 of
+    44 Liga MX close slots captured in September. One per tick makes the run
+    that replaces another the same tick.
+    """
+    source = (WORKER / "src/worker.js").read_text()
+    calls = re.findall(r"(?<!function )\bdispatch\(env,", source)
+    assert len(calls) == 1, f"{len(calls)} capture dispatch sites in the Worker"
+    assert '"tick"' in source
+
+
+def test_the_capture_workflow_accepts_the_worker_s_tick():
+    spec = yaml.safe_load((ROOT / ".github/workflows/capture.yml").read_text())
+    triggers = spec.get("on", spec.get(True))  # PyYAML reads a bare `on` as True
+    assert "tick" in triggers["repository_dispatch"]["types"]
+
+
+def test_closes_run_before_opens():
+    """Nothing downstream outranks a close: it has a hard deadline at kickoff."""
+    names = _step_names("capture", "capture")
+    assert names.index("Closing lines") < names.index("Opening lines")

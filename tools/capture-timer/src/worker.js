@@ -8,15 +8,18 @@
  * exists at any price -- so the trigger has to be something that actually fires
  * on time. This does; the workflow keeps a slow cron purely as a heartbeat.
  *
- * Two ticks, because the two captures have different economics.
+ * One tick every 5 minutes, one dispatch, every league. It carries two captures
+ * with different economics:
  *
- *   every 5 minutes   close tick, and only when a fixture is near kickoff.
- *                     Gated because an ungated 5-minute tick would spend the
- *                     monthly allowance in days.
- *   every 5 minutes   open tick, offered every time. What it costs is decided
- *                     downstream by two gates: each book's own
- *                     poll_interval_minutes, and the pending set. A book that is
- *                     not due, or a slate with nothing pending, reads no odds.
+ *   closes   only when a fixture is near kickoff. Gated because an ungated
+ *            5-minute close would spend the monthly allowance in days.
+ *   opens    offered every time. What it costs is decided downstream by two
+ *            gates: each book's own poll_interval_minutes, and the pending set.
+ *            A book that is not due, or a slate with nothing pending, reads no
+ *            odds.
+ *
+ * One dispatch rather than one per league and kind, because the workflow keeps
+ * a single pending run and each dispatch replaces the one waiting.
  *
  * Leagues are discovered from the published manifest rather than listed here, so
  * adding one needs no change to this file.
@@ -128,13 +131,13 @@ async function dispatchRefresh(env) {
   }
 }
 
-async function dispatch(env, league, kind) {
+async function dispatch(env, league, kind, only) {
   const response = await github(env, `/repos/${OWNER}/${REPO}/dispatches`, {
     method: "POST",
-    body: JSON.stringify({ event_type: kind, client_payload: { league } }),
+    body: JSON.stringify({ event_type: kind, client_payload: { league, only } }),
   });
   const ok = response.status === 204;
-  console.log(`${league} ${kind}: HTTP ${response.status}`);
+  console.log(`${league} ${kind} (${only}): HTTP ${response.status}`);
   if (!ok) {
     // A dispatch that stops working is invisible otherwise: no run appears, and
     // an absent run looks exactly like an idle tick. One outage went unnoticed
@@ -225,20 +228,29 @@ export default {
       }
     }
 
+    // ONE dispatch per tick, covering every league, opens and closes alike.
+    //
+    // The capture workflow runs in a single concurrency group, and GitHub keeps
+    // one pending run per group: each new dispatch replaces the one waiting.
+    // This used to send one per league per kind -- up to four a tick -- so a
+    // close queued behind a running tick was routinely replaced by the next
+    // league's open tick. Since 2026-09-01 only 16 of 26 CSL and 34 of 44 Liga
+    // MX close slots were captured. With one dispatch a tick, a run that
+    // replaces another is the same tick, so nothing is lost.
+    //
+    // Opens are offered every tick; the pacing lives per book in the league
+    // config, and a tick with nothing due reads no odds and spends nothing.
+    // Closes stay gated here on kickoff proximity, so the close steps start only
+    // when some league has a fixture inside the lead window.
+    let closes = false;
     for (const league of ids) {
-      // Dispatched every tick. This used to fire only on the quarter hours,
-      // which paced every book alike -- including the anchor, whose allowance is
-      // monthly rather than daily. The pacing now lives per book in the league
-      // config, where the differing economics can actually be expressed, so the
-      // timer's job is just to offer each tick and let the capture decline it.
-      // An open tick with nothing due reads no odds and spends nothing.
-      ctx.waitUntil(dispatch(env, league, "open-tick"));
       if (await closeIsDue(env, league, now)) {
-        ctx.waitUntil(dispatch(env, league, "close-tick"));
+        closes = true;
       } else {
         console.log(`${league}: no fixture within ${CLOSE_LEAD_MINUTES}m, skipping close`);
       }
     }
+    ctx.waitUntil(dispatch(env, "all", "tick", closes ? "both" : "opens"));
   },
 
   // No public endpoint. An open trigger would let anyone drain a metered

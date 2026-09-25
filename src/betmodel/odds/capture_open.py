@@ -236,6 +236,37 @@ def books_due(
     return due
 
 
+def _event_matchday(value, timezone_name: str) -> str | None:
+    """The local matchday of a provider's own kickoff, or None if it gave none."""
+    if not value:
+        return None
+    kickoff = pd.to_datetime(value, utc=True, format="ISO8601", errors="coerce")
+    if pd.isna(kickoff):
+        return None
+    return local_matchday(kickoff.to_pydatetime(), timezone_name)
+
+
+def _same_meeting(pending: Pending, event_day: str | None, timezone_name: str) -> bool:
+    """Whether a listed event is this pending fixture, not another meeting of the pair.
+
+    **Team names alone are not enough, and it banked one price twice.** A
+    fixture list can carry a postponed match under both its old and its new
+    date, and on the pair alone the replacement's price was stored as the
+    opener of both: Leon v Atletico San Luis, 2026-09-12 and 2026-09-14, one
+    Pinnacle event and one Duel event each written under two kickoffs. The
+    provider's own kickoff says which meeting it is quoting, as it already does
+    for the closes (`capture_close.extract_rows`). A day rather than an instant,
+    because the two sources disagree by minutes on the same match.
+
+    An event with no readable kickoff falls back to the pair, the old
+    behaviour. Refusing it would stop the capture outright on a provider that
+    omits the field, which is a worse failure than the one this prevents.
+    """
+    if event_day is None:
+        return True
+    return event_day == local_matchday(pending.fixture.kickoff, timezone_name)
+
+
 def _row(
     *, fixture: Fixture, book: BookConfig, prices: dict, event: dict, fetched_at: str
 ) -> dict:
@@ -288,7 +319,7 @@ def _capture_oddsapiio(
     requests_used = 1
 
     mapping = teams.for_league(league)
-    by_key: dict[tuple[str, str], dict] = {}
+    by_key: dict[tuple[str, str], list[dict]] = {}
     unmapped: list[str] = []
     for event in events:
         raw_home = str(event.get("home") or "")
@@ -296,11 +327,20 @@ def _capture_oddsapiio(
         home = mapping.to_standard(raw_home)
         away = mapping.to_standard(raw_away)
         if home and away:
-            by_key[(home, away)] = event
+            by_key.setdefault((home, away), []).append(event)
         else:
             unmapped.append(f"{raw_home} v {raw_away}")
 
-    matched = [(p, by_key[p.fixture.key]) for p in pending if p.fixture.key in by_key]
+    matched = []
+    for p in pending:
+        event = next(
+            (e for e in by_key.get(p.fixture.key, ())
+             if _same_meeting(p, _event_matchday(e.get("date"), config.timezone),
+                              config.timezone)),
+            None,
+        )
+        if event is not None:
+            matched.append((p, event))
     if not matched:
         # Say so, and say it with the join that failed. This return spends the
         # listing request, records no unpriced sighting and appends nothing, so
@@ -320,9 +360,10 @@ def _capture_oddsapiio(
         )
         return [], [], requests_used
     if len(matched) < len(pending):
+        found = {id(p) for p, _ in matched}
         log.info("%s/oddsapiio: %d of %d pending fixture(s) in the listing; absent=%s",
                  league, len(matched), len(pending),
-                 [p.fixture.label for p in pending if p.fixture.key not in by_key])
+                 [p.fixture.label for p in pending if id(p) not in found])
 
     fetched_at = stamp(now)
     rows: list[dict] = []
@@ -442,14 +483,23 @@ def _capture_theoddsapi(
     mapping = teams.for_league(league)
     fetched_at = stamp(now)
 
-    wanted = {p.fixture.key: p for p in pending}
+    # A pair can be pending on two matchdays -- a postponed original and its
+    # replacement -- so it maps to a list, and the provider's own kickoff picks.
+    wanted: dict[tuple[str, str], list[Pending]] = {}
+    for p in pending:
+        wanted.setdefault(p.fixture.key, []).append(p)
     priced: set[tuple[str, str, str]] = set()
     rows: list[dict] = []
 
     for record in theoddsapi.iter_prices(events):
         home = mapping.to_standard(str(record["api_home_team"]))
         away = mapping.to_standard(str(record["api_away_team"]))
-        pend = wanted.get((home, away)) if home and away else None
+        day = _event_matchday(record["commence_time"], config.timezone)
+        pend = next(
+            (p for p in wanted.get((home, away), ())
+             if _same_meeting(p, day, config.timezone)),
+            None,
+        ) if home and away else None
         if pend is None:
             continue
         book = next((b for b in pend.missing if b.key == record["bookmaker"]), None)
@@ -471,11 +521,51 @@ def _capture_theoddsapi(
                                 "away": record["api_away_team"]},
                          fetched_at=fetched_at))
 
+    # **An event we cannot name proves nothing about the fixture it may be.** A
+    # pending fixture missing from the response is recorded as unpriced, which is
+    # what later certifies its price `observed`. If the fixture is in the
+    # response under a name the mapping does not know, it looks missing while
+    # the book is quoting it -- and every tick until the mapping is fixed would
+    # bank a fresh sighting, so the first price taken afterwards, however late,
+    # would pass as the opener. A fixture that could be the unnamed event is
+    # therefore withheld: each side that does map must match it, and an event
+    # with neither side mapped could be any of them.
+    unnamed = []
+    for event in events or []:
+        raw_home = str(event.get("home_team") or "")
+        raw_away = str(event.get("away_team") or "")
+        home = mapping.to_standard(raw_home)
+        away = mapping.to_standard(raw_away)
+        if not (home and away):
+            unnamed.append((raw_home, raw_away, home, away))
+    withheld = {
+        p.fixture.key for p in pending
+        if any((h is None or h == p.fixture.home) and (a is None or a == p.fixture.away)
+               for _, _, h, a in unnamed)
+    }
+    if unnamed:
+        log.warning(
+            "%s/theoddsapi: unmapped team(s) in the response %s; no unpriced sighting "
+            "recorded for %s -- add them to the league's team mapping",
+            league, [f"{h} v {a}" for h, a, _, _ in unnamed],
+            sorted(f"{h} v {a}" for h, a in withheld) or "none",
+        )
+
     unpriced = [
         (p.fixture.home, p.fixture.away, b.key)
         for p in pending for b in p.missing
         if b in books and (p.fixture.home, p.fixture.away, b.key) not in priced
+        and p.fixture.key not in withheld
     ]
+    if not events:
+        # INFO, not WARNING, and the sightings stand. Between rounds the book has
+        # simply priced nothing yet, and that is the observation the opener proof
+        # needs: withholding it would leave every round opening from an empty
+        # slate with the weak proof, and the anchor gate refuses those. Logged so
+        # that a run of empty responses while the book is known to be quoting
+        # can be seen for what it is.
+        log.info("%s/theoddsapi: the response carried no events; recorded %d "
+                 "unpriced sighting(s)", league, len(unpriced))
     return rows, unpriced, 1
 
 

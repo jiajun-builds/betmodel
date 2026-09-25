@@ -145,49 +145,24 @@ odds:
       # the month's allowance, which then ran out at the end of the period exactly
       # when the anchor mattered.
       lookahead_days: 8
-      # Hourly inside that window. What the cadence buys is being already watching
-      # when the line appears, so `capture_watch` records the fixture unpriced
-      # beforehand and the price we then take is a *proven* opener -- a day of
-      # pending at this rate is ~24 unpriced sightings.
+      # Every two hours inside that window. What the cadence buys is being
+      # already watching when the line appears, so `capture_watch` records the
+      # fixture unpriced beforehand and the price we then take is a *proven*
+      # opener -- a day of pending at this rate is ~12 unpriced sightings, and
+      # the proof's tolerated gap scales with the interval (2.5 of them).
       #
-      # Sized against this league's own fixture density, which is roughly four
-      # times CSL's: simulated over the next 30 days, 30-minute polling costs 438
-      # requests plus ~96 for closes and does not fit in 500/month. Hourly costs
-      # 219, and 300 on the pessimistic assumption that Pinnacle prices at 6 days
-      # rather than 7.
-      #
-      # MEASURED 2026-09-18 AND THE ESTIMATE ABOVE IS WRONG. Reconstructing the
-      # pending set hour by hour over 09-01..09-14, it was non-empty every hour
-      # from 09-04 onward -- 24 requests a day, not 219 a month. A request is
-      # billed per tick and not per fixture, so a single fixture waiting on a
-      # price keeps the meter at full rate, and at this fixture density there is
-      # always one. Hourly polling over an 8-day window does not fit in 500/month
-      # and this is what emptied the account. Left as it is pending a decision on
-      # how to narrow it; recorded here so the next reader does not trust the 219.
-      poll_interval_minutes: 60
-      # BORROWED UNTIL 2026-09-24, THEN CHANGE BACK TO `ligamx`.
-      #
-      # This league's own account (THE_ODDS_API_KEY_LIGAMX) is spent: 493 of 500
-      # used, and it fell under `quota_floor` at 2026-09-14T17:01Z. Every anchor
-      # poll has been refused since, which is why four of this round's nine
-      # fixtures never got a Pinnacle opener and publish `raw`. Those are gone.
-      #
-      # What is borrowing for is the round after. Pinnacle prices a fixture 6.1
-      # days out (median, 7.0 max), so the 2026-09-26 round opens on 09-19 to
-      # 09-22 -- all of it before this account resets on 09-24. Without a working
-      # key by 09-19 that round is lost the same way, and an opening line cannot
-      # be bought back at any price.
-      #
-      # CSL's account can carry it: 155 of 500 used, and that league has no
-      # fixture between today and 2026-10-09, so its own Pinnacle polling does
-      # not resume until 10-01. Measured need to 09-24 is ~170 requests against
-      # 345 remaining, and both accounts reset before CSL wants any of it.
-      #
-      # This is a deliberate, temporary reversal of D-per-league allocation. The
-      # reason that allocation exists is that one league exhausting a shared
-      # account starves the other -- which is exactly what this does, so it must
-      # not outlive the reset.
-      credential: csl
+      # Was hourly, sized on a simulation that put it at 219 requests a month.
+      # Measured 2026-09-18, that was wrong: reconstructing the pending set hour
+      # by hour over 09-01..09-14, it was non-empty every hour from 09-04 on, so
+      # hourly cost 24 requests a day. A request is billed per tick and not per
+      # fixture, and at this league's fixture density one is always waiting.
+      # That emptied the account on 09-14. Two-hourly is 12 a day, ~360 a month,
+      # plus ~96 for closes: inside 500 with room for the rescue, which since
+      # the `priced` gate spends only when a stranded edge has no anchor at all.
+      poll_interval_minutes: 120
+      # This league's own account. It was lent CSL's from 2026-09-14, when this
+      # one fell under `quota_floor`, until this one reset on 2026-09-24.
+      credential: ligamx
       schema_prefix: pinnacle
     - key: betfair_ex_eu
       label: Betfair Exchange EU
@@ -201,11 +176,7 @@ odds:
       schema_prefix: polymarket
 
   close:
-    # BORROWED UNTIL 2026-09-24, THEN CHANGE BACK TO `ligamx`. See the anchor
-    # book above for why. Moved too, and not only the opens: `min_remaining: 5`
-    # left this round's nine fixtures two close captures between them on the
-    # spent account, and a closing line has a hard deadline at kickoff.
-    credential: csl
+    credential: ligamx
     books: [pinnacle, betfair_ex_eu]
     # 20 -> 15 to match the other league. Measured here: the capture that becomes
     # the close sits at p90 9.6 minutes before kickoff and worst case 14.6, so a

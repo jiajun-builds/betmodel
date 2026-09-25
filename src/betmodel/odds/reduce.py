@@ -37,6 +37,7 @@ import logging
 import pandas as pd
 
 from betmodel import paths
+from betmodel.config import load_league
 from betmodel.config.schema import LeagueConfig
 from betmodel.dates import local_matchday, parse_date_only_series
 from betmodel.odds import capture_store, capture_watch, provenance
@@ -45,6 +46,9 @@ log = logging.getLogger(__name__)
 
 #: A capture later than this before kickoff is not a closing line.
 MAX_CLOSE_LEAD_HOURS = 6.0
+
+#: The match table's one unambiguous time column (D12).
+KICKOFF_COLUMN = "kickoff_utc"
 
 
 def schema_prefixes(config: LeagueConfig) -> dict[str, str]:
@@ -217,6 +221,9 @@ def build_records(
             # where the row came from. Changing it here would be a silent
             # re-targeting of the merge, not part of this fix.
             "date": kickoff.strftime("%Y/%m/%d"),
+            # The local matchday, for rows that carry an unambiguous kickoff.
+            # See `_find_row` for why the UTC day alone misses them.
+            "day": day,
             "open_h": None, "open_d": None, "open_a": None, "open_lead_h": None,
             "close_h": None, "close_d": None, "close_a": None, "close_lead_h": None,
             "open_trusted": False, "open_proof": "", "open_provenance": "",
@@ -259,20 +266,38 @@ def build_records(
     return records
 
 
-def _find_row(matches: pd.DataFrame, home: str, away: str, date: str) -> int | None:
+def _find_row(
+    matches: pd.DataFrame, home: str, away: str, date: str,
+    day: str = "", timezone: str = "",
+) -> int | None:
     """Locate one fixture in the master table by parsed date, not by string.
 
     Matching on the raw string silently misses when two sources format the same
     day differently, and matching on teams alone can hit the reverse fixture from
     another round.
+
+    **A row with a ``kickoff_utc`` also matches on its local matchday.** ``Date``
+    carries whichever timezone wrote the row (D12), and from Apertura 2026 that
+    is the league's local day, so comparing it to the UTC day missed every Liga
+    MX kickoff after 18:00 local: 17 of 20 Pinnacle closes captured in
+    September never reached the table. The kickoff is the one unambiguous
+    column, and the matchday is the key every other layer already uses. The
+    ``Date`` test is kept, so nothing that matched before stops matching.
     """
     want = pd.Timestamp(date.replace("/", "-"))
     same = matches[(matches["Home"] == home) & (matches["Away"] == away)]
     if same.empty:
         return None
-    dates = parse_date_only_series(same["Date"])
-    hit = same[dates == want]
-    return int(hit.index[0]) if not hit.empty else None
+    hit = parse_date_only_series(same["Date"]) == want
+    if day and timezone and KICKOFF_COLUMN in same.columns:
+        kickoffs = pd.to_datetime(same[KICKOFF_COLUMN], utc=True,
+                                  format="ISO8601", errors="coerce")
+        hit |= pd.Series([
+            pd.notna(k) and local_matchday(k.to_pydatetime(), timezone) == day
+            for k in kickoffs
+        ], index=same.index)
+    matched = same[hit]
+    return int(matched.index[0]) if not matched.empty else None
 
 
 def missing_columns(league: str, records: list[dict]) -> list[str]:
@@ -312,8 +337,10 @@ def merge(
         "no_column": 0, "created_columns": 0,
     }
 
+    timezone = load_league(league).timezone
     for record in records:
-        index = _find_row(matches, record["home"], record["away"], record["date"])
+        index = _find_row(matches, record["home"], record["away"], record["date"],
+                          record.get("day", ""), timezone)
         if index is None:
             stats["no_row"] += 1
             continue
