@@ -31,13 +31,9 @@ WORKFLOW = pathlib.Path(__file__).parents[2] / ".github/workflows/capture.yml"
 #:
 #: **The expiry is the mechanism, not documentation.** A comment saying "change
 #: this back on the 24th" is read once, by the person who wrote it. A red suite
-#: is read by whoever runs it next. Liga MX's own account was exhausted on
-#: 2026-09-14 with the round after it still unpriced, and CSL has no fixture
-#: before 2026-10-09, so the lend costs that league nothing it needs; what it
-#: would cost if it were forgotten is CSL's own openers in October.
-BORROWED: dict[str, tuple[str, datetime.date]] = {
-    "ligamx": ("csl", datetime.date(2026, 9, 24)),
-}
+#: is read by whoever runs it next. Used once: Liga MX ran on CSL's account from
+#: 2026-09-14, when its own was exhausted, until that one reset on 2026-09-24.
+BORROWED: dict[str, tuple[str, datetime.date]] = {}
 
 
 def _entitled(league: str) -> set[str]:
