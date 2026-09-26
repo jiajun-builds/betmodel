@@ -63,3 +63,14 @@ def test_a_trialled_setting_reaches_the_fit():
     assert config.model.xi == 0.004
     assert (config.model.xg_blend.xg, config.model.xg_blend.goals) == (0.5, 0.5)
     assert config.model.shrinkage.enabled is False
+
+
+def test_a_book_can_be_replayed_on_its_own():
+    """How a paused league earns a book back (D35): its bets, not the best of all."""
+    config = load_league("ligamx")
+    frame = walkforward.predict("ligamx", config, "2026-07-01")
+    every = walkforward.score("ligamx", config, frame)
+    duel = walkforward.score("ligamx", config, frame, book="duel")
+    none = walkforward.score("ligamx", config, frame, book="no-such-book")
+    assert duel["clv"].notna().sum() <= every["clv"].notna().sum()
+    assert none["clv"].notna().sum() == 0

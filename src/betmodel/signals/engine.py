@@ -71,6 +71,10 @@ STATE_UNANCHORED = "unanchored"
 #: be worth betting on. Surfaced, never bet -- and unlike the anchor, no request
 #: fixes it: only matches do.
 STATE_THIN_EVIDENCE = "thin_evidence"
+#: Every gate passed, but the league is paused: its bettable prices no longer
+#: match the evidence behind its threshold. Published as a record of what would
+#: have fired, never bet -- and never alerted, since `bet` stays null.
+STATE_PAUSED = "paused"
 STATE_NONE = ""
 
 
@@ -560,6 +564,13 @@ def _decide(
     )
     order = [b.key for b in config.odds.bet_books]
     clearing = tuple(sorted(set(clearing), key=order.index))
+
+    # Last, not first. A paused row is exactly a bet that every other gate let
+    # through, so the record it leaves is the one the league will be judged on
+    # when it asks to be switched back on. Checked earlier, it would also hide an
+    # unanchored edge from the anchor rescue, and the capture would change.
+    if signals_config.paused:
+        return pick, STATE_PAUSED, chosen.ev, ()
     return pick, STATE_BET, chosen.ev, clearing
 
 

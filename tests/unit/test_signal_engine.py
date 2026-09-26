@@ -110,10 +110,31 @@ def test_a_league_that_does_not_bet_the_draw_never_picks_it():
 def test_a_league_that_bets_the_draw_can_pick_it():
     """No shipped league bets the draw since D34; the capability still holds."""
     config = load_league("ligamx")
-    config = replace(config, signals=replace(config.signals, allow_draw=True))
+    config = replace(config, signals=replace(config.signals, allow_draw=True, paused=False))
     pick, state, _, _ = _decide_with("ligamx", [_quote("duel", "draw", 4.0, 0.30)],
                                      config=config)
     assert (pick, state) == ("draw", "bet")
+
+
+def test_a_paused_league_records_the_would_be_bet_without_betting_it():
+    """The row keeps its pick and EV -- that is the record the league will be
+    judged on -- but carries no book to place, so nothing reads it as a bet."""
+    config = load_league("csl")
+    paused = replace(config, signals=replace(config.signals, paused=True))
+    pick, state, ev, books = _decide_with(
+        "csl", [_quote("onexbet", "home", 3.0, 0.30)], config=paused)
+    assert (pick, state, books) == ("home", "paused", ())
+    assert ev == 0.30
+
+
+def test_pausing_is_checked_last_so_an_unanchored_edge_still_says_so():
+    """Otherwise the anchor rescue, which looks for `unanchored`, would stop
+    buying anchors for a paused league, and the capture would quietly change."""
+    config = load_league("csl")
+    paused = replace(config, signals=replace(config.signals, paused=True))
+    _, state, _, _ = _decide_with("csl", [_quote("onexbet", "home", 3.0, 0.30)],
+                                  config=paused, method=debias.RAW)
+    assert state == "unanchored"
 
 
 def test_liga_mx_does_not_pick_the_draw_until_it_has_evidence():

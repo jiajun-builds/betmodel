@@ -497,6 +497,11 @@ class SignalConfig:
     #:
     #: Zero disables the check.
     min_team_evidence: float = 0.0
+    #: The league still prices every fixture and still says which ones would
+    #: fire, but none of them is a bet. For a league whose bettable prices have
+    #: stopped matching the evidence behind its threshold: the would-be bets keep
+    #: accruing as a record, which is how the league earns its way back.
+    paused: bool = False
     debias: DebiasConfig = field(default_factory=DebiasConfig)
 
     def __post_init__(self) -> None:
@@ -523,6 +528,7 @@ class SignalConfig:
             allow_draw=bool(raw.get("allow_draw", False)),
             require_price_proof=bool(raw.get("require_price_proof", False)),
             min_team_evidence=float(raw.get("min_team_evidence", 0.0)),
+            paused=bool(raw.get("paused", False)),
             debias=DebiasConfig.parse(raw.get("debias", {}) or {}),
         )
 

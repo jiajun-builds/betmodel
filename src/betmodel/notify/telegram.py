@@ -189,6 +189,8 @@ def withdrawal_reason(config: LeagueConfig, before: dict, after: dict) -> str:
         )
     if after.get("state") == "odds_cap":
         return "赔率超出该联赛上限"
+    if after.get("state") == "paused":
+        return "该联赛已暂停下注，信号仅作记录"
 
     best = (after.get("best") or {}).get(side) or {}
     odds, ev = best.get("odds"), best.get("ev")

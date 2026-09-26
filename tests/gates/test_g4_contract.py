@@ -229,6 +229,18 @@ def test_a_duplicate_fixture_makes_a_file_self_contradictory_and_is_refused():
         contract.validate_signals({"schema": 1, "signals": [row, dict(row)]})
 
 
+def test_a_paused_row_is_published_and_cannot_carry_a_bet():
+    row = {
+        "fixture_id": "x", "kickoff_utc": "2026-08-28T12:00:00Z",
+        "model": {"home": 0.5, "draw": 0.2, "away": 0.3},
+        "quotes": [], "state": "paused", "bet": None,
+    }
+    contract.validate_signals({"schema": 1, "signals": [row]})
+    with pytest.raises(contract.ContractError, match="disagree"):
+        contract.validate_signals({"schema": 1, "signals": [
+            dict(row, bet={"side": "home", "book": "duel", "odds": 2.0, "ev": 0.1})]})
+
+
 def test_a_naive_timestamp_is_refused():
     with pytest.raises(contract.ContractError, match="UTC"):
         contract.validate_signals({

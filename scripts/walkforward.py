@@ -22,6 +22,7 @@ refused, which is how the uncalibrated rule was measured in D31.
 
     python scripts/walkforward.py csl --xi 0.004
     python scripts/walkforward.py ligamx --blend 0.5 --start 2024-01-01
+    python scripts/walkforward.py ligamx --book duel
 
 Research only: it reads the committed tables and writes nothing.
 """
@@ -112,11 +113,17 @@ def _prices(row, prefix: str, phase: str):
     return odds if all(pd.notna(o) and o > 1.0 for o in odds) else None
 
 
-def score(league: str, config: LeagueConfig, frame: pd.DataFrame) -> pd.DataFrame:
-    """One row per fixture: calibrated probabilities, the close, and any bet."""
+def score(league: str, config: LeagueConfig, frame: pd.DataFrame,
+          book: str | None = None) -> pd.DataFrame:
+    """One row per fixture: calibrated probabilities, the close, and any bet.
+
+    ``book`` replays the rule on that one bet book's prices, rather than on the
+    best of all of them -- how a league earns back a book it was paused on (D35).
+    """
     anchor = config.odds.book(config.signals.debias.anchor_book).schema_prefix \
         if config.signals.debias.anchor_book else None
-    books = [b.schema_prefix for b in config.odds.bet_books if b.schema_prefix]
+    books = [b.schema_prefix for b in config.odds.bet_books
+             if b.schema_prefix and (book is None or b.key == book)]
     signals = config.signals
     rows = []
     for _, row in frame.iterrows():
@@ -196,17 +203,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--blend", type=float, help="xG weight of the target, 0..1")
     parser.add_argument("--shrink", type=float, help="shrinkage k, or 0 for none")
     parser.add_argument("--start", help="first match date priced")
+    parser.add_argument("--book", help="replay on this bet book's prices only")
     args = parser.parse_args(argv)
 
     logging.disable(logging.WARNING)
     config = configure(load_league(args.league), xi=args.xi, blend=args.blend,
                        shrink=args.shrink)
     frame = predict(args.league, config, args.start or START[args.league])
-    table = report(score(args.league, config, frame))
+    table = report(score(args.league, config, frame, book=args.book))
     model = config.model
     print(f"{args.league}: xi={model.xi} blend={model.xg_blend.xg} "
           f"shrink={model.shrinkage.k if model.shrinkage.enabled else 'off'} "
-          f"ev_min={config.signals.ev_min} sides={','.join(config.signals.sides)}")
+          f"ev_min={config.signals.ev_min} sides={','.join(config.signals.sides)}"
+          f"{f' book={args.book}' if args.book else ''}")
     print(table.to_string(float_format="{:.4f}".format))
     return 0
 
