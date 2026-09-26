@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-09-25T06:18:54Z",
+ "generated_at": "2026-09-26T00:45:56Z",
  "competition": {
   "code": "CSL",
   "name": "Chinese Super League",
@@ -11,7 +11,7 @@
  },
  "model": {
   "name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
-  "version": "v2.8",
+  "version": "v2.9",
   "updated_at": "2026-09-25T07:18:52+01:00"
  },
  "data": {
