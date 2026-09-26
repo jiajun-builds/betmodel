@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-26T06:18:46Z",
+ "generated_at": "2026-09-26T12:58:54Z",
  "leagues": [
   {
    "id": "csl",
@@ -12,7 +12,7 @@
    "caveat": null,
    "ev_min": 0.2,
    "allow_draw": false,
-   "updated_at": "2026-09-26T06:18:46Z",
+   "updated_at": "2026-09-26T12:58:54Z",
    "files": {
     "signals": "csl/signals.json",
     "results": "csl/results.json",
@@ -25,11 +25,11 @@
    "code": "MEX",
    "season": "Apertura 2026",
    "timezone": "America/Mexico_City",
-   "validated": true,
-   "caveat": null,
+   "validated": false,
+   "caveat": "Paused: Liga MX can only be bet at Duel, where the model has no CLV evidence yet. Signals are recorded, not bet.",
    "ev_min": 0.1,
    "allow_draw": false,
-   "updated_at": "2026-09-26T06:18:46Z",
+   "updated_at": "2026-09-26T12:58:54Z",
    "files": {
     "signals": "ligamx/signals.json",
     "results": "ligamx/results.json",

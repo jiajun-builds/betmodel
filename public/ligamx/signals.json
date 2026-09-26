@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-26T06:18:46Z",
+ "generated_at": "2026-09-26T12:58:54Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-26-cruz-azul-toluca",
@@ -140,16 +140,8 @@
     "proof": "window",
     "captured_at": "2026-09-21T03:11:05Z"
    },
-   "bet": {
-    "side": "away",
-    "book": "duel",
-    "odds": 7.0,
-    "ev": 0.2589037443418396,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
+   "bet": null,
+   "state": "paused"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-26-santos-laguna-pachuca",
@@ -428,16 +420,8 @@
     "proof": "window",
     "captured_at": "2026-09-21T02:31:29Z"
    },
-   "bet": {
-    "side": "away",
-    "book": "duel",
-    "odds": 5.0,
-    "ev": 0.3471153042235664,
-    "books": [
-     "duel"
-    ]
-   },
-   "state": "bet"
+   "bet": null,
+   "state": "paused"
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-09-27-necaxa-club-america",
