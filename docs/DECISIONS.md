@@ -1328,3 +1328,60 @@ exactly what CLAUDE.md calls an untested variant, so `allow_draw` is off until
 anchored draw quotes have CLV evidence of their own. Nothing is withdrawn by
 it. The anchor stays on: it still corrects the home and away probabilities, and
 the draw EV stays visible on every quote.
+
+
+## D35 — Liga MX is paused until Duel has evidence of its own.
+
+**Decided 2026-09-26.** Betano stopped answering on 2026-08-13 and was dropped
+from polling, so Duel is the only book this league can bet. The evidence behind
+the 0.10 threshold is Betano's. Replayed per book with
+`scripts/walkforward.py ligamx --book <key>`:
+
+| book | bets | CLV |
+|---|---|---|
+| Betano, 2024-01 to 2026-08 | 131 | **+0.0547** [+0.0166, +0.0923] |
+| Duel, 2026-08 to 2026-09 | 15 | **-0.0206** [-0.0745, +0.0452] |
+
+**The live bets agree.** Of the 12 fired since 09-01, all on Duel, 9 now have a
+close. The 8 with a captured close average -7.6% CLV, and 2 of the 9 are
+positive.
+
+The model is also weaker this tournament: Apertura 2026's result log loss is
+1.076, the worst on record. With Betano placing only 3 bets in Apertura 2026,
+the book and the tournament cannot be fully separated. Both point the same way.
+
+**Sixteen of those closes were entered by hand** on 2026-09-26, and they carry
+a median margin of 5.8%. The captured Pinnacle closes sit at 3.5% (90th
+percentile 3.8%), so some of these are probably not Pinnacle closes, or not
+closing prices. Necaxa v Atlante's close is identical to Leon v Atlas's
+opener.
+
+Blanking the 16 moves only the Duel figure, to -0.0452 on 14 bets. The live
+average, -3.3% with them, rests on one hand-entered close: Cruz Azul v Club
+America at +31%. The decision does not turn on them either way.
+
+**What pausing means.** A new switch, `signals.paused`. The engine still
+prices every fixture and still runs every gate, but where it would have fired
+it publishes `paused`: the pick and EV are kept, with no `bet` and no book.
+
+The check is deliberately last. That way a paused row is exactly a would-be
+bet, which is the record Duel will be judged on. An unanchored edge still says
+`unanchored`, so the anchor rescue, and with it the capture, is unchanged.
+
+Because the engine decides it, both consumers follow on their own:
+- the tracker's feed lists only `bet` rows, and Liga MX leaves it;
+- its matches view lists every fixture, and Liga MX stays in it with its model
+  probabilities and quotes.
+
+That is CLAUDE.md's rule that the board and Telegram agree because the engine
+decides once. No filter was added downstream.
+
+- **Telegram off**, so the two live signals are withdrawn without a message.
+- **`publish.validated` false**, with a caveat, so the board says why the
+  league is there but not bettable.
+- **Captures unchanged.**
+
+**Unpause** when `scripts/walkforward.py ligamx --book duel` shows about 50 bets
+with a CLV interval clear of zero, or when a book the threshold was validated on
+answers again. Then set `paused` false, `validated` true and Telegram back on,
+all together.

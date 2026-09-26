@@ -51,8 +51,11 @@ STATE_ODDS_CAP = "odds_cap"
 STATE_UNANCHORED = "unanchored"
 #: Would have fired, but a club in it has too little history to bet on.
 STATE_THIN_EVIDENCE = "thin_evidence"
+#: Would have fired, but the league is paused. A record, never a bet.
+STATE_PAUSED = "paused"
 STATE_NONE = ""
-STATES = (STATE_BET, STATE_ODDS_CAP, STATE_UNANCHORED, STATE_THIN_EVIDENCE, STATE_NONE)
+STATES = (STATE_BET, STATE_ODDS_CAP, STATE_UNANCHORED, STATE_THIN_EVIDENCE,
+          STATE_PAUSED, STATE_NONE)
 
 
 class ContractError(ValueError):

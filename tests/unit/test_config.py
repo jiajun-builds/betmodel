@@ -89,6 +89,17 @@ def test_ligamx_anchors_the_draw_and_does_not_bet_it_yet():
     assert c.signals.sides == ("home", "away")
 
 
+def test_ligamx_is_paused_silent_and_unvalidated_until_duel_has_evidence():
+    """Duel is the only book it can bet and the threshold's evidence is
+    Betano's (D35). Paused, it still publishes every would-be bet as a record;
+    silent, because nothing fires; unvalidated, so the board says why."""
+    c = load_league("ligamx")
+    assert c.signals.paused is True
+    assert c.notify.telegram is False
+    assert c.publish.validated is False and c.publish.caveat
+    assert load_league("csl").signals.paused is False
+
+
 def test_no_league_anchors_on_a_book_it_bets():
     """Structural, not per league.
 

@@ -211,6 +211,16 @@ signals:
   # a draw, so turning it off withdraws nothing. See D34.
   allow_draw: false
   require_price_proof: true
+  # PAUSED 2026-09-26 until Duel shows evidence. Betano stopped answering on
+  # 2026-08-13, so Duel is the only price this league can take, and the
+  # threshold's evidence is Betano's: the rule earned +5.5% CLV on 131 Betano
+  # bets and -2.1% on 15 Duel bets, with the live Duel bets since 09-01 at -7.6%
+  # on the 8 with a captured close. Every fixture is still priced and every would-be
+  # bet is still published, as `paused`, so the record that decides this keeps
+  # growing. Unpause when `scripts/walkforward.py ligamx` shows about 50 Duel
+  # bets with a CLV interval clear of zero, or a validated book answers again.
+  # See D35.
+  paused: true
   # Fifteen weighted matches before a club's fixtures may fire.
   #
   # Shrinkage regularises a thin rating; it does not make it bettable. Its target
@@ -257,12 +267,15 @@ publish:
   # over 464 Betano openers, refitting per matchday, the EV >= 10% rule fired 177
   # bets and beat Pinnacle's closing line by +0.073 on average, 95% CI
   # [+0.033, +0.113]. See D31 for what that does and does not establish.
-  validated: true
-  caveat: ""
+  #
+  # Unvalidated again from 2026-09-26: that evidence is Betano's, and the only
+  # book left to bet is Duel. See `signals.paused` and D35.
+  validated: false
+  caveat: "Paused: Liga MX can only be bet at Duel, where the model has no CLV evidence yet. Signals are recorded, not bet."
+
 
 notify:
-  # On. This league is the one that actually fires, and an alert that reaches a
-  # lock screen is the only thing bounding "signal exists" to "human sees it".
-  # Note the source is still validated: false, so a firing row is a candidate
-  # rather than a bet, and the caveat above says why.
-  telegram: true
+  # Off while the league is paused (see `signals.paused`). Nothing fires, so there
+  # is nothing to alert; off as well so that the signals live now are withdrawn
+  # quietly instead of with a message per fixture. Back on with the unpause.
+  telegram: false

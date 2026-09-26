@@ -138,10 +138,11 @@ def test_a_league_with_notifications_off_sends_nothing(monkeypatch):
     assert telegram.notify("ligamx", config) == 0
 
 
-def test_both_shipped_leagues_currently_alert():
-    """Recorded deliberately: the league that fires had alerts off until now."""
+def test_which_shipped_leagues_currently_alert():
+    """Recorded deliberately. Liga MX is paused until Duel has evidence (D35),
+    so it has nothing to alert and its live signals are withdrawn quietly."""
     assert load_league("csl").notify.telegram is True
-    assert load_league("ligamx").notify.telegram is True
+    assert load_league("ligamx").notify.telegram is False
 
 
 # --------------------------------------------------------------------------- #
@@ -289,6 +290,12 @@ def test_losing_the_anchor_is_named_as_the_reason():
     reason = telegram.withdrawal_reason(
         load_league("csl"), _signal(), _no_longer_firing(state="unanchored"))
     assert "校准" in reason
+
+
+def test_pausing_the_league_is_named_as_the_reason():
+    reason = telegram.withdrawal_reason(
+        load_league("csl"), _signal(), _no_longer_firing(state="paused"))
+    assert "暂停" in reason
 
 
 def test_the_withdrawal_message_cannot_be_read_as_a_new_bet():
