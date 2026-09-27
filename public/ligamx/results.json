@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-26T12:58:54Z",
+ "generated_at": "2026-09-27T06:19:02Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-13-2026-04-03-puebla-fc-juarez",
@@ -1693,6 +1693,54 @@
    "home_goals": 2,
    "away_goals": 3,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-26-cruz-azul-toluca",
+   "match_date": "2026-09-26",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "Cruz Azul",
+   "away_team": "Toluca",
+   "home_goals": 3,
+   "away_goals": 3,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-26-guadalajara-queretaro",
+   "match_date": "2026-09-26",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "Guadalajara",
+   "away_team": "Queretaro",
+   "home_goals": 0,
+   "away_goals": 2,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-26-santos-laguna-pachuca",
+   "match_date": "2026-09-26",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "Santos Laguna",
+   "away_team": "Pachuca",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-26-tigres-uanl-puebla",
+   "match_date": "2026-09-26",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "Tigres UANL",
+   "away_team": "Puebla",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
    "status": "played"
   }
  ]
