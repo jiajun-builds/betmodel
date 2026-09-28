@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-09-27T06:19:02Z",
+ "generated_at": "2026-09-28T06:19:11Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-13-2026-04-03-puebla-fc-juarez",
@@ -1741,6 +1741,42 @@
    "home_goals": 1,
    "away_goals": 0,
    "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-27-unam-pumas-atletico-san-luis",
+   "match_date": "2026-09-27",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "UNAM Pumas",
+   "away_team": "Atletico San Luis",
+   "home_goals": 2,
+   "away_goals": 3,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-27-leon-fc-juarez",
+   "match_date": "2026-09-27",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "Leon",
+   "away_team": "FC Juarez",
+   "home_goals": 2,
+   "away_goals": 1,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-10-2026-09-27-necaxa-club-america",
+   "match_date": "2026-09-27",
+   "season": "Apertura 2026",
+   "round": "10",
+   "home_team": "Necaxa",
+   "away_team": "Club America",
+   "home_goals": 2,
+   "away_goals": 4,
+   "result": "A",
    "status": "played"
   }
  ]
