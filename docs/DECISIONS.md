@@ -1385,3 +1385,35 @@ decides once. No filter was added downstream.
 with a CLV interval clear of zero, or when a book the threshold was validated on
 answers again. Then set `paused` false, `validated` true and Telegram back on,
 all together.
+
+## D36 — SofaScore is read from www, not the api host.
+
+The 2026-09-30 refresh failed both fetches:
+
+```
+ERROR   ligamx fixtures failed: SofaScore GET /unique-tournament/11621/seasons failed:
+        ... returned HTTP 403 after 4 attempt(s)
+ERROR   csl xg failed: SofaScore GET /unique-tournament/649/seasons failed: ...
+```
+
+This time it was not the proxy. G0, re-run an hour later, drew a Comcast
+residential exit and got 403 on 16 of 16 requests. The same call from a home
+connection got the same answer. The refusal comes from SofaScore's own Varnish
+edge, which labels it `"reason": "challenge"` or `"Forbidden"` depending on
+which browser is impersonated, so no retry or exit IP gets past it.
+
+The same paths under `https://www.sofascore.com/api/v1`, which the website
+itself calls, return 200. The provider, run unchanged against that host,
+resolved seasons, paged fixtures and returned xG for both leagues. Necaxa v
+Atlante came back at (2.33, 0.71), the figure already in `matches.csv`, so this
+is the same data behind a different host, not a different feed.
+
+**The proxy stays, and it is still needed.** G0 run on the fix branch against
+www passed 4 of 4 through a residential exit, one request each, while its
+no-proxy control was refused 16 of 16 from an Azure IP. The host changed; the
+rule that the egress must be residential did not.
+
+**If www starts refusing too,** the next thing to check is whether the website
+still loads its data from `/api/v1` at all. A host swap works only while that
+path is public, and SofaScore moving the api host behind a challenge suggests
+it is working toward closing it.

@@ -22,7 +22,11 @@ from betmodel.providers import http
 
 log = logging.getLogger(__name__)
 
-API_BASE = "https://api.sofascore.com/api/v1"
+#: The website's own host, not ``api.sofascore.com``. On 2026-09-30 the api host
+#: began answering every client with 403 ("challenge" or "Forbidden") from its
+#: Varnish edge, residential IPs included, while the same paths under www kept
+#: serving identical data. See D36.
+API_BASE = "https://www.sofascore.com/api/v1"
 PROXY_ENV = "SOFASCORE_PROXY_URL"
 
 #: The two 45-minute halves as SofaScore keys them in /event/{id}/statistics.

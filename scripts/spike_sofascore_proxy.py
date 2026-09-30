@@ -29,7 +29,7 @@ import os
 import sys
 import time
 
-API = "https://api.sofascore.com/api/v1"
+API = "https://www.sofascore.com/api/v1"  # the provider's host; see D36
 
 # One probe per capability the pipeline actually needs, for both leagues. A 200
 # on the cheap endpoint but a block on the expensive one would be a false pass,
