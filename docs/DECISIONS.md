@@ -1408,9 +1408,10 @@ resolved seasons, paged fixtures and returned xG for both leagues. Necaxa v
 Atlante came back at (2.33, 0.71), the figure already in `matches.csv`, so this
 is the same data behind a different host, not a different feed.
 
-**The proxy stays.** Nothing here shows that www accepts a datacenter IP. The
-residential path and the 403 retry policy cost nothing while they are not
-needed, and removing them would be a second change inside a fix.
+**The proxy stays, and it is still needed.** G0 run on the fix branch against
+www passed 4 of 4 through a residential exit, one request each, while its
+no-proxy control was refused 16 of 16 from an Azure IP. The host changed; the
+rule that the egress must be residential did not.
 
 **If www starts refusing too,** the next thing to check is whether the website
 still loads its data from `/api/v1` at all. A host swap works only while that
