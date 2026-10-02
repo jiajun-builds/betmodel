@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-01T06:18:58Z",
+ "generated_at": "2026-10-02T04:01:50Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-09-puebla-leon",
@@ -10,18 +10,18 @@
    "home_team": "Puebla",
    "away_team": "Leon",
    "model": {
-    "home": 0.3624026021341068,
-    "draw": 0.2724695785254553,
-    "away": 0.3651278193404378,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.35861884000049,
+    "draw": 0.2800655561581187,
+    "away": 0.3613156038413913,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 3.05,
-     "ev": 0.10532793650902561,
+     "ev": 0.09378746200149446,
      "captured_at": "2026-09-28T14:01:20Z",
      "last_update": "2026-09-28T12:59:05.095Z",
      "proof": "window"
@@ -30,7 +30,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.45,
-     "ev": -0.059979954087179266,
+     "ev": -0.033773831254490516,
      "captured_at": "2026-09-28T14:01:20Z",
      "last_update": "2026-09-28T12:59:05.095Z",
      "proof": "window"
@@ -39,7 +39,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.36,
-     "ev": -0.1382983463565668,
+     "ev": -0.14729517493431665,
      "captured_at": "2026-09-28T14:01:20Z",
      "last_update": "2026-09-28T12:59:05.095Z",
      "proof": "window"
@@ -49,29 +49,29 @@
     "home": {
      "book": "duel",
      "odds": 3.05,
-     "ev": 0.10532793650902561
+     "ev": 0.09378746200149446
     },
     "draw": {
      "book": "duel",
      "odds": 3.45,
-     "ev": -0.059979954087179266
+     "ev": -0.033773831254490516
     },
     "away": {
      "book": "duel",
      "odds": 2.36,
-     "ev": -0.1382983463565668
+     "ev": -0.14729517493431665
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 3.05,
-    "ev": 0.10532793650902561,
+    "ev": 0.09378746200149446,
     "proof": "window",
     "captured_at": "2026-09-28T14:01:20Z"
    },
    "bet": null,
-   "state": "unanchored"
+   "state": ""
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-09-tigres-uanl-toluca",
