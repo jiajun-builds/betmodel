@@ -140,6 +140,13 @@ def _notify(league: str, args) -> int:
     return 0
 
 
+def _close_report(league: str, args) -> int:
+    from betmodel.notify.close_report import report
+
+    report(league, load_league(league), dry_run=args.dry_run)
+    return 0
+
+
 def _publish(league: str, args) -> int:
     for stage in (_signals,):
         stage(league, args)
@@ -166,6 +173,7 @@ STAGES = {
     "reduce": _reduce,
     "signals": _signals,
     "notify": _notify,
+    "close-report": _close_report,
     "publish": _publish,
     "all": _all,
 }

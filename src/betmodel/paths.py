@@ -12,6 +12,7 @@ Layout, per league::
         xg.csv                      per-match xG from the xG provider
         odds_capture_history.csv    append-only capture store  (TRACKED)
         capture_watch.csv           unpriced-observation evidence (TRACKED)
+        close_report.csv            closing-line reports already sent (TRACKED)
         team_name_mapping.csv       provider namespaces -> canonical name
         now_line.csv                current reference line   (ignored, transient)
         model/                      team_stats, simulations, meta sidecars
@@ -142,6 +143,16 @@ class LeaguePaths:
         it happens.
         """
         return os.path.join(self.root, "capture_watch.csv")
+
+    @property
+    def close_report_csv(self) -> str:
+        """Which kicked-off fixtures have already been reported on, and how.
+
+        Append-only, and what stops the closing-line report repeating itself every
+        five minutes. Tracked because the ticks run on fresh runners: a record kept
+        anywhere else is gone by the next one.
+        """
+        return os.path.join(self.root, "close_report.csv")
 
     # --- derived -------------------------------------------------------------
     @property

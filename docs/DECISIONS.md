@@ -1417,3 +1417,40 @@ rule that the egress must be residential did not.
 still loads its data from `/api/v1` at all. A host swap works only while that
 path is public, and SofaScore moving the api host behind a challenge suggests
 it is working toward closing it.
+
+
+## D37 — After each round, a report of which games have a closing line.
+
+Seven of Liga MX matchday 10's nine Pinnacle closes, 2026-09-26..28, were never
+taken. The Liga MX Odds API account had 4 requests left against a close floor of
+5: 6e16ce40 had moved the league back onto it believing it reset on 09-24, and it
+had not. Every close tick in the round found its fixture, refused to spend,
+logged a WARNING and exited green. The dead-man's switch (D23) watches whether
+runs succeed, and they all did. Nobody knew until a human read the history four
+days later.
+
+**So the outcome is reported, not the runs.** `betmodel <league> close-report`
+runs on every capture tick and, once every game of a round has been played --
+two hours after the last kickoff -- sends one Telegram message listing each game
+as ✅ captured, ⚠️ early (taken more than `target_minutes` out, CLV still
+computable) or ❌ missing (no CLV). When something is missing, it adds the close
+account's balance from the free `/sports` probe, which is what would have named
+the cause on 2026-09-28.
+
+**One message per round, and only after it ends.** Asked for that way. A miss is
+final at kickoff, so the report could go earlier; the cost of waiting is that a
+fixable cause, like an exhausted account, can take the rest of the round with it
+before anyone hears. A postponed game more than four days out does not hold the
+round open: the report counts it as still to play, and it is reported on its own
+as the round's 补赛 once played.
+
+**"Captured" is the rule CLV uses**, mirrored from `reduce`: the latest close from
+the finalisation book, taken 0 to 6 hours before kickoff. A report that called a
+close captured when the CLV figure could not use it would be worse than none.
+
+**Not gated on `notify.telegram`.** Liga MX turned that off when it paused, and
+its closes are the record D35 decides the unpause on.
+
+**Sent once.** `data/<league>/close_report.csv` records each game reported,
+written only after Telegram accepts the message and committed by the tick. It is
+append-only and merges through the union driver like the capture histories.

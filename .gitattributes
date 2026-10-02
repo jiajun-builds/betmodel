@@ -8,3 +8,4 @@
 # commit action instead, which knows they are regenerated rather than appended.
 data/*/odds_capture_history.csv merge=union
 data/*/capture_watch.csv merge=union
+data/*/close_report.csv merge=union

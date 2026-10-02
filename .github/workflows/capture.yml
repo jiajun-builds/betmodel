@@ -107,6 +107,33 @@ jobs:
           message: "chore(odds): capture closing lines"
           paths: data
 
+      # Once a round has been played, which of its games have a close. Every tick,
+      # whatever `only` says: a round ends two hours after its last kickoff, and
+      # the tick that notices is usually an opens-only one. Reads local files, and
+      # touches the Odds API only for a free balance check when a close is missing.
+      #
+      # Pulls first. A dispatch queued behind a running tick checks out main as it
+      # was before that tick's closes landed, and reporting a banked close as
+      # missing would teach the reader to ignore the message.
+      - name: Closing-line report
+        if: always()
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          THE_ODDS_API_KEY_CSL: ${{ secrets.THE_ODDS_API_KEY_CSL }}
+          THE_ODDS_API_KEY_LIGAMX: ${{ secrets.THE_ODDS_API_KEY_LIGAMX }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          git pull --rebase --quiet origin main || git rebase --abort 2>/dev/null || true
+          betmodel ${{ steps.plan.outputs.league }} close-report ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit the closing-line report
+        if: always()
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(odds): record a closing-line report"
+          paths: data/*/close_report.csv
+
       - name: Opening lines
         if: always() && steps.plan.outputs.only != 'closes'
         env:
