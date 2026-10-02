@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-02T12:51:33Z",
+ "generated_at": "2026-10-02T17:02:02Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-09-shenzhen-xinpengcheng-henan-songshan-longmen",
@@ -10,18 +10,18 @@
    "home_team": "Shenzhen Xinpengcheng",
    "away_team": "Henan Songshan Longmen",
    "model": {
-    "home": 0.3510599335227019,
-    "draw": 0.2537575163608832,
-    "away": 0.3951825501164148,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.34450557016800115,
+    "draw": 0.267690021672455,
+    "away": 0.3878044081595437,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "onexbet",
      "side": "home",
      "odds": 2.896,
-     "ev": 0.01666956748174453,
+     "ev": -0.0023118687934686744,
      "captured_at": "2026-10-02T12:31:25Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "window"
@@ -30,7 +30,7 @@
      "book": "onexbet",
      "side": "draw",
      "odds": 3.9,
-     "ev": -0.010345686192555603,
+     "ev": 0.043991084522574386,
      "captured_at": "2026-10-02T12:31:25Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "window"
@@ -39,7 +39,7 @@
      "book": "onexbet",
      "side": "away",
      "odds": 2.21,
-     "ev": -0.12664656424272336,
+     "ev": -0.1429522579674084,
      "captured_at": "2026-10-02T12:31:25Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "window"
@@ -48,7 +48,7 @@
      "book": "duel",
      "side": "home",
      "odds": 3.15,
-     "ev": 0.1058387905965108,
+     "ev": 0.08519254602920356,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:09:17.138Z",
      "proof": "observed"
@@ -57,7 +57,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.6,
-     "ev": -0.0864729411008206,
+     "ev": -0.036315921979162,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:09:17.138Z",
      "proof": "observed"
@@ -66,7 +66,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.3,
-     "ev": -0.09108013473224608,
+     "ev": -0.1080498612330496,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:09:17.138Z",
      "proof": "observed"
@@ -76,24 +76,24 @@
     "home": {
      "book": "duel",
      "odds": 3.15,
-     "ev": 0.1058387905965108
+     "ev": 0.08519254602920356
     },
     "draw": {
      "book": "onexbet",
      "odds": 3.9,
-     "ev": -0.010345686192555603
+     "ev": 0.043991084522574386
     },
     "away": {
      "book": "duel",
      "odds": 2.3,
-     "ev": -0.09108013473224608
+     "ev": -0.1080498612330496
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 3.15,
-    "ev": 0.1058387905965108,
+    "ev": 0.08519254602920356,
     "proof": "observed",
     "captured_at": "2026-10-02T12:51:30Z"
    },
@@ -107,18 +107,18 @@
    "home_team": "Zhejiang Professional",
    "away_team": "Shanghai Port",
    "model": {
-    "home": 0.4072254686523355,
-    "draw": 0.2335941743837263,
-    "away": 0.3591803569639384,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.40564584357140493,
+    "draw": 0.23656705785371468,
+    "away": 0.35778709857488067,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "onexbet",
      "side": "home",
      "odds": 2.605,
-     "ev": 0.06082234583933399,
+     "ev": 0.0567074225035098,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "observed"
@@ -127,7 +127,7 @@
      "book": "onexbet",
      "side": "draw",
      "odds": 4.38,
-     "ev": 0.023142483800721037,
+     "ev": 0.03616371339927027,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "observed"
@@ -136,7 +136,7 @@
      "book": "onexbet",
      "side": "away",
      "odds": 2.27,
-     "ev": -0.18466058969185983,
+     "ev": -0.18782328623502087,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "observed"
@@ -145,7 +145,7 @@
      "book": "duel",
      "side": "home",
      "odds": 2.76,
-     "ev": 0.12394229348044594,
+     "ev": 0.11958252825707749,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:24:04.005Z",
      "proof": "observed"
@@ -154,7 +154,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 4.0,
-     "ev": -0.06562330246509485,
+     "ev": -0.05373176858514128,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:24:04.005Z",
      "proof": "observed"
@@ -163,7 +163,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.38,
-     "ev": -0.1451507504258266,
+     "ev": -0.14846670539178408,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:24:04.005Z",
      "proof": "observed"
@@ -173,24 +173,24 @@
     "home": {
      "book": "duel",
      "odds": 2.76,
-     "ev": 0.12394229348044594
+     "ev": 0.11958252825707749
     },
     "draw": {
      "book": "onexbet",
      "odds": 4.38,
-     "ev": 0.023142483800721037
+     "ev": 0.03616371339927027
     },
     "away": {
      "book": "duel",
      "odds": 2.38,
-     "ev": -0.1451507504258266
+     "ev": -0.14846670539178408
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 2.76,
-    "ev": 0.12394229348044594,
+    "ev": 0.11958252825707749,
     "proof": "observed",
     "captured_at": "2026-10-02T12:51:30Z"
    },
