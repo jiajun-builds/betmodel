@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-03T04:01:46Z",
+ "generated_at": "2026-10-03T06:19:40Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-09-shenzhen-xinpengcheng-henan-songshan-longmen",
@@ -12,7 +12,7 @@
    "model": {
     "home": 0.34450557016800115,
     "draw": 0.267690021672455,
-    "away": 0.3878044081595437,
+    "away": 0.3878044081595438,
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
@@ -39,7 +39,7 @@
      "book": "onexbet",
      "side": "away",
      "odds": 2.21,
-     "ev": -0.1429522579674084,
+     "ev": -0.14295225796740818,
      "captured_at": "2026-10-02T12:31:25Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "window"
@@ -66,7 +66,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.3,
-     "ev": -0.1080498612330496,
+     "ev": -0.10804986123304927,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:09:17.138Z",
      "proof": "observed"
@@ -86,7 +86,7 @@
     "away": {
      "book": "duel",
      "odds": 2.3,
-     "ev": -0.1080498612330496
+     "ev": -0.10804986123304927
     }
    },
    "judged": {
@@ -107,7 +107,7 @@
    "home_team": "Zhejiang Professional",
    "away_team": "Shanghai Port",
    "model": {
-    "home": 0.40564584357140493,
+    "home": 0.4056458435714048,
     "draw": 0.23656705785371468,
     "away": 0.35778709857488067,
     "method": "market_anchor",
@@ -118,7 +118,7 @@
      "book": "onexbet",
      "side": "home",
      "odds": 2.605,
-     "ev": 0.0567074225035098,
+     "ev": 0.056707422503509575,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:26:51.402Z",
      "proof": "observed"
@@ -145,7 +145,7 @@
      "book": "duel",
      "side": "home",
      "odds": 2.76,
-     "ev": 0.11958252825707749,
+     "ev": 0.11958252825707727,
      "captured_at": "2026-10-02T12:51:30Z",
      "last_update": "2026-10-02T12:24:04.005Z",
      "proof": "observed"
@@ -173,7 +173,7 @@
     "home": {
      "book": "duel",
      "odds": 2.76,
-     "ev": 0.11958252825707749
+     "ev": 0.11958252825707727
     },
     "draw": {
      "book": "onexbet",
@@ -190,7 +190,7 @@
     "side": "home",
     "book": "duel",
     "odds": 2.76,
-    "ev": 0.11958252825707749,
+    "ev": 0.11958252825707727,
     "proof": "observed",
     "captured_at": "2026-10-02T12:51:30Z"
    },
