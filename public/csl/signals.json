@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-03T06:19:40Z",
+ "generated_at": "2026-10-03T13:01:50Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-09-shenzhen-xinpengcheng-henan-songshan-longmen",
@@ -194,6 +194,44 @@
     "proof": "observed",
     "captured_at": "2026-10-02T12:51:30Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-10-chengdu-rongcheng-tianjin-jinmen-tiger",
+   "kickoff_utc": "2026-10-10T11:35:00Z",
+   "round": "",
+   "home_team": "Chengdu Rongcheng",
+   "away_team": "Tianjin Jinmen Tiger",
+   "model": {
+    "home": 0.675536474678315,
+    "draw": 0.192078124140518,
+    "away": 0.13238540118116687,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-10-shanghai-shenhua-yunnan-yukun",
+   "kickoff_utc": "2026-10-10T11:35:00Z",
+   "round": "",
+   "home_team": "Shanghai Shenhua",
+   "away_team": "Yunnan Yukun",
+   "model": {
+    "home": 0.6131904433263792,
+    "draw": 0.17758190610889124,
+    "away": 0.20922765056472953,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   }
