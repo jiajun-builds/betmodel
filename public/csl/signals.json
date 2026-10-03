@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-03T13:11:42Z",
+ "generated_at": "2026-10-03T13:51:47Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-09-shenzhen-xinpengcheng-henan-songshan-longmen",
@@ -99,6 +99,84 @@
    },
    "bet": null,
    "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-09-qingdao-hainiu-beijing-guoan",
+   "kickoff_utc": "2026-10-09T11:35:00Z",
+   "round": "",
+   "home_team": "Qingdao Hainiu",
+   "away_team": "Beijing Guoan",
+   "model": {
+    "home": 0.24160182130223545,
+    "draw": 0.1887725476293845,
+    "away": 0.56962563106838,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 5.3,
+     "ev": 0.2804896529018479,
+     "captured_at": "2026-10-03T13:51:40Z",
+     "last_update": "2026-10-03T13:40:50.563Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 4.9,
+     "ev": -0.07501451661601588,
+     "captured_at": "2026-10-03T13:51:40Z",
+     "last_update": "2026-10-03T13:40:50.563Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 1.51,
+     "ev": -0.1398652970867461,
+     "captured_at": "2026-10-03T13:51:40Z",
+     "last_update": "2026-10-03T13:40:50.563Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "onexbet",
+     "odds": 5.3,
+     "ev": 0.2804896529018479
+    },
+    "draw": {
+     "book": "onexbet",
+     "odds": 4.9,
+     "ev": -0.07501451661601588
+    },
+    "away": {
+     "book": "onexbet",
+     "odds": 1.51,
+     "ev": -0.1398652970867461
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "onexbet",
+    "odds": 5.3,
+    "ev": 0.2804896529018479,
+    "proof": "window",
+    "captured_at": "2026-10-03T13:51:40Z"
+   },
+   "bet": {
+    "side": "home",
+    "book": "onexbet",
+    "odds": 5.3,
+    "ev": 0.2804896529018479,
+    "books": [
+     "onexbet"
+    ]
+   },
+   "state": "bet"
   },
   {
    "fixture_id": "CSL-2026-0-2026-10-09-zhejiang-professional-shanghai-port",
