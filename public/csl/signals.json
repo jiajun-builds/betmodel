@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-04T06:19:13Z",
+ "generated_at": "2026-10-04T12:41:20Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-09-shenzhen-xinpengcheng-henan-songshan-longmen",
@@ -465,6 +465,76 @@
     "ev": -0.006631481811265716,
     "proof": "window",
     "captured_at": "2026-10-03T13:11:37Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-11-liaoning-tieren-wuhan-three-towns",
+   "kickoff_utc": "2026-10-11T11:35:00Z",
+   "round": "",
+   "home_team": "Liaoning Tieren",
+   "away_team": "Wuhan Three Towns",
+   "model": {
+    "home": 0.4478719489216215,
+    "draw": 0.2159235587055718,
+    "away": 0.3362044923728066,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.54,
+     "ev": 0.13759475026091872,
+     "captured_at": "2026-10-04T12:41:16Z",
+     "last_update": "2026-10-04T12:15:35.759Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.95,
+     "ev": -0.1471019431129913,
+     "captured_at": "2026-10-04T12:41:16Z",
+     "last_update": "2026-10-04T12:15:35.759Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.6,
+     "ev": -0.1258683198307029,
+     "captured_at": "2026-10-04T12:41:16Z",
+     "last_update": "2026-10-04T12:15:35.759Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.54,
+     "ev": 0.13759475026091872
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.95,
+     "ev": -0.1471019431129913
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.6,
+     "ev": -0.1258683198307029
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.54,
+    "ev": 0.13759475026091872,
+    "proof": "observed",
+    "captured_at": "2026-10-04T12:41:16Z"
    },
    "bet": null,
    "state": ""
