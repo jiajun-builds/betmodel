@@ -203,6 +203,65 @@ def test_a_window_that_resets_inside_the_tick_is_waited_out(monkeypatch):
     assert 68 <= sum(slept) <= 71, slept
 
 
+# --------------------------------------------------------------------------- #
+# a provider that fails to answer once is not an outage
+# --------------------------------------------------------------------------- #
+
+def _unanswered(status=503):
+    from betmodel.providers import http
+
+    if status is None:
+        return http.HttpError("ReadTimeout: read timed out", status=None)
+    return http.HttpError(f"HTTP {status}", status=status)
+
+
+@pytest.mark.parametrize("status", [500, 502, 503, 504, None])
+def test_a_lone_5xx_or_timeout_is_retried_once(monkeypatch, status):
+    """Four ticks failed on exactly this between 2026-10-01 and 2026-10-05.
+
+    A single 503 or read timeout from odds-api.io failed the run, and the tick
+    five minutes later succeeded every time.
+    """
+    client, slept = _io_client(monkeypatch, [_unanswered(status), _Resp(payload=[1])])
+    assert client.get("events") == [1]
+    assert len(slept) == 1
+
+
+def test_a_provider_still_failing_after_the_retry_is_an_outage(monkeypatch):
+    """The retry absorbs a blip, not an outage. An outage must still fail the
+    run, because the exit code is the only failure signal the workflow has."""
+    from betmodel.providers import http
+
+    client, _ = _io_client(monkeypatch, [_unanswered(), _unanswered()])
+    with pytest.raises(http.HttpError):
+        client.get("events")
+
+
+def test_the_transient_retry_budget_spans_every_call_the_client_makes(monkeypatch):
+    """A read timeout costs the full timeout each time, so retries are budgeted
+    for the whole capture rather than per call, like the park."""
+    from betmodel.providers import http
+
+    client, slept = _io_client(
+        monkeypatch,
+        [_unanswered(), _Resp(payload=[1]), _unanswered()],
+    )
+    assert client.get("events") == [1]
+    with pytest.raises(http.HttpError):
+        client.get("odds/multi")
+    assert len(slept) == 1
+
+
+@pytest.mark.parametrize("status", [400, 401, 404])
+def test_a_client_error_is_an_answer_and_is_not_retried(monkeypatch, status):
+    from betmodel.providers import http
+
+    client, slept = _io_client(monkeypatch, [_unanswered(status)])
+    with pytest.raises(http.HttpError):
+        client.get("events")
+    assert slept == []
+
+
 def test_a_rate_limit_is_a_refusal_and_the_other_provider_still_runs(
     tmp_path, monkeypatch
 ):

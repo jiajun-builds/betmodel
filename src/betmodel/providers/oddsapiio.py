@@ -14,6 +14,9 @@ A 403 is never retried. It means an entitlement problem, the plan is limited to 
 fixed set of bookmakers, and asking for one outside it fails the whole request.
 The authoritative entitlement list is the body of that 403, not any catalogue
 endpoint, which goes stale.
+
+A 5xx or a dropped connection is the provider failing to answer, and is retried
+once per client after a short pause. A second failure is an outage and is raised.
 """
 
 from __future__ import annotations
@@ -40,6 +43,14 @@ MULTI_BATCH_SIZE = 10
 #: Park when the window has this few requests left. Not zero: a concurrent job or
 #: a retry would otherwise tip it into a 429 that costs the daily budget.
 RATE_FLOOR = 2
+
+#: Statuses that mean the provider failed to answer, as opposed to answering
+#: with a refusal. A transport error (no status at all) is the same case.
+TRANSIENT_STATUSES = frozenset({500, 502, 503, 504})
+
+#: Pause before retrying a transient failure. Long enough for a load balancer to
+#: route around a bad backend, short against a five-minute tick.
+TRANSIENT_PAUSE_SECONDS = 3.0
 
 ML_MARKET = "ML"
 
@@ -126,6 +137,7 @@ class OddsApiIoClient:
         credential: str = "default",
         timeout: float = 30.0,
         max_park_seconds: float = 120.0,
+        max_transient_retries: int = 1,
     ) -> None:
         if not league_slugs:
             raise ValueError("at least one league slug is required")
@@ -147,6 +159,16 @@ class OddsApiIoClient:
         #: an earlier 60s setting refused a 68s wait it should have taken.
         self.max_park_seconds = max_park_seconds
         self._parked = 0.0
+        #: Retries of a 5xx or a transport error, across every call this client
+        #: makes. Budgeted per client for the same reason as the park: a read
+        #: timeout costs the full ``timeout`` each time, and what must fit in
+        #: the tick is the whole capture. One is what the failures measured
+        #: needed: a lone 503 or timeout from odds-api.io (four of them between
+        #: 2026-10-01 and 2026-10-05) failed the tick, and the next tick, five
+        #: minutes later, succeeded every time. A provider still failing after
+        #: the retry is an outage, and that still fails the run.
+        self.max_transient_retries = max_transient_retries
+        self._transient_retries = 0
         # Retries are handled here, not by the policy: a 429 needs the reset
         # header, and a 403 must never be retried at all.
         self._http = http.client("oddsapiio", retry=http.NO_RETRY, timeout=timeout)
@@ -238,6 +260,20 @@ class OddsApiIoClient:
                              "window reset (%.0fs of %.0fs budget used)",
                              wait, self._parked, self.max_park_seconds)
                     time.sleep(wait)
+                    continue
+                if (exc.status is None or exc.status in TRANSIENT_STATUSES) and (
+                    self._transient_retries < self.max_transient_retries
+                ):
+                    # The provider did not answer, so nothing was refused and
+                    # nothing was learned. Logged, because a retry that hides a
+                    # degrading provider is the quiet failure this tool keeps
+                    # having to tell apart by hand.
+                    self._transient_retries += 1
+                    log.info("odds-api.io failed to answer %s (%s); retrying in "
+                             "%.0fs (%d of %d for this client)", path, exc,
+                             TRANSIENT_PAUSE_SECONDS, self._transient_retries,
+                             self.max_transient_retries)
+                    time.sleep(TRANSIENT_PAUSE_SECONDS)
                     continue
                 raise
             wait = self._park(response) or 0.0
