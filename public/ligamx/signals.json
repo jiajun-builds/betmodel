@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-08T06:19:13Z",
+ "generated_at": "2026-10-09T06:20:15Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-09-puebla-leon",
@@ -565,7 +565,7 @@
   },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-11-unam-pumas-cruz-azul",
-   "kickoff_utc": "2026-10-12T01:00:00Z",
+   "kickoff_utc": "2026-10-12T01:15:00Z",
    "round": "",
    "home_team": "UNAM Pumas",
    "away_team": "Cruz Azul",
