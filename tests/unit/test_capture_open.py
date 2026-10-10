@@ -114,6 +114,38 @@ def test_a_fixture_beyond_the_lookahead_is_not_pending_yet(tmp_path):
     assert _pending(tmp_path, [("A", "B", far)], []) == []
 
 
+def test_the_anchor_window_covers_a_whole_round_before_pinnacle_posts_it(tmp_path):
+    """Pinnacle posts a round at once, so the window must reach its last match.
+
+    Replays Liga MX round 11, after an international break. Pinnacle was last
+    confirmed unpriced at 2026-10-02T02:01Z and had the round up by 04:01Z. A
+    fixture not pending on that tick is never seen unpriced, so its opener can
+    only earn `window` and the anchor gate refuses it. Under the old 8-day window
+    that was every fixture but the first, and all seven that were published.
+    """
+    config = load_league("ligamx")
+    last_unpriced = datetime(2026, 10, 2, 2, 0, tzinfo=timezone.utc)
+    round_11 = [
+        ("Puebla", "Leon", datetime(2026, 10, 10, 1, 0, tzinfo=timezone.utc)),
+        ("Tigres UANL", "Toluca", datetime(2026, 10, 10, 3, 0, tzinfo=timezone.utc)),
+        ("FC Juarez", "Tijuana", datetime(2026, 10, 10, 23, 0, tzinfo=timezone.utc)),
+        ("Atlas", "Guadalajara", datetime(2026, 10, 11, 1, 0, tzinfo=timezone.utc)),
+        ("Club America", "Monterrey", datetime(2026, 10, 11, 3, 10, tzinfo=timezone.utc)),
+        ("Pachuca", "Necaxa", datetime(2026, 10, 11, 23, 10, tzinfo=timezone.utc)),
+        ("UNAM Pumas", "Cruz Azul", datetime(2026, 10, 12, 1, 15, tzinfo=timezone.utc)),
+    ]
+    pending = co.pending_fixtures(
+        "ligamx", config,
+        books=co.books_for(config, "theoddsapi"),
+        now=last_unpriced,
+        fixtures_path=_fixtures(tmp_path, round_11),
+        history_path=_history(tmp_path, []),
+    )
+    anchor = config.signals.debias.anchor_book
+    waiting = {p.fixture.key for p in pending if anchor in [b.key for b in p.missing]}
+    assert waiting == {(h, a) for h, a, _ in round_11}
+
+
 def test_pending_is_ordered_soonest_first(tmp_path):
     """An overflowing set must spend its budget on the lines opening now."""
     pending = _pending(tmp_path, [

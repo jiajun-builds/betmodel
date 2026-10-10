@@ -65,3 +65,30 @@ def test_a_league_with_no_priced_fixture_is_not_judged():
     ok, msg = check.assess("csl", "market_anchor", [])
     assert ok
     assert "no priced fixture" in msg
+
+
+def _named(fixture_id, method, home="A", away="B"):
+    return {"fixture_id": fixture_id, "home_team": home, "away_team": away,
+            "model": {"method": method}}
+
+
+def test_the_alarm_tells_a_refused_anchor_from_a_missing_one():
+    # Both publish raw and look identical per row. Liga MX round 11 was all the
+    # first kind -- every Pinnacle opener captured, every one refused on `window`
+    # -- under a message that said the openers were not being captured, which
+    # sends the reader to the provider instead of to the proof.
+    signals = [_named("f1", "raw", "Atlas", "Guadalajara"),
+               _named("f2", "raw", "Pachuca", "Necaxa")]
+    ok, msg = check.assess("ligamx", "market_anchor", signals,
+                           {"f1": "window", "f2": check.MISSING})
+    assert not ok
+    assert "1 have an anchor opener on file that the anchor gate refused" in msg
+    assert "proof 'window'" in msg and "Atlas v Guadalajara" in msg
+    assert "1 have no anchor opening price on file" in msg
+    assert "Pachuca v Necaxa" in msg
+
+
+def test_without_the_anchor_view_the_alarm_does_not_guess_the_cause():
+    ok, msg = check.assess("ligamx", "market_anchor", _signals("raw") * 3)
+    assert not ok
+    assert "not being captured or not proven" in msg
