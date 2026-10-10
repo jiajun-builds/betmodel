@@ -1,202 +1,8 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-10T11:26:43Z",
+ "generated_at": "2026-10-10T12:02:24Z",
  "signals": [
-  {
-   "fixture_id": "CSL-2026-0-2026-10-10-chengdu-rongcheng-tianjin-jinmen-tiger",
-   "kickoff_utc": "2026-10-10T11:35:00Z",
-   "round": "",
-   "home_team": "Chengdu Rongcheng",
-   "away_team": "Tianjin Jinmen Tiger",
-   "model": {
-    "home": 0.6746375613270187,
-    "draw": 0.192078124140518,
-    "away": 0.13328431453246342,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 1.52,
-     "ev": 0.02544909321706834,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T12:57:20.206Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 4.68,
-     "ev": -0.10107437902237582,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T12:57:20.206Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 5.55,
-     "ev": -0.26027205434482803,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T12:57:20.206Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.58,
-     "ev": 0.06592734689668966,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T13:06:48.062Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 4.7,
-     "ev": -0.09723281653956539,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T13:06:48.062Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 5.4,
-     "ev": -0.2802647015246975,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T13:06:48.062Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.58,
-     "ev": 0.06592734689668966
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 4.7,
-     "ev": -0.09723281653956539
-    },
-    "away": {
-     "book": "onexbet",
-     "odds": 5.55,
-     "ev": -0.26027205434482803
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 1.58,
-    "ev": 0.06592734689668966,
-    "proof": "window",
-    "captured_at": "2026-10-03T13:11:37Z"
-   },
-   "bet": null,
-   "state": ""
-  },
-  {
-   "fixture_id": "CSL-2026-0-2026-10-10-shanghai-shenhua-yunnan-yukun",
-   "kickoff_utc": "2026-10-10T11:35:00Z",
-   "round": "",
-   "home_team": "Shanghai Shenhua",
-   "away_team": "Yunnan Yukun",
-   "model": {
-    "home": 0.6064403276412276,
-    "draw": 0.17758190610889124,
-    "away": 0.21597776624988133,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 1.536,
-     "ev": -0.06850765674307446,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T12:57:20.206Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 5.3,
-     "ev": -0.05881589762287642,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T12:57:20.206Z",
-     "proof": "window"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 4.64,
-     "ev": 0.0021368353994493106,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T12:57:20.206Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.62,
-     "ev": -0.017566669221211306,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T13:08:48.976Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 5.0,
-     "ev": -0.1120904694555438,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T13:08:48.976Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 4.7,
-     "ev": 0.015095501374442266,
-     "captured_at": "2026-10-03T13:11:37Z",
-     "last_update": "2026-10-03T13:08:48.976Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.62,
-     "ev": -0.017566669221211306
-    },
-    "draw": {
-     "book": "onexbet",
-     "odds": 5.3,
-     "ev": -0.05881589762287642
-    },
-    "away": {
-     "book": "duel",
-     "odds": 4.7,
-     "ev": 0.015095501374442266
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 4.7,
-    "ev": 0.015095501374442266,
-    "proof": "window",
-    "captured_at": "2026-10-03T13:11:37Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "CSL-2026-0-2026-10-11-qingdao-west-coast-dalian-yingbo",
    "kickoff_utc": "2026-10-11T10:00:00Z",
@@ -485,6 +291,25 @@
     "proof": "observed",
     "captured_at": "2026-10-04T12:41:16Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-16-henan-songshan-longmen-tianjin-jinmen-tiger",
+   "kickoff_utc": "2026-10-16T11:35:00Z",
+   "round": "",
+   "home_team": "Henan Songshan Longmen",
+   "away_team": "Tianjin Jinmen Tiger",
+   "model": {
+    "home": 0.5584854153775635,
+    "draw": 0.23074188925571198,
+    "away": 0.2107726953667242,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   }
