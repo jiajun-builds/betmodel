@@ -144,7 +144,23 @@ odds:
       # known in advance. Under the league's 21-day lookahead those were most of
       # the month's allowance, which then ran out at the end of the period exactly
       # when the anchor mattered.
-      lookahead_days: 8
+      #
+      # 8 -> 11, because the 7.0 ceiling was measured per fixture and Pinnacle
+      # publishes per ROUND. Back to back, the round goes up while the previous
+      # one is still being played, which is where 7.0 came from. After the
+      # international break before round 11 there was no previous round to wait
+      # for: the whole round went up between 2026-10-02T02:01Z and 04:01Z, 7.9
+      # days before its first match and 9.9 before its last. Every fixture after
+      # the first was already priced when it crossed an 8-day edge, was captured
+      # one poll later with nothing seen unpriced beforehand, and the anchor gate
+      # refused all seven that were published. A round spans about two days, so
+      # 11 is the round's own 7.9-day lead plus that span, with a day of margin.
+      #
+      # It does not raise the ceiling on spend. A request is billed per tick, and
+      # in season the 8-day pending set was already never empty, so the two-hourly
+      # arithmetic below assumed every tick spends. What 11 adds is ticks during a
+      # break, which is exactly where the 8-day window was blind. See D38.
+      lookahead_days: 11
       # Every two hours inside that window. What the cadence buys is being
       # already watching when the line appears, so `capture_watch` records the
       # fixture unpriced beforehand and the price we then take is a *proven*

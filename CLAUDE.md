@@ -109,10 +109,13 @@ either starves the cheap one or drains the expensive one. See D25 in
 `docs/DECISIONS.md`.
 
 **The open lookahead is per book now.** The league-wide value (21 days for CSL,
-14 for Liga MX) is the default, and Pinnacle overrides it to 8 in both — it does
-not price a fixture until about 7 days out, so a longer window spent the monthly
-allowance asking questions whose answer was known. A book's own
-`lookahead_days` beats the league's.
+14 for Liga MX) is the default, and Pinnacle overrides it — 8 for CSL, 11 for
+Liga MX. A longer window spent the monthly allowance asking questions whose
+answer was known. A shorter one goes blind after an international break.
+Pinnacle prices a whole *round* at once, so a fixture is not priced "about 7
+days out". The window has to reach the round's last match before the round goes
+up, or that match is never seen unpriced and its anchor is refused (D38). A
+book's own `lookahead_days` beats the league's.
 
 **A fixture is a pairing on a matchday, never a pairing.** Every key that
 identifies a fixture carries `dates.local_matchday`. An ordered pair repeats

@@ -1454,3 +1454,60 @@ its closes are the record D35 decides the unpause on.
 **Sent once.** `data/<league>/close_report.csv` records each game reported,
 written only after Telegram accepts the message and committed by the tick. It is
 append-only and merges through the union driver like the capture histories.
+
+## D38 — Liga MX's anchor window is 11 days, because Pinnacle publishes by round.
+
+On 2026-10-10 the de-bias check reported Liga MX at 0 of 7 published signals
+anchored. Every one of the seven had a Pinnacle opening price on file. Every one
+carried the weak `window` proof, and the anchor gate refuses that after
+`ANCHOR_PROOF_CUTOVER`, so all seven published `unanchored` on raw probabilities.
+
+| fixture | kickoff (UTC) | Pinnacle open captured | lead |
+|---|---|---|---|
+| FC Juarez v Tijuana | 10-10 23:00 | 10-03 00:01 | 7.96d |
+| Queretaro v Atlante | 10-10 23:00 | 10-03 00:01 | 7.96d |
+| Atlas v Guadalajara | 10-11 01:00 | 10-03 02:01 | 7.96d |
+| Club America v Monterrey | 10-11 03:10 | 10-03 04:01 | 7.96d |
+| Atletico San Luis v Santos Laguna | 10-11 23:00 | 10-04 00:01 | 7.96d |
+| Pachuca v Necaxa | 10-11 23:10 | 10-04 00:01 | 7.97d |
+| UNAM Pumas v Cruz Azul | 10-12 01:15 | 10-04 02:01 | 7.96d |
+
+A lead of 7.96 days on every row is the signature of the window's edge, not of
+Pinnacle. Each fixture became pending when its kickoff came inside 8 days, the
+next two-hourly poll found it already priced, and there was no unpriced sighting
+before it for `opener_proof` to use. The round's one `observed` anchor dates the
+publication: Puebla v Leon, the first match, was seen unpriced at 10-02T02:01Z
+and priced at 04:01Z. Tigres v Toluca crossed the edge at 03:00 and was priced at
+the 04:01 poll too. So the whole round went up at once, about 7.9 days before its
+first match and 9.9 before its last.
+
+**The 7.0-day ceiling was right about what it measured, and it measured the wrong
+thing.** It came from 75 captures in back-to-back rounds, where Pinnacle posts the
+next round while the current one is still being played. Round 11 followed the
+international break (round 10 ended 09-28), so there was no round in play to wait
+for. The ceiling describes when a fixture gets *its* price in a normal week. The
+window has to cover when the *round* gets its price, and a round spans about two
+days.
+
+**11 = the round's 7.9-day lead + a ~2-day span + a day of margin.** Replaying
+round 11, the 02:00 tick then sees all seven fixtures unpriced and the 04:00 tick
+banks every one as `observed`. A test pins exactly that against the real config,
+and under the old 8 it returns Puebla v Leon alone, which is what happened.
+
+**No higher spend ceiling.** The anchor is billed per tick, not per fixture, and
+the two-hourly budget (12 a day, ~360 a month, plus ~96 closes) already assumed
+every tick spends, because in season the 8-day pending set was never empty
+(measured 09-04..09-14). A wider window adds only the ticks during a break, the
+same days on which the 8-day window was blind.
+
+**The seven are not rescued, and should not be.** Nobody saw those listings
+unpriced, so nothing proves the price held is the first one Pinnacle posted. That
+is the case the gate exists for. Liga MX is paused anyway (D35), so no bet was
+withheld. What was lost is calibrated records for the round.
+
+**CSL keeps 8.** It shows none of this signature: its two `window` anchors since
+the cutover were captured at 4.7 and 5.7 days, for other reasons. It is exposed to
+the same mechanism at its next break, though, and the de-bias check now says
+which case it is seeing: an anchor never captured, or one captured and refused
+on its proof. This one was reported as "not being captured", which pointed at the
+provider when the cause was in the proof.
