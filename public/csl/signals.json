@@ -1,202 +1,8 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-11T11:26:19Z",
+ "generated_at": "2026-10-11T12:01:32Z",
  "signals": [
-  {
-   "fixture_id": "CSL-2026-0-2026-10-11-chongqing-tonglianglong-shandong-taishan",
-   "kickoff_utc": "2026-10-11T11:35:00Z",
-   "round": "",
-   "home_team": "Chongqing Tonglianglong",
-   "away_team": "Shandong Taishan",
-   "model": {
-    "home": 0.32966894914635214,
-    "draw": 0.27034167483568955,
-    "away": 0.3999893760179581,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 2.7,
-     "ev": -0.10989383730484914,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:38:56.134Z",
-     "proof": "observed"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 3.92,
-     "ev": 0.059739365355903074,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:38:56.134Z",
-     "proof": "observed"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 2.34,
-     "ev": -0.06402486011797814,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:38:56.134Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.78,
-     "ev": -0.08352032137314114,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:32:12.67Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.55,
-     "ev": -0.04028705433330215,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:32:12.67Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.56,
-     "ev": 0.023972802605972676,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:32:12.67Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.78,
-     "ev": -0.08352032137314114
-    },
-    "draw": {
-     "book": "onexbet",
-     "odds": 3.92,
-     "ev": 0.059739365355903074
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.56,
-     "ev": 0.023972802605972676
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.56,
-    "ev": 0.023972802605972676,
-    "proof": "observed",
-    "captured_at": "2026-10-05T03:51:23Z"
-   },
-   "bet": null,
-   "state": ""
-  },
-  {
-   "fixture_id": "CSL-2026-0-2026-10-11-liaoning-tieren-wuhan-three-towns",
-   "kickoff_utc": "2026-10-11T11:35:00Z",
-   "round": "",
-   "home_team": "Liaoning Tieren",
-   "away_team": "Wuhan Three Towns",
-   "model": {
-    "home": 0.43377164875633417,
-    "draw": 0.23944583090153482,
-    "away": 0.32678252034213107,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 2.46,
-     "ev": 0.06707825594058203,
-     "captured_at": "2026-10-04T13:01:22Z",
-     "last_update": "2026-10-04T12:56:14.026Z",
-     "proof": "observed"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 4.02,
-     "ev": -0.03742775977583013,
-     "captured_at": "2026-10-04T13:01:22Z",
-     "last_update": "2026-10-04T12:56:14.026Z",
-     "proof": "observed"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 2.51,
-     "ev": -0.17977587394125105,
-     "captured_at": "2026-10-04T13:01:22Z",
-     "last_update": "2026-10-04T12:56:14.026Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.54,
-     "ev": 0.10177998784108877,
-     "captured_at": "2026-10-04T12:41:16Z",
-     "last_update": "2026-10-04T12:15:35.759Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.95,
-     "ev": -0.05418896793893746,
-     "captured_at": "2026-10-04T12:41:16Z",
-     "last_update": "2026-10-04T12:15:35.759Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.6,
-     "ev": -0.15036544711045918,
-     "captured_at": "2026-10-04T12:41:16Z",
-     "last_update": "2026-10-04T12:15:35.759Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.54,
-     "ev": 0.10177998784108877
-    },
-    "draw": {
-     "book": "onexbet",
-     "odds": 4.02,
-     "ev": -0.03742775977583013
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.6,
-     "ev": -0.15036544711045918
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.54,
-    "ev": 0.10177998784108877,
-    "proof": "observed",
-    "captured_at": "2026-10-04T12:41:16Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "CSL-2026-0-2026-10-16-henan-songshan-longmen-tianjin-jinmen-tiger",
    "kickoff_utc": "2026-10-16T11:35:00Z",
@@ -388,6 +194,101 @@
     "proof": "window",
     "captured_at": "2026-10-11T10:51:20Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-17-qingdao-hainiu-liaoning-tieren",
+   "kickoff_utc": "2026-10-17T11:35:00Z",
+   "round": "",
+   "home_team": "Qingdao Hainiu",
+   "away_team": "Liaoning Tieren",
+   "model": {
+    "home": 0.42942447604766143,
+    "draw": 0.2586050889039021,
+    "away": 0.311970435048436,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-17-yunnan-yukun-chongqing-tonglianglong",
+   "kickoff_utc": "2026-10-17T11:35:00Z",
+   "round": "",
+   "home_team": "Yunnan Yukun",
+   "away_team": "Chongqing Tonglianglong",
+   "model": {
+    "home": 0.548497791641233,
+    "draw": 0.22375954751376256,
+    "away": 0.22774266084500433,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-17-shandong-taishan-zhejiang-professional",
+   "kickoff_utc": "2026-10-17T12:00:00Z",
+   "round": "",
+   "home_team": "Shandong Taishan",
+   "away_team": "Zhejiang Professional",
+   "model": {
+    "home": 0.5592167450697658,
+    "draw": 0.2031811757084391,
+    "away": 0.23760207922179513,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-18-wuhan-three-towns-shanghai-shenhua",
+   "kickoff_utc": "2026-10-18T10:00:00Z",
+   "round": "",
+   "home_team": "Wuhan Three Towns",
+   "away_team": "Shanghai Shenhua",
+   "model": {
+    "home": 0.35468356390896744,
+    "draw": 0.21174507998329278,
+    "away": 0.4335713561077395,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-18-beijing-guoan-qingdao-west-coast",
+   "kickoff_utc": "2026-10-18T11:00:00Z",
+   "round": "",
+   "home_team": "Beijing Guoan",
+   "away_team": "Qingdao West Coast",
+   "model": {
+    "home": 0.6787777957159995,
+    "draw": 0.17321271815857514,
+    "away": 0.14800948612542517,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   }
