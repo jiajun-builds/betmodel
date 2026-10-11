@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-11T12:11:28Z",
+ "generated_at": "2026-10-11T12:41:26Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-16-henan-songshan-longmen-tianjin-jinmen-tiger",
@@ -689,6 +689,84 @@
    },
    "bet": null,
    "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-18-shanghai-port-chengdu-rongcheng",
+   "kickoff_utc": "2026-10-18T12:00:00Z",
+   "round": "",
+   "home_team": "Shanghai Port",
+   "away_team": "Chengdu Rongcheng",
+   "model": {
+    "home": 0.39161052494080806,
+    "draw": 0.2403040124740543,
+    "away": 0.3680854625851376,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.04,
+     "ev": -0.20111452912075156,
+     "captured_at": "2026-10-11T12:41:20Z",
+     "last_update": "2026-10-11T12:20:08.195Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.95,
+     "ev": -0.05079915072748542,
+     "captured_at": "2026-10-11T12:41:20Z",
+     "last_update": "2026-10-11T12:20:08.195Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 3.45,
+     "ev": 0.2698948459187247,
+     "captured_at": "2026-10-11T12:41:20Z",
+     "last_update": "2026-10-11T12:20:08.195Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.04,
+     "ev": -0.20111452912075156
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.95,
+     "ev": -0.05079915072748542
+    },
+    "away": {
+     "book": "duel",
+     "odds": 3.45,
+     "ev": 0.2698948459187247
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 3.45,
+    "ev": 0.2698948459187247,
+    "proof": "window",
+    "captured_at": "2026-10-11T12:41:20Z"
+   },
+   "bet": {
+    "side": "away",
+    "book": "duel",
+    "odds": 3.45,
+    "ev": 0.2698948459187247,
+    "books": [
+     "duel"
+    ]
+   },
+   "state": "bet"
   }
  ]
 }
