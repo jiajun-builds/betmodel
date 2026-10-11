@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-11T00:51:17Z",
+ "generated_at": "2026-10-11T02:01:29Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-10-atlas-guadalajara",
-   "kickoff_utc": "2026-10-11T01:00:00Z",
-   "round": "",
-   "home_team": "Atlas",
-   "away_team": "Guadalajara",
-   "model": {
-    "home": 0.2936697762839191,
-    "draw": 0.2574647068564421,
-    "away": 0.4488655168596384,
-    "method": "raw",
-    "anchor_proof": null
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.94,
-     "ev": -0.1366108577252778,
-     "captured_at": "2026-09-28T17:31:37Z",
-     "last_update": "2026-09-28T14:21:41.022Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.6,
-     "ev": -0.0731270553168083,
-     "captured_at": "2026-09-28T17:31:37Z",
-     "last_update": "2026-09-28T14:21:41.022Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.36,
-     "ev": 0.05932261978874642,
-     "captured_at": "2026-09-28T17:31:37Z",
-     "last_update": "2026-09-28T14:21:41.022Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.94,
-     "ev": -0.1366108577252778
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.6,
-     "ev": -0.0731270553168083
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.36,
-     "ev": 0.05932261978874642
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.36,
-    "ev": 0.05932261978874642,
-    "proof": "window",
-    "captured_at": "2026-09-28T17:31:37Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-10-club-america-monterrey",
    "kickoff_utc": "2026-10-11T03:10:00Z",
@@ -422,6 +352,25 @@
    },
    "bet": null,
    "state": "paused"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-17-guadalajara-tigres-uanl",
+   "kickoff_utc": "2026-10-17T23:07:00Z",
+   "round": "",
+   "home_team": "Guadalajara",
+   "away_team": "Tigres UANL",
+   "model": {
+    "home": 0.45338032372724035,
+    "draw": 0.2712091675145919,
+    "away": 0.27541050875816775,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
   }
  ]
 }
