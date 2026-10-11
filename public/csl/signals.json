@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-11T12:41:26Z",
+ "generated_at": "2026-10-11T12:51:20Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-16-henan-songshan-longmen-tianjin-jinmen-tiger",
@@ -705,6 +705,33 @@
    },
    "quotes": [
     {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 1.95,
+     "ev": -0.23635947636542431,
+     "captured_at": "2026-10-11T12:51:16Z",
+     "last_update": "2026-10-11T12:30:28.152Z",
+     "proof": "observed"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 4.02,
+     "ev": -0.033977869854301734,
+     "captured_at": "2026-10-11T12:51:16Z",
+     "last_update": "2026-10-11T12:30:28.152Z",
+     "proof": "observed"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 3.42,
+     "ev": 0.2588522820411705,
+     "captured_at": "2026-10-11T12:51:16Z",
+     "last_update": "2026-10-11T12:30:28.152Z",
+     "proof": "observed"
+    },
+    {
      "book": "duel",
      "side": "home",
      "odds": 2.04,
@@ -739,9 +766,9 @@
      "ev": -0.20111452912075156
     },
     "draw": {
-     "book": "duel",
-     "odds": 3.95,
-     "ev": -0.05079915072748542
+     "book": "onexbet",
+     "odds": 4.02,
+     "ev": -0.033977869854301734
     },
     "away": {
      "book": "duel",
@@ -763,6 +790,7 @@
     "odds": 3.45,
     "ev": 0.2698948459187247,
     "books": [
+     "onexbet",
      "duel"
     ]
    },
