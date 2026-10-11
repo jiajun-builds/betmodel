@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-11T02:01:29Z",
+ "generated_at": "2026-10-11T02:51:22Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-10-club-america-monterrey",
@@ -366,11 +366,62 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.9,
+     "ev": -0.13857738491824334,
+     "captured_at": "2026-10-11T02:51:18Z",
+     "last_update": "2026-10-11T02:18:21.047Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.6,
+     "ev": -0.02364699694746919,
+     "captured_at": "2026-10-11T02:51:18Z",
+     "last_update": "2026-10-11T02:18:21.047Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 4.2,
+     "ev": 0.15672413678430464,
+     "captured_at": "2026-10-11T02:51:18Z",
+     "last_update": "2026-10-11T02:18:21.047Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.9,
+     "ev": -0.13857738491824334
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.6,
+     "ev": -0.02364699694746919
+    },
+    "away": {
+     "book": "duel",
+     "odds": 4.2,
+     "ev": 0.15672413678430464
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 4.2,
+    "ev": 0.15672413678430464,
+    "proof": "window",
+    "captured_at": "2026-10-11T02:51:18Z"
+   },
    "bet": null,
-   "state": ""
+   "state": "paused"
   }
  ]
 }
