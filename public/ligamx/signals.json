@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-11T03:31:33Z",
+ "generated_at": "2026-10-11T04:01:30Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-11-atletico-san-luis-santos-laguna",
@@ -360,18 +360,18 @@
    "home_team": "Leon",
    "away_team": "Club America",
    "model": {
-    "home": 0.2615559973331415,
-    "draw": 0.2534503297688155,
-    "away": 0.4849936728980429,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.2537476165880402,
+    "draw": 0.27573750394846225,
+    "away": 0.47051487946349757,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 3.2,
-     "ev": -0.16302080853394718,
+     "ev": -0.18800762691827133,
      "captured_at": "2026-10-11T03:31:29Z",
      "last_update": "2026-10-11T03:19:25.849Z",
      "proof": "window"
@@ -380,7 +380,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.55,
-     "ev": -0.10025132932070502,
+     "ev": -0.02113186098295905,
      "captured_at": "2026-10-11T03:31:29Z",
      "last_update": "2026-10-11T03:19:25.849Z",
      "proof": "window"
@@ -389,7 +389,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.24,
-     "ev": 0.08638582729161626,
+     "ev": 0.053953329998234656,
      "captured_at": "2026-10-11T03:31:29Z",
      "last_update": "2026-10-11T03:19:25.849Z",
      "proof": "window"
@@ -399,24 +399,24 @@
     "home": {
      "book": "duel",
      "odds": 3.2,
-     "ev": -0.16302080853394718
+     "ev": -0.18800762691827133
     },
     "draw": {
      "book": "duel",
      "odds": 3.55,
-     "ev": -0.10025132932070502
+     "ev": -0.02113186098295905
     },
     "away": {
      "book": "duel",
      "odds": 2.24,
-     "ev": 0.08638582729161626
+     "ev": 0.053953329998234656
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.24,
-    "ev": 0.08638582729161626,
+    "ev": 0.053953329998234656,
     "proof": "window",
     "captured_at": "2026-10-11T03:31:29Z"
    },
