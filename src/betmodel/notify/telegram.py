@@ -294,6 +294,15 @@ def format_withdrawal_message(config: LeagueConfig, before: dict, after: dict) -
 
 
 def send(token: str, chat_id: str, text: str, *, timeout: int = 15) -> bool:
+    """Post one message. True only when Telegram says it delivered it.
+
+    **The receipt is logged**: the message number Telegram assigned and the chat it
+    went to. Without it a run can say only that it sent something, and "it never
+    arrived" cannot be settled from this side. That is where CSL round 27's
+    closing-line report left things on 2026-10-11: the run logged "sent" at
+    13:36Z, the reader had no message, and nothing on record said which chat
+    Telegram had put it in.
+    """
     try:
         response = requests.post(
             API.format(token=token),
@@ -308,6 +317,18 @@ def send(token: str, chat_id: str, text: str, *, timeout: int = 15) -> bool:
         log.warning("telegram returned HTTP %s: %s", response.status_code,
                     response.text[:200])
         return False
+    try:
+        body = response.json()
+    except ValueError:
+        body = {}
+    if not isinstance(body, dict) or body.get("ok") is False:
+        log.warning("telegram answered 200 without delivering: %s", response.text[:200])
+        return False
+    result = body.get("result") or {}
+    chat = result.get("chat") or {}
+    log.info("telegram: delivered as message %s to %s chat %r",
+             result.get("message_id", "?"), chat.get("type", "?"),
+             chat.get("title") or chat.get("username") or chat.get("first_name") or "?")
     return True
 
 

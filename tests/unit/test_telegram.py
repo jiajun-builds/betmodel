@@ -124,6 +124,37 @@ def test_an_unreachable_telegram_does_not_raise(monkeypatch):
     assert telegram.send("t", "c", "hello") is False
 
 
+class _Response:
+    def __init__(self, status, body):
+        self.status_code = status
+        self._body = body
+        self.text = json.dumps(body)
+
+    def json(self):
+        return self._body
+
+
+def test_a_delivered_message_logs_telegram_s_receipt(monkeypatch, caplog):
+    """CSL round 27's report logged only "sent", so when its reader had no
+    message nothing on record said which chat Telegram had put it in."""
+    import requests
+
+    receipt = {"ok": True, "result": {"message_id": 812,
+                                      "chat": {"type": "private", "first_name": "Jordan"}}}
+    monkeypatch.setattr(requests, "post", lambda *a, **k: _Response(200, receipt))
+    with caplog.at_level("INFO", logger=telegram.__name__):
+        assert telegram.send("t", "c", "hello") is True
+    assert "delivered as message 812 to private chat 'Jordan'" in caplog.text
+
+
+def test_a_200_that_says_not_ok_is_not_delivered(monkeypatch):
+    import requests
+
+    monkeypatch.setattr(requests, "post", lambda *a, **k: _Response(
+        200, {"ok": False, "description": "Bad Request: chat not found"}))
+    assert telegram.send("t", "c", "hello") is False
+
+
 def test_a_league_with_notifications_off_sends_nothing(monkeypatch):
     """Constructed rather than read from a shipped league, so flipping a league's
     setting cannot make this test lie about the behaviour it guards."""
