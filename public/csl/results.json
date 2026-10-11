@@ -1,44 +1,8 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-11T04:01:29Z",
+ "generated_at": "2026-10-11T06:19:12Z",
  "results": [
-  {
-   "fixture_id": "CSL-2026-5-2026-04-12-tianjin-jinmen-tiger-qingdao-hainiu",
-   "match_date": "2026-04-12",
-   "season": "2026",
-   "round": "5",
-   "home_team": "Tianjin Jinmen Tiger",
-   "away_team": "Qingdao Hainiu",
-   "home_goals": 1,
-   "away_goals": 1,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-5-2026-04-12-beijing-guoan-chengdu-rongcheng",
-   "match_date": "2026-04-12",
-   "season": "2026",
-   "round": "5",
-   "home_team": "Beijing Guoan",
-   "away_team": "Chengdu Rongcheng",
-   "home_goals": 1,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "CSL-2026-5-2026-04-12-shenzhen-xinpengcheng-yunnan-yukun",
-   "match_date": "2026-04-12",
-   "season": "2026",
-   "round": "5",
-   "home_team": "Shenzhen Xinpengcheng",
-   "away_team": "Yunnan Yukun",
-   "home_goals": 3,
-   "away_goals": 4,
-   "result": "A",
-   "status": "played"
-  },
   {
    "fixture_id": "CSL-2026-6-2026-04-17-qingdao-hainiu-qingdao-west-coast",
    "match_date": "2026-04-17",
@@ -2089,6 +2053,30 @@
    "home_goals": 0,
    "away_goals": 3,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-27-2026-10-10-chengdu-rongcheng-tianjin-jinmen-tiger",
+   "match_date": "2026-10-10",
+   "season": "2026",
+   "round": "27",
+   "home_team": "Chengdu Rongcheng",
+   "away_team": "Tianjin Jinmen Tiger",
+   "home_goals": 0,
+   "away_goals": 1,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-27-2026-10-10-shanghai-shenhua-yunnan-yukun",
+   "match_date": "2026-10-10",
+   "season": "2026",
+   "round": "27",
+   "home_team": "Shanghai Shenhua",
+   "away_team": "Yunnan Yukun",
+   "home_goals": 7,
+   "away_goals": 1,
+   "result": "H",
    "status": "played"
   }
  ]
