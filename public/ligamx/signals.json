@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-11T03:01:33Z",
+ "generated_at": "2026-10-11T03:31:33Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-10-club-america-monterrey",
-   "kickoff_utc": "2026-10-11T03:10:00Z",
-   "round": "",
-   "home_team": "Club America",
-   "away_team": "Monterrey",
-   "model": {
-    "home": 0.5692125909191913,
-    "draw": 0.2216824601284826,
-    "away": 0.209104948952326,
-    "method": "raw",
-    "anchor_proof": null
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.97,
-     "ev": 0.12134880411080684,
-     "captured_at": "2026-09-28T17:31:37Z",
-     "last_update": "2026-09-28T13:24:26.636Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.8,
-     "ev": -0.15760665151176612,
-     "captured_at": "2026-09-28T17:31:37Z",
-     "last_update": "2026-09-28T13:24:26.636Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 3.7,
-     "ev": -0.22631168887639375,
-     "captured_at": "2026-09-28T17:31:37Z",
-     "last_update": "2026-09-28T13:24:26.636Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.97,
-     "ev": 0.12134880411080684
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.8,
-     "ev": -0.15760665151176612
-    },
-    "away": {
-     "book": "duel",
-     "odds": 3.7,
-     "ev": -0.22631168887639375
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 1.97,
-    "ev": 0.12134880411080684,
-    "proof": "window",
-    "captured_at": "2026-09-28T17:31:37Z"
-   },
-   "bet": null,
-   "state": "unanchored"
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-11-atletico-san-luis-santos-laguna",
    "kickoff_utc": "2026-10-11T23:00:00Z",
@@ -422,6 +352,76 @@
    },
    "bet": null,
    "state": "paused"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-17-leon-club-america",
+   "kickoff_utc": "2026-10-18T01:00:00Z",
+   "round": "",
+   "home_team": "Leon",
+   "away_team": "Club America",
+   "model": {
+    "home": 0.2615559973331415,
+    "draw": 0.2534503297688155,
+    "away": 0.4849936728980429,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 3.2,
+     "ev": -0.16302080853394718,
+     "captured_at": "2026-10-11T03:31:29Z",
+     "last_update": "2026-10-11T03:19:25.849Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.55,
+     "ev": -0.10025132932070502,
+     "captured_at": "2026-10-11T03:31:29Z",
+     "last_update": "2026-10-11T03:19:25.849Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.24,
+     "ev": 0.08638582729161626,
+     "captured_at": "2026-10-11T03:31:29Z",
+     "last_update": "2026-10-11T03:19:25.849Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 3.2,
+     "ev": -0.16302080853394718
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.55,
+     "ev": -0.10025132932070502
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.24,
+     "ev": 0.08638582729161626
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.24,
+    "ev": 0.08638582729161626,
+    "proof": "window",
+    "captured_at": "2026-10-11T03:31:29Z"
+   },
+   "bet": null,
+   "state": ""
   }
  ]
 }
