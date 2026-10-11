@@ -1,105 +1,8 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-11T09:51:22Z",
+ "generated_at": "2026-10-11T10:51:24Z",
  "signals": [
-  {
-   "fixture_id": "CSL-2026-0-2026-10-11-qingdao-west-coast-dalian-yingbo",
-   "kickoff_utc": "2026-10-11T10:00:00Z",
-   "round": "",
-   "home_team": "Qingdao West Coast",
-   "away_team": "Dalian Yingbo",
-   "model": {
-    "home": 0.43100213130742815,
-    "draw": 0.28444880559235036,
-    "away": 0.2845490631002211,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "onexbet",
-     "side": "home",
-     "odds": 2.425,
-     "ev": 0.04518016842051309,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:38:56.134Z",
-     "proof": "observed"
-    },
-    {
-     "book": "onexbet",
-     "side": "draw",
-     "odds": 3.78,
-     "ev": 0.07521648513908441,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:38:56.134Z",
-     "proof": "observed"
-    },
-    {
-     "book": "onexbet",
-     "side": "away",
-     "odds": 2.656,
-     "ev": -0.24423768840581273,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:38:56.134Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.62,
-     "ev": 0.1292255840254617,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:43:31.293Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.4,
-     "ev": -0.03287406098600876,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:43:31.293Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.82,
-     "ev": -0.19757164205737654,
-     "captured_at": "2026-10-05T03:51:23Z",
-     "last_update": "2026-10-05T03:43:31.293Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.62,
-     "ev": 0.1292255840254617
-    },
-    "draw": {
-     "book": "onexbet",
-     "odds": 3.78,
-     "ev": 0.07521648513908441
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.82,
-     "ev": -0.19757164205737654
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.62,
-    "ev": 0.1292255840254617,
-    "proof": "observed",
-    "captured_at": "2026-10-05T03:51:23Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "CSL-2026-0-2026-10-11-chongqing-tonglianglong-shandong-taishan",
    "kickoff_utc": "2026-10-11T11:35:00Z",
@@ -387,6 +290,103 @@
     "ev": 0.0798826481089574,
     "proof": "window",
     "captured_at": "2026-10-10T12:41:43Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-17-dalian-yingbo-shenzhen-xinpengcheng",
+   "kickoff_utc": "2026-10-17T11:00:00Z",
+   "round": "",
+   "home_team": "Dalian Yingbo",
+   "away_team": "Shenzhen Xinpengcheng",
+   "model": {
+    "home": 0.5106057920377395,
+    "draw": 0.2418361464514658,
+    "away": 0.2475580615107945,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 1.715,
+     "ev": -0.1243110666552768,
+     "captured_at": "2026-10-11T10:51:20Z",
+     "last_update": "2026-10-11T10:30:48.796Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 3.92,
+     "ev": -0.05200230591025401,
+     "captured_at": "2026-10-11T10:51:20Z",
+     "last_update": "2026-10-11T10:30:48.796Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 4.64,
+     "ev": 0.14866940541008655,
+     "captured_at": "2026-10-11T10:51:20Z",
+     "last_update": "2026-10-11T10:30:48.796Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.73,
+     "ev": -0.11665197977471076,
+     "captured_at": "2026-10-11T10:51:20Z",
+     "last_update": "2026-10-11T10:46:38.921Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.2,
+     "ev": 0.01571181509615638,
+     "captured_at": "2026-10-11T10:51:20Z",
+     "last_update": "2026-10-11T10:46:38.921Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 4.6,
+     "ev": 0.13876708294965479,
+     "captured_at": "2026-10-11T10:51:20Z",
+     "last_update": "2026-10-11T10:46:38.921Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.73,
+     "ev": -0.11665197977471076
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.2,
+     "ev": 0.01571181509615638
+    },
+    "away": {
+     "book": "onexbet",
+     "odds": 4.64,
+     "ev": 0.14866940541008655
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "onexbet",
+    "odds": 4.64,
+    "ev": 0.14866940541008655,
+    "proof": "window",
+    "captured_at": "2026-10-11T10:51:20Z"
    },
    "bet": null,
    "state": ""
