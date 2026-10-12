@@ -13,7 +13,7 @@ timezone: Europe/London          # display tz; source CSVs store UTC
 total_rounds: 35
 
 model_name: Weighted Poisson on xG with Dixon-Coles Time Decay
-model_version: v2.9
+model_version: v3.0
 
 sources:
   fixtures:
@@ -58,6 +58,21 @@ model:
   # Asian-handicap cover probabilities written to the simulations file. Research
   # input only: nothing in the production path reads them.
   ah_lines: [-2, -1]
+  # Each club's persistent gap to the market, learned from Pinnacle's no-vig close
+  # against what the model said at the time about every match of the last 18
+  # months, and taken off the home/away split. The xG ratings of a few clubs sit
+  # off the market's for whole seasons -- in 2026 the model rated Qingdao Hainiu,
+  # Tianjin and Qingdao West Coast above Pinnacle in both halves -- and the close
+  # moves further from the model, not toward it. Chosen on 2024-25 alone, then
+  # judged once on 2026: cross-entropy against the close -0.0037, 95% CI
+  # [-0.0058, -0.0017], better in both halves, and every one of 20 placebos with
+  # the club labels shuffled made the forecast worse. See D38.
+  team_offset:
+    enabled: true
+    xi: 0.008
+    lam: 4.0
+    window_months: 18
+    book: pinnacle
 
 odds:
   # Low on purpose. The floor is not what keeps the monthly account inside its
@@ -188,7 +203,16 @@ signals:
   require_price_proof: false     # no capture_watch history yet; see leagues/ligamx.yml
   debias:
     method: market_anchor
-    lam: 1.0                     # the draw IS the anchor's no-vig draw
+    # The model and the anchor's no-vig opener, pooled on all three outcomes:
+    # p ∝ model^w * anchor^(1-w), with w the model's weight. Replacing only the
+    # draw had left the home/away split entirely to the model, which is where its
+    # error lives and exactly the side a threshold then picks. 0.38 was fitted on
+    # 2024-25 alone; on the 2026 hold-out the combination with team_offset beat
+    # the draw replacement by -0.0065 [-0.0107, -0.0030] in cross-entropy against
+    # the close, and any w from 0.27 to 0.54 did as well. Pooling the draw too, or
+    # keeping it anchored, could not be told apart; the draw is pooled because it
+    # was fractionally better on every split. See D38.
+    pool_weight: 0.38
     # No-vig by the logarithmic function, not a proportional shave: the margin is
     # taken off as a power of each implied probability, which shaves the longshot
     # harder than the favourite. Engine-wide, not settable here; see D32.

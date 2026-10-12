@@ -13,6 +13,7 @@ import pytest
 from betmodel import paths
 from betmodel.config import ConfigError, available_leagues, load_all, load_league
 from betmodel.config.loader import clear_cache
+from betmodel.config.schema import DebiasConfig
 
 
 # --------------------------------------------------------------------------- #
@@ -208,6 +209,37 @@ def test_debias_anchor_may_not_be_a_bet_book(tmp_path):
     """Otherwise the price we intend to take also defines the probability."""
     with pytest.raises(ConfigError, match="anchor"):
         load_league("tst", _write(tmp_path, anchor_role="bet"))
+
+
+@pytest.mark.parametrize("kwargs, message", [
+    ({"pool_weight": 1.5}, "pool_weight"),
+    ({"pool_weight": 0.4, "lam": 0.5}, "one or the other"),
+])
+def test_a_pool_weight_must_be_a_weight_and_stand_alone(kwargs, message):
+    with pytest.raises(ConfigError, match=message):
+        DebiasConfig(method="market_anchor", anchor_book="pinnacle", **kwargs)
+
+
+def test_a_pool_needs_an_anchor():
+    with pytest.raises(ConfigError, match="market_anchor"):
+        DebiasConfig(method="none", pool_weight=0.4)
+
+
+def test_the_team_offset_needs_a_close_in_the_match_table(tmp_path):
+    """A book with no schema_prefix stores no close in matches.csv, so an offset
+    learned from it would be learned from nothing."""
+    root = _write(tmp_path, extra=", schema_prefix: null")
+    path = tmp_path / "tst.yml"
+    path.write_text(path.read_text().replace(
+        "  xg_blend:", "  team_offset: {enabled: true, book: bookone}\n  xg_blend:"))
+    clear_cache()
+    with pytest.raises(ConfigError, match="team_offset"):
+        load_league("tst", root)
+
+
+def test_only_csl_corrects_clubs_by_their_market_offset():
+    assert load_league("csl").model.team_offset.enabled is True
+    assert load_league("ligamx").model.team_offset.enabled is False
 
 
 def test_xg_blend_must_sum_to_one(tmp_path):

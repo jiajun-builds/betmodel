@@ -8,7 +8,9 @@ changes here come from optimising a part without knowing what the whole is doing
 Two layers, and they meet in one place.
 
 **The model layer.** On a schedule it fetches xG and match results, fits the
-league's model, and produces team strengths and 1X2 outcome probabilities.
+league's model, and produces team strengths and 1X2 outcome probabilities. In
+CSL each club's persistent gap to Pinnacle's close is then taken off the
+home/away split (`model.team_offset`, D38).
 
 **The odds monitoring layer.** It watches Pinnacle and the betting platforms.
 Pinnacle's **opening** price calibrates the model's output. The calibrated
@@ -27,7 +29,7 @@ them is the most expensive mistake available in this repo.
 
 | Capture | Why | Timing |
 |---|---|---|
-| **Pinnacle opening price** | calibrates the model. The model is worst at the draw and the market is best at it, so `debias.apply` replaces the model's draw with the anchor's no-vig draw (logarithmic-function devig, D32) | Pinnacle publishes first — measured median 6.1 days before kickoff, max 7.0 |
+| **Pinnacle opening price** | calibrates the model. `debias.apply` combines the model with the anchor's no-vig price (logarithmic-function devig, D32): Liga MX replaces only the draw, which is where the model is worst and the market best; CSL pools all three outcomes, `model^0.38 · anchor^0.62`, because the home/away split is where its live error turned out to be (D38) | Pinnacle publishes first — measured median 6.1 days before kickoff, max 7.0 |
 | **Betting platform opening prices** (1xBet, Duel) | the price you actually bet. Soft books open slowly and move slowly, and the edge lives in the gap between the calibrated model and that slow opener | measured median ~6 days before kickoff |
 | **Pinnacle closing price** | after the fact, for CLV. The closing line is the market's final word and the yardstick for whether the strategy has edge | a 15-minute window before kickoff |
 

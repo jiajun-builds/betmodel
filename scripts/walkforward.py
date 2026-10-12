@@ -43,10 +43,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from betmodel import paths  # noqa: E402
 from betmodel.config import load_league  # noqa: E402
 from betmodel.config.schema import LeagueConfig  # noqa: E402
-from betmodel.dates import parse_date_only_series  # noqa: E402
-from betmodel.models.dc import (  # noqa: E402
-    FitError, fit_production_model, prepare_training_frame,
-)
+from betmodel.dates import parse_date_only_series  # noqa: E402,F401  (tests use it)
+from betmodel.models import team_offset  # noqa: E402
+from betmodel.models.poisson import Outcome  # noqa: E402
 from betmodel.signals import debias  # noqa: E402
 from betmodel.signals.ev import devig  # noqa: E402
 from betmodel.xg.blend import recompute  # noqa: E402
@@ -79,33 +78,47 @@ def predict(league: str, config: LeagueConfig, start: str,
             matches_path: str | None = None) -> pd.DataFrame:
     """Played matches from ``start`` on, each priced by a fit on earlier ones.
 
-    Adds the raw 1X2 as ``raw_h/raw_d/raw_a`` and the weaker side's weighted
+    Adds the model's 1X2 as ``raw_h/raw_d/raw_a`` and the weaker side's weighted
     evidence as ``evidence``. A club absent from the training window is skipped,
     as the engine skips it.
+
+    Where the league corrects clubs by their market offset (D38), the walk-forward
+    starts a window earlier so the first priced day has residuals to learn from,
+    each day's offsets are fitted on residuals of strictly earlier days, and the
+    applied shift is kept as ``offset``. The loop is the model layer's own
+    ``team_offset.walk_forward``, so the replay and production cannot drift.
     """
     frame = pd.read_csv(matches_path or paths.for_league(league).matches_csv)
     frame, _ = recompute(frame, config)  # the target under this config's blend
-    frame["_day"] = parse_date_only_series(frame["Date"])
-    frame = frame[frame["Res"].isin(RESULT)].sort_values("_day", kind="stable")
+    history = team_offset.played_history(frame)
 
-    priced = []
-    for day in sorted(frame.loc[frame["_day"] >= pd.Timestamp(start), "_day"].unique()):
-        try:
-            train = prepare_training_frame(frame[frame["_day"] < day].drop(columns="_day"),
-                                           config)
-            fit = fit_production_model(train, config)
-        except FitError:
-            continue
-        evidence = dict(zip(fit.teams, fit.model.appearances()[1]))
-        for index, row in frame[frame["_day"] == day].iterrows():
-            if row["Home"] not in evidence or row["Away"] not in evidence:
-                continue
-            raw = fit.model.outcome_probabilities(row["Home"], row["Away"])
-            priced.append({
-                "index": index, "raw_h": raw.home, "raw_d": raw.draw, "raw_a": raw.away,
-                "evidence": min(evidence[row["Home"]], evidence[row["Away"]]),
-            })
-    return frame.join(pd.DataFrame(priced).set_index("index"), how="inner")
+    settings = config.model.team_offset
+    begin = pd.Timestamp(start)
+    first = begin - pd.DateOffset(months=settings.window_months) if settings.enabled else begin
+    days = sorted(history.loc[history["_day"] >= first, "_day"].unique())
+    priced = team_offset.walk_forward(history, config, days)
+    if settings.enabled:
+        priced = _apply_offsets(history, priced, config)
+    priced = priced[history.loc[priced.index, "_day"] >= begin]
+    return history.join(priced, how="inner")
+
+
+def _apply_offsets(history: pd.DataFrame, priced: pd.DataFrame,
+                   config: LeagueConfig) -> pd.DataFrame:
+    res = team_offset.residuals(history, priced, config)
+    priced = priced.copy()
+    priced["offset"] = 0.0
+    fitted: dict = {}
+    for index in priced.index:
+        day, home, away = history.loc[index, ["_day", "Home", "Away"]]
+        if day not in fitted:
+            fitted[day] = team_offset.estimate(res, day, config.model.team_offset)
+        offsets = fitted[day]
+        row = priced.loc[index]
+        adjusted = offsets.adjust(Outcome(row["raw_h"], row["raw_d"], row["raw_a"]), home, away)
+        priced.loc[index, ["raw_h", "raw_d", "raw_a", "offset"]] = (
+            adjusted.home, adjusted.draw, adjusted.away, offsets.shift(home, away))
+    return priced
 
 
 def _prices(row, prefix: str, phase: str):
