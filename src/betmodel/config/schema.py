@@ -141,6 +141,51 @@ class Shrinkage:
 
 
 @dataclass(frozen=True)
+class TeamOffset:
+    """A per-club correction learned from where the market closed (D38).
+
+    The xG ratings of some clubs sit persistently off the market's, and the market
+    is the one that is right: it moves further away from the model by the close,
+    and a placebo with the club labels shuffled makes the forecast worse rather
+    than better. So the model's home share, in logit units, is shifted by
+    ``kappa + delta_home - delta_away``, fitted by weighted ridge regression to the
+    residual between the ``book``'s no-vig close and what the model said *at the
+    time* about every match of the last ``window_months``.
+
+    ``xi`` is the per-day decay of a residual's weight and ``lam`` the ridge
+    penalty on each club's delta; the league-wide ``kappa`` is unpenalised. Fewer
+    than ``min_history`` residuals and no correction is applied at all.
+    """
+
+    enabled: bool = False
+    xi: float = 0.008
+    lam: float = 4.0
+    window_months: int = 18
+    min_history: int = 30
+    book: str = "pinnacle"
+
+    def __post_init__(self) -> None:
+        if self.enabled:
+            if not 0 < self.xi < 1:
+                raise ConfigError(f"model.team_offset.xi out of range: {self.xi}")
+            if self.lam <= 0:
+                raise ConfigError("model.team_offset.lam must be > 0")
+            if self.window_months <= 0:
+                raise ConfigError("model.team_offset.window_months must be > 0")
+
+    @classmethod
+    def parse(cls, raw: Mapping[str, Any]) -> "TeamOffset":
+        return cls(
+            enabled=bool(raw.get("enabled", False)),
+            xi=float(raw.get("xi", 0.008)),
+            lam=float(raw.get("lam", 4.0)),
+            window_months=int(raw.get("window_months", 18)),
+            min_history=int(raw.get("min_history", 30)),
+            book=str(raw.get("book", "pinnacle")),
+        )
+
+
+@dataclass(frozen=True)
 class ModelConfig:
     xi: float                       # Dixon-Coles time decay
     lookback_months: int            # training window
@@ -150,6 +195,7 @@ class ModelConfig:
     shrinkage: Shrinkage
     draw_calibration_alpha: float   # 1.0 = identity; see note below
     ah_lines: tuple[float, ...] = ()
+    team_offset: TeamOffset = field(default_factory=TeamOffset)
 
     def __post_init__(self) -> None:
         if not 0 < self.xi < 1:
@@ -194,6 +240,7 @@ class ModelConfig:
             ),
             draw_calibration_alpha=float(raw.get("draw_calibration_alpha", 1.0)),
             ah_lines=tuple(float(x) for x in raw.get("ah_lines", ())),
+            team_offset=TeamOffset.parse(raw.get("team_offset", {}) or {}),
         )
 
 
@@ -434,6 +481,11 @@ class DebiasConfig:
     and only splits the remaining mass between home and away. ``none`` leaves the
     model untouched.
 
+    ``pool_weight``, when set, widens the correction from the draw to all three
+    outcomes: a logarithmic pool ``p_i ∝ model_i ** w * anchor_i ** (1 - w)``,
+    with ``w`` the model's weight. ``lam`` then has nothing to act on and must be
+    left at its default (D38).
+
     The anchor's margin comes off with the logarithmic function devig
     (``signals.ev.devig``), not a proportional shave -- see D32. That is a
     property of the engine rather than a per-league setting: two leagues devigging
@@ -443,6 +495,7 @@ class DebiasConfig:
     method: str = "none"
     lam: float = 1.0
     anchor_book: str | None = None
+    pool_weight: float | None = None
 
     def __post_init__(self) -> None:
         _one_of(self.method, DEBIAS_METHODS, "signals.debias.method")
@@ -453,6 +506,18 @@ class DebiasConfig:
                 )
             if not 0.0 <= self.lam <= 1.0:
                 raise ConfigError(f"signals.debias.lam out of [0,1]: {self.lam}")
+        if self.pool_weight is not None:
+            if self.method != "market_anchor":
+                raise ConfigError("signals.debias.pool_weight requires market_anchor")
+            if not 0.0 <= self.pool_weight <= 1.0:
+                raise ConfigError(
+                    f"signals.debias.pool_weight out of [0,1]: {self.pool_weight}"
+                )
+            if self.lam != 1.0:
+                raise ConfigError(
+                    "signals.debias: lam shrinks the draw replacement, which "
+                    "pool_weight does not perform; set one or the other"
+                )
 
     @property
     def enabled(self) -> bool:
@@ -464,6 +529,9 @@ class DebiasConfig:
             method=str(raw.get("method", "none")),
             lam=float(raw.get("lam", raw.get("lambda", 1.0))),
             anchor_book=raw.get("anchor_book"),
+            pool_weight=(
+                float(raw["pool_weight"]) if raw.get("pool_weight") is not None else None
+            ),
         )
 
 
@@ -613,6 +681,14 @@ class LeagueConfig:
                     f"signals.debias.anchor_book {anchor!r} has role {book.role!r}; "
                     "the de-bias anchor must be declared role 'anchor'"
                 )
+        # The team offset is learned from a stored close, so its book has to be
+        # one whose closes reach the match table.
+        offset = self.model.team_offset
+        if offset.enabled and not self.odds.book(offset.book).schema_prefix:
+            raise ConfigError(
+                f"model.team_offset.book {offset.book!r} has no schema_prefix, "
+                "so the match table holds no close for it"
+            )
         if self.total_rounds <= 0:
             raise ConfigError("total_rounds must be > 0")
 

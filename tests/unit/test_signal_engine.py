@@ -7,6 +7,7 @@ directly here, with quotes constructed to sit either side of each bar.
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timezone
 
 import pytest
@@ -244,9 +245,12 @@ def test_a_price_at_or_below_evens_falls_back_rather_than_failing():
 # de-bias
 # --------------------------------------------------------------------------- #
 
+#: The draw replacement, as Liga MX runs it and CSL did before D38.
+DRAW_ONLY = DebiasConfig(method="market_anchor", lam=1.0, anchor_book="pinnacle")
+
+
 def test_full_anchoring_replaces_the_draw_with_the_market_and_keeps_the_sum():
-    config = load_league("csl").signals.debias
-    assert config.lam == 1.0
+    config = DRAW_ONLY
     probabilities, method = debias.apply((0.45, 0.25, 0.30), config,
                                          anchor_odds=(2.1, 3.3, 3.4))
     assert method == "market_anchor"
@@ -255,10 +259,53 @@ def test_full_anchoring_replaces_the_draw_with_the_market_and_keeps_the_sum():
 
 
 def test_home_and_away_keep_their_relative_strength():
-    config = load_league("csl").signals.debias
+    config = DRAW_ONLY
     raw = (0.45, 0.25, 0.30)
     out, _ = debias.apply(raw, config, anchor_odds=(2.1, 3.3, 3.4))
     assert out[0] / out[2] == pytest.approx(raw[0] / raw[2])
+
+
+def test_liga_mx_still_replaces_only_the_draw():
+    assert load_league("ligamx").signals.debias.pool_weight is None
+
+
+def test_csl_pools_all_three_outcomes_with_the_anchor():
+    """D38: the home/away split had been left entirely to the model, which is
+    where its error lives. Pooling covers all three, the model at weight 0.38."""
+    config = load_league("csl").signals.debias
+    assert config.pool_weight == pytest.approx(0.38)
+    raw, odds = (0.45, 0.25, 0.30), (2.1, 3.3, 3.4)
+    out, method = debias.apply(raw, config, anchor_odds=odds)
+    assert method == "market_anchor"
+    market = _log_devig(odds)
+    logs = [0.38 * math.log(m) + 0.62 * math.log(a) for m, a in zip(raw, market)]
+    total = sum(math.exp(x) for x in logs)
+    assert out == pytest.approx(tuple(math.exp(x) / total for x in logs))
+    assert out[0] / out[2] != pytest.approx(raw[0] / raw[2])
+
+
+def test_the_pool_runs_from_the_model_to_the_anchor():
+    raw, odds = (0.45, 0.25, 0.30), (2.1, 3.3, 3.4)
+    assert debias.pool(raw, odds, 1.0) == pytest.approx(raw)
+    assert debias.pool(raw, odds, 0.0) == pytest.approx(_log_devig(odds))
+    for w in (0.2, 0.38, 0.7):
+        assert sum(debias.pool(raw, odds, w)) == pytest.approx(1.0)
+
+
+def test_the_pool_moves_the_side_the_model_overrates_toward_the_market():
+    """The failure it exists for: the model likes the underdog, the market does
+    not, and the threshold picks exactly that side."""
+    raw, odds = (0.24, 0.24, 0.52), (6.0, 4.9, 1.45)
+    pooled = debias.pool(raw, odds, 0.38)
+    assert _log_devig(odds)[0] < pooled[0] < raw[0]
+
+
+def test_a_pooled_fixture_with_no_anchor_still_ships_raw_and_cannot_fire():
+    config = load_league("csl")
+    out, method = debias.apply((0.45, 0.25, 0.30), config.signals.debias, anchor_odds=None)
+    assert method == "raw"
+    state = _decide_with("csl", [_quote("onexbet", "home", 3.0, 0.35)], method=method)[1]
+    assert state == "unanchored"
 
 
 def test_a_fixture_with_no_anchor_ships_the_raw_grid():

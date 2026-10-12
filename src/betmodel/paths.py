@@ -181,6 +181,11 @@ class LeaguePaths:
         return os.path.join(self.model_dir, "simulations.csv")
 
     @property
+    def team_offsets_csv(self) -> str:
+        """Each club's market offset, where the league fits one (D38)."""
+        return os.path.join(self.model_dir, "team_offsets.csv")
+
+    @property
     def model_meta_json(self) -> str:
         """When the model was last refit.
 
