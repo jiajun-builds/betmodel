@@ -16,6 +16,13 @@ the config and the output side by side by hand.
 The correction is not cosmetic. Measured on six fixtures, de-biasing moved EV by
 2.3 to 6.4 percentage points, always downward, against a signal threshold of 20 --
 enough to turn a fixture that should not fire into one that does.
+
+**Not captured and not proven look the same in the output, and they are not.**
+Both publish `raw`. The first means the poll never got the price; the second means
+it did, and the anchor gate refused it because nothing showed it was the opener.
+Liga MX round 11 was entirely the second, after an international break, under an
+alert that said "not being captured" and sent the reader to the provider instead
+of the proof. So the alert now names the fixtures and says which case each is.
 """
 
 from __future__ import annotations
@@ -36,8 +43,53 @@ ANCHORED = "market_anchor"
 RAW = "raw"
 
 
-def assess(league: str, method: str, signals: list[dict]) -> tuple[bool, str]:
-    """Decide for one league. Pure, so the threshold can be tested."""
+#: What ``anchors`` says about a raw signal with no anchor open on file at all.
+MISSING = None
+
+
+def _diagnosis(raw: list[dict], anchors: dict[str, str | None]) -> str:
+    """Which raw signals lack the price and which had it refused."""
+    missing = [s for s in raw if anchors.get(s.get("fixture_id"), MISSING) is MISSING]
+    refused: dict[str, list[dict]] = {}
+    for s in raw:
+        proof = anchors.get(s.get("fixture_id"), MISSING)
+        if proof is not MISSING:
+            refused.setdefault(proof or "none", []).append(s)
+
+    def names(rows):
+        return ", ".join(f"{s.get('home_team')} v {s.get('away_team')}" for s in rows)
+
+    parts = []
+    if missing:
+        parts.append(
+            f"{len(missing)} have no anchor opening price on file -- the anchor "
+            f"book's openers are not being captured: {names(missing)}"
+        )
+    for proof, rows in sorted(refused.items()):
+        if proof == "observed":
+            parts.append(
+                f"{len(rows)} have an observed anchor opener on file and were "
+                f"still published raw -- the engine did not apply it: {names(rows)}"
+            )
+            continue
+        parts.append(
+            f"{len(rows)} have an anchor opener on file that the anchor gate "
+            f"refused (proof {proof!r}, not 'observed') -- nothing showed the book "
+            f"unpriced shortly before it, so read capture_watch.csv: {names(rows)}"
+        )
+    return "; ".join(parts)
+
+
+def assess(
+    league: str, method: str, signals: list[dict],
+    anchors: dict[str, str | None] | None = None,
+) -> tuple[bool, str]:
+    """Decide for one league. Pure, so the threshold can be tested.
+
+    ``anchors`` maps a fixture id to the proof of the anchor opener on file for
+    it, or to ``MISSING`` when there is none. Optional: without it the alert still
+    fires, it just cannot say which of the two causes it is.
+    """
     if method != ANCHORED:
         return True, f"{league}: de-bias is {method!r}; nothing to check"
     if not signals:
@@ -48,12 +100,38 @@ def assess(league: str, method: str, signals: list[dict]) -> tuple[bool, str]:
     if share >= MIN_ANCHORED_SHARE:
         return True, (f"{league}: {anchored}/{len(signals)} signals anchored "
                       f"({share:.0%})")
-    return False, (
+    head = (
         f"{league} is configured for market_anchor but only {anchored} of "
-        f"{len(signals)} published signals are anchored ({share:.0%}). The anchor "
-        f"book's opening prices are not being captured, so the league is "
-        f"publishing uncalibrated probabilities."
+        f"{len(signals)} published signals are anchored ({share:.0%}), so the "
+        f"league is publishing uncalibrated probabilities."
     )
+    if anchors is None:
+        return False, (f"{head} The anchor book's opening prices are either not "
+                       f"being captured or not proven as openers.")
+    raw = [s for s in signals if s.get("model", {}).get("method") != ANCHORED]
+    return False, f"{head} Of those that are not: {_diagnosis(raw, anchors)}."
+
+
+def anchor_proofs(league: str, config, signals: list[dict]) -> dict[str, str | None]:
+    """The anchor opener on file for each signal's fixture, by its proof.
+
+    Read through `reduce.collapse_opens`, the same reduction the engine uses, so
+    this cannot disagree with the gate about what is on file.
+    """
+    import pandas as pd
+
+    from betmodel.dates import local_matchday
+    from betmodel.odds import reduce
+
+    book = config.signals.debias.anchor_book
+    opens = reduce.collapse_opens(league, config)
+    out: dict[str, str | None] = {}
+    for s in signals:
+        kickoff = pd.Timestamp(s["kickoff_utc"]).to_pydatetime()
+        day = local_matchday(kickoff, config.timezone)
+        held = opens.get((s["home_team"], s["away_team"], day, book))
+        out[s["fixture_id"]] = MISSING if held is None else held["proof"]
+    return out
 
 
 def alert(text: str) -> None:
@@ -92,7 +170,16 @@ def main() -> int:
             continue
         with open(path, encoding="utf-8") as fh:
             signals = json.load(fh).get("signals", [])
-        ok, message = assess(league, config.signals.debias.method, signals)
+        method = config.signals.debias.method
+        anchors = None
+        if method == ANCHORED and signals:
+            try:
+                anchors = anchor_proofs(league, config, signals)
+            except Exception as exc:  # noqa: BLE001
+                # The diagnosis is a courtesy; the alarm must not depend on it.
+                print(f"{league}: could not read the anchor openers: {exc}",
+                      file=sys.stderr)
+        ok, message = assess(league, method, signals, anchors)
         print(message)
         if not ok:
             problems.append(message)
