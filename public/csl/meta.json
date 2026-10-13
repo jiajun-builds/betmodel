@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-10T12:41:47Z",
+ "generated_at": "2026-10-13T06:19:30Z",
  "competition": {
   "code": "CSL",
   "name": "Chinese Super League",
@@ -11,14 +11,14 @@
  },
  "model": {
   "name": "Weighted Poisson on xG with Dixon-Coles Time Decay",
-  "version": "v2.9",
-  "updated_at": "2026-10-10T07:19:14+01:00"
+  "version": "v3.0",
+  "updated_at": "2026-10-13T07:19:28+01:00"
  },
  "data": {
-  "fixtures_updated_at": "2026-10-10T06:16:45+00:00",
-  "matches_played": 929,
-  "last_completed_match": "2026-10-09",
-  "next_fixture": "2026-10-10T11:35:00Z",
-  "xg_coverage": 924
+  "fixtures_updated_at": "2026-10-13T06:16:39+00:00",
+  "matches_played": 934,
+  "last_completed_match": "2026-10-11",
+  "next_fixture": "2026-10-16T11:35:00Z",
+  "xg_coverage": 931
  }
 }

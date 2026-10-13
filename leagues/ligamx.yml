@@ -159,7 +159,7 @@ odds:
       # It does not raise the ceiling on spend. A request is billed per tick, and
       # in season the 8-day pending set was already never empty, so the two-hourly
       # arithmetic below assumed every tick spends. What 11 adds is ticks during a
-      # break, which is exactly where the 8-day window was blind. See D38.
+      # break, which is exactly where the 8-day window was blind. See D39.
       lookahead_days: 11
       # Every two hours inside that window. What the cadence buys is being
       # already watching when the line appears, so `capture_watch` records the

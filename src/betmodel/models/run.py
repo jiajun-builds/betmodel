@@ -12,7 +12,14 @@ Three artefacts, and the split matters:
     One row per ordered team pairing, not per fixture, so the exporters can look
     up any matchup without refitting. Carries 1X2 and, where configured,
     Asian-handicap cover probabilities. The handicap columns are research input;
-    nothing in the production path reads them.
+    nothing in the production path reads them, and they come from the fitted
+    grid alone: where the league corrects clubs by their market offset (D38) the
+    1X2 carries the correction and the handicap columns do not.
+
+``team_offsets.csv``
+    Only where ``model.team_offset`` is enabled: each club's fitted offset, so
+    the correction behind a published probability can be read rather than
+    re-derived.
 
 ``meta.json``
     When the model was last fitted. Deliberately not touched by odds-only
@@ -33,6 +40,7 @@ import pandas as pd
 from betmodel import paths
 from betmodel.config import load_league
 from betmodel.config.schema import LeagueConfig
+from betmodel.models import team_offset
 from betmodel.models.dc import ProductionFit, fit_from_csv
 
 log = logging.getLogger(__name__)
@@ -57,15 +65,18 @@ def team_stats_frame(fit: ProductionFit, as_of: str) -> pd.DataFrame:
     })[TEAM_STATS_COLUMNS]
 
 
-def simulations_frame(fit: ProductionFit, config: LeagueConfig, as_of: str) -> pd.DataFrame:
+def simulations_frame(fit: ProductionFit, config: LeagueConfig, as_of: str,
+                      offsets: team_offset.Offsets | None = None) -> pd.DataFrame:
     """Every ordered pairing, so an exporter never has to refit to price one."""
+    offsets = offsets or team_offset.Offsets()
     rows = []
     for home in fit.teams:
         for away in fit.teams:
             if home == away:
                 continue
             probs = fit.model.predict(home, away)
-            outcome = fit.model.outcome_probabilities(home, away)
+            outcome = offsets.adjust(fit.model.outcome_probabilities(home, away),
+                                     home, away)
             row = {
                 "Date": as_of,
                 "Home Team": home,
@@ -82,20 +93,43 @@ def simulations_frame(fit: ProductionFit, config: LeagueConfig, as_of: str) -> p
     return pd.DataFrame(rows)
 
 
-def run_model(league: str, *, write: bool = True) -> ProductionFit:
-    """Fit one league and write its three model artefacts."""
+def team_offsets_frame(offsets: team_offset.Offsets, as_of: str) -> pd.DataFrame:
+    return pd.DataFrame({
+        "Team": list(offsets.deltas),
+        "Offset": list(offsets.deltas.values()),
+        "Kappa": offsets.kappa,
+        "Residuals": offsets.n_residuals,
+        "Date": as_of,
+    })
+
+
+def run_model(league: str, *, write: bool = True,
+              today: pd.Timestamp | None = None) -> ProductionFit:
+    """Fit one league and write its model artefacts.
+
+    ``today`` dates the team offsets: they are fitted on matches played before
+    it, weighted by their age on it. It defaults to the league's local date.
+    """
     config = load_league(league)
     lp = paths.for_league(league)
     fit, train = fit_from_csv(lp.matches_csv, config)
 
     as_of = train["Date"].max().strftime("%Y-%m-%d")
+    offsets = team_offset.Offsets()
+    if config.model.team_offset.enabled:
+        if today is None:
+            today = pd.Timestamp(datetime.now(ZoneInfo(config.timezone)).date())
+        offsets = team_offset.from_history(pd.read_csv(lp.matches_csv), config, today)
     stats = team_stats_frame(fit, as_of)
-    sims = simulations_frame(fit, config, as_of)
+    sims = simulations_frame(fit, config, as_of, offsets)
 
     if write:
         lp.ensure_dirs()
         stats.to_csv(lp.team_stats_csv, index=False)
         sims.to_csv(lp.simulations_csv, index=False)
+        if config.model.team_offset.enabled:
+            team_offsets_frame(offsets, pd.Timestamp(today).strftime("%Y-%m-%d")).to_csv(
+                lp.team_offsets_csv, index=False)
         stamped = datetime.now(ZoneInfo(config.timezone)).isoformat(timespec="seconds")
         with open(lp.model_meta_json, "w", encoding="utf-8") as fh:
             json.dump({"model_updated_at": stamped}, fh)

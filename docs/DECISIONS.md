@@ -1455,7 +1455,179 @@ its closes are the record D35 decides the unpause on.
 written only after Telegram accepts the message and committed by the tick. It is
 append-only and merges through the union driver like the capture histories.
 
-## D38 — Liga MX's anchor window is 11 days, because Pinnacle publishes by round.
+
+## D38 — CSL corrects each club by its gap to the market, and pools all three outcomes with the opener.
+
+**Decided 2026-10-12.** CSL only; Liga MX is untouched and both features default
+off.
+
+**What the live season showed.** The eight bets fired since July averaged
+**−11.9% CLV** on the six with a close, and the higher the EV the worse the CLV
+(correlation −0.75). Almost all of that EV was the model disagreeing with
+Pinnacle's opener: the soft-book opener sat at or below Pinnacle's no-vig price
+on every one. The disagreement was not random. It belonged to particular clubs
+and lasted whole seasons: the model rated Qingdao Hainiu, Tianjin and Qingdao
+West Coast above the market in both halves of 2026 and Shanghai Port below it.
+Club-level gaps correlated +0.52 from the first half to the second, and in the
+second half the market moved further from the model's view of a club by the
+close, not toward it (−0.5). The close is the right yardstick here: on results
+the model carries nothing beyond it (logistic coefficient −0.12 ± 0.21).
+
+Two things were ruled out first. Tuning `xi`, the blend or shrinkage cannot fix
+it: across 27 combinations every one leaves the model's information beyond the
+opener negative in 2026H2. And the manual openers the backtests rest on are
+sound: an overlap test of 41 fixtures from the same source against the live
+captures agreed (`research/overlap_test/`).
+
+**Two changes.**
+
+1. **`model.team_offset`.** Each match the model priced in the last 18 months
+   leaves a residual, `logit(close home share) − logit(model home share)`. The
+   model is the one *at the time* (a walk-forward refit), and the close is
+   Pinnacle's, no-vig. A weighted ridge regression reads the residuals as
+   `kappa + delta_home − delta_away`, with weights `exp(−0.008 · age)` and
+   penalty 4. The model's home/away split is shifted by that amount; its draw
+   is not touched. `models/team_offset.py`; written to `team_offsets.csv`.
+2. **`signals.debias.pool_weight: 0.38`.** The opener no longer replaces only
+   the draw. All three outcomes are pooled,
+   `p ∝ model^0.38 · opener^0.62`. Replacing the draw alone had left the
+   home/away split entirely to the model, which is where its error was.
+
+**How it was chosen, and judged.** The plan and its pass criteria were written
+before the test set was looked at (`research/model_calibration/PLAN.md`). Every
+choice was made on 2024–25 (474 fixtures); 2026 (178) was used once. The
+primary metric is three-way cross-entropy against Pinnacle's no-vig close.
+Differences are against the previous calibration, with paired bootstrap 95% CIs.
+
+| | 2026 hold-out | 2026H1 | 2026H2 | 2024–25 (chosen on) |
+|---|---|---|---|---|
+| team offset only | −0.0037 [−0.0058, −0.0017] | −0.0041 | −0.0028 | −0.0031 |
+| pool, draw kept anchored (HA) + offset | −0.0064 [−0.0107, −0.0027] | −0.0067 | −0.0055 | −0.0056 |
+| **pool, all three (HDA) + offset** | **−0.0065 [−0.0107, −0.0030]** | −0.0069 | −0.0057 | −0.0056 |
+| opener alone, for reference | −0.0043 [−0.0100, +0.0008] | −0.0037 | −0.0060 | −0.0039 |
+
+Log loss on results moves the same way (−0.0070) and its CI includes zero, as it
+should at this sample size.
+
+Checks against overfitting, all passed:
+
+- **Placebo.** Shuffling the club labels before fitting, 20 times, made the
+  hold-out *worse* on average (+0.0031). The best of the 20 was still worse
+  (+0.0012). So the gain is information about the clubs, not generic
+  shrinkage.
+- **Neighbours.** Eight neighbouring `(xi, lam)` settings all improve the
+  hold-out (−0.0021 to −0.0037), in step with how they did on 2024–25.
+- **Weight.** Fitted on 2024 alone `w` is 0.27; fitted on 2025 alone it is 0.54.
+  Those are not close. But the hold-out barely cares: −0.0063 / −0.0065 /
+  −0.0062 at 0.27 / 0.38 / 0.54.
+- **Production equals research.** `scripts/walkforward.py` and the engine's
+  `debias.apply` reproduce the research probabilities to 4e-16.
+
+**HA versus HDA could not be told apart.** HA minus HDA on the hold-out:
++0.00017 [−0.00028, +0.00071]. By the plan's rule the training metric decides,
+and it favoured HDA by a hair. HDA was also fractionally ahead on every split.
+So the draw is pooled rather than kept anchored, but that choice is the weakest
+part of this decision.
+
+**What it does to the bets.** The calibrated EV is much smaller, so far fewer
+fixtures clear 0.20:
+
+| at `ev_min` 0.20 | before | after |
+|---|---|---|
+| 2024–25 replay | 73 bets, CLV +16.9% | 31 bets, +25.8% |
+| 2026 replay | 32 bets, +5.3% | 5 bets, +17.4% |
+
+Of the six 2026 live bets with a close, none fires under the new calibration.
+That skips five that lost on the close and one that gained (+16.4%).
+
+**What this does not establish.**
+
+- **No CLV evidence.** Five hold-out bets is no evidence of CLV, and none is
+  claimed: the claim is better probabilities.
+- **The threshold has not been re-validated.** 0.20 was validated under the old
+  calibration. By this repo's own rule (CLAUDE.md, "Why an EV threshold"), the
+  calibration changed, so the threshold now rests on evidence for something
+  adjacent. It is kept because the descriptive CLV did not get worse at it, not
+  because it was re-derived.
+- **The pooled forecast still does not beat the opener alone in 2026H2**
+  (−0.0057 against −0.0060). In the current market the model adds little, and
+  the change mostly makes it say so by staying quiet.
+
+**Threshold re-validated, 2026-10-12: 0.20 is kept, and it is not validated
+either.** The procedure was the same as above: the plan was written first, the
+choice made on 2024–25, and 2026 used once (`research/threshold/PLAN.md`). The
+objective was total CLV at flat stakes, among thresholds whose mean-CLV CI
+clears zero.
+
+Under the new calibration EV now ranks CLV. On 2024–25 the CLV-on-EV slope is
++0.77 [+0.45, +1.17]. On 2026 the point estimate is still positive, +0.60
+[−0.38, +0.88], but the CI includes zero. Under the old calibration the
+relation ran the other way.
+
+On 2024–25, total CLV is a plateau from 0.025 to 0.075: 17.6, 17.5, 17.6 units
+against 8.0 at 0.20. The arg-max, 0.025, is not stable:
+
+- 2024 alone picks 0.075 and 2025 alone picks 0.025;
+- across 500 bootstrap resamples the picks split 33% / 21% / 33% over 0.025 /
+  0.05 / 0.075, and 0.20 is never picked.
+
+By the plan an unstable choice keeps the existing value, so `ev_min` stays
+0.20.
+
+On 2026 no two thresholds can be told apart:
+
+| | bets | mean CLV | total |
+|---|---|---|---|
+| 0.025 | 88 | +1.6% | +1.39 |
+| 0.075 | 39 | +3.2% | +1.24 |
+| 0.20 | 5 | +17.4% | +0.87 |
+
+Every one of these intervals spans zero. The fall in mean CLV from 2024–25 to
+2026 is the market change this entry starts from. That is a reason to doubt
+that the training plateau carries over, not to lower the bar on it.
+
+**EV inflation, tested 2026-10-12 (`research/ev_correction/`).** The suspicion
+was that a flat EV bar lands on overrated underdogs. Under the old calibration
+that was true, for two reasons.
+
+The first is structural. Reaching EV 0.20 needs a logit disagreement with the
+opener of +0.28 on a 15% side but +0.90 on a 65% side, and the model's logit
+error is roughly the same size at every price (sd 0.34–0.43). So noise clears
+the bar most easily on underdogs.
+
+The second is a bias. Before any selection, sides above 4.0 carried +0.06 to
++0.09 of EV against the close. Once selected, underdogs were inflated about
+three times as much as favourites (+0.22 against +0.07 at EV > 0.05).
+
+Under this calibration the bias before selection is at most 0.015 in every
+odds band, and selected underdogs and favourites are inflated alike. The
+pre-registered extra correction did not pass:
+
+- the rule was "bet only where EV is positive with 84% posterior probability",
+  its uncertainty taken from the model's own logit error;
+- at equal bet counts it cut the underdog share sharply (35% to 13% on
+  2024–25) but did not raise CLV;
+- so EV ranking is kept.
+
+What is left is a common inflation of about 0.10 on 2026's selected bets. It
+falls on both sides alike, which is what a pool weight fitted on 2024–25 would
+leave behind in a market where the model now adds little.
+
+**The uncertainty rule failed validation, 2026-10-12, and is not adopted
+(`research/uncertainty_rule/`).** The rule bets when EV ≥ 1 × SD(EV). Its
+uncertainty model holds: on held-out seasons the standardised error has sd 0.94
+to 1.11, about 1.0 in every odds band, and 72% coverage at one sd.
+
+It fails on two counts. First, non-inferiority at the selectivity actually
+bet: 36 bets over three seasons, CLV −2.7 points against EV > 0.20, CI
+[−10.3, +4.5]. The CI cannot rule out a 5-point loss. Second, composition: it
+over-corrects to 14% underdogs against a 46% base, with 11 favourites under
+1.8 picked to EV > 0.20's 2.
+
+Pooled over the three seasons, EV > 0.20 under this calibration picks 42%
+underdogs, near the base. The 80% in 2026 is four bets out of five.
+
+## D39 — Liga MX's anchor window is 11 days, because Pinnacle publishes by round.
 
 On 2026-10-10 the de-bias check reported Liga MX at 0 of 7 published signals
 anchored. Every one of the seven had a Pinnacle opening price on file. Every one
