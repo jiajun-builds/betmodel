@@ -9,6 +9,7 @@ columns do not.
 
 from __future__ import annotations
 
+import dataclasses
 import math
 
 import numpy as np
@@ -127,7 +128,8 @@ def test_the_identity_is_the_identity():
 
 def test_a_league_that_does_not_ask_for_it_is_not_corrected():
     config = load_league("ligamx")
-    assert config.model.team_offset.enabled is False
+    config = dataclasses.replace(config, model=dataclasses.replace(
+        config.model, team_offset=dataclasses.replace(config.model.team_offset, enabled=False)))
     assert team_offset.from_history(pd.DataFrame(), config, AS_OF) == team_offset.Offsets()
 
 

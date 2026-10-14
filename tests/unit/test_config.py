@@ -237,9 +237,13 @@ def test_the_team_offset_needs_a_close_in_the_match_table(tmp_path):
         load_league("tst", root)
 
 
-def test_only_csl_corrects_clubs_by_their_market_offset():
-    assert load_league("csl").model.team_offset.enabled is True
-    assert load_league("ligamx").model.team_offset.enabled is False
+def test_both_leagues_correct_clubs_by_their_market_offset():
+    """D38 for CSL, D40 for Liga MX, each with its own chosen penalty."""
+    assert load_league("csl").model.team_offset.lam == 4.0
+    ligamx = load_league("ligamx").model
+    assert ligamx.team_offset.enabled is True
+    assert (ligamx.team_offset.xi, ligamx.team_offset.lam) == (0.008, 2.0)
+    assert ligamx.xi == 0.0015  # the model's own decay did not clear its test
 
 
 def test_xg_blend_must_sum_to_one(tmp_path):

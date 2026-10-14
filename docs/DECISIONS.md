@@ -1683,3 +1683,112 @@ the same mechanism at its next break, though, and the de-bias check now says
 which case it is seeing: an anchor never captured, or one captured and refused
 on its proof. This one was reported as "not being captured", which pointed at the
 provider when the cause was in the proof.
+
+## D40 — Liga MX corrects clubs by their market offset and pools with the opener, as CSL. Its time decay stays.
+
+**Decided 2026-10-14.** D38's two changes, replicated on Liga MX under the same
+protocol: the plan and its pass criteria were written before any test-set
+comparison (`research/ligamx_calibration/PLAN.md`), every setting was chosen on
+2024–25 (633 closes), and 2026 (96 closes) was used once. The primary metric is
+cross-entropy against Pinnacle's no-vig close. CLV is description only.
+
+**Two data differences from CSL shaped the protocol.**
+
+- **Some closes are not a yardstick.** Archive closes carry a 2.9–3.5% margin
+  and captured ones 3.3–4.7%. About twenty Apertura 2026 closes that were never
+  captured sit at 5.6–6.8%, which is D35's suspect hand entries. A close above a
+  5% margin is excluded from every score and from fitting a weight. The offsets
+  read every close in the table, as production does. Fitting them without the
+  excluded closes changes nothing (test −0.0051 against −0.0053).
+- **Pinnacle openers exist for one tournament only.** 45 Apertura 2026 fixtures
+  have an opener and a clean close; 2024–25 has four. So the pool weight cannot
+  be chosen on 2024–25 and tested on 2026, and CSL's 0.38 is taken unfitted.
+
+**`model.xi` 0.0015 → 0.004 did not pass, and is not changed.** Train chose
+0.004 (−0.0015 [−0.0022, −0.0008]). On 2026 it was −0.0014 [−0.0037, +0.0009]:
+the same size, better in both tournaments, and an interval that includes zero.
+2024 alone picks 0.006 and 2025 alone 0.003. This is underpowered rather than
+refuted. 2026 had also been looked at for `xi` in D34, so it was never a clean
+hold-out for this parameter.
+
+**`model.team_offset`: xi 0.008, lam 2, window 18 months.** The plan had chosen
+these on top of the model `xi` of 0.004. Once that failed, they were re-chosen on
+train at 0.0015. That contingency was not in the plan and is recorded as such.
+It picked the same corner of the grid.
+
+| offset on vs off | 2026 | Clausura 2026 | Apertura 2026 | 2024–25 |
+|---|---|---|---|---|
+| home-share cross-entropy | **−0.0053 [−0.0091, −0.0015]** | −0.0026 | −0.0066 | −0.0092 |
+
+Checks:
+
+- **Placebo.** Twenty placebos with the clubs shuffled averaged +0.0034 on 2026,
+  which is worse, and the best was −0.0015.
+- **Neighbours.** All nine neighbours improve 2026 (−0.0018 to −0.0054).
+- **Log loss** on results moves −0.0038, with an interval that includes zero.
+
+Fitted today the offsets come from 283 residuals for 19 clubs: Atlante −0.32,
+FC Juarez −0.17, Guadalajara +0.30, Leon +0.25. Atlante is the club whose
+promoted-side overrating `min_team_evidence` was introduced for.
+
+**`signals.debias.pool_weight: 0.38`.** On the 45 fixtures with an opener, the
+three-way cross-entropy against the draw-only anchor was −0.0060
+[−0.0128, −0.0011]. It was better in both halves by date, and log loss was not
+worse. At 0.27 and 0.54 the result is −0.0065 and −0.0050, so it is not
+sensitive to the borrowed weight.
+
+The user asked for a weight re-estimated each matchday, so that was tested too.
+It was fitted on every earlier fixture with an opener once twenty existed. It
+settles at 0.10–0.16, but on the 28 fixtures it covers:
+
+- it is indistinguishable from the fixed weight (−0.0003 [−0.0009, +0.0003]);
+- its second half is +0.0006, which fails the plan's both-halves rule.
+
+The fixed weight needs no new code. The opener alone scores about the same as
+any pool, so here, as in CSL's 2026H2, the model adds little once the opener
+is known.
+
+**All together, on 2026, against the previous calibration (production path):**
+
+| | before | change |
+|---|---|---|
+| home-share cross-entropy, 96 closes | 0.6219 | **−0.0090 [−0.0139, −0.0045]** |
+| three-way cross-entropy, 45 with an opener | 1.0268 | **−0.0107 [−0.0169, −0.0054]** |
+| log loss on results, 263 | 1.0492 | −0.0040 [−0.0159, +0.0084] |
+
+The production path, `walkforward.predict` and `score` on the committed config,
+reproduces the research probabilities to 4e-16.
+
+**What it does to the bets, which are paused (D35).** The Duel replay goes from
+16 bets at −1.6% CLV to 6 at −4.4%, neither of which is evidence of anything.
+The four fixtures currently published `paused` all drop below the bar. The
+largest move is Cruz Azul v FC Juarez away at 7.8, from +0.140 to −0.176.
+
+**What this does not establish.**
+
+- **The 0.10 threshold has not been re-validated.** The calibration changed, so
+  by CLAUDE.md's rule it now rests on evidence for something adjacent. It cannot
+  fire while the league is paused, which is why it was not done here. It must be
+  done before `paused` comes off.
+- **The pool rests on 45 fixtures from one tournament.** The rolling estimate
+  says this league's model deserves less weight than CSL's.
+- **`xi` is open.** Retest it once Apertura 2026's remaining closes and the next
+  tournament's are in.
+- **Clausura 2026 has a close for 32 of 167 matches.** That stretch of the
+  offsets' window is thin.
+
+**A confirmatory re-test is registered before its data exists.** It runs once,
+after Apertura 2026's regular season, on its 56 fixtures from 2026-10-12 to
+2026-11-22. Nothing new is searched; three frozen candidates are checked:
+
+- model `xi` 0.004;
+- a Liga MX-fitted weight of 0.137 against 0.38;
+- the pool itself against the draw-only anchor.
+
+At that size a true effect equal to D40's estimate would pass about 13% of the
+time for `xi` and about 52% for the pool. So an interval that includes zero is
+recorded as not yet evidenced, not as refuted. The same frozen candidates are
+then tested once more, after Clausura 2027, on fixtures from 2026-11-23 only.
+The rules are in the plan.
+
+`model_version` is v1.1.
