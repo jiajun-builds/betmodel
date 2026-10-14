@@ -265,8 +265,10 @@ def test_home_and_away_keep_their_relative_strength():
     assert out[0] / out[2] == pytest.approx(raw[0] / raw[2])
 
 
-def test_liga_mx_still_replaces_only_the_draw():
-    assert load_league("ligamx").signals.debias.pool_weight is None
+def test_liga_mx_pools_with_csls_weight():
+    """D40: Liga MX has openers for one tournament only, so the weight is CSL's,
+    taken unfitted, rather than one estimated on 45 fixtures."""
+    assert load_league("ligamx").signals.debias.pool_weight == pytest.approx(0.38)
 
 
 def test_csl_pools_all_three_outcomes_with_the_anchor():

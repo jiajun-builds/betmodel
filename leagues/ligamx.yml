@@ -16,7 +16,7 @@ total_rounds: 17
 # truncation fix; this string still says Negative Binomial. It is published
 # verbatim, so correcting it changes the golden comparison. Fix after gate G3.
 model_name: Negative Binomial with Dixon-Coles Time Decay
-model_version: v1.0
+model_version: v1.1
 
 sources:
   # Liga MX stays on SofaScore for both, and MUST NOT be moved to TheSportsDB.
@@ -57,6 +57,18 @@ model:
   shrinkage: {enabled: true, k: 6.0}  # empirical Bayes, w = n / (n + k)
   draw_calibration_alpha: 1.0         # identity; the bias it corrected was a fitter bug
   ah_lines: [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
+  # Each club corrected by its persistent gap to Pinnacle's close, as CSL (D38).
+  # Chosen on 2024-25 alone, judged once on 2026: home-share cross-entropy
+  # against the close -0.0053, 95% CI [-0.0091, -0.0015], better in both
+  # tournaments, and none of 20 placebos with the club labels shuffled came
+  # close. `xi` here is the residuals' decay, not the model's; the model's
+  # stays 0.0015 because 0.004 did not clear its test. See D40.
+  team_offset:
+    enabled: true
+    xi: 0.008
+    lam: 2.0
+    window_months: 18
+    book: pinnacle
 
 odds:
   # Low on purpose. The floor is not what keeps the monthly account inside its
@@ -269,6 +281,14 @@ signals:
     # change which bets fire -- measured on the Chinese Super League the same
     # correction moves EV by 2.3 to 6.4 points, downward every time -- so the
     # effect on this league is recorded in D30 rather than assumed to be small.
+    #
+    # Since D40 all three outcomes are pooled with the opener rather than the
+    # draw alone replaced, p ∝ model^0.38 · opener^0.62 -- CSL's weight, taken
+    # unfitted because Liga MX has openers for one tournament only. On its 45
+    # fixtures with an opener: three-way cross-entropy against the close
+    # -0.0060, 95% CI [-0.0128, -0.0011], better in both halves. A weight
+    # re-estimated each matchday could not be told from the fixed one.
+    pool_weight: 0.38
     method: market_anchor
     lambda: 1.0
     anchor_book: pinnacle
