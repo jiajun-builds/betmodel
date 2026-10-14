@@ -1792,3 +1792,77 @@ then tested once more, after Clausura 2027, on fixtures from 2026-11-23 only.
 The rules are in the plan.
 
 `model_version` is v1.1.
+
+
+## D41 — Liga MX's target is half xG, half goals.
+
+**Decided 2026-10-14.** `model.xg_blend` 0.25/0.75 → 0.5/0.5, chosen on 2024–25
+by `research/ligamx_calibration/scripts/step5_blend.py`. That script refits the
+full production recipe (`xi` 0.0015, shrinkage, D40's offsets and pool) before
+every match date, with nothing else changed.
+
+**Where 0.25 came from.** It was carried over unchanged from the pre-merge
+repository, and the only justification is a comment, "walk-forward RPS search".
+No script, period or result survives. The search was probably run on the fitter
+that floored its target (see `models/poisson.py`), but that is inferred, not
+checked. Truncation is not needed to explain the number, though. Scored on
+results, this league genuinely leans to goals:
+
+- Log loss is lowest at 0.0 in three of four training seasons.
+- The whole surface from 0 to 0.5 sits inside ±0.002, about one standard error.
+
+So a results-based search could land anywhere in that range, and 0.25 was one
+such landing. Pinnacle's close is the less noisy yardstick, and it disagrees.
+Every training season wants more xG than 0.25: 0.70, 0.75, 0.45 and 0.90.
+
+**Why 0.5 and not the optimum.** On 2024–25 the close is best at 0.70, but log
+loss on results rises with every step above about 0.1. The requirement was that
+log loss get no worse. 0.5 is the smallest move whose close cross-entropy cannot
+be told from the optimum's (+0.00014 [−0.00002, +0.00030]). It costs half of
+0.70's training log loss.
+
+| 0.5 against 0.25 | close home-share cross-entropy | log loss on results |
+|---|---|---|
+| train 2024–25 (633 closes / 680 results) | −0.00049 [−0.00070, −0.00028] | +0.00078 [−0.00079, +0.00233] |
+| **2026 (96 / 263)** | **−0.00060 [−0.00122, −0.00007]** | −0.00019 [−0.00248, +0.00205] |
+| Clausura 2026 / Apertura 2026 | −0.00061 / −0.00059 | −0.00011 / −0.00034 |
+
+Log loss on 2026 goes from 1.04525 to 1.04506. On 2024–25 it goes from 0.96934
+to 0.97012. Over the whole walk-forward it is 0.99051 → 0.99102. That
+is worse, inside noise, and recorded rather than rounded away. At 0.70, 2026 log
+loss is level (−0.00002) and Clausura 2026 is worse, which is the other reason
+0.70 was not taken.
+
+**2026 is not a clean hold-out for this parameter.** D34 had already trialled
+0.5 on it. The grid here also printed 2026 next to 2024–25 before the selection
+rule was written down. What the choice does rest on is the rule itself, which
+uses training data only. The registered re-test's data (from 2026-10-12) did not
+exist when this was run.
+
+**Against D34.** D34 found blend 0.5 better on the close but worse at picking
+bets, and kept 0.25. That was before D40's offsets and pool. On the current
+recipe the replay, which is description only, now moves the same way as the
+close:
+
+- all books: 116 bets at +14.6% CLV → 106 at +16.5%;
+- Duel: 6 bets at −4.4% → 4 at −2.6%.
+
+**`model_name`** was "Negative Binomial with Dixon-Coles Time Decay". It was
+kept knowingly stale for gate G3, which was retired on 2026-08-31. It is now
+"Weighted Poisson on xG and goals with Dixon-Coles Time Decay". `model_version`
+is v1.2.
+
+**What it changes.** The xg stage recomputes every row's target before the model
+stage, so the next daily refresh refits on the new blend. The committed
+`matches.csv` is not rewritten here. The league is paused (D35), so no published
+bet moves.
+
+**What this does not establish.**
+
+- **The effect is small.** −0.0006 on the close, against −0.0053 for D40's
+  offsets. Once offsets and pool are on, the blend matters little.
+- **The 0.10 threshold is still unvalidated**, as D40 already said. The model
+  changed again, so it must be re-validated before `paused` comes off.
+- **D40's registered re-test** compares its frozen candidates against the
+  production configuration of the day. That configuration now includes this
+  blend.
