@@ -109,10 +109,9 @@ class SourceConfig:
 class XgBlend:
     """Weights of the continuous scoring target ``ExpG+ = xg*xG + goals*G``.
 
-    Both leagues fit on a blend rather than on goals, and both arrived at very
-    different weights by walk-forward search (CSL 0.7/0.3, Liga MX 0.25/0.75).
-    That divergence is real signal about the two leagues, not drift, so the
-    weights stay per-league.
+    Both leagues fit on a blend rather than on goals, and each weight was chosen
+    by walk-forward search (CSL 0.7/0.3, Liga MX 0.5/0.5, D41). They are judged
+    per league, so the weights stay per-league.
     """
 
     xg: float

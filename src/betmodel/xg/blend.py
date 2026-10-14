@@ -4,8 +4,7 @@
 
 Not goals, and not xG alone. Goals are the outcome but a noisy one over a single
 match; xG is the process but ignores the finishing that decided the result. The
-weights are per league and were each chosen by walk-forward search, and they came
-out very different, which is information about the two leagues rather than drift.
+weights are per league and were each chosen by walk-forward search.
 
 A match with no xG keeps a blank target rather than falling back to goals. The
 fitter would happily accept the fallback and quietly train part of its sample on

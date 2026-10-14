@@ -12,11 +12,11 @@ season: Apertura 2026
 timezone: America/Mexico_City
 total_rounds: 17
 
-# KNOWINGLY STALE. The fitter has been continuous Poisson since the integer
-# truncation fix; this string still says Negative Binomial. It is published
-# verbatim, so correcting it changes the golden comparison. Fix after gate G3.
-model_name: Negative Binomial with Dixon-Coles Time Decay
-model_version: v1.1
+# Was "Negative Binomial with Dixon-Coles Time Decay", kept knowingly stale for
+# gate G3, which was retired on 2026-08-31. The fitter is CSL's weighted Poisson
+# on a continuous target, here an even blend of xG and goals (D41).
+model_name: Weighted Poisson on xG and goals with Dixon-Coles Time Decay
+model_version: v1.2
 
 sources:
   # Liga MX stays on SofaScore for both, and MUST NOT be moved to TheSportsDB.
@@ -53,7 +53,13 @@ model:
   # league's scoring rates the mass outside a 10-cell grid is 7e-06, and
   # 1e-03 even on an extreme fixture. See docs/DECISIONS.md D2.
   max_goals: 9
-  xg_blend: {xg: 0.25, goals: 0.75}   # chosen by walk-forward RPS search
+  # Was 0.25/0.75, inherited from a pre-merge RPS search with no surviving record.
+  # Against results the blend is flat from 0 to 0.5 inside +-0.002 of log loss;
+  # against Pinnacle's close every training season wants more xG (0.45-0.90).
+  # 0.5 is the smallest move the 2024-25 close cannot tell from its optimum of 0.7,
+  # which keeps the cost in results log loss lowest. On 2026: close -0.0006
+  # [-0.0012, -0.0001], log loss -0.0002, both tournaments better on both. D41.
+  xg_blend: {xg: 0.5, goals: 0.5}
   shrinkage: {enabled: true, k: 6.0}  # empirical Bayes, w = n / (n + k)
   draw_calibration_alpha: 1.0         # identity; the bias it corrected was a fitter bug
   ah_lines: [-1.5, -1.25, -1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1, 1.25, 1.5]
