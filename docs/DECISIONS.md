@@ -1778,14 +1778,17 @@ largest move is Cruz Azul v FC Juarez away at 7.8, from +0.140 to −0.176.
   offsets' window is thin.
 
 **A confirmatory re-test is registered before its data exists.** It runs once,
-after Clausura 2027's regular season, on fixtures from 2026-10-12. Nothing new
-is searched; three frozen candidates are checked:
+after Apertura 2026's regular season, on its 56 fixtures from 2026-10-12 to
+2026-11-22. Nothing new is searched; three frozen candidates are checked:
 
 - model `xi` 0.004;
 - a Liga MX-fitted weight of 0.137 against 0.38;
 - the pool itself against the draw-only anchor.
 
-It is postponed if fewer than 100 of those fixtures have an opener and a clean
-close. The rules are in the plan.
+At that size a true effect equal to D40's estimate would pass about 13% of the
+time for `xi` and about 52% for the pool. So an interval that includes zero is
+recorded as not yet evidenced, not as refuted. The same frozen candidates are
+then tested once more, after Clausura 2027, on fixtures from 2026-11-23 only.
+The rules are in the plan.
 
 `model_version` is v1.1.
