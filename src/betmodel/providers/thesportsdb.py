@@ -19,6 +19,17 @@ from betmodel.providers import http
 
 log = logging.getLogger(__name__)
 
+#: Rate limited, not quota limited: a retry costs patience only. The site sits
+#: behind Cloudflare, whose 52x statuses mean its edge could not get an answer
+#: from the origin -- a 522 on 2026-10-16 failed the whole CSL fixtures walk on
+#: its first attempt because only the standard 5xx were listed.
+RETRY = http.RetryPolicy(
+    attempts=3,
+    retry_statuses=frozenset({408, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524}),
+    backoff_base=5.0,
+    backoff_max=60.0,
+)
+
 #: The documented free-tier key. Public, and part of the base URL upstream.
 BASE_URL = "https://www.thesportsdb.com/api/v1/json/123"
 
@@ -100,13 +111,7 @@ class TheSportsDBClient:
     def __post_init__(self) -> None:
         self._http = http.client(
             "thesportsdb",
-            retry=http.RetryPolicy(
-                attempts=3,
-                # Rate limited, not quota limited: a 429 costs patience only.
-                retry_statuses=frozenset({408, 429, 500, 502, 503, 504}),
-                backoff_base=5.0,
-                backoff_max=60.0,
-            ),
+            retry=RETRY,
             timeout=self.timeout,
         )
 
