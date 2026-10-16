@@ -81,6 +81,21 @@ def test_transient_policy_does_not_retry_403():
     assert calls["n"] == 1, "a 403 here is an auth answer, not noise"
 
 
+@pytest.mark.parametrize("status", [520, 521, 522, 523, 524])
+def test_thesportsdb_retries_a_cloudflare_origin_error(status):
+    """TheSportsDB is behind Cloudflare; a 52x is its edge failing to reach the
+    origin, and one of them on round one used to fail the whole fixtures walk."""
+    from dataclasses import replace
+
+    from betmodel.providers import thesportsdb
+
+    c = http.client("thesportsdb",
+                    retry=replace(thesportsdb.RETRY, backoff_base=0.0))
+    calls = _stub(c, [_Resp(status), _Resp(200, {"events": []})])
+    assert c.json("https://www.thesportsdb.com/x") == {"events": []}
+    assert calls["n"] == 2
+
+
 def test_a_200_carrying_html_is_an_error_not_data():
     """A challenge page is served with status 200."""
     c = http.client("sofascore")
