@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-17T22:55:37Z",
+ "generated_at": "2026-10-17T23:00:53Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-17-santos-laguna-queretaro",
-   "kickoff_utc": "2026-10-17T23:00:00Z",
-   "round": "",
-   "home_team": "Santos Laguna",
-   "away_team": "Queretaro",
-   "model": {
-    "home": 0.3863349831930485,
-    "draw": 0.2646730492058536,
-    "away": 0.3489919676010979,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.5,
-     "ev": -0.03416254201737878,
-     "captured_at": "2026-10-12T00:01:25Z",
-     "last_update": "2026-10-11T23:44:00.549Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.6,
-     "ev": -0.047177022858927,
-     "captured_at": "2026-10-12T00:01:25Z",
-     "last_update": "2026-10-11T23:44:00.549Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.74,
-     "ev": -0.043762008772991634,
-     "captured_at": "2026-10-12T00:01:25Z",
-     "last_update": "2026-10-11T23:44:00.549Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.5,
-     "ev": -0.03416254201737878
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.6,
-     "ev": -0.047177022858927
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.74,
-     "ev": -0.043762008772991634
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.5,
-    "ev": -0.03416254201737878,
-    "proof": "window",
-    "captured_at": "2026-10-12T00:01:25Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-17-guadalajara-tigres-uanl",
    "kickoff_utc": "2026-10-17T23:07:00Z",
