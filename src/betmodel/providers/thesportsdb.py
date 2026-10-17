@@ -23,11 +23,17 @@ log = logging.getLogger(__name__)
 #: behind Cloudflare, whose 52x statuses mean its edge could not get an answer
 #: from the origin -- a 522 on 2026-10-16 failed the whole CSL fixtures walk on
 #: its first attempt because only the standard 5xx were listed.
+#:
+#: The rate limit is Cloudflare's too (error 1015): measured 2026-10-17, about ten
+#: requests a minute, then a 429 with ``Retry-After: 119``. A five-second backoff
+#: lands inside that block on every attempt, which is how the 2026-10-17 walk
+#: failed, so the wait follows the header.
 RETRY = http.RetryPolicy(
-    attempts=3,
+    attempts=4,
     retry_statuses=frozenset({408, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524}),
     backoff_base=5.0,
     backoff_max=60.0,
+    retry_after_max=180.0,
 )
 
 #: The documented free-tier key. Public, and part of the base URL upstream.
@@ -38,9 +44,11 @@ BASE_URL = "https://www.thesportsdb.com/api/v1/json/123"
 #: rounds and for cup weeks, and stopping at the first gap truncates the schedule.
 EMPTY_ROUNDS_BEFORE_STOP = 3
 
-#: Between rounds. The free tier throttles aggressively and a whole-season walk
-#: is thirty-odd requests, so pacing costs a minute and avoids a 429 storm.
-ROUND_PAUSE_SECONDS = 2.0
+#: Between rounds. A whole-season walk is thirty-odd requests against a limit of
+#: about ten a minute (see RETRY), so the walk paces itself under the limit: it
+#: costs three minutes and never meets the two-minute block. Two seconds was
+#: enough until the limit tightened in October 2026.
+ROUND_PAUSE_SECONDS = 6.5
 
 
 def _int_or_none(value: Any) -> int | None:
@@ -130,10 +138,13 @@ class TheSportsDBClient:
         from an off-season.
         """
         for candidate in candidates:
-            if self._round(candidate, 1):
+            found = self._round(candidate, 1)
+            # Paced on either branch: the walk that follows a hit starts with
+            # another request, and the rate limit counts both.
+            time.sleep(self.pause)
+            if found:
                 log.info("season resolved as %r", candidate)
                 return candidate
-            time.sleep(1)
         return None
 
     def season_events(self, season: str) -> list[dict]:
