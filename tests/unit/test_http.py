@@ -12,10 +12,11 @@ from betmodel.providers import http
 
 
 class _Resp:
-    def __init__(self, status, payload=None, text=""):
+    def __init__(self, status, payload=None, text="", headers=None):
         self.status_code = status
         self._payload = payload
         self.text = text
+        self.headers = headers or {}
 
     def json(self):
         if self._payload is None:
@@ -94,6 +95,34 @@ def test_thesportsdb_retries_a_cloudflare_origin_error(status):
     calls = _stub(c, [_Resp(status), _Resp(200, {"events": []})])
     assert c.json("https://www.thesportsdb.com/x") == {"events": []}
     assert calls["n"] == 2
+
+
+def test_retry_after_is_honoured_only_when_opted_in_and_capped():
+    """Cloudflare's rate limit answers 429 with Retry-After: 119. Backing off five
+    seconds lands inside the block every time, so the wait has to follow the header,
+    but only for a provider that opted in and never past its cap."""
+    plain = http.RetryPolicy(attempts=3, backoff_base=5.0)
+    assert plain.delay(1, "119") == 5.0
+
+    patient = http.RetryPolicy(attempts=3, backoff_base=5.0, backoff_max=60.0,
+                              retry_after_max=150.0)
+    assert patient.delay(1, "119") == 119.0
+    assert patient.delay(1, "600") == 150.0
+    assert patient.delay(1, None) == 5.0
+    assert patient.delay(1, "Wed, 21 Oct 2026 07:28:00 GMT") == 5.0
+    assert patient.delay(2, "1") == 10.0, "never shorter than the backoff"
+
+
+def test_a_rate_limited_request_waits_out_the_block(monkeypatch):
+    slept = []
+    monkeypatch.setattr(http.time, "sleep", slept.append)
+    c = http.client("thesportsdb", retry=http.RetryPolicy(
+        attempts=2, retry_statuses=frozenset({429}), retry_after_max=150.0))
+    calls = _stub(c, [_Resp(429, headers={"Retry-After": "119"}),
+                      _Resp(200, {"events": []})])
+    assert c.json("https://www.thesportsdb.com/x") == {"events": []}
+    assert calls["n"] == 2
+    assert slept == [119.0]
 
 
 def test_a_200_carrying_html_is_an_error_not_data():

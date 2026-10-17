@@ -43,9 +43,20 @@ class RetryPolicy:
     backoff_base: float = 0.4
     backoff_max: float = 8.0
     retry_on_transport_error: bool = True
+    #: Wait as long as a retryable response's ``Retry-After`` asks, up to this many
+    #: seconds. 0 ignores the header. Opt-in, because a provider that asks for two
+    #: minutes would otherwise stall a capture tick that must finish inside five.
+    retry_after_max: float = 0.0
 
-    def delay(self, attempt: int) -> float:
-        return min(self.backoff_base * attempt, self.backoff_max)
+    def delay(self, attempt: int, retry_after: str | None = None) -> float:
+        backoff = min(self.backoff_base * attempt, self.backoff_max)
+        if self.retry_after_max <= 0 or not retry_after:
+            return backoff
+        try:
+            asked = float(retry_after)
+        except ValueError:  # the HTTP-date form; no provider of ours sends it
+            return backoff
+        return max(backoff, min(asked, self.retry_after_max))
 
 
 #: Quota-metered providers. One shot at the request itself; a refusal is an
@@ -228,10 +239,13 @@ class HttpClient:
                     body=_body_of(response),
                     headers=getattr(response, "headers", None),
                 )
-            log.debug(
-                "%s: HTTP %d on attempt %d, retrying", self.name, status, attempt
+            headers_ = getattr(response, "headers", None) or {}
+            wait = self.retry.delay(attempt, headers_.get("Retry-After"))
+            log.info(
+                "%s: HTTP %d on attempt %d, retrying in %.0fs",
+                self.name, status, attempt, wait,
             )
-            time.sleep(self.retry.delay(attempt))
+            time.sleep(wait)
 
         raise HttpError(  # pragma: no cover - loop always returns or raises
             f"{self.name}: exhausted {attempts} attempts (last status {last_status})",
