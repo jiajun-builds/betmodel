@@ -1,8 +1,27 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-18T12:40:45Z",
+ "generated_at": "2026-10-18T13:00:41Z",
  "signals": [
+  {
+   "fixture_id": "CSL-2026-0-2026-10-24-chengdu-rongcheng-dalian-yingbo",
+   "kickoff_utc": "2026-10-24T07:30:00Z",
+   "round": "",
+   "home_team": "Chengdu Rongcheng",
+   "away_team": "Dalian Yingbo",
+   "model": {
+    "home": 0.5543030866735369,
+    "draw": 0.21731033508064293,
+    "away": 0.2283865782458203,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
   {
    "fixture_id": "CSL-2026-0-2026-10-24-chongqing-tonglianglong-qingdao-hainiu",
    "kickoff_utc": "2026-10-24T07:30:00Z",
@@ -493,6 +512,25 @@
     "proof": "window",
     "captured_at": "2026-10-18T11:30:40Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "CSL-2026-0-2026-10-24-tianjin-jinmen-tiger-shanghai-port",
+   "kickoff_utc": "2026-10-24T07:30:00Z",
+   "round": "",
+   "home_team": "Tianjin Jinmen Tiger",
+   "away_team": "Shanghai Port",
+   "model": {
+    "home": 0.3048351341491574,
+    "draw": 0.2631588873439655,
+    "away": 0.4320059785068771,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   },
