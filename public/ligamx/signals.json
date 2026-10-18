@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-18T03:00:46Z",
+ "generated_at": "2026-10-18T04:00:59Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-17-cruz-azul-fc-juarez",
-   "kickoff_utc": "2026-10-18T03:10:00Z",
-   "round": "",
-   "home_team": "Cruz Azul",
-   "away_team": "FC Juarez",
-   "model": {
-    "home": 0.7223164940314724,
-    "draw": 0.17107476619198575,
-    "away": 0.10660873977654182,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.39,
-     "ev": 0.0040199267037464015,
-     "captured_at": "2026-10-12T01:51:15Z",
-     "last_update": "2026-10-12T01:32:23.307Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 5.2,
-     "ev": -0.11041121580167412,
-     "captured_at": "2026-10-12T01:51:15Z",
-     "last_update": "2026-10-12T01:32:23.307Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 7.8,
-     "ev": -0.1684518297429738,
-     "captured_at": "2026-10-12T01:51:15Z",
-     "last_update": "2026-10-12T01:32:23.307Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.39,
-     "ev": 0.0040199267037464015
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 5.2,
-     "ev": -0.11041121580167412
-    },
-    "away": {
-     "book": "duel",
-     "odds": 7.8,
-     "ev": -0.1684518297429738
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 1.39,
-    "ev": 0.0040199267037464015,
-    "proof": "observed",
-    "captured_at": "2026-10-12T01:51:15Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-18-monterrey-pachuca",
    "kickoff_utc": "2026-10-19T01:00:00Z",
@@ -210,6 +140,25 @@
     "proof": "window",
     "captured_at": "2026-10-18T00:50:45Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-20-fc-juarez-atlante",
+   "kickoff_utc": "2026-10-21T01:00:00Z",
+   "round": "",
+   "home_team": "FC Juarez",
+   "away_team": "Atlante",
+   "model": {
+    "home": 0.3622361875285713,
+    "draw": 0.26582620772935184,
+    "away": 0.3719376047420768,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   },
