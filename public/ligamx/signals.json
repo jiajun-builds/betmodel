@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-18T00:45:44Z",
+ "generated_at": "2026-10-18T00:50:49Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-17-leon-club-america",
@@ -296,9 +296,60 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.43,
+     "ev": 0.006141532267150085,
+     "captured_at": "2026-10-18T00:50:45Z",
+     "last_update": "2026-10-18T00:16:56.516Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 5.2,
+     "ev": -0.08407065544885273,
+     "captured_at": "2026-10-18T00:50:45Z",
+     "last_update": "2026-10-18T00:16:56.516Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 6.8,
+     "ev": -0.18220300260648026,
+     "captured_at": "2026-10-18T00:50:45Z",
+     "last_update": "2026-10-18T00:16:56.516Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.43,
+     "ev": 0.006141532267150085
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 5.2,
+     "ev": -0.08407065544885273
+    },
+    "away": {
+     "book": "duel",
+     "odds": 6.8,
+     "ev": -0.18220300260648026
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 1.43,
+    "ev": 0.006141532267150085,
+    "proof": "window",
+    "captured_at": "2026-10-18T00:50:45Z"
+   },
    "bet": null,
    "state": ""
   },
