@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-18T13:00:41Z",
+ "generated_at": "2026-10-18T13:10:44Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-24-chengdu-rongcheng-dalian-yingbo",
@@ -16,9 +16,87 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 1.792,
+     "ev": -0.00668886868102192,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:07:59.308Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 4.02,
+     "ev": -0.1264124529758155,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:07:59.308Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 4.02,
+     "ev": -0.08188595545180255,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:07:59.308Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.82,
+     "ev": 0.008831617745837184,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:10:28.633Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.2,
+     "ev": -0.08729659266129963,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:10:28.633Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 4.1,
+     "ev": -0.06361502919213691,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:10:28.633Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.82,
+     "ev": 0.008831617745837184
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.2,
+     "ev": -0.08729659266129963
+    },
+    "away": {
+     "book": "duel",
+     "odds": 4.1,
+     "ev": -0.06361502919213691
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 1.82,
+    "ev": 0.008831617745837184,
+    "proof": "window",
+    "captured_at": "2026-10-18T13:10:38Z"
+   },
    "bet": null,
    "state": ""
   },
@@ -528,9 +606,87 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 3.3,
+     "ev": 0.005955942692219329,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:07:59.308Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 3.62,
+     "ev": -0.04736482781484497,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:07:59.308Z",
+     "proof": "window"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 2.105,
+     "ev": -0.09062741524302365,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T13:07:59.308Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 3.4,
+     "ev": 0.03643945610713528,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T12:54:58.797Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.7,
+     "ev": -0.026312116827327703,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T12:54:58.797Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.14,
+     "ev": -0.07550720599528293,
+     "captured_at": "2026-10-18T13:10:38Z",
+     "last_update": "2026-10-18T12:54:58.797Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 3.4,
+     "ev": 0.03643945610713528
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.7,
+     "ev": -0.026312116827327703
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.14,
+     "ev": -0.07550720599528293
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 3.4,
+    "ev": 0.03643945610713528,
+    "proof": "window",
+    "captured_at": "2026-10-18T13:10:38Z"
+   },
    "bet": null,
    "state": ""
   },
