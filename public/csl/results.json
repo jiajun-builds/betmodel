@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-18T04:30:45Z",
+ "generated_at": "2026-10-18T06:21:12Z",
  "results": [
   {
    "fixture_id": "CSL-2026-7-2026-04-21-shenzhen-xinpengcheng-beijing-guoan",
@@ -2065,6 +2065,18 @@
    "home_goals": 0,
    "away_goals": 0,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-28-2026-10-17-shandong-taishan-zhejiang-professional",
+   "match_date": "2026-10-17",
+   "season": "2026",
+   "round": "28",
+   "home_team": "Shandong Taishan",
+   "away_team": "Zhejiang Professional",
+   "home_goals": 5,
+   "away_goals": 0,
+   "result": "H",
    "status": "played"
   }
  ]

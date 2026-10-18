@@ -1,20 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-18T04:30:45Z",
+ "generated_at": "2026-10-18T06:21:12Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-15-2026-04-19-santos-laguna-atlas",
-   "match_date": "2026-04-19",
-   "season": "Clausura 2026",
-   "round": "15",
-   "home_team": "Santos Laguna",
-   "away_team": "Atlas",
-   "home_goals": 0,
-   "away_goals": 1,
-   "result": "A",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-16-2026-04-21-leon-club-america",
    "match_date": "2026-04-21",
@@ -1597,6 +1585,66 @@
    "home_goals": 1,
    "away_goals": 2,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-12-2026-10-17-santos-laguna-queretaro",
+   "match_date": "2026-10-17",
+   "season": "Apertura 2026",
+   "round": "12",
+   "home_team": "Santos Laguna",
+   "away_team": "Queretaro",
+   "home_goals": 5,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-12-2026-10-17-guadalajara-tigres-uanl",
+   "match_date": "2026-10-17",
+   "season": "Apertura 2026",
+   "round": "12",
+   "home_team": "Guadalajara",
+   "away_team": "Tigres UANL",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-12-2026-10-17-toluca-atletico-san-luis",
+   "match_date": "2026-10-17",
+   "season": "Apertura 2026",
+   "round": "12",
+   "home_team": "Toluca",
+   "away_team": "Atletico San Luis",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-12-2026-10-17-leon-club-america",
+   "match_date": "2026-10-17",
+   "season": "Apertura 2026",
+   "round": "12",
+   "home_team": "Leon",
+   "away_team": "Club America",
+   "home_goals": 3,
+   "away_goals": 5,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-12-2026-10-17-cruz-azul-fc-juarez",
+   "match_date": "2026-10-17",
+   "season": "Apertura 2026",
+   "round": "12",
+   "home_team": "Cruz Azul",
+   "away_team": "FC Juarez",
+   "home_goals": 5,
+   "away_goals": 0,
+   "result": "H",
    "status": "played"
   }
  ]
