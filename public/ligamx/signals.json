@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-17T23:00:53Z",
+ "generated_at": "2026-10-18T00:00:57Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-17-guadalajara-tigres-uanl",
-   "kickoff_utc": "2026-10-17T23:07:00Z",
-   "round": "",
-   "home_team": "Guadalajara",
-   "away_team": "Tigres UANL",
-   "model": {
-    "home": 0.500300170263236,
-    "draw": 0.2686993743359212,
-    "away": 0.23100045540084277,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.9,
-     "ev": -0.04942967649985164,
-     "captured_at": "2026-10-11T02:51:18Z",
-     "last_update": "2026-10-11T02:18:21.047Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.6,
-     "ev": -0.032682252390683564,
-     "captured_at": "2026-10-11T02:51:18Z",
-     "last_update": "2026-10-11T02:18:21.047Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 4.2,
-     "ev": -0.029798087316460276,
-     "captured_at": "2026-10-11T02:51:18Z",
-     "last_update": "2026-10-11T02:18:21.047Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.9,
-     "ev": -0.04942967649985164
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.6,
-     "ev": -0.032682252390683564
-    },
-    "away": {
-     "book": "duel",
-     "odds": 4.2,
-     "ev": -0.029798087316460276
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 4.2,
-    "ev": -0.029798087316460276,
-    "proof": "window",
-    "captured_at": "2026-10-11T02:51:18Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-17-leon-club-america",
    "kickoff_utc": "2026-10-18T01:00:00Z",
@@ -349,6 +279,95 @@
     "ev": 0.016771367464772702,
     "proof": "window",
     "captured_at": "2026-10-12T01:41:21Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-20-guadalajara-necaxa",
+   "kickoff_utc": "2026-10-21T00:07:00Z",
+   "round": "",
+   "home_team": "Guadalajara",
+   "away_team": "Necaxa",
+   "model": {
+    "home": 0.7035954771098952,
+    "draw": 0.17614025856752832,
+    "away": 0.12026426432257643,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-21-santos-laguna-unam-pumas",
+   "kickoff_utc": "2026-10-22T03:10:00Z",
+   "round": "",
+   "home_team": "Santos Laguna",
+   "away_team": "UNAM Pumas",
+   "model": {
+    "home": 0.3785737836687961,
+    "draw": 0.2559388149328172,
+    "away": 0.36548740139838665,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.46,
+     "ev": -0.06870849217476149,
+     "captured_at": "2026-10-18T00:00:51Z",
+     "last_update": "2026-10-17T23:44:26.551Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.65,
+     "ev": -0.06582332549521719,
+     "captured_at": "2026-10-18T00:00:51Z",
+     "last_update": "2026-10-17T23:44:26.551Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.78,
+     "ev": 0.01605497588751481,
+     "captured_at": "2026-10-18T00:00:51Z",
+     "last_update": "2026-10-17T23:44:26.551Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.46,
+     "ev": -0.06870849217476149
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.65,
+     "ev": -0.06582332549521719
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.78,
+     "ev": 0.01605497588751481
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.78,
+    "ev": 0.01605497588751481,
+    "proof": "window",
+    "captured_at": "2026-10-18T00:00:51Z"
    },
    "bet": null,
    "state": ""
