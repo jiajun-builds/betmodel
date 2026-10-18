@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-18T12:00:45Z",
+ "generated_at": "2026-10-18T12:40:45Z",
  "signals": [
   {
    "fixture_id": "CSL-2026-0-2026-10-24-chongqing-tonglianglong-qingdao-hainiu",
@@ -122,6 +122,33 @@
     "anchor_proof": "observed"
    },
    "quotes": [
+    {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 2.352,
+     "ev": -0.07052145677156951,
+     "captured_at": "2026-10-18T12:40:41Z",
+     "last_update": "2026-10-18T12:16:08.259Z",
+     "proof": "observed"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 3.72,
+     "ev": -0.0636597122696766,
+     "captured_at": "2026-10-18T12:40:41Z",
+     "last_update": "2026-10-18T12:16:08.259Z",
+     "proof": "observed"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 2.775,
+     "ev": -0.02012206400699479,
+     "captured_at": "2026-10-18T12:40:41Z",
+     "last_update": "2026-10-18T12:16:08.259Z",
+     "proof": "observed"
+    },
     {
      "book": "duel",
      "side": "home",
@@ -290,6 +317,33 @@
    },
    "quotes": [
     {
+     "book": "onexbet",
+     "side": "home",
+     "odds": 2.27,
+     "ev": -0.045514191365360945,
+     "captured_at": "2026-10-18T12:40:41Z",
+     "last_update": "2026-10-18T12:22:15.758Z",
+     "proof": "observed"
+    },
+    {
+     "book": "onexbet",
+     "side": "draw",
+     "odds": 3.78,
+     "ev": -0.062427687832674716,
+     "captured_at": "2026-10-18T12:40:41Z",
+     "last_update": "2026-10-18T12:22:15.758Z",
+     "proof": "observed"
+    },
+    {
+     "book": "onexbet",
+     "side": "away",
+     "odds": 2.87,
+     "ev": -0.04863326574979043,
+     "captured_at": "2026-10-18T12:40:41Z",
+     "last_update": "2026-10-18T12:22:15.758Z",
+     "proof": "observed"
+    },
+    {
      "book": "duel",
      "side": "home",
      "odds": 2.3,
@@ -324,9 +378,9 @@
      "ev": -0.03289984147151115
     },
     "draw": {
-     "book": "duel",
-     "odds": 3.75,
-     "ev": -0.06986873792924064
+     "book": "onexbet",
+     "odds": 3.78,
+     "ev": -0.062427687832674716
     },
     "away": {
      "book": "duel",
