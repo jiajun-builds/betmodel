@@ -1,148 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-18T00:50:49Z",
+ "generated_at": "2026-10-18T02:00:48Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-17-leon-club-america",
-   "kickoff_utc": "2026-10-18T01:00:00Z",
-   "round": "",
-   "home_team": "Leon",
-   "away_team": "Club America",
-   "model": {
-    "home": 0.2983664125707792,
-    "draw": 0.2681549549360069,
-    "away": 0.4334786324932139,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 3.2,
-     "ev": -0.045227479773506385,
-     "captured_at": "2026-10-11T03:31:29Z",
-     "last_update": "2026-10-11T03:19:25.849Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.55,
-     "ev": -0.04804990997717562,
-     "captured_at": "2026-10-11T03:31:29Z",
-     "last_update": "2026-10-11T03:19:25.849Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.24,
-     "ev": -0.02900786321520077,
-     "captured_at": "2026-10-11T03:31:29Z",
-     "last_update": "2026-10-11T03:19:25.849Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 3.2,
-     "ev": -0.045227479773506385
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.55,
-     "ev": -0.04804990997717562
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.24,
-     "ev": -0.02900786321520077
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.24,
-    "ev": -0.02900786321520077,
-    "proof": "window",
-    "captured_at": "2026-10-11T03:31:29Z"
-   },
-   "bet": null,
-   "state": ""
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-17-toluca-atletico-san-luis",
-   "kickoff_utc": "2026-10-18T01:00:00Z",
-   "round": "",
-   "home_team": "Toluca",
-   "away_team": "Atletico San Luis",
-   "model": {
-    "home": 0.7238602128579622,
-    "draw": 0.16329875463273663,
-    "away": 0.11284103250930112,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.37,
-     "ev": -0.008311508384591715,
-     "captured_at": "2026-10-12T00:01:25Z",
-     "last_update": "2026-10-11T23:44:00.549Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 5.6,
-     "ev": -0.08552697405667498,
-     "captured_at": "2026-10-12T00:01:25Z",
-     "last_update": "2026-10-11T23:44:00.549Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 7.8,
-     "ev": -0.11983994642745122,
-     "captured_at": "2026-10-12T00:01:25Z",
-     "last_update": "2026-10-11T23:44:00.549Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.37,
-     "ev": -0.008311508384591715
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 5.6,
-     "ev": -0.08552697405667498
-    },
-    "away": {
-     "book": "duel",
-     "odds": 7.8,
-     "ev": -0.11983994642745122
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 1.37,
-    "ev": -0.008311508384591715,
-    "proof": "window",
-    "captured_at": "2026-10-12T00:01:25Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-17-cruz-azul-fc-juarez",
    "kickoff_utc": "2026-10-18T03:10:00Z",
@@ -350,6 +210,82 @@
     "proof": "window",
     "captured_at": "2026-10-18T00:50:45Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-20-atletico-san-luis-queretaro",
+   "kickoff_utc": "2026-10-21T01:00:00Z",
+   "round": "",
+   "home_team": "Atletico San Luis",
+   "away_team": "Queretaro",
+   "model": {
+    "home": 0.4277952760837289,
+    "draw": 0.2650394352116741,
+    "away": 0.307165288704597,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-20-tigres-uanl-leon",
+   "kickoff_utc": "2026-10-21T03:00:00Z",
+   "round": "",
+   "home_team": "Tigres UANL",
+   "away_team": "Leon",
+   "model": {
+    "home": 0.5353332125659579,
+    "draw": 0.24211982765041248,
+    "away": 0.2225469597836296,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-21-atlas-club-america",
+   "kickoff_utc": "2026-10-22T01:00:00Z",
+   "round": "",
+   "home_team": "Atlas",
+   "away_team": "Club America",
+   "model": {
+    "home": 0.28892726885896414,
+    "draw": 0.2580965557810566,
+    "away": 0.45297617535997925,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-21-toluca-tijuana",
+   "kickoff_utc": "2026-10-22T01:00:00Z",
+   "round": "",
+   "home_team": "Toluca",
+   "away_team": "Tijuana",
+   "model": {
+    "home": 0.6589203462157097,
+    "draw": 0.19015258496867152,
+    "away": 0.15092706881561882,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   },
