@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-19T02:01:31Z",
+ "generated_at": "2026-10-19T06:22:01Z",
  "results": [
   {
    "fixture_id": "CSL-2026-7-2026-04-21-shenzhen-xinpengcheng-beijing-guoan",
@@ -2075,6 +2075,42 @@
    "home_team": "Shandong Taishan",
    "away_team": "Zhejiang Professional",
    "home_goals": 5,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-28-2026-10-18-wuhan-three-towns-shanghai-shenhua",
+   "match_date": "2026-10-18",
+   "season": "2026",
+   "round": "28",
+   "home_team": "Wuhan Three Towns",
+   "away_team": "Shanghai Shenhua",
+   "home_goals": 1,
+   "away_goals": 3,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-28-2026-10-18-beijing-guoan-qingdao-west-coast",
+   "match_date": "2026-10-18",
+   "season": "2026",
+   "round": "28",
+   "home_team": "Beijing Guoan",
+   "away_team": "Qingdao West Coast",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "CSL-2026-28-2026-10-18-shanghai-port-chengdu-rongcheng",
+   "match_date": "2026-10-18",
+   "season": "2026",
+   "round": "28",
+   "home_team": "Shanghai Port",
+   "away_team": "Chengdu Rongcheng",
+   "home_goals": 3,
    "away_goals": 0,
    "result": "H",
    "status": "played"

@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-19T02:01:31Z",
+ "generated_at": "2026-10-19T06:22:01Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-16-2026-04-21-leon-club-america",
@@ -1644,6 +1644,18 @@
    "away_team": "FC Juarez",
    "home_goals": 5,
    "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-12-2026-10-18-monterrey-pachuca",
+   "match_date": "2026-10-18",
+   "season": "Apertura 2026",
+   "round": "12",
+   "home_team": "Monterrey",
+   "away_team": "Pachuca",
+   "home_goals": 2,
+   "away_goals": 1,
    "result": "H",
    "status": "played"
   }
