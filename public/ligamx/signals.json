@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-24T07:21:18Z",
+ "generated_at": "2026-10-24T13:21:22Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-24-leon-toluca",
@@ -489,6 +489,76 @@
     "ev": 0.003160307773322879,
     "proof": "window",
     "captured_at": "2026-10-19T13:41:12Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-10-28-club-america-tijuana",
+   "kickoff_utc": "2026-10-29T03:00:00Z",
+   "round": "",
+   "home_team": "Club America",
+   "away_team": "Tijuana",
+   "model": {
+    "home": 0.6117360238567556,
+    "draw": 0.21629720234431957,
+    "away": 0.1719667737989249,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.51,
+     "ev": -0.07627860397629904,
+     "captured_at": "2026-10-24T13:21:18Z",
+     "last_update": "2026-10-24T13:01:06.889Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.7,
+     "ev": 0.016596851018302106,
+     "captured_at": "2026-10-24T13:21:18Z",
+     "last_update": "2026-10-24T13:01:06.889Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 6.0,
+     "ev": 0.03180064279354933,
+     "captured_at": "2026-10-24T13:21:18Z",
+     "last_update": "2026-10-24T13:01:06.889Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.51,
+     "ev": -0.07627860397629904
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.7,
+     "ev": 0.016596851018302106
+    },
+    "away": {
+     "book": "duel",
+     "odds": 6.0,
+     "ev": 0.03180064279354933
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 6.0,
+    "ev": 0.03180064279354933,
+    "proof": "window",
+    "captured_at": "2026-10-24T13:21:18Z"
    },
    "bet": null,
    "state": ""
