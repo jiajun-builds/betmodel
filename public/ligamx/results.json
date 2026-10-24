@@ -1,92 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-24T02:51:17Z",
+ "generated_at": "2026-10-24T06:22:22Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-24-puebla-queretaro",
-   "match_date": "2026-04-24",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "Puebla",
-   "away_team": "Queretaro",
-   "home_goals": 1,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-toluca-leon",
-   "match_date": "2026-04-25",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "Toluca",
-   "away_team": "Leon",
-   "home_goals": 4,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-club-america-atlas",
-   "match_date": "2026-04-25",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "Club America",
-   "away_team": "Atlas",
-   "home_goals": 0,
-   "away_goals": 1,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-pachuca-unam-pumas",
-   "match_date": "2026-04-25",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "Pachuca",
-   "away_team": "UNAM Pumas",
-   "home_goals": 0,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-guadalajara-tijuana",
-   "match_date": "2026-04-25",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "Guadalajara",
-   "away_team": "Tijuana",
-   "home_goals": 0,
-   "away_goals": 0,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-fc-juarez-atletico-san-luis",
-   "match_date": "2026-04-25",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "FC Juarez",
-   "away_team": "Atletico San Luis",
-   "home_goals": 2,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-04-25-tigres-uanl-mazatlan",
-   "match_date": "2026-04-25",
-   "season": "Clausura 2026",
-   "round": "17",
-   "home_team": "Tigres UANL",
-   "away_team": "Mazatlan",
-   "home_goals": 5,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-17-2026-04-26-cruz-azul-necaxa",
    "match_date": "2026-04-26",
@@ -1656,6 +1572,30 @@
    "away_team": "Cruz Azul",
    "home_goals": 1,
    "away_goals": 2,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-14-2026-10-23-necaxa-fc-juarez",
+   "match_date": "2026-10-23",
+   "season": "Apertura 2026",
+   "round": "14",
+   "home_team": "Necaxa",
+   "away_team": "FC Juarez",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-14-2026-10-23-atlante-atletico-san-luis",
+   "match_date": "2026-10-23",
+   "season": "Apertura 2026",
+   "round": "14",
+   "home_team": "Atlante",
+   "away_team": "Atletico San Luis",
+   "home_goals": 0,
+   "away_goals": 1,
    "result": "A",
    "status": "played"
   }
