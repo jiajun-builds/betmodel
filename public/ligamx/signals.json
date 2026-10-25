@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-25T00:51:18Z",
+ "generated_at": "2026-10-25T02:56:14Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-24-monterrey-guadalajara",
-   "kickoff_utc": "2026-10-25T01:00:00Z",
-   "round": "",
-   "home_team": "Monterrey",
-   "away_team": "Guadalajara",
-   "model": {
-    "home": 0.3682911896931358,
-    "draw": 0.28485247196854296,
-    "away": 0.3468563383383212,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.56,
-     "ev": -0.057174554385572396,
-     "captured_at": "2026-10-19T14:31:30Z",
-     "last_update": "2026-10-19T14:20:53.995Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.7,
-     "ev": 0.05395414628360906,
-     "captured_at": "2026-10-19T14:31:30Z",
-     "last_update": "2026-10-19T14:20:53.995Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.62,
-     "ev": -0.09123639355359847,
-     "captured_at": "2026-10-19T14:31:30Z",
-     "last_update": "2026-10-19T14:20:53.995Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.56,
-     "ev": -0.057174554385572396
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.7,
-     "ev": 0.05395414628360906
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.62,
-     "ev": -0.09123639355359847
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.56,
-    "ev": -0.057174554385572396,
-    "proof": "window",
-    "captured_at": "2026-10-19T14:31:30Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-24-unam-pumas-tigres-uanl",
    "kickoff_utc": "2026-10-25T03:10:00Z",
