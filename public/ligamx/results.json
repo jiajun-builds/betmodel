@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-26T04:01:18Z",
+ "generated_at": "2026-10-26T06:22:36Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-02-atlas-cruz-azul",
@@ -1609,6 +1609,54 @@
    "home_goals": 1,
    "away_goals": 1,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-14-2026-10-25-atlas-puebla",
+   "match_date": "2026-10-25",
+   "season": "Apertura 2026",
+   "round": "14",
+   "home_team": "Atlas",
+   "away_team": "Puebla",
+   "home_goals": 4,
+   "away_goals": 3,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-14-2026-10-25-queretaro-cruz-azul",
+   "match_date": "2026-10-25",
+   "season": "Apertura 2026",
+   "round": "14",
+   "home_team": "Queretaro",
+   "away_team": "Cruz Azul",
+   "home_goals": 1,
+   "away_goals": 3,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-14-2026-10-25-club-america-pachuca",
+   "match_date": "2026-10-25",
+   "season": "Apertura 2026",
+   "round": "14",
+   "home_team": "Club America",
+   "away_team": "Pachuca",
+   "home_goals": 1,
+   "away_goals": 2,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-14-2026-10-25-tijuana-santos-laguna",
+   "match_date": "2026-10-25",
+   "season": "Apertura 2026",
+   "round": "14",
+   "home_team": "Tijuana",
+   "away_team": "Santos Laguna",
+   "home_goals": 4,
+   "away_goals": 1,
+   "result": "H",
    "status": "played"
   }
  ]
