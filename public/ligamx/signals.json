@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-26T01:31:23Z",
+ "generated_at": "2026-10-26T01:41:16Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-25-tijuana-santos-laguna",
@@ -366,9 +366,60 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.38,
+     "ev": -0.007312184795606136,
+     "captured_at": "2026-10-26T01:41:12Z",
+     "last_update": "2026-10-26T01:19:58.256Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.5,
+     "ev": -0.05046889636677765,
+     "captured_at": "2026-10-26T01:41:12Z",
+     "last_update": "2026-10-26T01:19:58.256Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.98,
+     "ev": -0.07140315870229208,
+     "captured_at": "2026-10-26T01:41:12Z",
+     "last_update": "2026-10-26T01:19:58.256Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.38,
+     "ev": -0.007312184795606136
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.5,
+     "ev": -0.05046889636677765
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.98,
+     "ev": -0.07140315870229208
+    }
+   },
+   "judged": {
+    "side": "home",
+    "book": "duel",
+    "odds": 2.38,
+    "ev": -0.007312184795606136,
+    "proof": "observed",
+    "captured_at": "2026-10-26T01:41:12Z"
+   },
    "bet": null,
    "state": ""
   },
