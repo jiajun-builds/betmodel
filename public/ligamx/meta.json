@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-27T18:11:25Z",
+ "generated_at": "2026-10-28T06:22:38Z",
  "competition": {
   "code": "MEX",
   "name": "Liga MX",
@@ -12,10 +12,10 @@
  "model": {
   "name": "Weighted Poisson on xG and goals with Dixon-Coles Time Decay",
   "version": "v1.2",
-  "updated_at": "2026-10-27T00:22:11-06:00"
+  "updated_at": "2026-10-28T00:22:36-06:00"
  },
  "data": {
-  "fixtures_updated_at": "2026-10-27T06:20:12+00:00",
+  "fixtures_updated_at": "2026-10-28T06:20:20+00:00",
   "matches_played": 1141,
   "last_completed_match": "2026-10-25",
   "next_fixture": "2026-10-29T03:00:00Z",
