@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-29T04:01:01Z",
+ "generated_at": "2026-10-29T06:22:02Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-02-atlas-cruz-azul",
@@ -1657,6 +1657,18 @@
    "home_goals": 4,
    "away_goals": 1,
    "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-7-2026-10-28-club-america-tijuana",
+   "match_date": "2026-10-28",
+   "season": "Apertura 2026",
+   "round": "7",
+   "home_team": "Club America",
+   "away_team": "Tijuana",
+   "home_goals": 1,
+   "away_goals": 1,
+   "result": "D",
    "status": "played"
   }
  ]
