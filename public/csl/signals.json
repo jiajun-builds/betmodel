@@ -1,12 +1,12 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-31T06:23:57Z",
+ "generated_at": "2026-10-31T08:01:19Z",
  "signals": [
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-beijing-guoan-chongqing-tonglianglong",
+   "fixture_id": "CSL-2026-30-2026-11-08-beijing-guoan-chongqing-tonglianglong",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Beijing Guoan",
    "away_team": "Chongqing Tonglianglong",
    "model": {
@@ -74,9 +74,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-dalian-yingbo-tianjin-jinmen-tiger",
+   "fixture_id": "CSL-2026-30-2026-11-08-dalian-yingbo-tianjin-jinmen-tiger",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Dalian Yingbo",
    "away_team": "Tianjin Jinmen Tiger",
    "model": {
@@ -144,9 +144,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-qingdao-hainiu-shenzhen-xinpengcheng",
+   "fixture_id": "CSL-2026-30-2026-11-08-qingdao-hainiu-shenzhen-xinpengcheng",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Qingdao Hainiu",
    "away_team": "Shenzhen Xinpengcheng",
    "model": {
@@ -214,9 +214,9 @@
    "state": "unanchored"
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-shandong-taishan-chengdu-rongcheng",
+   "fixture_id": "CSL-2026-30-2026-11-08-shandong-taishan-chengdu-rongcheng",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Shandong Taishan",
    "away_team": "Chengdu Rongcheng",
    "model": {
@@ -284,9 +284,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-shanghai-port-liaoning-tieren",
+   "fixture_id": "CSL-2026-30-2026-11-08-shanghai-port-liaoning-tieren",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Shanghai Port",
    "away_team": "Liaoning Tieren",
    "model": {
@@ -354,9 +354,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-shanghai-shenhua-qingdao-west-coast",
+   "fixture_id": "CSL-2026-30-2026-11-08-shanghai-shenhua-qingdao-west-coast",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Shanghai Shenhua",
    "away_team": "Qingdao West Coast",
    "model": {
@@ -424,9 +424,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-yunnan-yukun-wuhan-three-towns",
+   "fixture_id": "CSL-2026-30-2026-11-08-yunnan-yukun-wuhan-three-towns",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Yunnan Yukun",
    "away_team": "Wuhan Three Towns",
    "model": {
@@ -494,9 +494,9 @@
    "state": ""
   },
   {
-   "fixture_id": "CSL-2026-0-2026-11-08-zhejiang-professional-henan-songshan-longmen",
+   "fixture_id": "CSL-2026-30-2026-11-08-zhejiang-professional-henan-songshan-longmen",
    "kickoff_utc": "2026-11-08T07:30:00Z",
-   "round": "",
+   "round": "30",
    "home_team": "Zhejiang Professional",
    "away_team": "Henan Songshan Longmen",
    "model": {
