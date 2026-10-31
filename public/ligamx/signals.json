@@ -1,148 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-31T00:51:18Z",
+ "generated_at": "2026-10-31T02:01:14Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-30-atletico-san-luis-atlas",
-   "kickoff_utc": "2026-10-31T01:00:00Z",
-   "round": "",
-   "home_team": "Atletico San Luis",
-   "away_team": "Atlas",
-   "model": {
-    "home": 0.38864033890200717,
-    "draw": 0.26211070784914153,
-    "away": 0.34924895324885125,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.46,
-     "ev": -0.043944766301062366,
-     "captured_at": "2026-10-26T00:01:20Z",
-     "last_update": "2026-10-26T00:00:03.08Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.55,
-     "ev": -0.0695069871355476,
-     "captured_at": "2026-10-26T00:01:20Z",
-     "last_update": "2026-10-26T00:00:03.08Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.84,
-     "ev": -0.008132972773262526,
-     "captured_at": "2026-10-26T00:01:20Z",
-     "last_update": "2026-10-26T00:00:03.08Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.46,
-     "ev": -0.043944766301062366
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.55,
-     "ev": -0.0695069871355476
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.84,
-     "ev": -0.008132972773262526
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.84,
-    "ev": -0.008132972773262526,
-    "proof": "window",
-    "captured_at": "2026-10-26T00:01:20Z"
-   },
-   "bet": null,
-   "state": ""
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-0-2026-10-30-fc-juarez-queretaro",
-   "kickoff_utc": "2026-10-31T01:00:00Z",
-   "round": "",
-   "home_team": "FC Juarez",
-   "away_team": "Queretaro",
-   "model": {
-    "home": 0.3263186593729542,
-    "draw": 0.26516458672068066,
-    "away": 0.40851675390636516,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 3.2,
-     "ev": 0.04421970999345337,
-     "captured_at": "2026-10-26T01:31:18Z",
-     "last_update": "2026-10-26T01:18:55.364Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.6,
-     "ev": -0.045407487805549596,
-     "captured_at": "2026-10-26T01:31:18Z",
-     "last_update": "2026-10-26T01:18:55.364Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.22,
-     "ev": -0.09309280632786932,
-     "captured_at": "2026-10-26T01:31:18Z",
-     "last_update": "2026-10-26T01:18:55.364Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 3.2,
-     "ev": 0.04421970999345337
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.6,
-     "ev": -0.045407487805549596
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.22,
-     "ev": -0.09309280632786932
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 3.2,
-    "ev": 0.04421970999345337,
-    "proof": "window",
-    "captured_at": "2026-10-26T01:31:18Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-30-puebla-unam-pumas",
    "kickoff_utc": "2026-10-31T03:00:00Z",
@@ -630,6 +490,25 @@
     "proof": "window",
     "captured_at": "2026-10-26T01:31:18Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-0-2026-11-06-atletico-san-luis-fc-juarez",
+   "kickoff_utc": "2026-11-07T01:00:00Z",
+   "round": "",
+   "home_team": "Atletico San Luis",
+   "away_team": "FC Juarez",
+   "model": {
+    "home": 0.5498452937703405,
+    "draw": 0.23465464625305532,
+    "away": 0.21550005997660412,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   }
