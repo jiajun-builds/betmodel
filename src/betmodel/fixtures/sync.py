@@ -18,6 +18,13 @@ emptied it would silently stop opening-line capture rather than raise.
 **Forward-only.** Results are merged for matches the upstream now reports as
 played; a match that reverts to unplayed is left as it is.
 
+**Only a final score is a result.** Because a stored result is never revisited,
+a score taken while the match is still being played stays wrong forever. Both
+providers carry a score from kickoff, so a score alone is not evidence the match
+is over: the provider's own status has to say so, and where it says nothing
+usable the kickoff has to be comfortably in the past. Seven CSL rows were written
+between 6 and 70 minutes after kickoff before this rule existed.
+
 A match is **not** keyed on its stored date, because that date cannot be trusted
 to mean anything in particular. Classified against provider truth, one league's
 history carries at least three timezone conventions: league-local for one season,
@@ -36,7 +43,7 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -66,6 +73,42 @@ DATE_TOLERANCE_DAYS = 2
 
 #: Columns the fitted target and the odds reducer expect to find.
 DERIVED_COLUMNS = ["HxG", "AxG", "HExpG+", "AExpG+"]
+
+#: How long after kickoff a score is taken as final when the provider gives no
+#: usable status. Ninety minutes, half-time and stoppage come to about two hours;
+#: the margin costs nothing, since a result written a day later is just as good.
+RESULT_SETTLE = timedelta(hours=3)
+
+#: Provider statuses, lower-cased. A status in neither set is unknown and falls
+#: back to RESULT_SETTLE rather than blocking results: guessing "not finished"
+#: for a spelling nobody listed would stop every result being recorded, silently.
+FINISHED_STATUSES = frozenset({
+    # TheSportsDB
+    "match finished", "ft", "aet", "pen", "after extra time", "after penalties",
+    # SofaScore status.type
+    "finished",
+})
+UNFINISHED_STATUSES = frozenset({
+    # TheSportsDB
+    "not started", "ns", "tbd", "1h", "ht", "2h", "et", "bt", "p", "live",
+    "in progress", "break time", "susp", "int", "pst", "postponed", "canc",
+    "cancelled", "abd", "abandoned",
+    # SofaScore status.type
+    "notstarted", "inprogress", "interrupted", "delayed", "willcontinue", "canceled",
+})
+
+
+def status_finished(status) -> bool | None:
+    """The provider's word on whether a match is over: True, False, or None if it
+    gave no status this module knows how to read."""
+    text = str(status or "").strip().lower()
+    if text in FINISHED_STATUSES:
+        return True
+    if text in UNFINISHED_STATUSES:
+        return False
+    if text:
+        log.debug("unrecognised match status %r; falling back to kickoff age", status)
+    return None
 
 
 def empty_history(config: LeagueConfig) -> pd.DataFrame:
@@ -98,6 +141,8 @@ class Match:
     away: str
     home_goals: int | None = None
     away_goals: int | None = None
+    #: The provider's status, read through `status_finished`.
+    finished: bool | None = None
 
     def local_date(self, timezone_name: str) -> str:
         """The matchday as the league experiences it, which is how it is stored."""
@@ -105,7 +150,14 @@ class Match:
 
     @property
     def played(self) -> bool:
+        """A score exists. Not the same as a result: see `final`."""
         return self.home_goals is not None and self.away_goals is not None
+
+    def final(self, now: datetime) -> bool:
+        """The score is the result and may be written to the history."""
+        if not self.played or self.finished is False:
+            return False
+        return self.finished is True or self.kickoff + RESULT_SETTLE <= now
 
     @property
     def result(self) -> str | None:
@@ -145,6 +197,7 @@ def _from_thesportsdb(config: LeagueConfig, source: SourceConfig) -> list[Match]
                 kickoff=kickoff, home=home, away=away,
                 home_goals=_int(event.get("intHomeScore")),
                 away_goals=_int(event.get("intAwayScore")),
+                finished=status_finished(event.get("strStatus")),
             ))
     return matches
 
@@ -185,6 +238,7 @@ def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
                     season=season_label, round=round_label(event),
                     kickoff=kickoff, home=home, away=away,
                     home_goals=home_goals, away_goals=away_goals,
+                    finished=status_finished((event.get("status") or {}).get("type")),
                 ))
     return matches
 
@@ -233,6 +287,7 @@ def sync(
     if KICKOFF_COLUMN not in history.columns:
         history[KICKOFF_COLUMN] = pd.NA
     stats["stamped"] = 0
+    stats["not_final"] = 0
 
     by_pairing: dict[tuple[str, str], list[int]] = {}
     for position, row in history.iterrows():
@@ -241,6 +296,13 @@ def sync(
 
     for match in matches:
         if not match.played:
+            continue
+        if not match.final(now):
+            # Left for a later run: a stored result is never revisited, so a
+            # score written now would be the live one for good.
+            stats["not_final"] += 1
+            log.info("%s: %s v %s (kickoff %s) has a score but is not final; "
+                     "not recorded yet", league, match.home, match.away, _iso(match.kickoff))
             continue
         position = _locate(history, by_pairing, match, config.timezone, tolerance)
         if position is None:
@@ -264,19 +326,27 @@ def sync(
         key=lambda m: m.kickoff,
     )
     stats["upcoming"] = len(upcoming)
-    if not upcoming and not allow_empty_upcoming:
-        raise RuntimeError(
-            f"{league}: the provider returned no upcoming fixture. Every timing "
-            "decision downstream reads that file, so it is not overwritten with "
-            "nothing. Pass allow_empty_upcoming to override at season end."
-        )
+    refuse_upcoming = not upcoming and not allow_empty_upcoming
 
     if dry_run:
         log.info("%s: would write %s", league, stats)
+        if refuse_upcoming:
+            log.warning("%s: no upcoming fixture; would keep the existing list", league)
         return stats
 
+    # The results first, unconditionally. The guard below protects the upcoming
+    # list, not the history: at the end of a season the last round's results
+    # arrive in the same response that has no fixture left in it, and refusing
+    # the whole write threw them away on every run until someone noticed.
     lp.ensure_dirs()
     history.drop(columns=["MatchDate"]).to_csv(lp.matches_csv, index=False)
+    if refuse_upcoming:
+        raise RuntimeError(
+            f"{league}: the provider returned no upcoming fixture. Results were "
+            "written; the upcoming list was not, because every timing decision "
+            "downstream reads it and it is not overwritten with nothing. Pass "
+            "allow_empty_upcoming to override at season end."
+        )
     pd.DataFrame([{
         "Season": m.season, "Round": m.round,
         "Date": m.local_date(config.timezone),

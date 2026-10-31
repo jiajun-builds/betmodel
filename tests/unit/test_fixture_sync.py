@@ -46,9 +46,9 @@ def _match(**over):
     return sync.Match(**values)
 
 
-def _run(tmp_path, matches, monkeypatch, **kwargs):
+def _run(tmp_path, matches, monkeypatch, *, rows=None, **kwargs):
     config = load_league("ligamx")
-    path = _history(tmp_path, [_base_row()])
+    path = _history(tmp_path, rows if rows is not None else [_base_row()])
     monkeypatch.setattr(sync, "fetch", lambda cfg: matches)
 
     class Redirect:
@@ -171,3 +171,95 @@ def test_a_provider_returning_nothing_leaves_every_file_alone(tmp_path, monkeypa
     stats, path = _run(tmp_path, [], monkeypatch)
     assert stats == {"fetched": 0, "updated": 0, "added": 0, "upcoming": 0}
     assert len(pd.read_csv(path)) == 1
+
+
+# --------------------------------------------------------------------------- #
+# only a final score is a result
+# --------------------------------------------------------------------------- #
+
+def _future():
+    return _match(
+        kickoff=datetime.now(timezone.utc) + timedelta(days=3),
+        home="Toluca", away="Leon", home_goals=None, away_goals=None,
+    )
+
+
+def _unscored_row():
+    return _base_row(HG=None, AG=None, Res=None)
+
+
+def _with_unscored():
+    """A played row first, as in every real history, so the result columns load
+    with the dtypes they really have."""
+    return [_base_row(Home="Atlas", Away="Tigres UANL", Date="2026-03-01"), _unscored_row()]
+
+
+def test_a_score_from_a_match_still_in_play_is_not_recorded(tmp_path, monkeypatch):
+    """Seven CSL rows were written 6-70 minutes after kickoff, and since a stored
+    result is never revisited each kept its live score for good."""
+    live = _match(home_goals=0, away_goals=0, finished=False)
+    stats, path = _run(tmp_path, [live, _future()], monkeypatch, rows=_with_unscored())
+    row = pd.read_csv(path).iloc[1]
+    assert stats["not_final"] == 1 and stats["updated"] == 0
+    assert pd.isna(row["HG"]) and pd.isna(row["Res"])
+
+
+def test_the_final_score_is_recorded_once_the_provider_says_finished(tmp_path, monkeypatch):
+    done = _match(home_goals=0, away_goals=2, finished=True)
+    stats, path = _run(tmp_path, [done, _future()], monkeypatch, rows=_with_unscored())
+    row = pd.read_csv(path).iloc[1]
+    assert stats["updated"] == 1
+    assert (row["HG"], row["AG"], row["Res"]) == (0.0, 2.0, "A")
+
+
+def test_a_live_score_is_not_added_as_a_new_match_either(tmp_path, monkeypatch):
+    live = _match(home="Atlas", away="Tigres UANL", home_goals=1, away_goals=0,
+                  finished=False)
+    stats, path = _run(tmp_path, [live, _future()], monkeypatch)
+    assert stats["added"] == 0 and len(pd.read_csv(path)) == 1
+
+
+def test_without_a_status_a_score_waits_until_well_after_kickoff(tmp_path, monkeypatch):
+    kickoff = datetime(2026, 4, 22, 3, 5, tzinfo=timezone.utc)
+    scored = _match(home_goals=1, away_goals=0, finished=None)
+
+    early = kickoff + timedelta(minutes=40)
+    stats, _ = _run(tmp_path, [scored, _future()], monkeypatch,
+                    rows=_with_unscored(), now=early)
+    assert stats["updated"] == 0 and stats["not_final"] == 1
+
+    late = kickoff + sync.RESULT_SETTLE
+    stats, path = _run(tmp_path, [scored, _future()], monkeypatch,
+                       rows=_with_unscored(), now=late)
+    assert stats["updated"] == 1
+    assert pd.read_csv(path).iloc[1]["Res"] == "H"
+
+
+@pytest.mark.parametrize("status, expected", [
+    ("Match Finished", True), ("FT", True), ("AET", True), ("PEN", True),
+    ("finished", True),
+    ("1H", False), ("HT", False), ("2H", False), ("Not Started", False),
+    ("inprogress", False), ("notstarted", False), ("postponed", False),
+    (None, None), ("", None), ("something new", None),
+])
+def test_provider_statuses_are_read_for_both_providers(status, expected):
+    """TheSportsDB's strStatus and SofaScore's status.type. An unknown spelling
+    falls back to kickoff age rather than blocking every result."""
+    assert sync.status_finished(status) is expected
+
+
+def test_the_last_rounds_results_are_written_even_when_nothing_is_upcoming(
+    tmp_path, monkeypatch,
+):
+    """At season end the final round's results arrive in a response with no
+    fixture left in it. The guard used to raise before writing anything, so
+    those results were thrown away on every run."""
+    upcoming_path = tmp_path / "upcoming.csv"
+    upcoming_path.write_text("kept\n")
+    done = _match(home_goals=3, away_goals=1, finished=True)
+    with pytest.raises(RuntimeError, match="no upcoming fixture"):
+        _run(tmp_path, [done], monkeypatch, rows=_with_unscored())
+    row = pd.read_csv(tmp_path / "matches.csv").iloc[1]
+    assert (row["HG"], row["AG"], row["Res"]) == (3.0, 1.0, "H")
+    assert upcoming_path.read_text() == "kept\n", "the upcoming list was overwritten"
+    assert not (tmp_path / "meta.json").exists(), "the fixtures were stamped as refreshed"
