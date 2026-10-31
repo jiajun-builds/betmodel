@@ -54,6 +54,24 @@ def _parse_kickoff(value: str) -> datetime | None:
     return moment.replace(tzinfo=timezone.utc) if moment.tzinfo is None else moment
 
 
+#: Where the round is read from, first match wins. ``Round`` is what the fixtures
+#: stage writes (``fixtures.sync.UPCOMING_COLUMNS``); the other two are the
+#: spellings of the pre-merge files. Reading only those two is how every signal
+#: published from the merge (2026-08-29) to 2026-10-31 carried round 0 in its
+#: ``fixture_id`` -- the file has no column by either name -- while
+#: ``results.json`` built the same fixture's id from the real round, so no signal
+#: in that span joined its result.
+ROUND_COLUMNS = ("Round", "round", "Wk")
+
+
+def _round(row: dict) -> str:
+    for column in ROUND_COLUMNS:
+        value = str(row.get(column) or "").strip()
+        if value:
+            return value
+    return ""
+
+
 def load_upcoming(path: str, *, mapping=None) -> list[Fixture]:
     """Read the upcoming-fixtures file.
 
@@ -86,7 +104,6 @@ def load_upcoming(path: str, *, mapping=None) -> list[Fixture]:
                 home = mapping.require_standard(home, source=path)
                 away = mapping.require_standard(away, source=path)
             fixtures.append(
-                Fixture(home=home, away=away, kickoff=kickoff,
-                        round=str(row.get("round") or row.get("Wk") or "").strip())
+                Fixture(home=home, away=away, kickoff=kickoff, round=_round(row))
             )
     return fixtures

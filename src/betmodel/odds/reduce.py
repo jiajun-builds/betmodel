@@ -197,6 +197,7 @@ def build_records(
         return []
 
     watched = capture_watch.watched_before(lp.capture_watch_csv)
+    watched_last = capture_watch.watched_until(lp.capture_watch_csv)
     since = capture_watch.watching_since(history)
     horizon = pd.Timedelta(
         days=config.odds.open.lookahead_days if lookahead_days is None else lookahead_days
@@ -239,10 +240,17 @@ def build_records(
             first = opens.loc[opens["_at"].idxmin()]
             record["open_lead_h"] = (kickoff - first["_at"]).total_seconds() / 3600.0
             record["open_provenance"] = first["_provenance"]
+            # The same gap test `collapse_opens` applies. Without it the table
+            # trusted opens the engine refuses: nine Liga MX duel opens whose last
+            # unpriced sighting was stale earned `observed` here, and seven of
+            # them were written into matches.csv, where the walk-forward reads
+            # them as openers.
             proof = capture_watch.opener_proof(
                 home=home, away=away, bookmaker=first.bookmaker,
                 captured_at=first["_at"], kickoff=kickoff,
                 watched=watched, since=since, horizon=horizon,
+                watched_last=watched_last,
+                max_gap=_proof_gap(config, str(first.bookmaker)),
             )
             record["open_proof"] = proof
             record["open_trusted"] = bool(proof)

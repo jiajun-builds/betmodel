@@ -76,6 +76,127 @@ def test_require_standard_names_the_file_to_edit():
 
 
 # --------------------------------------------------------------------------- #
+# a dropped name says so, once
+# --------------------------------------------------------------------------- #
+
+def _unmapped_lines(caplog, name):
+    return [r.getMessage() for r in caplog.records
+            if r.levelname == "WARNING" and name in r.getMessage()]
+
+
+def test_an_unmapped_name_is_reported_once_per_name_and_source(monkeypatch, caplog):
+    """Once, because a name fails on every row it appears in -- every book of
+    every event -- and a warning repeated per row is one nobody reads."""
+    monkeypatch.setattr(teams, "_reported_unmapped", set(), raising=False)
+    with caplog.at_level("WARNING"):
+        for _ in range(3):
+            teams.report_unmapped("csl", "odds-api.io event listing", "Wuhan Yangtze")
+        teams.report_unmapped("csl", "odds-api.io event listing", "wuhan  yangtze")
+        teams.report_unmapped("csl", "SofaScore xG events", "Wuhan Yangtze")
+    lines = _unmapped_lines(caplog, "Wuhan Yangtze")
+    assert len(lines) == 2, lines
+    assert "odds-api.io event listing" in lines[0]
+    assert "SofaScore xG events" in lines[1]
+
+
+def test_an_odds_listing_that_mostly_matches_still_names_the_club_it_dropped(
+        monkeypatch, caplog):
+    """The nothing-matched warning named unmapped clubs; a listing where every
+    other fixture matched dropped one club's matches without a word."""
+    from datetime import datetime, timedelta, timezone
+
+    from betmodel.config import load_league
+    from betmodel.fixtures.upcoming import Fixture
+    from betmodel.odds import capture_open as co
+    from betmodel.providers import oddsapiio
+
+    class _Client:
+        requests = 0
+
+        def upcoming_events(self, _days):
+            self.requests += 1
+            return [{"id": "1", "home": "Wuhan Three Towns",
+                     "away": "Henan Songshan Longmen"},
+                    {"id": "2", "home": "Shanghai Port", "away": "Qingdao Hainiu FC II"}]
+
+        def iter_batches(self, ids):
+            yield list(ids)
+
+        def multi_odds(self, ids, books):
+            self.requests += 1
+            return []
+
+    monkeypatch.setattr(teams, "_reported_unmapped", set(), raising=False)
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: _Client())
+    config = load_league("csl")
+    kickoff = datetime(2026, 9, 3, 11, 0, tzinfo=timezone.utc)
+    pending = [co.Pending(Fixture(home="Wuhan Three Towns", away="Henan Songshan Longmen",
+                                  round="1", kickoff=kickoff),
+                          co.books_for(config, "oddsapiio"))]
+    with caplog.at_level("WARNING"):
+        co._capture_oddsapiio("csl", config, pending,
+                              now=kickoff - timedelta(days=6), dry_run=False)
+    lines = _unmapped_lines(caplog, "Qingdao Hainiu FC II")
+    assert len(lines) == 1 and "odds-api.io" in lines[0]
+    assert not _unmapped_lines(caplog, "Shanghai Port"), "only the side that failed"
+
+
+def test_a_close_slate_names_an_unmapped_club_once_not_once_per_book(monkeypatch, caplog):
+    from betmodel.config import load_league
+    from betmodel.odds import capture_close as cc
+
+    def _book(key):
+        return {"key": key, "markets": [{"key": "h2h", "outcomes": [
+            {"name": "Beijing FC", "price": 2.1}, {"name": "Draw", "price": 3.3},
+            {"name": "Nowhere United", "price": 3.4}]}]}
+
+    events = [{"id": "e1", "commence_time": "2026-08-28T12:10:00Z",
+               "home_team": "Beijing FC", "away_team": "Nowhere United",
+               "bookmakers": [_book("pinnacle"), _book("betfair_ex_eu"),
+                              _book("marathonbet")]}]
+    monkeypatch.setattr(teams, "_reported_unmapped", set(), raising=False)
+    with caplog.at_level("WARNING"):
+        rows = cc.extract_rows("csl", load_league("csl"), events,
+                               {("Beijing Guoan", "Nowhere United", "2026-08-28")},
+                               "2026-08-28T11:55:00Z")
+    assert rows == [], "which rows are dropped is unchanged"
+    lines = _unmapped_lines(caplog, "Nowhere United")
+    assert len(lines) == 1 and "close" in lines[0], lines
+
+
+def test_an_xg_event_dropped_for_its_name_says_so(monkeypatch, caplog):
+    """A dropped xG event leaves the match's xG blank, which reads as "not
+    published yet", and its blended target blank, which takes it out of the fit."""
+    from betmodel.config import load_league
+    from betmodel.providers import sofascore
+    from betmodel.xg import sync
+
+    def _event(i, home, away):
+        return {"id": i, "homeTeam": {"name": home}, "awayTeam": {"name": away},
+                "startTimestamp": 1_788_000_000 + i}
+
+    class _Client:
+        def __init__(self, **_kwargs):
+            pass
+
+        def current_season_id(self, _tournament):
+            return 1
+
+        def season_events(self, _tournament, _season, _kind):
+            return [_event(1, "Shanghai Port", "Ghost City FC"),
+                    _event(2, "Ghost City FC", "Shanghai Port"),
+                    _event(3, "Shanghai Port", "Beijing Guoan")]
+
+    monkeypatch.setattr(teams, "_reported_unmapped", set(), raising=False)
+    monkeypatch.setattr(sofascore, "SofascoreClient", _Client)
+    with caplog.at_level("WARNING"):
+        _, events = sync._events(load_league("csl"))
+    assert [e["id"] for e in events] == [3], "which events are dropped is unchanged"
+    lines = _unmapped_lines(caplog, "Ghost City FC")
+    assert len(lines) == 1 and "SofaScore" in lines[0], lines
+
+
+# --------------------------------------------------------------------------- #
 # rejections
 # --------------------------------------------------------------------------- #
 
@@ -127,3 +248,20 @@ def test_asking_for_an_absent_namespace_is_an_error_not_none(tmp_path):
     m = teams.load(path, league="test")
     with pytest.raises(teams.TeamMappingError, match="no namespace"):
         m.spelling("Alpha", "oddsapiio_team")
+
+
+def test_a_fixture_dropped_for_its_name_says_so(monkeypatch, caplog):
+    """The fixtures stage drops a club it cannot name from both the history and
+    the upcoming list, which looks exactly like a match not yet published."""
+    from types import SimpleNamespace
+
+    from betmodel.fixtures import sync
+
+    monkeypatch.setattr(teams, "_reported_unmapped", set(), raising=False)
+    config = SimpleNamespace(id="csl")
+    with caplog.at_level("WARNING"):
+        sync._report_unmapped(config, "TheSportsDB events",
+                              ("Wuhan Yangtze", None), ("Shanghai Port", "Shanghai Port"))
+        sync._report_unmapped(config, "TheSportsDB events", ("", None))
+    lines = [r.getMessage() for r in caplog.records if r.levelname == "WARNING"]
+    assert len(lines) == 1 and "Wuhan Yangtze" in lines[0]

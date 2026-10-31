@@ -100,9 +100,23 @@ def test_the_published_commit_does_not_skip_ci():
     snapshot."""
     workflow = yaml.safe_load((ROOT / ".github/workflows/capture.yml").read_text())
     steps = workflow["jobs"]["capture"]["steps"]
-    publish = [s for s in steps if s.get("with", {}).get("paths") == "public"]
+    publish = [s for s in steps if "public" in s.get("with", {}).get("paths", "").split()]
     assert publish, "no step commits the published tree"
     assert all(s["with"]["skip_ci"] == "false" for s in publish)
+
+
+def test_the_alert_outbox_is_committed_with_the_signals_file():
+    """The next run treats every bet in the committed signals file as alerted. The
+    outbox is the only record that one never arrived, so a commit carrying the
+    signals without it loses that alert for good."""
+    workflow = yaml.safe_load((ROOT / ".github/workflows/capture.yml").read_text())
+    steps = workflow["jobs"]["capture"]["steps"]
+    publish = [s for s in steps if "public" in s.get("with", {}).get("paths", "").split()]
+    assert all("data/*/alert_outbox.json" in s["with"]["paths"].split() for s in publish)
+    refresh = yaml.safe_load((ROOT / ".github/workflows/refresh.yml").read_text())
+    commits = [s for s in refresh["jobs"]["refresh"]["steps"]
+               if "public" in s.get("with", {}).get("paths", "").split()]
+    assert commits and all("data" in s["with"]["paths"].split() for s in commits)
 
 
 def test_the_capture_job_installs_only_what_capture_needs():

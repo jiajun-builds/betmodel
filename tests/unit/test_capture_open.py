@@ -269,8 +269,11 @@ class _StubClient:
         self._events = events
         self._quoted = quoted or []
         self.batches: list[list[str]] = []
+        #: What the real client counts at the wire; one per call here.
+        self.requests = 0
 
     def upcoming_events(self, lookahead_days):
+        self.requests += 1
         return self._events
 
     def iter_batches(self, event_ids):
@@ -278,6 +281,7 @@ class _StubClient:
             yield list(event_ids[i:i + 10])
 
     def multi_odds(self, event_ids, books):
+        self.requests += 1
         self.batches.append(list(event_ids))
         return [q for q in self._quoted if str(q.get("id")) in set(event_ids)]
 
@@ -588,3 +592,237 @@ def test_a_listed_event_on_the_same_day_is_asked_about(monkeypatch, tmp_path):
     client = _StubClient([event])
     _run(monkeypatch, tmp_path, client)
     assert client.batches == [["7"]]
+
+
+# --------------------------------------------------------------------------- #
+# an error costs what it interrupted, never what came before it
+# --------------------------------------------------------------------------- #
+
+def _quote(event_id, provider_name="1xbet"):
+    return {
+        "id": event_id,
+        "bookmakers": {provider_name: [{
+            "name": oddsapiio.ML_MARKET,
+            "odds": [{"home": 2.1, "draw": 3.3, "away": 3.4}],
+            "updatedAt": "2026-08-28T08:00:00Z",
+        }]},
+    }
+
+
+class _OneByOne(_StubClient):
+    """Batches of one, and a scripted failure on a chosen batch.
+
+    Batches of one so that two fixtures make two batches; the real size is ten.
+    """
+
+    def __init__(self, events, quoted, *, fail_on, error):
+        super().__init__(events, quoted)
+        self._fail_on = fail_on
+        self._error = error
+
+    def iter_batches(self, event_ids):
+        for event_id in event_ids:
+            yield [event_id]
+
+    def multi_odds(self, event_ids, books):
+        if len(self.batches) + 1 == self._fail_on:
+            self.requests += 1  # the call went out; it is the answer that failed
+            self.batches.append(list(event_ids))
+            raise self._error
+        return super().multi_odds(event_ids, books)
+
+
+_TWO = [("Wuhan Three Towns", "Henan Songshan Longmen"), ("Shanghai Port", "Beijing Guoan")]
+
+
+def _two_batch_tick(monkeypatch, tmp_path, error):
+    events = [{"id": str(i), "home": h, "away": a} for i, (h, a) in enumerate(_TWO, 7)]
+    client = _OneByOne(events, [_quote("7")], fail_on=2, error=error)
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: client)
+    history = _history(tmp_path, [])
+    watch = str(tmp_path / "watch.csv")
+    fixtures = _fixtures(tmp_path, [(h, a, NOW + timedelta(days=6)) for h, a in _TWO])
+
+    def run():
+        return co.capture_opens(
+            "csl", load_league("csl"), providers=("oddsapiio",),
+            now=NOW, ignore_schedule=True,
+            fixtures_path=fixtures, history_path=history, watch_path=watch,
+        )
+    return run, history, watch, client
+
+
+def test_a_429_on_a_later_batch_keeps_the_batches_before_it(monkeypatch, tmp_path):
+    """Batch one's price was in hand and was the first ever reported for it.
+
+    The rate limit on batch two unwound past the only code that wrote anything,
+    so batch one's opener was lost and the next tick banked a later price in its
+    place -- which is not an opener, and is filed as one.
+    """
+    run, history, watch, client = _two_batch_tick(
+        monkeypatch, tmp_path, oddsapiio.RateLimited("window resets in 3415s"))
+    stats = run()
+
+    assert client.batches == [["7"], ["8"]]
+    stored = capture_store.load_history(history)
+    assert [(r.home_team, r.bookmaker) for r in stored.itertuples()] == [
+        ("Wuhan Three Towns", "onexbet")
+    ]
+    assert stats["appended"] == 1
+    assert stats["refused"] == 1, "still reported as a refusal"
+    assert stats["requests"] == 3, "listing + two odds/multi, the failed one included"
+    # And batch one's sighting of the book that had not opened, which is what
+    # lets that book's eventual opener be proven.
+    seen = pd.read_csv(watch)
+    assert set(seen["bookmaker"]) == {"duel"}
+    assert set(seen["home_team"]) == {"Wuhan Three Towns"}
+
+
+def test_an_outage_mid_batch_still_fails_the_tick_but_writes_what_it_had(
+        monkeypatch, tmp_path):
+    """The exit code is the only failure signal the workflow has, so an outage
+    still raises; it just no longer takes the earlier batches with it."""
+    from betmodel.providers import http
+
+    run, history, _, _ = _two_batch_tick(
+        monkeypatch, tmp_path, http.HttpError("HTTP 503", status=503))
+    with pytest.raises(http.HttpError):
+        run()
+    stored = capture_store.load_history(history)
+    assert list(stored["home_team"]) == ["Wuhan Three Towns"]
+
+
+def test_one_provider_failing_outright_keeps_the_other_provider_s_captures(
+        monkeypatch, tmp_path):
+    """Rows were gathered across both providers and written once at the end.
+
+    So an outage on the anchor threw away the soft books' openers taken
+    moments earlier in the same tick, which no later tick can recover.
+    """
+    from betmodel.providers import http
+
+    def _soft(league, config, pending, **kwargs):
+        p = pending[0]
+        row = co._row(fixture=p.fixture, book=p.missing[0],
+                      prices={"home_odds": 2.1, "draw_odds": 3.3, "away_odds": 3.4},
+                      event={"id": "7"}, fetched_at="2026-08-28T09:00:05Z")
+        return [row], [(p.fixture.home, p.fixture.away, "duel")], 2
+
+    def _down(*_a, **_k):
+        raise http.HttpError("The Odds API: HTTP 502", status=502)
+
+    monkeypatch.setattr(co, "_capture_oddsapiio", _soft)
+    monkeypatch.setattr(co, "_capture_theoddsapi", _down)
+    history = _history(tmp_path, [])
+    watch = str(tmp_path / "watch.csv")
+    with pytest.raises(http.HttpError):
+        co.capture_opens(
+            "csl", load_league("csl"), providers=("oddsapiio", "theoddsapi"),
+            now=NOW, ignore_schedule=True,
+            fixtures_path=_fixtures(tmp_path, [("A", "B", NOW + timedelta(days=2))]),
+            history_path=history, watch_path=watch,
+        )
+    stored = capture_store.load_history(history)
+    assert [(r.home_team, r.bookmaker) for r in stored.itertuples()] == [("A", "onexbet")]
+    assert list(pd.read_csv(watch)["bookmaker"]) == ["duel"]
+
+
+# --------------------------------------------------------------------------- #
+# the request count is the wire's, not a tally kept beside it
+# --------------------------------------------------------------------------- #
+
+class _Wire:
+    """odds-api.io at the transport: replays responses, records every call."""
+
+    def __init__(self, responses):
+        self._responses = iter(responses)
+        self.calls: list[str] = []
+
+    def get(self, url, params=None):
+        self.calls.append(url.rsplit("/v3/", 1)[-1])
+        outcome = next(self._responses)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+
+class _Resp:
+    def __init__(self, payload):
+        self.headers = {}
+        self.status_code = 200
+        self._payload = payload
+
+    def json(self):
+        return self._payload
+
+
+def _ligamx_tick(monkeypatch, tmp_path, responses, fixtures):
+    monkeypatch.setenv("ODDS_API_IO_KEY_LIGAMX", "test")
+    monkeypatch.setattr(oddsapiio.time, "sleep", lambda _s: None)
+    config = load_league("ligamx")
+    provider = config.odds.providers["oddsapiio"]
+    client = oddsapiio.OddsApiIoClient(provider.require("league_slugs"),
+                                       credential=provider.require("credential"))
+    wire = _Wire(responses)
+    client._http = wire
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: client)
+    pending = _pending(tmp_path, fixtures, [], league="ligamx")
+    rows, _, used = co._capture_oddsapiio("ligamx", config, pending, now=NOW,
+                                          dry_run=False)
+    return rows, used, wire
+
+
+_PUEBLA_LEON = [("Puebla", "Leon", NOW + timedelta(days=6))]
+
+
+def test_every_listing_request_is_counted_not_just_the_first(monkeypatch, tmp_path):
+    """Liga MX's listing walks two slugs, Clausura first, so for the whole of
+    the Apertura it is two requests. It was recorded as one, the per-tick budget
+    let an extra batch through, and D24's 432-a-day ceiling did not hold.
+    """
+    event = {"id": "7", "home": "Puebla", "away": "Leon"}
+    rows, used, wire = _ligamx_tick(monkeypatch, tmp_path, [
+        _Resp([]),                                  # the Clausura: nothing
+        _Resp([event]),                             # the Apertura
+        _Resp([_quote("7", "Duel")]),               # odds/multi
+    ], _PUEBLA_LEON)
+    assert wire.calls == ["events", "events", "odds/multi"]
+    assert used == len(wire.calls) == 3
+    assert [r["bookmaker"] for r in rows] == ["duel"]
+
+
+def test_a_retried_request_is_counted_as_two(monkeypatch, tmp_path):
+    """A 503 retried is two calls on the wire, and the cap is the provider's.
+
+    Here that spends Liga MX's whole budget of three on the listing, so the
+    odds request waits for the next tick rather than going over.
+    """
+    from betmodel.providers import http
+
+    event = {"id": "7", "home": "Puebla", "away": "Leon"}
+    _, used, wire = _ligamx_tick(monkeypatch, tmp_path, [
+        _Resp([]),
+        http.HttpError("HTTP 503", status=503),
+        _Resp([event]),
+    ], _PUEBLA_LEON)
+    assert wire.calls == ["events", "events", "events"]
+    assert used == len(wire.calls) == 3
+
+
+def test_the_budget_is_spent_against_the_real_count(monkeypatch, tmp_path):
+    """Liga MX's budget is three: two listing requests leave room for one batch,
+    not two. The rest wait for the next tick, soonest kickoff first."""
+    assert load_league("ligamx").odds.open.max_requests == 3
+    names = [("Puebla", "Leon"), ("Atlas", "Guadalajara"), ("Pachuca", "Necaxa"),
+             ("Tigres UANL", "Toluca"), ("FC Juarez", "Tijuana"),
+             ("Club America", "Monterrey"), ("UNAM Pumas", "Cruz Azul"),
+             ("Santos Laguna", "Mazatlan"), ("Queretaro", "Atletico San Luis"),
+             ("Leon", "Puebla"), ("Guadalajara", "Atlas")]
+    events = [{"id": str(i), "home": h, "away": a} for i, (h, a) in enumerate(names)]
+    _, used, wire = _ligamx_tick(
+        monkeypatch, tmp_path,
+        [_Resp([]), _Resp(events), _Resp([{"id": "0", "bookmakers": {}}])],
+        [(h, a, NOW + timedelta(days=2, hours=i)) for i, (h, a) in enumerate(names)],
+    )
+    assert wire.calls == ["events", "events", "odds/multi"], "eleven is two batches"
+    assert used == 3

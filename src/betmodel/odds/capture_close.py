@@ -152,10 +152,12 @@ def extract_rows(
         home = mapping.to_standard(api_home)
         away = mapping.to_standard(api_away)
         if home is None or away is None:
-            log.warning(
-                "unmapped team in %r vs %r; add it to the league's team mapping "
-                "(fixture skipped)", api_home, api_away,
-            )
+            # Once per name, not once per record: the slate yields a record per
+            # bookmaker per event, so one unknown club was a warning per book
+            # per tick and buried whatever else the tick had to say.
+            for raw, std in ((api_home, home), (api_away, away)):
+                if std is None:
+                    teams.report_unmapped(league, "The Odds API close slate", raw)
             continue
         kickoff = pd.to_datetime(record["commence_time"], utc=True, errors="coerce")
         if pd.isna(kickoff):

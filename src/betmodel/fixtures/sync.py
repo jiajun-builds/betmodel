@@ -188,8 +188,11 @@ def _from_thesportsdb(config: LeagueConfig, source: SourceConfig) -> list[Match]
             continue
         for event in client.season_events(spelling):
             kickoff = _parse_kickoff(event.get("dateEvent"), event.get("strTime"))
-            home = mapping.to_standard(str(event.get("strHomeTeam") or ""))
-            away = mapping.to_standard(str(event.get("strAwayTeam") or ""))
+            raw_home = str(event.get("strHomeTeam") or "")
+            raw_away = str(event.get("strAwayTeam") or "")
+            home = mapping.to_standard(raw_home)
+            away = mapping.to_standard(raw_away)
+            _report_unmapped(config, "TheSportsDB events", (raw_home, home), (raw_away, away))
             if kickoff is None or not home or not away:
                 continue
             matches.append(Match(
@@ -200,6 +203,15 @@ def _from_thesportsdb(config: LeagueConfig, source: SourceConfig) -> list[Match]
                 finished=status_finished(event.get("strStatus")),
             ))
     return matches
+
+
+def _report_unmapped(config: LeagueConfig, source: str, *pairs) -> None:
+    """Name each club the mapping could not place. The match is still dropped:
+    a club this stage cannot name never reaches the history or the upcoming
+    list, which looks exactly like a fixture the provider has not published."""
+    for raw, standard in pairs:
+        if raw and standard is None:
+            teams.report_unmapped(config.id, source, raw)
 
 
 def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
@@ -225,12 +237,12 @@ def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
         for kind in ("last", "next"):
             for event in client.season_events(int(tournament), season_id, kind):
                 kickoff = _from_timestamp(event.get("startTimestamp"))
-                home = mapping.to_standard(
-                    str((event.get("homeTeam") or {}).get("name") or "")
-                )
-                away = mapping.to_standard(
-                    str((event.get("awayTeam") or {}).get("name") or "")
-                )
+                raw_home = str((event.get("homeTeam") or {}).get("name") or "")
+                raw_away = str((event.get("awayTeam") or {}).get("name") or "")
+                home = mapping.to_standard(raw_home)
+                away = mapping.to_standard(raw_away)
+                _report_unmapped(config, "SofaScore events",
+                                 (raw_home, home), (raw_away, away))
                 if kickoff is None or not home or not away:
                     continue
                 home_goals, away_goals = event_goals(event)

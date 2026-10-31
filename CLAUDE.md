@@ -151,7 +151,11 @@ came out a particular way.
 
 **Alert dedup keys on `(fixture_id, side, book)`** and the baseline is the
 previously committed signals file, read with `git show HEAD:`. A run whose commit
-never lands re-alerts next time.
+never lands re-alerts next time. The fixture is compared without its round
+(`telegram.fixture_key`), so a corrected or relabelled round is not a new bet. A
+send Telegram refuses goes to `data/<league>/alert_outbox.json`, committed with
+the signals file, and is retried next run if it still stands; `notify` still
+exits 0, because a failing step would skip the refresh's data commit.
 
 ## Layout
 

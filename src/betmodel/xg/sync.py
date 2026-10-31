@@ -63,8 +63,16 @@ def _events(config: LeagueConfig):
         if season_id is None:
             continue
         for event in client.season_events(int(tournament), season_id, "last"):
-            home = mapping.to_standard(str((event.get("homeTeam") or {}).get("name") or ""))
-            away = mapping.to_standard(str((event.get("awayTeam") or {}).get("name") or ""))
+            raw_home = str((event.get("homeTeam") or {}).get("name") or "")
+            raw_away = str((event.get("awayTeam") or {}).get("name") or "")
+            home = mapping.to_standard(raw_home)
+            away = mapping.to_standard(raw_away)
+            # A match dropped here is never fetched, so its history row keeps a
+            # blank xG that reads as "not published yet", its blended target
+            # stays blank, and the club's matches quietly leave the fit.
+            for raw, std in ((raw_home, home), (raw_away, away)):
+                if std is None:
+                    teams.report_unmapped(config.id, "SofaScore xG events", raw)
             start = event.get("startTimestamp")
             if not (home and away and start):
                 continue
