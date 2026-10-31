@@ -21,6 +21,26 @@ already alerted for that fixture and side. Without it, the first run after a key
 change compares nothing against something and re-alerts every currently firing
 signal. It self-heals after one committed run.
 
+**The fixture is compared without its round** (:func:`fixture_key`). The round
+is part of ``fixture_id`` but not of what makes a fixture one fixture -- that is
+the pairing on a local matchday -- and until 2026-10-31 every signal id carried
+round 0 because the upcoming-fixtures reader looked for the wrong column. Fixing
+it renamed every live signal, and comparing ids exactly would have re-alerted
+each one under its new name and retracted each old name in the same run.
+
+**An alert Telegram did not accept is owed, not lost.** The baseline advances
+whether or not the send landed -- the workflow commits the published tree either
+way -- so a failed send used to be gone for good: the next run found the signal
+in its baseline and took it as already alerted. What failed is now kept in
+``data/<league>/alert_outbox.json``, committed with the signals file, and the
+next run sends it again if it still stands. Recorded only on failure and cleared
+only on success, so a delivered alert is never repeated from it.
+
+The exit code stays 0 on purpose. A failing ``notify`` would not stop the
+capture workflow's republish commit, which runs ``always()``, so the baseline
+would advance anyway; and in the daily refresh it *would* skip the one commit
+that carries the run's data, including an anchor bought minutes earlier.
+
 **Fail-open throughout.** A missing token, an unreachable Telegram, or an
 unreadable baseline logs and returns. The notifier must never fail a publish. And
 when there is no baseline at all, the first-ever run sends nothing rather than
@@ -35,6 +55,7 @@ import html
 import json
 import logging
 import os
+import re
 import subprocess
 from datetime import datetime
 
@@ -42,6 +63,7 @@ import requests
 
 from betmodel import display, paths
 from betmodel.config.schema import LeagueConfig
+from betmodel.signals.engine import slugify
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +74,8 @@ API = "https://api.telegram.org/bot{token}/sendMessage"
 
 PICK_LABEL = {"home": "主胜", "draw": "平局", "away": "客胜"}
 
-#: A signal is the same alert as before when all three match.
+#: A signal is the same alert as before when all three match -- the fixture
+#: compared by :func:`fixture_key`, i.e. without its round.
 KEY_FIELDS = ("fixture_id", "side", "book")
 
 #: The state the engine uses for an edge it found on uncalibrated probabilities.
@@ -98,14 +121,53 @@ def previous_signals(path: str) -> list[dict] | None:
         return None
 
 
+#: The local matchday inside a ``fixture_id``: the segment the round sits before.
+_MATCHDAY = re.compile(r"-\d{4}-\d{2}-\d{2}-")
+
+
+def fixture_key(signal: dict) -> str:
+    """The row's ``fixture_id`` with the round taken out: what alerts compare.
+
+    League, season, local matchday, home and away -- the pairing on a matchday,
+    which is what CLAUDE.md says a fixture is. The round is cut using the row's
+    own ``round`` field, the same value ``make_fixture_id`` was given, so a
+    hyphenated season or stage name cannot be mistaken for it.
+
+    Not a transition shim to delete later. It exists because the round-0 fix of
+    2026-10-31 renamed every live signal (``CSL-2026-0-2026-11-08-...`` became
+    ``CSL-2026-30-2026-11-08-...``) and the baseline still held the old names:
+    compared exactly, the first run after the fix would have re-sent every live
+    bet and retracted every one of them in the same breath. A provider relabelling
+    a round would do the same thing again, and it changes nothing about the bet.
+
+    An id that does not have the expected shape is returned whole, which falls
+    back to the exact comparison this replaced.
+    """
+    fixture = str(signal.get("fixture_id") or "")
+    day = _MATCHDAY.search(fixture)
+    if not day:
+        return fixture
+    head = fixture[: day.start()]
+    round_segment = "-" + (slugify(str(signal.get("round") or "")) or "0")
+    if not head.endswith(round_segment):
+        return fixture
+    return head[: -len(round_segment)] + fixture[day.start():]
+
+
+def _bet_key(signal: dict) -> tuple[str, str, str]:
+    """``(fixture, side, book)`` of a row's bet: the dedup key of one alert."""
+    bet = signal.get("bet") or {}
+    return fixture_key(signal), bet.get("side", ""), (bet.get("book") or "").strip()
+
+
 def _alerted(signals: list[dict]) -> dict[tuple[str, str], set[str] | None]:
-    """``(fixture_id, side) -> books already alerted``, or ``None`` for a wildcard."""
+    """``(fixture, side) -> books already alerted``, or ``None`` for a wildcard."""
     out: dict[tuple[str, str], set[str] | None] = {}
     for signal in signals:
         bet = signal.get("bet")
         if not bet:
             continue
-        key = (signal.get("fixture_id", ""), bet.get("side", ""))
+        key = (fixture_key(signal), bet.get("side", ""))
         book = (bet.get("book") or "").strip()
         if not book:
             out[key] = None  # baseline predates the book: swallow the comparison
@@ -128,7 +190,7 @@ def new_signals(current: list[dict], previous: list[dict]) -> list[dict]:
         bet = signal.get("bet")
         if not bet:
             continue
-        key = (signal.get("fixture_id", ""), bet.get("side", ""))
+        key = (fixture_key(signal), bet.get("side", ""))
         if key not in seen:
             fresh.append(signal)
             continue
@@ -155,13 +217,13 @@ def withdrawn_signals(current: list[dict], previous: list[dict]) -> list[tuple[d
     published file -- once the withdrawal is published, the next run's baseline
     has no bet to withdraw.
     """
-    latest = {s.get("fixture_id", ""): s for s in current}
+    latest = {fixture_key(s): s for s in current}
     out = []
     for before in previous:
         bet = before.get("bet")
         if not bet:
             continue
-        after = latest.get(before.get("fixture_id", ""))
+        after = latest.get(fixture_key(before))
         if after is None:
             continue
         still_on = after.get("bet")
@@ -208,6 +270,105 @@ def withdrawal_reason(config: LeagueConfig, before: dict, after: dict) -> str:
     if ev <= config.signals.ev_min:
         return f"{cause}；EV 现为 {ev:+.3f}，低于阈值 {config.signals.ev_min:+.3f}"
     return f"{cause}；EV 现为 {ev:+.3f}"
+
+
+# --------------------------------------------------------------------------- #
+# the outbox: what Telegram did not accept
+# --------------------------------------------------------------------------- #
+
+def load_outbox(path: str) -> list[dict]:
+    """Alerts an earlier run owed and could not deliver. Empty when there are none."""
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, encoding="utf-8") as handle:
+            pending = json.load(handle).get("pending", [])
+    except (OSError, ValueError, AttributeError) as exc:
+        log.warning("alert outbox %s is unreadable (%s); treating it as empty", path, exc)
+        return []
+    return [entry for entry in pending if isinstance(entry, dict)]
+
+
+def save_outbox(path: str, pending: list[dict]) -> None:
+    """Write what is still owed. Never deletes the file, only empties it.
+
+    The commit action stages a path only if it exists, so a deleted outbox would
+    never reach main: the next run would check out the old one and send its
+    alerts a second time.
+    """
+    if not pending and not os.path.exists(path):
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"pending": pending}, handle, ensure_ascii=False, indent=1)
+        handle.write("\n")
+
+
+def retry_pending(
+    current: list[dict], pending: list[dict],
+    fresh: list[dict], withdrawn: list[tuple[dict, dict]],
+) -> tuple[list[dict], list[tuple[dict, dict]]]:
+    """Fold the alerts an earlier run failed to send back into this run's.
+
+    Each is sent again only if it still stands, judged against the current file
+    rather than replayed from the outbox: a bet goes out only while the fixture
+    still fires on that side at that book, so the reader gets today's price and
+    never one the engine has stopped standing behind; a withdrawal only while the
+    fixture is still on the board and not firing that side. Anything else is
+    dropped -- a stale alert is worse than none.
+
+    And a bet the reader never received is not retracted. Withdrawal is computed
+    against the baseline, which holds every bet that was *published*, delivered or
+    not; retracting an unseen bet is a message about nothing. Only when it was
+    the first alert on that side, though -- if an earlier book's alert did land,
+    the reader is holding it and the withdrawal is still owed.
+    """
+    latest = {fixture_key(s): s for s in current}
+
+    fresh = list(fresh)
+    owed = {_bet_key(s) for s in fresh}
+    for entry in pending:
+        if entry.get("kind") != "bet":
+            continue
+        row = latest.get(fixture_key(entry))
+        if row is None or not row.get("bet") or _bet_key(row) != _bet_key(entry):
+            continue
+        if _bet_key(row) not in owed:
+            fresh.append(row)
+            owed.add(_bet_key(row))
+
+    unseen = {_bet_key(e) for e in pending if e.get("kind") == "bet" and e.get("first")}
+    withdrawn = [(b, a) for b, a in withdrawn if _bet_key(b) not in unseen]
+    retracting = {_bet_key(b)[:2] for b, _ in withdrawn}
+    for entry in pending:
+        if entry.get("kind") != "withdrawal":
+            continue
+        before = entry.get("signal") or {}
+        if not before.get("bet"):
+            continue
+        after = latest.get(fixture_key(before))
+        if after is None:
+            continue  # kicked off: not news
+        side = before["bet"].get("side")
+        if (after.get("bet") or {}).get("side") == side:
+            continue  # firing on that side again; that is a bet, not a retraction
+        if _bet_key(before)[:2] not in retracting:
+            withdrawn.append((before, after))
+            retracting.add(_bet_key(before)[:2])
+    return fresh, withdrawn
+
+
+def _owed_bet(signal: dict, *, first: bool) -> dict:
+    bet = signal["bet"]
+    return {
+        "kind": "bet",
+        "fixture_id": signal.get("fixture_id", ""),
+        "round": signal.get("round") or "",
+        "home_team": signal.get("home_team", ""),
+        "away_team": signal.get("away_team", ""),
+        "bet": {"side": bet.get("side", ""), "book": bet.get("book", "")},
+        "first": first,
+    }
 
 
 # --------------------------------------------------------------------------- #
@@ -338,7 +499,7 @@ def send(token: str, chat_id: str, text: str, *, timeout: int = 15) -> bool:
 
 def notify(
     league: str, config: LeagueConfig, *, dry_run: bool = False,
-    signals_path: str | None = None,
+    signals_path: str | None = None, outbox_path: str | None = None,
 ) -> int:
     """Alert on newly firing signals. Returns how many were sent."""
     if not config.notify.telegram:
@@ -356,10 +517,17 @@ def notify(
     if previous is None:
         return 0
 
-    fresh = new_signals(current, previous)
-    withdrawn = withdrawn_signals(current, previous)
+    outbox_path = outbox_path or paths.for_league(league).alert_outbox_json
+    pending = load_outbox(outbox_path)
+    fresh, withdrawn = retry_pending(
+        current, pending,
+        new_signals(current, previous), withdrawn_signals(current, previous),
+    )
     if not fresh and not withdrawn:
         log.info("%s: no new signals to alert", league)
+        if pending and not dry_run:
+            log.info("%s: %d unsent alert(s) no longer stand; dropped", league, len(pending))
+            save_outbox(outbox_path, [])
         return 0
 
     token = os.environ.get(TOKEN_ENV, "").strip()
@@ -369,18 +537,38 @@ def notify(
                     league, TOKEN_ENV, CHAT_ENV, len(fresh) + len(withdrawn))
         return 0
 
+    # A bet alert is the reader's first on its side unless the baseline already
+    # had one there that was actually delivered. Decides whether a later
+    # withdrawal of it is owed if this send fails too (see retry_pending).
+    alerted = _alerted(previous)
+    undelivered = {_bet_key(e)[:2] for e in pending if e.get("kind") == "bet" and e.get("first")}
+
     sent = 0
+    still_owed: list[dict] = []
     # Withdrawals first. A retraction that arrives under a fresh bet reads as part
     # of it; on its own above, it is unambiguous.
-    outgoing = [format_withdrawal_message(config, b, a) for b, a in withdrawn]
-    outgoing += [format_message(config, s) for s in fresh]
-    for message in outgoing:
+    outgoing = [
+        (format_withdrawal_message(config, b, a), {"kind": "withdrawal", "signal": b})
+        for b, a in withdrawn
+    ]
+    for signal in fresh:
+        side_key = _bet_key(signal)[:2]
+        first = side_key not in alerted or side_key in undelivered
+        outgoing.append((format_message(config, signal), _owed_bet(signal, first=first)))
+    for message, owed in outgoing:
         if dry_run:
             log.info("%s: would send\n%s", league, message)
             sent += 1
             continue
         if send(token, chat_id, message):
             sent += 1
+        else:
+            still_owed.append(owed)
+    if not dry_run:
+        save_outbox(outbox_path, still_owed)
+    if still_owed:
+        log.warning("%s: %d alert(s) Telegram did not accept; kept in %s for the next run",
+                    league, len(still_owed), outbox_path)
     log.info("%s: %d alert(s) %s (%d new, %d withdrawn)",
              league, sent, "prepared" if dry_run else "sent", len(fresh), len(withdrawn))
     return sent

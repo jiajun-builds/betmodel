@@ -214,7 +214,10 @@ jobs:
         uses: ./.github/actions/commit-data
         with:
           message: "chore(publish): republish after a capture"
-          paths: public
+          # The alert outbox rides in the same commit as the signals file it is
+          # read against: the next run's baseline treats every bet in that file as
+          # alerted, and the outbox is the only record that one never arrived.
+          paths: public data/*/alert_outbox.json
           derived: "true"
           # False on purpose. The alert reads the previously committed signals
           # file as its baseline, so a commit that never lands leaves the next

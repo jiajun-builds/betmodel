@@ -13,6 +13,7 @@ Layout, per league::
         odds_capture_history.csv    append-only capture store  (TRACKED)
         capture_watch.csv           unpriced-observation evidence (TRACKED)
         close_report.csv            closing-line reports already sent (TRACKED)
+        alert_outbox.json           signal alerts Telegram did not accept (TRACKED)
         team_name_mapping.csv       provider namespaces -> canonical name
         now_line.csv                current reference line   (ignored, transient)
         model/                      team_stats, simulations, meta sidecars
@@ -153,6 +154,16 @@ class LeaguePaths:
         anywhere else is gone by the next one.
         """
         return os.path.join(self.root, "close_report.csv")
+
+    @property
+    def alert_outbox_json(self) -> str:
+        """Signal alerts and withdrawals Telegram did not accept, owed to the reader.
+
+        Tracked for the same reason as ``close_report.csv``: the ticks run on fresh
+        runners, and the alert baseline is the committed signals file, so an
+        unsent alert recorded anywhere else is forgotten by the next tick.
+        """
+        return os.path.join(self.root, "alert_outbox.json")
 
     # --- derived -------------------------------------------------------------
     @property
