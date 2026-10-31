@@ -1,32 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-31T02:51:24Z",
+ "generated_at": "2026-10-31T06:23:57Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-02-atlas-cruz-azul",
-   "match_date": "2026-05-02",
-   "season": "Clausura 2026",
-   "round": "Quarterfinals",
-   "home_team": "Atlas",
-   "away_team": "Cruz Azul",
-   "home_goals": 2,
-   "away_goals": 3,
-   "result": "A",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-02-tigres-uanl-guadalajara",
-   "match_date": "2026-05-02",
-   "season": "Clausura 2026",
-   "round": "Quarterfinals",
-   "home_team": "Tigres UANL",
-   "away_team": "Guadalajara",
-   "home_goals": 3,
-   "away_goals": 1,
-   "result": "H",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-club-america-unam-pumas",
    "match_date": "2026-05-03",
@@ -1669,6 +1645,42 @@
    "home_goals": 1,
    "away_goals": 1,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-30-fc-juarez-queretaro",
+   "match_date": "2026-10-30",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "FC Juarez",
+   "away_team": "Queretaro",
+   "home_goals": 3,
+   "away_goals": 1,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-30-atletico-san-luis-atlas",
+   "match_date": "2026-10-30",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Atletico San Luis",
+   "away_team": "Atlas",
+   "home_goals": 0,
+   "away_goals": 1,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-30-puebla-unam-pumas",
+   "match_date": "2026-10-30",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Puebla",
+   "away_team": "UNAM Pumas",
+   "home_goals": 1,
+   "away_goals": 2,
+   "result": "A",
    "status": "played"
   }
  ]
