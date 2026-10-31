@@ -20,9 +20,12 @@ corruption that produces no error and no empty column, so it is refused at load.
 from __future__ import annotations
 
 import csv
+import logging
 import os
 import unicodedata
 from dataclasses import dataclass, field
+
+log = logging.getLogger(__name__)
 
 #: The canonical column. Every other column is an alias namespace.
 CANONICAL_COLUMN = "standard_team"
@@ -168,6 +171,34 @@ def load(path: str, *, league: str = "") -> TeamMapping:
         _to_canonical=to_canonical,
         _by_namespace=by_namespace,
     )
+
+
+#: ``(league, source, folded name)`` already reported this run. See below.
+_reported_unmapped: set[tuple[str, str, str]] = set()
+
+
+def report_unmapped(league: str, source: str, name: str) -> None:
+    """Say, once per run, that ``source`` spelled a club in a way we cannot map.
+
+    Every caller drops the row, and must: a guess files one club's price under
+    another. What it must not do is drop it in silence. A dropped row of prices
+    looks exactly like a match the provider has not listed, a dropped xG event
+    like one not yet published, and the two causes have different owners -- the
+    provider in one case, a line in the mapping file in the other. Six days of
+    CSL soft-book blackout were spent on `captured: 0` precisely because nothing
+    said which it was; this is the half of that diagnosis we can fix.
+
+    Once per name rather than once per row, because a name fails on every row
+    it appears in -- every bookmaker of every event, on every tick -- and a
+    warning repeated forty times a run is one nobody reads by the time it
+    matters. Keyed on the folded form, the same one the lookup uses.
+    """
+    key = (league, source, normalize(name))
+    if key in _reported_unmapped:
+        return
+    _reported_unmapped.add(key)
+    log.warning("%s: unmapped team name %r from %s; rows naming it are dropped -- "
+                "add it to the league's team mapping", league, name, source)
 
 
 def for_league(league: str) -> TeamMapping:

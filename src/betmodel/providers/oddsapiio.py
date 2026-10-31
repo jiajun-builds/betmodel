@@ -169,6 +169,17 @@ class OddsApiIoClient:
         #: the retry is an outage, and that still fails the run.
         self.max_transient_retries = max_transient_retries
         self._transient_retries = 0
+        #: Every HTTP call this client has put on the wire, counted at the wire.
+        #: The caller used to count requests by hand, one per endpoint method,
+        #: and the listing is not one call: `list_events` walks the league's
+        #: slugs until one answers. Liga MX lists the Clausura first, so while
+        #: the Apertura runs every listing is two requests and was recorded as
+        #: one, and the per-tick budget let a second batch through: a worst case
+        #: of 4 x 144 = 576 a day against a 500 cap, where D24's arithmetic
+        #: says 3 x 144 = 432. A 429 or 5xx that is retried counts
+        #: too: the budget is a ceiling, and the provider's meter is the one
+        #: that bills, so an attempt it may have counted is counted here.
+        self.requests = 0
         # Retries are handled here, not by the policy: a 429 needs the reset
         # header, and a 403 must never be retried at all.
         self._http = http.client("oddsapiio", retry=http.NO_RETRY, timeout=timeout)
@@ -216,6 +227,8 @@ class OddsApiIoClient:
         params["apiKey"] = api_key(self.credential)
         url = f"{self.base_url}/{path.lstrip('/')}"
         for attempt in range(1, 6):
+            # Counted before the call, so one that raises is counted as well.
+            self.requests += 1
             try:
                 response = self._http.get(url, params=params)
             except http.HttpError as exc:

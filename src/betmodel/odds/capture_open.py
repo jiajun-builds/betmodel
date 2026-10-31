@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import logging
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
@@ -53,6 +53,26 @@ class QuotaRefused(RuntimeError):
     other is the pipeline quietly not running, and they look identical in the
     numbers a tick returns.
     """
+
+
+@dataclass
+class Haul:
+    """What one provider has captured so far this tick, filled as it goes.
+
+    Passed in rather than returned, because a return is exactly what an error
+    takes away. odds-api.io answers in batches of ten, and a 429 on a later
+    batch discarded every earlier one: their prices were already in hand, they
+    were the first ever reported for those books, and the exception unwound
+    past the only code that would have written them. One provider failing
+    outright -- an outage, a 403 -- likewise discarded what the other had
+    captured earlier in the same tick. An opening line not banked on the tick
+    it was first seen is not deferred: the next tick takes a later price in its
+    place, and a later price is not an opener.
+    """
+
+    rows: list[dict] = field(default_factory=list)
+    unpriced: list[tuple[str, str, str]] = field(default_factory=list)
+    requests: int = 0
 
 
 @dataclass(frozen=True)
@@ -302,7 +322,9 @@ def _capture_oddsapiio(
     *,
     now: datetime,
     dry_run: bool,
+    haul: Haul | None = None,
 ) -> tuple[list[dict], list[tuple[str, str, str]], int]:
+    haul = Haul() if haul is None else haul
     if dry_run:
         # "Decide only" has to mean spending nothing, and this provider bills per
         # request including the event listing. The pending set is the decision.
@@ -315,8 +337,12 @@ def _capture_oddsapiio(
         base_url=provider.get("base_url", oddsapiio.BASE_URL),
         credential=provider.get("credential", "default"),
     )
-    events = client.upcoming_events(config.odds.open.lookahead_days)
-    requests_used = 1
+    try:
+        events = client.upcoming_events(config.odds.open.lookahead_days)
+    finally:
+        # Read off the client, never counted here: the listing walks the
+        # league's slugs and is one request or several. See `requests` there.
+        haul.requests = client.requests
 
     mapping = teams.for_league(league)
     by_key: dict[tuple[str, str], list[dict]] = {}
@@ -330,6 +356,12 @@ def _capture_oddsapiio(
             by_key.setdefault((home, away), []).append(event)
         else:
             unmapped.append(f"{raw_home} v {raw_away}")
+            # Not only in the nothing-matched warning below. A listing where
+            # most fixtures match and one club does not used to drop that
+            # club's matches without a word, every tick.
+            for raw, std in ((raw_home, home), (raw_away, away)):
+                if std is None:
+                    teams.report_unmapped(league, "odds-api.io event listing", raw)
 
     matched = []
     for p in pending:
@@ -358,7 +390,7 @@ def _capture_oddsapiio(
             league, len(events), len(pending),
             [p.fixture.label for p in pending], unmapped or "none",
         )
-        return [], [], requests_used
+        return haul.rows, haul.unpriced, haul.requests
     if len(matched) < len(pending):
         found = {id(p) for p, _ in matched}
         log.info("%s/oddsapiio: %d of %d pending fixture(s) in the listing; absent=%s",
@@ -366,21 +398,27 @@ def _capture_oddsapiio(
                  [p.fixture.label for p in pending if id(p) not in found])
 
     fetched_at = stamp(now)
-    rows: list[dict] = []
-    unpriced: list[tuple[str, str, str]] = []
     budget = config.odds.open.max_requests
 
     ids = [str(event.get("id")) for _, event in matched]
     matched_by_id = {str(event.get("id")): (p, event) for p, event in matched}
     #: Fixtures in a batch the endpoint answered with nothing at all. See below.
     blank: list[str] = []
+    done = 0
     for batch in client.iter_batches(ids):
-        if requests_used >= budget:
-            log.info("request budget %d reached; %d pending left for the next tick",
-                     budget, len(ids) - len(batch))
+        if haul.requests >= budget:
+            log.info("%s/oddsapiio: request budget %d reached (%d spent); %d "
+                     "matched fixture(s) left for the next tick",
+                     league, budget, haul.requests, len(ids) - done)
             break
-        quoted = client.multi_odds(batch, oddsapiio.books_from_config(config.odds.books))
-        requests_used += 1
+        # Each batch is banked into `haul` before the next is asked for, so a
+        # 429 or an outage on batch three leaves batches one and two written.
+        try:
+            quoted = client.multi_odds(
+                batch, oddsapiio.books_from_config(config.odds.books))
+        finally:
+            haul.requests = client.requests
+        done += len(batch)
         quoted_by_id = {str(q.get("id", q.get("eventId", ""))): q for q in quoted}
 
         # **An empty response records nothing.** `odds/multi` omits a book, or
@@ -421,10 +459,11 @@ def _capture_oddsapiio(
                     # thing here and are recorded the same way. Only the first
                     # used to be, which is why the polled soft books had earned
                     # `observed` nought times in 117 opening prices.
-                    unpriced.append((pend.fixture.home, pend.fixture.away, book.key))
+                    haul.unpriced.append(
+                        (pend.fixture.home, pend.fixture.away, book.key))
                     continue
-                rows.append(_row(fixture=pend.fixture, book=book, prices=prices,
-                                 event=event, fetched_at=fetched_at))
+                haul.rows.append(_row(fixture=pend.fixture, book=book, prices=prices,
+                                      event=event, fetched_at=fetched_at))
 
     if blank:
         # INFO, not WARNING. Every fixture in a batch being unpriced is ordinary
@@ -433,7 +472,7 @@ def _capture_oddsapiio(
         log.info("%s/oddsapiio: odds/multi returned nothing for a whole batch; "
                  "no sighting recorded for %d fixture(s): %s",
                  league, len(blank), blank)
-    return rows, unpriced, requests_used
+    return haul.rows, haul.unpriced, haul.requests
 
 
 # --------------------------------------------------------------------------- #
@@ -448,9 +487,11 @@ def _capture_theoddsapi(
     *,
     now: datetime,
     dry_run: bool,
+    haul: Haul | None = None,
 ) -> tuple[list[dict], list[tuple[str, str, str]], int]:
     """One billed request returns the whole slate, so pending only decides
     whether to spend at all."""
+    haul = Haul() if haul is None else haul
     provider = config.odds.providers["theoddsapi"]
     credential = books[0].credential
     client = theoddsapi.TheOddsApiClient(
@@ -479,6 +520,7 @@ def _capture_theoddsapi(
     if dry_run:
         return [], [], 0
 
+    haul.requests = 1  # before the call: one that raises may still have billed
     events = client.odds(bookmakers=[b.key for b in books])
     mapping = teams.for_league(league)
     fetched_at = stamp(now)
@@ -489,7 +531,6 @@ def _capture_theoddsapi(
     for p in pending:
         wanted.setdefault(p.fixture.key, []).append(p)
     priced: set[tuple[str, str, str]] = set()
-    rows: list[dict] = []
 
     for record in theoddsapi.iter_prices(events):
         home = mapping.to_standard(str(record["api_home_team"]))
@@ -515,11 +556,11 @@ def _capture_theoddsapi(
         if not all(prices[k] for k in ("home_odds", "draw_odds", "away_odds")):
             continue
         priced.add((pend.fixture.home, pend.fixture.away, book.key))
-        rows.append(_row(fixture=pend.fixture, book=book, prices=prices,
-                         event={"id": record["event_id"],
-                                "home": record["api_home_team"],
-                                "away": record["api_away_team"]},
-                         fetched_at=fetched_at))
+        haul.rows.append(_row(fixture=pend.fixture, book=book, prices=prices,
+                              event={"id": record["event_id"],
+                                     "home": record["api_home_team"],
+                                     "away": record["api_away_team"]},
+                              fetched_at=fetched_at))
 
     # **An event we cannot name proves nothing about the fixture it may be.** A
     # pending fixture missing from the response is recorded as unpriced, which is
@@ -551,12 +592,16 @@ def _capture_theoddsapi(
             sorted(f"{h} v {a}" for h, a in withheld) or "none",
         )
 
+    # Into `haul` only now. `priced` is incomplete until the whole response is
+    # read, and a sighting taken from a half-read one could mark unpriced a book
+    # this very response quoted -- which would certify its next price `observed`.
     unpriced = [
         (p.fixture.home, p.fixture.away, b.key)
         for p in pending for b in p.missing
         if b in books and (p.fixture.home, p.fixture.away, b.key) not in priced
         and p.fixture.key not in withheld
     ]
+    haul.unpriced.extend(unpriced)
     if not events:
         # INFO, not WARNING, and the sightings stand. Between rounds the book has
         # simply priced nothing yet, and that is the observation the opener proof
@@ -566,7 +611,7 @@ def _capture_theoddsapi(
         # can be seen for what it is.
         log.info("%s/theoddsapi: the response carried no events; recorded %d "
                  "unpriced sighting(s)", league, len(unpriced))
-    return rows, unpriced, 1
+    return haul.rows, haul.unpriced, haul.requests
 
 
 # --------------------------------------------------------------------------- #
@@ -599,66 +644,87 @@ def capture_opens(
     stats = {"pending": 0, "captured": 0, "appended": 0, "unpriced": 0,
              "requests": 0, "refused": 0}
 
-    all_rows: list[dict] = []
-    all_unpriced: list[tuple[str, str, str]] = []
+    hauls: list[Haul] = []
     refusals: list[str] = []
 
-    for provider in providers:
-        books = (books_for(config, provider) if ignore_schedule
-                 else books_due(config, provider, now))
-        if not books:
-            log.info("%s/%s: not due this tick, spending nothing", league, provider)
-            continue
-        pending = pending_fixtures(
-            league, config, books=books, now=now,
-            history_path=history_path, fixtures_path=fixtures_path,
-        )
-        stats["pending"] += len(pending)
-        if not pending:
-            log.info("%s/%s: nothing pending, spending nothing", league, provider)
-            continue
-        try:
-            if provider == "oddsapiio":
-                rows, unpriced, used = _capture_oddsapiio(
-                    league, config, pending, now=now, dry_run=dry_run)
-            else:
-                rows, unpriced, used = _capture_theoddsapi(
-                    league, config, pending, books, now=now, dry_run=dry_run)
-        except (QuotaRefused, oddsapiio.RateLimited) as exc:
-            # One provider being out of credit must not stop the other: the soft
-            # books and the anchor are different accounts, and losing both
-            # because one is spent would turn a degraded tick into a dead one.
-            #
-            # A rate limit is the same shape and belongs here rather than in a
-            # traceback. It used to escape, failing the step after fifteen
-            # minutes of blind backoff, which held the shared concurrency group
-            # and cancelled the ticks behind it. Nothing was captured either way;
-            # the difference is entirely in what it costs everything else.
-            log.warning("%s/%s: refused, %s", league, provider, exc)
-            stats["refused"] += 1
-            refusals.append(f"{provider}: {exc}")
-            continue
-        all_rows += rows
-        all_unpriced += unpriced
-        stats["requests"] += used
-
-    stats["captured"] = len(all_rows)
-    stats["unpriced"] = len(all_unpriced)
-
-    if dry_run:
-        return stats
-
-    if all_unpriced:
-        capture_watch.record_unpriced(
-            all_unpriced, path=watch_path,
-            observed_at=stamp(now),
-        )
-    if all_rows:
-        _, appended = capture_store.append_snapshots(
-            pd.DataFrame(all_rows),
-            path=history_path,
-            snapshot_type="open",
-            capture_reason=f"first-seen open price @ {stamp(now)}",
-        )
-        stats["appended"] = appended
+    # **What was captured is written whatever happens after it.** The loop is
+    # inside `try` and the write is in `finally`, so an error from either
+    # provider -- caught below or not -- costs only what it interrupted. It used
+    # to cost the tick: rows were gathered across both providers and written
+    # once at the end, so an outage on the second provider threw away the
+    # first provider's openers along with its own, and a 429 on a later
+    # odds/multi batch threw away the earlier batches. The error still
+    # propagates after the write, so the step fails exactly as before.
+    try:
+        for provider in providers:
+            books = (books_for(config, provider) if ignore_schedule
+                     else books_due(config, provider, now))
+            if not books:
+                log.info("%s/%s: not due this tick, spending nothing", league, provider)
+                continue
+            pending = pending_fixtures(
+                league, config, books=books, now=now,
+                history_path=history_path, fixtures_path=fixtures_path,
+            )
+            stats["pending"] += len(pending)
+            if not pending:
+                log.info("%s/%s: nothing pending, spending nothing", league, provider)
+                continue
+            haul = Haul()
+            hauls.append(haul)
+            try:
+                if provider == "oddsapiio":
+                    rows, unpriced, used = _capture_oddsapiio(
+                        league, config, pending, now=now, dry_run=dry_run, haul=haul)
+                else:
+                    rows, unpriced, used = _capture_theoddsapi(
+                        league, config, pending, books, now=now, dry_run=dry_run,
+                        haul=haul)
+                # The return is the contract and `haul` is how a partial result
+                # survives an error, so on success the return is what counts.
+                haul.rows, haul.unpriced, haul.requests = rows, unpriced, used
+            except (QuotaRefused, oddsapiio.RateLimited) as exc:
+                # One provider being out of credit must not stop the other: the
+                # soft books and the anchor are different accounts, and losing
+                # both because one is spent would turn a degraded tick into a
+                # dead one.
+                #
+                # A rate limit is the same shape and belongs here rather than in
+                # a traceback. It used to escape, failing the step after fifteen
+                # minutes of blind backoff, which held the shared concurrency
+                # group and cancelled the ticks behind it. Whatever it
+                # interrupted is lost; whatever came before it is in `haul` and
+                # is written below.
+                log.warning("%s/%s: refused, %s; keeping %d row(s) and %d unpriced "
+                            "sighting(s) taken before it", league, provider, exc,
+                            len(haul.rows), len(haul.unpriced))
+                stats["refused"] += 1
+                refusals.append(f"{provider}: {exc}")
+                continue
+            except Exception as exc:
+                log.error("%s/%s: failed, %s: %s; writing the %d row(s) and %d "
+                          "unpriced sighting(s) taken before it, then failing the "
+                          "tick", league, provider, type(exc).__name__, exc,
+                          len(haul.rows), len(haul.unpriced))
+                raise
+    finally:
+        all_rows = [r for h in hauls for r in h.rows]
+        all_unpriced = [u for h in hauls for u in h.unpriced]
+        stats["requests"] = sum(h.requests for h in hauls)
+        stats["captured"] = len(all_rows)
+        stats["unpriced"] = len(all_unpriced)
+        if not dry_run:
+            if all_unpriced:
+                capture_watch.record_unpriced(
+                    all_unpriced, path=watch_path,
+                    observed_at=stamp(now),
+                )
+            if all_rows:
+                _, appended = capture_store.append_snapshots(
+                    pd.DataFrame(all_rows),
+                    path=history_path,
+                    snapshot_type="open",
+                    capture_reason=f"first-seen open price @ {stamp(now)}",
+                )
+                stats["appended"] = appended
     return stats
