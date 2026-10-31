@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "csl",
- "generated_at": "2026-10-31T02:01:14Z",
+ "generated_at": "2026-10-31T02:31:16Z",
  "results": [
   {
    "fixture_id": "CSL-2026-9-2026-05-01-dalian-yingbo-chongqing-tonglianglong",
@@ -1546,8 +1546,8 @@
    "round": "25",
    "home_team": "Tianjin Jinmen Tiger",
    "away_team": "Qingdao West Coast",
-   "home_goals": 0,
-   "away_goals": 0,
+   "home_goals": 1,
+   "away_goals": 1,
    "result": "D",
    "status": "played"
   },
@@ -1558,7 +1558,7 @@
    "round": "25",
    "home_team": "Zhejiang Professional",
    "away_team": "Yunnan Yukun",
-   "home_goals": 3,
+   "home_goals": 6,
    "away_goals": 0,
    "result": "H",
    "status": "played"
@@ -1583,7 +1583,7 @@
    "home_team": "Chengdu Rongcheng",
    "away_team": "Liaoning Tieren",
    "home_goals": 2,
-   "away_goals": 0,
+   "away_goals": 1,
    "result": "H",
    "status": "played"
   },
@@ -1595,8 +1595,8 @@
    "home_team": "Henan Songshan Longmen",
    "away_team": "Chongqing Tonglianglong",
    "home_goals": 1,
-   "away_goals": 0,
-   "result": "H",
+   "away_goals": 1,
+   "result": "D",
    "status": "played"
   },
   {
@@ -1846,8 +1846,8 @@
    "round": "28",
    "home_team": "Dalian Yingbo",
    "away_team": "Shenzhen Xinpengcheng",
-   "home_goals": 1,
-   "away_goals": 0,
+   "home_goals": 3,
+   "away_goals": 1,
    "result": "H",
    "status": "played"
   },
@@ -1859,8 +1859,8 @@
    "home_team": "Qingdao Hainiu",
    "away_team": "Liaoning Tieren",
    "home_goals": 0,
-   "away_goals": 0,
-   "result": "D",
+   "away_goals": 4,
+   "result": "A",
    "status": "played"
   },
   {
@@ -1870,8 +1870,8 @@
    "round": "28",
    "home_team": "Yunnan Yukun",
    "away_team": "Chongqing Tonglianglong",
-   "home_goals": 0,
-   "away_goals": 0,
+   "home_goals": 1,
+   "away_goals": 1,
    "result": "D",
    "status": "played"
   },

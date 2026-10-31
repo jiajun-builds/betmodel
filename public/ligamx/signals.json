@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-10-31T02:01:14Z",
+ "generated_at": "2026-10-31T02:31:16Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-0-2026-10-30-puebla-unam-pumas",
@@ -506,9 +506,60 @@
     "method": "market_anchor",
     "anchor_proof": "observed"
    },
-   "quotes": [],
-   "best": {},
-   "judged": null,
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.74,
+     "ev": -0.04326918883960751,
+     "captured_at": "2026-10-31T02:31:13Z",
+     "last_update": "2026-10-31T02:27:11.408Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 4.0,
+     "ev": -0.061381414987778715,
+     "captured_at": "2026-10-31T02:31:13Z",
+     "last_update": "2026-10-31T02:27:11.408Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 4.6,
+     "ev": -0.008699724107621098,
+     "captured_at": "2026-10-31T02:31:13Z",
+     "last_update": "2026-10-31T02:27:11.408Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.74,
+     "ev": -0.04326918883960751
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 4.0,
+     "ev": -0.061381414987778715
+    },
+    "away": {
+     "book": "duel",
+     "odds": 4.6,
+     "ev": -0.008699724107621098
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 4.6,
+    "ev": -0.008699724107621098,
+    "proof": "window",
+    "captured_at": "2026-10-31T02:31:13Z"
+   },
    "bet": null,
    "state": ""
   }
