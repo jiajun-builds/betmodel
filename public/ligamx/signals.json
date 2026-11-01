@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-01T03:51:17Z",
+ "generated_at": "2026-11-01T04:01:19Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-15-2026-11-01-santos-laguna-necaxa",
@@ -290,18 +290,18 @@
    "home_team": "Toluca",
    "away_team": "Monterrey",
    "model": {
-    "home": 0.5714604996859951,
-    "draw": 0.2179756126484347,
-    "away": 0.21056388766557,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.5712492872074709,
+    "draw": 0.21444251600673278,
+    "away": 0.21430819678579632,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 1.69,
-     "ev": -0.03423175553066826,
+     "ev": -0.03458870461937413,
      "captured_at": "2026-11-01T03:51:13Z",
      "last_update": "2026-11-01T03:45:56.52Z",
      "proof": "window"
@@ -310,7 +310,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 4.4,
-     "ev": -0.04090730434688716,
+     "ev": -0.05645292957037573,
      "captured_at": "2026-11-01T03:51:13Z",
      "last_update": "2026-11-01T03:45:56.52Z",
      "proof": "window"
@@ -319,7 +319,7 @@
      "book": "duel",
      "side": "away",
      "odds": 4.5,
-     "ev": -0.05246250550493503,
+     "ev": -0.03561311446391657,
      "captured_at": "2026-11-01T03:51:13Z",
      "last_update": "2026-11-01T03:45:56.52Z",
      "proof": "window"
@@ -329,26 +329,96 @@
     "home": {
      "book": "duel",
      "odds": 1.69,
-     "ev": -0.03423175553066826
+     "ev": -0.03458870461937413
     },
     "draw": {
      "book": "duel",
      "odds": 4.4,
-     "ev": -0.04090730434688716
+     "ev": -0.05645292957037573
     },
     "away": {
      "book": "duel",
      "odds": 4.5,
-     "ev": -0.05246250550493503
+     "ev": -0.03561311446391657
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 1.69,
-    "ev": -0.03423175553066826,
+    "ev": -0.03458870461937413,
     "proof": "window",
     "captured_at": "2026-11-01T03:51:13Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-07-unam-pumas-club-america",
+   "kickoff_utc": "2026-11-08T03:00:00Z",
+   "round": "16",
+   "home_team": "UNAM Pumas",
+   "away_team": "Club America",
+   "model": {
+    "home": 0.2828727280790346,
+    "draw": 0.2540879592107587,
+    "away": 0.4630393127102067,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 3.35,
+     "ev": -0.05237636093523412,
+     "captured_at": "2026-11-01T04:01:14Z",
+     "last_update": "2026-11-01T03:59:23.151Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.7,
+     "ev": -0.05987455092019267,
+     "captured_at": "2026-11-01T04:01:14Z",
+     "last_update": "2026-11-01T03:59:23.151Z",
+     "proof": "observed"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.1,
+     "ev": -0.02761744330856586,
+     "captured_at": "2026-11-01T04:01:14Z",
+     "last_update": "2026-11-01T03:59:23.151Z",
+     "proof": "observed"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 3.35,
+     "ev": -0.05237636093523412
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.7,
+     "ev": -0.05987455092019267
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.1,
+     "ev": -0.02761744330856586
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.1,
+    "ev": -0.02761744330856586,
+    "proof": "observed",
+    "captured_at": "2026-11-01T04:01:14Z"
    },
    "bet": null,
    "state": ""
