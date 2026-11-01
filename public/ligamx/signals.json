@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-01T06:22:17Z",
+ "generated_at": "2026-11-01T07:51:21Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-15-2026-11-01-santos-laguna-necaxa",
@@ -220,18 +220,18 @@
    "home_team": "Atlas",
    "away_team": "Pachuca",
    "model": {
-    "home": 0.3720232998061266,
-    "draw": 0.26307051148958777,
-    "away": 0.3649061887042855,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.4045251987326106,
+    "draw": 0.2673478066233009,
+    "away": 0.32812699464408834,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 2.28,
-     "ev": -0.15178687644203148,
+     "ev": -0.07768254688964793,
      "captured_at": "2026-10-31T23:31:09Z",
      "last_update": "2026-10-31T23:22:51.401Z",
      "proof": "window"
@@ -240,7 +240,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.55,
-     "ev": -0.06609968421196344,
+     "ev": -0.05091528648728194,
      "captured_at": "2026-10-31T23:31:09Z",
      "last_update": "2026-10-31T23:22:51.401Z",
      "proof": "window"
@@ -249,7 +249,7 @@
      "book": "duel",
      "side": "away",
      "odds": 3.1,
-     "ev": 0.13120918498328504,
+     "ev": 0.01719368339667393,
      "captured_at": "2026-10-31T23:31:09Z",
      "last_update": "2026-10-31T23:22:51.401Z",
      "proof": "window"
@@ -259,29 +259,29 @@
     "home": {
      "book": "duel",
      "odds": 2.28,
-     "ev": -0.15178687644203148
+     "ev": -0.07768254688964793
     },
     "draw": {
      "book": "duel",
      "odds": 3.55,
-     "ev": -0.06609968421196344
+     "ev": -0.05091528648728194
     },
     "away": {
      "book": "duel",
      "odds": 3.1,
-     "ev": 0.13120918498328504
+     "ev": 0.01719368339667393
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 3.1,
-    "ev": 0.13120918498328504,
+    "ev": 0.01719368339667393,
     "proof": "window",
     "captured_at": "2026-10-31T23:31:09Z"
    },
    "bet": null,
-   "state": "unanchored"
+   "state": ""
   },
   {
    "fixture_id": "MEX-apertura-2026-16-2026-11-07-toluca-monterrey",
