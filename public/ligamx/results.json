@@ -1,32 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-01T04:01:19Z",
+ "generated_at": "2026-11-01T06:22:17Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-club-america-unam-pumas",
-   "match_date": "2026-05-03",
-   "season": "Clausura 2026",
-   "round": "Quarterfinals",
-   "home_team": "Club America",
-   "away_team": "UNAM Pumas",
-   "home_goals": 3,
-   "away_goals": 3,
-   "result": "D",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-03-toluca-pachuca",
-   "match_date": "2026-05-03",
-   "season": "Clausura 2026",
-   "round": "Quarterfinals",
-   "home_team": "Toluca",
-   "away_team": "Pachuca",
-   "home_goals": 0,
-   "away_goals": 1,
-   "result": "A",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-09-cruz-azul-atlas",
    "match_date": "2026-05-09",
@@ -1681,6 +1657,54 @@
    "home_goals": 1,
    "away_goals": 2,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-31-pachuca-tigres-uanl",
+   "match_date": "2026-10-31",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Pachuca",
+   "away_team": "Tigres UANL",
+   "home_goals": 3,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-31-monterrey-tijuana",
+   "match_date": "2026-10-31",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Monterrey",
+   "away_team": "Tijuana",
+   "home_goals": 3,
+   "away_goals": 3,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-31-guadalajara-atlante",
+   "match_date": "2026-10-31",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Guadalajara",
+   "away_team": "Atlante",
+   "home_goals": 4,
+   "away_goals": 2,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-10-31-club-america-toluca",
+   "match_date": "2026-10-31",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Club America",
+   "away_team": "Toluca",
+   "home_goals": 2,
+   "away_goals": 2,
+   "result": "D",
    "status": "played"
   }
  ]
