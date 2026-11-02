@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-02T04:01:17Z",
+ "generated_at": "2026-11-02T06:22:10Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-09-cruz-azul-atlas",
@@ -1705,6 +1705,30 @@
    "home_goals": 2,
    "away_goals": 2,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-11-01-santos-laguna-necaxa",
+   "match_date": "2026-11-01",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Santos Laguna",
+   "away_team": "Necaxa",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-15-2026-11-01-cruz-azul-leon",
+   "match_date": "2026-11-01",
+   "season": "Apertura 2026",
+   "round": "15",
+   "home_team": "Cruz Azul",
+   "away_team": "Leon",
+   "home_goals": 2,
+   "away_goals": 1,
+   "result": "H",
    "status": "played"
   }
  ]
