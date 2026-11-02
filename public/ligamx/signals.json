@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-02T02:51:16Z",
+ "generated_at": "2026-11-02T04:01:17Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-16-2026-11-06-necaxa-tijuana",
@@ -570,18 +570,18 @@
    "home_team": "Leon",
    "away_team": "Guadalajara",
    "model": {
-    "home": 0.28665222477131524,
-    "draw": 0.25745508728354943,
-    "away": 0.4558926879451352,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.29167119304062705,
+    "draw": 0.2590913471577083,
+    "away": 0.44923745980166463,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 2.88,
-     "ev": -0.17444159265861214,
+     "ev": -0.15998696404299417,
      "captured_at": "2026-11-02T02:51:12Z",
      "last_update": "2026-11-02T02:37:00.049Z",
      "proof": "window"
@@ -590,7 +590,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.6,
-     "ev": -0.073161685779222,
+     "ev": -0.06727115023225005,
      "captured_at": "2026-11-02T02:51:12Z",
      "last_update": "2026-11-02T02:37:00.049Z",
      "proof": "window"
@@ -599,7 +599,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.4,
-     "ev": 0.09414245106832442,
+     "ev": 0.07816990352399511,
      "captured_at": "2026-11-02T02:51:12Z",
      "last_update": "2026-11-02T02:37:00.049Z",
      "proof": "window"
@@ -609,24 +609,24 @@
     "home": {
      "book": "duel",
      "odds": 2.88,
-     "ev": -0.17444159265861214
+     "ev": -0.15998696404299417
     },
     "draw": {
      "book": "duel",
      "odds": 3.6,
-     "ev": -0.073161685779222
+     "ev": -0.06727115023225005
     },
     "away": {
      "book": "duel",
      "odds": 2.4,
-     "ev": 0.09414245106832442
+     "ev": 0.07816990352399511
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.4,
-    "ev": 0.09414245106832442,
+    "ev": 0.07816990352399511,
     "proof": "window",
     "captured_at": "2026-11-02T02:51:12Z"
    },
