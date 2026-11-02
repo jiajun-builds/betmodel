@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-02T02:11:17Z",
+ "generated_at": "2026-11-02T02:51:16Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-16-2026-11-06-necaxa-tijuana",
@@ -559,6 +559,76 @@
     "ev": -0.04137579130195723,
     "proof": "window",
     "captured_at": "2026-11-02T00:31:14Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-08-leon-guadalajara",
+   "kickoff_utc": "2026-11-09T02:00:00Z",
+   "round": "16",
+   "home_team": "Leon",
+   "away_team": "Guadalajara",
+   "model": {
+    "home": 0.28665222477131524,
+    "draw": 0.25745508728354943,
+    "away": 0.4558926879451352,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.88,
+     "ev": -0.17444159265861214,
+     "captured_at": "2026-11-02T02:51:12Z",
+     "last_update": "2026-11-02T02:37:00.049Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.6,
+     "ev": -0.073161685779222,
+     "captured_at": "2026-11-02T02:51:12Z",
+     "last_update": "2026-11-02T02:37:00.049Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.4,
+     "ev": 0.09414245106832442,
+     "captured_at": "2026-11-02T02:51:12Z",
+     "last_update": "2026-11-02T02:37:00.049Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.88,
+     "ev": -0.17444159265861214
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.6,
+     "ev": -0.073161685779222
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.4,
+     "ev": 0.09414245106832442
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.4,
+    "ev": 0.09414245106832442,
+    "proof": "window",
+    "captured_at": "2026-11-02T02:51:12Z"
    },
    "bet": null,
    "state": ""
