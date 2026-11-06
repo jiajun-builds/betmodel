@@ -402,7 +402,7 @@ def format_message(config: LeagueConfig, signal: dict) -> str:
     label = book.label if book else bet["book"]
 
     lines = [
-        "🟢 <b>BET 信号</b>",
+        "🟢 <b>下注信号</b>",
         f"<b>{_escape(config.name)}</b>",
         f"<b>{_escape(signal['home_team'])} vs {_escape(signal['away_team'])}</b>",
         f"方向: <b>{_escape(PICK_LABEL.get(side, side))}</b>",

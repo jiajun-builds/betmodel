@@ -333,7 +333,7 @@ def test_the_withdrawal_message_cannot_be_read_as_a_new_bet():
     message = telegram.format_withdrawal_message(
         load_league("csl"), _signal(), _no_longer_firing())
     assert "信号撤回" in message
-    assert "BET 信号" not in message
+    assert "🟢" not in message
     assert "原方向" in message and "原 EV" in message
 
 
