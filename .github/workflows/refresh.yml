@@ -180,11 +180,13 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           failed=""
-          [ "${{ steps.fixtures.outcome }}" = "failure" ] && failed="$failed fixtures"
-          [ "${{ steps.xg.outcome }}" = "failure" ] && failed="$failed xG"
+          # The same steps named for the alert, which is in the alerts' language.
+          steps=""
+          [ "${{ steps.fixtures.outcome }}" = "failure" ] && failed="$failed fixtures" && steps="$steps 赛程"
+          [ "${{ steps.xg.outcome }}" = "failure" ] && failed="$failed xG" && steps="$steps xG"
           # A step that failed without continue-on-error already failed the job;
           # catch that too, so this is the one place a broken refresh is reported.
-          [ "${{ job.status }}" = "failure" ] && failed="$failed (a step failed)"
+          [ "${{ job.status }}" = "failure" ] && failed="$failed (a step failed)" && steps="$steps 其他步骤"
 
           if [ -z "$failed" ]; then
             echo "every fetch succeeded"
@@ -194,12 +196,20 @@ jobs:
           echo "::error::refresh failed:$failed"
           if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
             run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            league="${{ inputs.league || 'all' }}"
+            [ "$league" = "all" ] && league="全部联赛"
+            steps="${steps# }"
+            # HTML like every other alert. Safe unescaped: each piece is a fixed
+            # string or a league id, none of which can hold markup.
+            text=$(printf '❌ <b>数据刷新失败</b>\n<b>%s</b>\n失败步骤: <b>%s</b>\n<a href="%s">查看运行日志</a>' \
+              "$league" "$steps" "$run_url")
             # The alert is best-effort: a send that fails must not replace the
-          # failure it was reporting, so its error is logged and swallowed.
-            text=$(printf 'betmodel refresh failed:%s\n%s' "$failed" "$run_url")
+            # failure it was reporting, so its error is logged and swallowed.
             curl -sS --max-time 20 -o /dev/null \
               "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
               --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+              --data-urlencode "parse_mode=HTML" \
+              --data-urlencode "disable_web_page_preview=true" \
               --data-urlencode "text=$text" || echo "alert could not be sent" >&2
           else
             echo "no telegram credentials; alerting skipped" >&2

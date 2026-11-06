@@ -92,3 +92,30 @@ def test_without_the_anchor_view_the_alarm_does_not_guess_the_cause():
     ok, msg = check.assess("ligamx", "market_anchor", _signals("raw") * 3)
     assert not ok
     assert "not being captured or not proven" in msg
+
+
+def test_the_telegram_alert_is_shaped_like_the_other_alerts():
+    # One message per league, header and league name first, as every other
+    # alert reads -- not the console's English line with a "betmodel:" prefix.
+    signals = [_named("f1", "raw", "Atlas", "Guadalajara"),
+               _named("f2", "raw", "Pachuca", "Necaxa"),
+               _named("f3", "market_anchor")]
+    msg = check.format_alert("Liga MX", signals, {"f1": "window", "f2": check.MISSING})
+    lines = msg.splitlines()
+    assert lines[0] == "⚠️ <b>锚定盘未校准</b>"
+    assert lines[1] == "<b>Liga MX</b>"
+    assert "1/3 场" in msg
+    assert "无锚定开盘价（未抓取）1 场: Pachuca vs Necaxa" in msg
+    assert "无法确认是首个报价 1 场: Atlas vs Guadalajara" in msg
+    assert "capture_watch.csv" in msg
+
+
+def test_the_telegram_alert_escapes_team_names():
+    msg = check.format_alert("CSL", [_named("f1", "raw", "A<b>", "B&C")],
+                             {"f1": check.MISSING})
+    assert "A&lt;b&gt; vs B&amp;C" in msg
+
+
+def test_without_the_anchor_view_the_telegram_alert_does_not_guess():
+    msg = check.format_alert("CSL", _signals("raw") * 3, None)
+    assert "原因未知" in msg

@@ -28,6 +28,7 @@ of the proof. So the alert now names the fixtures and says which case each is.
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import subprocess
@@ -47,14 +48,22 @@ RAW = "raw"
 MISSING = None
 
 
-def _diagnosis(raw: list[dict], anchors: dict[str, str | None]) -> str:
-    """Which raw signals lack the price and which had it refused."""
+def _classify(
+    raw: list[dict], anchors: dict[str, str | None],
+) -> tuple[list[dict], dict[str, list[dict]]]:
+    """Raw signals with no anchor opener on file, and the rest by its proof."""
     missing = [s for s in raw if anchors.get(s.get("fixture_id"), MISSING) is MISSING]
     refused: dict[str, list[dict]] = {}
     for s in raw:
         proof = anchors.get(s.get("fixture_id"), MISSING)
         if proof is not MISSING:
             refused.setdefault(proof or "none", []).append(s)
+    return missing, refused
+
+
+def _diagnosis(raw: list[dict], anchors: dict[str, str | None]) -> str:
+    """Which raw signals lack the price and which had it refused."""
+    missing, refused = _classify(raw, anchors)
 
     def names(rows):
         return ", ".join(f"{s.get('home_team')} v {s.get('away_team')}" for s in rows)
@@ -134,6 +143,48 @@ def anchor_proofs(league: str, config, signals: list[dict]) -> dict[str, str | N
     return out
 
 
+def _escape(text) -> str:
+    return html.escape(str(text), quote=False)
+
+
+def format_alert(
+    name: str, signals: list[dict], anchors: dict[str, str | None] | None,
+) -> str:
+    """The Telegram message for one league, in the shape of the other alerts.
+
+    :func:`assess` stays the console's account; this is the reader's. Same facts,
+    one message per league, naming each fixture under the case it is.
+    """
+    anchored = sum(1 for s in signals if s.get("model", {}).get("method") == ANCHORED)
+    raw = [s for s in signals if s.get("model", {}).get("method") != ANCHORED]
+
+    def names(rows):
+        return "、".join(f"{_escape(s.get('home_team'))} vs {_escape(s.get('away_team'))}"
+                        for s in rows)
+
+    lines = [
+        "⚠️ <b>锚定盘未校准</b>",
+        f"<b>{_escape(name)}</b>",
+        f"已校准: <b>{anchored}/{len(signals)} 场</b>"
+        f"（{anchored / len(signals):.0%}，低于 {MIN_ANCHORED_SHARE:.0%}）",
+        "其余场次为未校准概率，不会发出下注信号。",
+    ]
+    if anchors is None:
+        lines.append("原因未知: 锚定盘开盘价未抓取，或未被证明为开盘价。")
+        return "\n".join(lines)
+    missing, refused = _classify(raw, anchors)
+    if missing:
+        lines.append(f"❌ 无锚定开盘价（未抓取）{len(missing)} 场: {names(missing)}")
+    for proof, rows in sorted(refused.items()):
+        if proof == "observed":
+            lines.append(f"❌ 有 observed 开盘价但引擎未应用 {len(rows)} 场: {names(rows)}")
+            continue
+        lines.append(f"⚠️ 开盘价无法确认是首个报价 {len(rows)} 场: {names(rows)}")
+    if any(proof != "observed" for proof in refused):
+        lines.append("无法确认的场次请查看 capture_watch.csv。")
+    return "\n".join(lines)
+
+
 def alert(text: str) -> None:
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
@@ -145,6 +196,8 @@ def alert(text: str) -> None:
             ["curl", "-sS", "--max-time", "20", "-o", "/dev/null",
              f"https://api.telegram.org/bot{token}/sendMessage",
              "--data-urlencode", f"chat_id={chat}",
+             "--data-urlencode", "parse_mode=HTML",
+             "--data-urlencode", "disable_web_page_preview=true",
              "--data-urlencode", f"text={text}"],
             check=True, capture_output=True)
     except Exception as exc:  # noqa: BLE001
@@ -182,10 +235,13 @@ def main() -> int:
         ok, message = assess(league, method, signals, anchors)
         print(message)
         if not ok:
-            problems.append(message)
+            problems.append(format_alert(config.name, signals, anchors))
 
-    if problems and not args.dry_run:
-        alert("betmodel: " + " | ".join(problems))
+    for text in problems:
+        if args.dry_run:
+            print(f"would send:\n{text}")
+        else:
+            alert(text)
     # Reported, not fatal: the refresh has its own work and its own failure path.
     return 0
 
