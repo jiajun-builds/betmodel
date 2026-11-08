@@ -1,32 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-08T03:01:20Z",
+ "generated_at": "2026-11-08T06:22:07Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-10-pachuca-toluca",
-   "match_date": "2026-05-10",
-   "season": "Clausura 2026",
-   "round": "Quarterfinals",
-   "home_team": "Pachuca",
-   "away_team": "Toluca",
-   "home_goals": 2,
-   "away_goals": 0,
-   "result": "H",
-   "status": "played"
-  },
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-05-10-unam-pumas-club-america",
-   "match_date": "2026-05-10",
-   "season": "Clausura 2026",
-   "round": "Quarterfinals",
-   "home_team": "UNAM Pumas",
-   "away_team": "Club America",
-   "home_goals": 3,
-   "away_goals": 3,
-   "result": "D",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-semifinals-2026-05-13-cruz-azul-guadalajara",
    "match_date": "2026-05-13",
@@ -1741,6 +1717,54 @@
    "home_goals": 0,
    "away_goals": 2,
    "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-07-atlas-pachuca",
+   "match_date": "2026-11-07",
+   "season": "Apertura 2026",
+   "round": "16",
+   "home_team": "Atlas",
+   "away_team": "Pachuca",
+   "home_goals": 1,
+   "away_goals": 4,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-07-toluca-monterrey",
+   "match_date": "2026-11-07",
+   "season": "Apertura 2026",
+   "round": "16",
+   "home_team": "Toluca",
+   "away_team": "Monterrey",
+   "home_goals": 4,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-07-tigres-uanl-cruz-azul",
+   "match_date": "2026-11-07",
+   "season": "Apertura 2026",
+   "round": "16",
+   "home_team": "Tigres UANL",
+   "away_team": "Cruz Azul",
+   "home_goals": 2,
+   "away_goals": 3,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-07-unam-pumas-club-america",
+   "match_date": "2026-11-07",
+   "season": "Apertura 2026",
+   "round": "16",
+   "home_team": "UNAM Pumas",
+   "away_team": "Club America",
+   "home_goals": 2,
+   "away_goals": 2,
+   "result": "D",
    "status": "played"
   }
  ]
