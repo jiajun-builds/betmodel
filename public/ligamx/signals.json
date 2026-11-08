@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-07T22:51:19Z",
+ "generated_at": "2026-11-08T00:46:17Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-16-2026-11-07-atlas-pachuca",
-   "kickoff_utc": "2026-11-07T23:00:00Z",
-   "round": "16",
-   "home_team": "Atlas",
-   "away_team": "Pachuca",
-   "model": {
-    "home": 0.4065606001948933,
-    "draw": 0.2675040783750087,
-    "away": 0.325935321430098,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.28,
-     "ev": -0.07304183155564337,
-     "captured_at": "2026-10-31T23:31:09Z",
-     "last_update": "2026-10-31T23:22:51.401Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.55,
-     "ev": -0.05036052176871908,
-     "captured_at": "2026-10-31T23:31:09Z",
-     "last_update": "2026-10-31T23:22:51.401Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 3.1,
-     "ev": 0.010399496433303845,
-     "captured_at": "2026-10-31T23:31:09Z",
-     "last_update": "2026-10-31T23:22:51.401Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.28,
-     "ev": -0.07304183155564337
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.55,
-     "ev": -0.05036052176871908
-    },
-    "away": {
-     "book": "duel",
-     "odds": 3.1,
-     "ev": 0.010399496433303845
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 3.1,
-    "ev": 0.010399496433303845,
-    "proof": "window",
-    "captured_at": "2026-10-31T23:31:09Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-16-2026-11-07-tigres-uanl-cruz-azul",
    "kickoff_utc": "2026-11-08T01:00:00Z",
