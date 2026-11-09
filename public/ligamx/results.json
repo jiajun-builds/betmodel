@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-09T02:01:19Z",
+ "generated_at": "2026-11-09T06:22:09Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-semifinals-2026-05-13-cruz-azul-guadalajara",
@@ -1764,6 +1764,30 @@
    "away_team": "Club America",
    "home_goals": 2,
    "away_goals": 2,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-08-queretaro-puebla",
+   "match_date": "2026-11-08",
+   "season": "Apertura 2026",
+   "round": "16",
+   "home_team": "Queretaro",
+   "away_team": "Puebla",
+   "home_goals": 0,
+   "away_goals": 2,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-16-2026-11-08-leon-guadalajara",
+   "match_date": "2026-11-08",
+   "season": "Apertura 2026",
+   "round": "16",
+   "home_team": "Leon",
+   "away_team": "Guadalajara",
+   "home_goals": 1,
+   "away_goals": 1,
    "result": "D",
    "status": "played"
   }
