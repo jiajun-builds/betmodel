@@ -30,6 +30,25 @@ removed by centring attack and defence to mean zero inside the parameter map,
 which keeps the optimiser unconstrained. The gradient is projected onto the same
 subspace so its norm actually reaches zero; without that, L-BFGS-B chases a
 component along a flat direction and stops on the function tolerance instead.
+
+**Auxiliary groups (D42).** Matches from another competition can be pooled in as
+evidence. Each match carries a group, 0 for the primary league, and a match in
+auxiliary group ``g`` is fitted as::
+
+    log lambda_home = c + gamma_g + attack_home + defence_away + home_advantage + eta_g
+    log lambda_away = c + gamma_g + attack_away + defence_home
+
+so the other division keeps its own scoring level and home advantage and cannot
+drag the primary's. ``const`` and ``home_advantage`` stay the primary league's,
+and every prediction prices a primary-league match. ``gamma_g`` is identified only
+through clubs with matches in both groups. With none, the two components are
+disconnected and the fit has a flat direction; it moves nothing a primary pairing
+can see, so the optimum is still the right one for pricing, and the group's
+shifts are simply not meaningful.
+
+With no auxiliary group the parameter vector, the starting point and every
+floating-point operation are exactly those of the plain fit. Gate G1 compares to
+1e-12, so that is a branch, not an addition of zeros.
 """
 
 from __future__ import annotations
@@ -111,6 +130,8 @@ class ContinuousPoissonModel:
         *,
         max_goals: int = 9,
         options: FitOptions = DEFAULT,
+        groups=None,
+        pooled: bool | None = None,
     ) -> None:
         self.goals_home = np.asarray(goals_home, dtype=np.float64)
         self.goals_away = np.asarray(goals_away, dtype=np.float64)
@@ -140,6 +161,26 @@ class ContinuousPoissonModel:
             if len(self.weights) != n:
                 raise ValueError("weights must be the same length as the matches")
 
+        # Group 0 is the primary league (and any auxiliary pooled on its level);
+        # each other label gets its own intercept and home-advantage shift.
+        if groups is None:
+            self.groups = np.zeros(n, dtype=np.int64)
+        else:
+            self.groups = np.asarray(groups, dtype=np.int64)
+            if len(self.groups) != n:
+                raise ValueError("groups must be the same length as the matches")
+            if (self.groups < 0).any():
+                raise ValueError("groups must be non-negative; 0 is the primary league")
+            if not (self.groups == 0).any():
+                raise ValueError("no primary-league match (group 0) supplied")
+        self.group_labels = tuple(int(g) for g in np.unique(self.groups) if g != 0)
+        self.n_groups = len(self.group_labels)
+        position = {g: i + 1 for i, g in enumerate(self.group_labels)}
+        self._ig = np.array([position.get(int(g), 0) for g in self.groups], dtype=np.int64)
+        #: Matches from outside the primary league are in the fit, on their own
+        #: level or on the primary's. Only this relaxes the convergence rule.
+        self.pooled = self.n_groups > 0 if pooled is None else bool(pooled)
+
         self.max_goals = int(max_goals)
         self.options = options
         self.fitted = False
@@ -155,14 +196,28 @@ class ContinuousPoissonModel:
         raw_def = params[self.n_teams : 2 * self.n_teams]
         return raw_atk - raw_atk.mean(), raw_def - raw_def.mean(), params[-2], params[-1]
 
-    def _lambdas(self, atk, dfn, const, home_adv):
-        lam_h = np.exp(const + atk[self._ih] + dfn[self._ia] + home_adv)
-        lam_a = np.exp(const + atk[self._ia] + dfn[self._ih])
+    def _shifts(self, params):
+        """``(gamma, eta)`` per auxiliary group, each led by the primary's 0."""
+        lo, g = 2 * self.n_teams, self.n_groups
+        gamma = np.concatenate([[0.0], params[lo : lo + g]])
+        eta = np.concatenate([[0.0], params[lo + g : lo + 2 * g]])
+        return gamma, eta
+
+    def _lambdas(self, atk, dfn, const, home_adv, shifts=None):
+        if self.n_groups == 0:
+            lam_h = np.exp(const + atk[self._ih] + dfn[self._ia] + home_adv)
+            lam_a = np.exp(const + atk[self._ia] + dfn[self._ih])
+            return lam_h, lam_a
+        gamma, eta = shifts
+        level = const + gamma[self._ig]
+        lam_h = np.exp(level + atk[self._ih] + dfn[self._ia] + home_adv + eta[self._ig])
+        lam_a = np.exp(level + atk[self._ia] + dfn[self._ih])
         return lam_h, lam_a
 
     def _objective(self, params):
         atk, dfn, const, home_adv = self._unpack(params)
-        lam_h, lam_a = self._lambdas(atk, dfn, const, home_adv)
+        shifts = self._shifts(params) if self.n_groups else None
+        lam_h, lam_a = self._lambdas(atk, dfn, const, home_adv, shifts)
 
         w, yh, ya = self.weights, self.goals_home, self.goals_away
         nll = -(w * (yh * np.log(lam_h) - lam_h + ya * np.log(lam_a) - lam_a)).sum()
@@ -183,6 +238,11 @@ class ContinuousPoissonModel:
         grad[self.n_teams : 2 * self.n_teams] = g_def
         grad[-2] = -(res_h + res_a).sum()
         grad[-1] = -res_h.sum()
+        if self.n_groups:
+            lo, g = 2 * self.n_teams, self.n_groups
+            size = g + 1
+            grad[lo : lo + g] = -np.bincount(self._ig, res_h + res_a, minlength=size)[1:]
+            grad[lo + g : lo + 2 * g] = -np.bincount(self._ig, res_h, minlength=size)[1:]
         return nll, grad
 
     # --- fitting ------------------------------------------------------------
@@ -194,9 +254,13 @@ class ContinuousPoissonModel:
             w = np.concatenate([self.weights, self.weights])
             mean_target = max(float(np.average(both, weights=w)), 1e-3)
         return np.concatenate([
-            np.zeros(2 * self.n_teams),
+            np.zeros(2 * self.n_teams + 2 * self.n_groups),
             [np.log(mean_target), self.options.home_advantage_start],
         ])
+
+    #: Largest gradient component at which a line-search stop is still taken as
+    #: the optimum, for a pooled fit only. See ``fit``.
+    GROUPED_STOP_GRADIENT = 1e-6
 
     def fit(self):
         result = minimize(
@@ -204,15 +268,37 @@ class ContinuousPoissonModel:
             options=self.options.scipy_options(),
         )
         if not result.success and result.status != 1:  # 1 == hit maxiter, usable
-            raise RuntimeError(f"continuous Poisson fit failed to converge: {result.message}")
+            # A pooled fit can carry a flat direction (auxiliary clubs with no
+            # club in common with the primary), and at these tolerances L-BFGS-B
+            # can end such a run on a failed line search while already at the
+            # optimum. A small gradient says it is; the score equation in
+            # `dc.fit_production_model` then checks it independently. The plain
+            # fit keeps its original rule untouched.
+            usable = (self.pooled and
+                      float(np.abs(result.jac).max()) < self.GROUPED_STOP_GRADIENT)
+            if not usable:
+                raise RuntimeError(
+                    f"continuous Poisson fit failed to converge: {result.message}")
 
         self.attack, self.defence, self.const, self.home_advantage = self._unpack(result.x)
-        self.lambda_home, self.lambda_away = self._lambdas(
-            self.attack, self.defence, self.const, self.home_advantage
-        )
-        self._params = np.concatenate(
-            [self.attack, self.defence, [self.const, self.home_advantage]]
-        )
+        if self.n_groups:
+            gamma, eta = self._shifts(result.x)
+            self.level_shift, self.home_shift = gamma[1:].copy(), eta[1:].copy()
+            self.lambda_home, self.lambda_away = self._lambdas(
+                self.attack, self.defence, self.const, self.home_advantage, (gamma, eta)
+            )
+            self._params = np.concatenate([
+                self.attack, self.defence, self.level_shift, self.home_shift,
+                [self.const, self.home_advantage],
+            ])
+        else:
+            self.level_shift = self.home_shift = np.zeros(0)
+            self.lambda_home, self.lambda_away = self._lambdas(
+                self.attack, self.defence, self.const, self.home_advantage
+            )
+            self._params = np.concatenate(
+                [self.attack, self.defence, [self.const, self.home_advantage]]
+            )
         self.loglikelihood = -result.fun
         self.n_iter = int(result.nit)
         self.fitted = True
@@ -230,8 +316,21 @@ class ContinuousPoissonModel:
         params.update({f"defence_{t}": float(v) for t, v in zip(self.teams, self.defence)})
         return params
 
-    def appearances(self) -> tuple[np.ndarray, np.ndarray]:
+    def group_shifts(self) -> dict[int, tuple[float, float]]:
+        """``{group: (level shift, home-advantage shift)}`` for each auxiliary group.
+
+        Relative to the primary league, in log-rate units. Meaningful only for a
+        group that shares at least one club with the primary; see the module note.
+        """
+        self._check_fitted()
+        return {g: (float(self.level_shift[i]), float(self.home_shift[i]))
+                for i, g in enumerate(self.group_labels)}
+
+    def appearances(self, rows=None) -> tuple[np.ndarray, np.ndarray]:
         """``(counts, weighted_counts)`` per team, in ``self.teams`` order.
+
+        ``rows`` is an optional boolean mask over the matches, to count only some
+        of them -- the primary league's, say, when auxiliary matches are pooled.
 
         How much evidence each team's coefficients rest on. A promoted side
         enters the window part-way through and can carry less than half the
@@ -242,9 +341,15 @@ class ContinuousPoissonModel:
         self._check_fitted()
         counts = np.zeros(self.n_teams)
         weighted = np.zeros(self.n_teams)
-        for idx in (self._ih, self._ia):
+        if rows is None:
+            for idx in (self._ih, self._ia):
+                np.add.at(counts, idx, 1.0)
+                np.add.at(weighted, idx, self.weights)
+            return counts, weighted
+        rows = np.asarray(rows, dtype=bool)
+        for idx in (self._ih[rows], self._ia[rows]):
             np.add.at(counts, idx, 1.0)
-            np.add.at(weighted, idx, self.weights)
+            np.add.at(weighted, idx, self.weights[rows])
         return counts, weighted
 
     def lambdas(self, home_team: str, away_team: str) -> tuple[float, float]:
@@ -296,19 +401,30 @@ class ContinuousPoissonModel:
         home_p, draw_p, away_p = self.predict(home_team, away_team).home_draw_away
         return Outcome(float(home_p), float(draw_p), float(away_p))
 
-    def score_equation_ratio(self) -> tuple[float, float]:
+    def score_equation_ratio(self, group: int = 0) -> tuple[float, float]:
         """``(home, away)`` values of ``sum(w*lambda) / sum(w*y)``.
 
         Both are 1.0 at a correctly fitted Poisson optimum. This is the
         intercept and home-advantage score equation, and its absence is what let
         the truncation bug survive unnoticed across five copies of the fit. The
         truncating fit returned about 0.733.
+
+        With auxiliary groups the equation holds within each group separately,
+        because each has its own intercept and home shift. ``group`` picks one;
+        the default is the primary league's.
         """
         self._check_fitted()
         w = self.weights
+        if self.n_groups == 0:
+            return (
+                float((w * self.lambda_home).sum() / (w * self.goals_home).sum()),
+                float((w * self.lambda_away).sum() / (w * self.goals_away).sum()),
+            )
+        rows = self.groups == group
+        w = w[rows]
         return (
-            float((w * self.lambda_home).sum() / (w * self.goals_home).sum()),
-            float((w * self.lambda_away).sum() / (w * self.goals_away).sum()),
+            float((w * self.lambda_home[rows]).sum() / (w * self.goals_home[rows]).sum()),
+            float((w * self.lambda_away[rows]).sum() / (w * self.goals_away[rows]).sum()),
         )
 
     def __repr__(self) -> str:

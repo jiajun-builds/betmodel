@@ -11,6 +11,7 @@ unattended in CI and publishes to a live board.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
@@ -184,6 +185,86 @@ class TeamOffset:
         )
 
 
+_AUX_ID_CHARS = set("abcdefghijklmnopqrstuvwxyz0123456789_")
+
+
+@dataclass(frozen=True)
+class AuxiliarySource:
+    """Matches from another competition, pooled into this league's fit (D42).
+
+    Evidence for the ratings and nothing else: an auxiliary competition has no
+    odds, no anchor and no signals, and its clubs are never priced until they
+    have played in the primary league. The rows are down-weighted by ``weight``
+    on top of their Dixon-Coles weight, and with ``own_level`` they get their own
+    intercept and home-advantage shift, so a weaker division's lower scoring and
+    smaller home edge cannot drag the primary league's down.
+
+    ``file`` names a CSV in the league's data directory, so an auxiliary can
+    never read or write outside it. ``source`` is where the xG stage refreshes
+    it from; without one the file is maintained by hand.
+    """
+
+    id: str
+    name: str
+    file: str
+    weight: float
+    own_level: bool = True
+    enabled: bool = True
+    source: SourceConfig | None = None
+
+    def __post_init__(self) -> None:
+        where = f"model.auxiliary[{self.id!r}]"
+        if not self.id or not set(self.id) <= _AUX_ID_CHARS:
+            raise ConfigError(
+                f"model.auxiliary: id {self.id!r} must be lowercase letters, digits or '_'"
+            )
+        if (not self.file.endswith(".csv") or os.path.basename(self.file) != self.file
+                or self.file.startswith(".")):
+            raise ConfigError(
+                f"{where}.file: {self.file!r} must be a plain .csv file name in the "
+                "league's data directory"
+            )
+        if not 0.0 < self.weight <= 1.0:
+            raise ConfigError(
+                f"{where}.weight out of (0, 1]: {self.weight}. It multiplies the "
+                "Dixon-Coles weight; 0 is `enabled: false`, and above 1 would make "
+                "another competition count for more than this one"
+            )
+        if self.source is not None and self.source.provider == "sofascore":
+            self.source.require("unique_tournament_id")
+
+    @classmethod
+    def parse(cls, raw: Mapping[str, Any], where: str) -> "AuxiliarySource":
+        if not isinstance(raw, Mapping):
+            raise ConfigError(f"{where}: expected a mapping, got {type(raw).__name__}")
+        source_raw = raw.get("source")
+        return cls(
+            id=str(_req(raw, "id", where)),
+            name=str(_req(raw, "name", where)),
+            file=str(_req(raw, "file", where)),
+            weight=float(_req(raw, "weight", where)),
+            own_level=bool(raw.get("own_level", True)),
+            enabled=bool(raw.get("enabled", True)),
+            source=SourceConfig.parse(source_raw, f"{where}.source") if source_raw else None,
+        )
+
+
+def _parse_auxiliary(raw: Any, where: str) -> tuple[AuxiliarySource, ...]:
+    if raw is None:
+        return ()
+    if not isinstance(raw, (list, tuple)):
+        raise ConfigError(f"{where}: expected a list, got {type(raw).__name__}")
+    parsed = tuple(
+        AuxiliarySource.parse(item, f"{where}[{i}]") for i, item in enumerate(raw)
+    )
+    for attribute in ("id", "file"):
+        values = [getattr(a, attribute) for a in parsed]
+        dupes = {v for v in values if values.count(v) > 1}
+        if dupes:
+            raise ConfigError(f"{where}: duplicate {attribute}s {sorted(dupes)}")
+    return parsed
+
+
 @dataclass(frozen=True)
 class ModelConfig:
     xi: float                       # Dixon-Coles time decay
@@ -195,6 +276,12 @@ class ModelConfig:
     draw_calibration_alpha: float   # 1.0 = identity; see note below
     ah_lines: tuple[float, ...] = ()
     team_offset: TeamOffset = field(default_factory=TeamOffset)
+    #: Other competitions pooled into the fit as evidence (D42). Empty = off.
+    auxiliary: tuple[AuxiliarySource, ...] = ()
+
+    @property
+    def enabled_auxiliary(self) -> tuple[AuxiliarySource, ...]:
+        return tuple(a for a in self.auxiliary if a.enabled)
 
     def __post_init__(self) -> None:
         if not 0 < self.xi < 1:
@@ -240,6 +327,7 @@ class ModelConfig:
             draw_calibration_alpha=float(raw.get("draw_calibration_alpha", 1.0)),
             ah_lines=tuple(float(x) for x in raw.get("ah_lines", ())),
             team_offset=TeamOffset.parse(raw.get("team_offset", {}) or {}),
+            auxiliary=_parse_auxiliary(raw.get("auxiliary"), f"{where}.auxiliary"),
         )
 
 

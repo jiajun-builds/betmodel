@@ -73,6 +73,26 @@ model:
     lam: 4.0
     window_months: 18
     book: pinnacle
+  # China League One, pooled into the fit as evidence so a promoted club arrives
+  # with a rating that rests on something. It is never priced and never counted:
+  # a club is priced only once it has a CSL match, and `Matches`/`WeightedMatches`
+  # (what `min_team_evidence` reads) stay CSL-only. Half weight because 0.25 and
+  # 0.5 could not be told apart in the walk-forward and 1.0 was slightly worse.
+  # Own level because League One scores less and its home advantage is smaller
+  # (0.24 against 0.28); without its own intercept and home shift it would pull
+  # the CSL's down, and the division gap is then read only from clubs that played
+  # in both. Against the close, -2.26 (x1000) [-4.89, -0.36] on four promoted
+  # clubs, CLV unchanged. See D42 and docs/LEAGUE_ONE.md.
+  auxiliary:
+    - id: league_one
+      name: China League One
+      file: league_one_matches.csv
+      weight: 0.5
+      own_level: true
+      enabled: true
+      source:
+        provider: sofascore
+        unique_tournament_id: 782
 
 odds:
   # Low on purpose. The floor is not what keeps the monthly account inside its

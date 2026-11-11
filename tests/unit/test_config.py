@@ -246,6 +246,65 @@ def test_both_leagues_correct_clubs_by_their_market_offset():
     assert ligamx.xi == 0.0015  # the model's own decay did not clear its test
 
 
+def _with_auxiliary(tmp_path, block):
+    root = _write(tmp_path)
+    path = tmp_path / "tst.yml"
+    path.write_text(path.read_text().replace(
+        "  xg_blend:", textwrap.indent(textwrap.dedent(block), "  ") + "  xg_blend:"))
+    clear_cache()
+    return root
+
+
+def test_an_auxiliary_competition_parses_with_its_defaults(tmp_path):
+    root = _with_auxiliary(tmp_path, """\
+        auxiliary:
+          - {id: lower, name: Lower League, file: lower.csv, weight: 0.5,
+             source: {provider: sofascore, unique_tournament_id: 1}}
+        """)
+    (source,) = load_league("tst", root).model.auxiliary
+    assert (source.id, source.file, source.weight) == ("lower", "lower.csv", 0.5)
+    assert source.own_level is True and source.enabled is True
+    assert source.source.require("unique_tournament_id") == 1
+
+
+def test_no_auxiliary_is_the_default(tmp_path):
+    assert load_league("tst", _write(tmp_path)).model.auxiliary == ()
+
+
+@pytest.mark.parametrize("entry, message", [
+    ("{id: lower, name: L, file: lower.csv, weight: 0}", "weight"),
+    ("{id: lower, name: L, file: lower.csv, weight: 1.5}", "weight"),
+    ("{id: lower, name: L, file: ../matches.csv, weight: 0.5}", "file"),
+    ("{id: lower, name: L, file: lower.json, weight: 0.5}", "file"),
+    ("{id: Lower, name: L, file: lower.csv, weight: 0.5}", "id"),
+    ("{id: lower, name: L, weight: 0.5}", "file"),
+    ("{id: lower, name: L, file: lower.csv, weight: 0.5, source: {provider: sofascore}}",
+     "unique_tournament_id"),
+])
+def test_a_malformed_auxiliary_is_refused(tmp_path, entry, message):
+    """Weight above one would make another division count for more than the
+    league itself; a path in `file` would let a config read outside its data."""
+    root = _with_auxiliary(tmp_path, f"auxiliary:\n  - {entry}\n")
+    with pytest.raises(ConfigError, match=message):
+        load_league("tst", root)
+
+
+def test_two_auxiliaries_may_not_share_an_id_or_a_file(tmp_path):
+    root = _with_auxiliary(tmp_path, """\
+        auxiliary:
+          - {id: lower, name: L, file: lower.csv, weight: 0.5}
+          - {id: lower, name: M, file: other.csv, weight: 0.5}
+        """)
+    with pytest.raises(ConfigError, match="duplicate ids"):
+        load_league("tst", root)
+
+
+def test_auxiliary_must_be_a_list(tmp_path):
+    root = _with_auxiliary(tmp_path, "auxiliary: {id: lower}\n")
+    with pytest.raises(ConfigError, match="expected a list"):
+        load_league("tst", root)
+
+
 def test_xg_blend_must_sum_to_one(tmp_path):
     with pytest.raises(ConfigError, match="sum to 1"):
         load_league("tst", _write(tmp_path, blend_xg=0.9))
