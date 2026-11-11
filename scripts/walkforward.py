@@ -23,6 +23,7 @@ refused, which is how the uncalibrated rule was measured in D31.
     python scripts/walkforward.py csl --xi 0.004
     python scripts/walkforward.py ligamx --blend 0.5 --start 2024-01-01
     python scripts/walkforward.py ligamx --book duel
+    python scripts/walkforward.py csl --aux-weight 0       # League One off (D42)
 
 Research only: it reads the committed tables and writes nothing.
 """
@@ -44,7 +45,7 @@ from betmodel import paths  # noqa: E402
 from betmodel.config import load_league  # noqa: E402
 from betmodel.config.schema import LeagueConfig  # noqa: E402
 from betmodel.dates import parse_date_only_series  # noqa: E402,F401  (tests use it)
-from betmodel.models import team_offset  # noqa: E402
+from betmodel.models import auxiliary, team_offset  # noqa: E402
 from betmodel.models.poisson import Outcome  # noqa: E402
 from betmodel.signals import debias  # noqa: E402
 from betmodel.signals.ev import devig  # noqa: E402
@@ -56,10 +57,14 @@ LEGS = ("h", "d", "a")
 START = {"csl": "2024-03-01", "ligamx": "2024-01-01"}
 
 
-def configure(config: LeagueConfig, *, xi=None, blend=None, shrink=None) -> LeagueConfig:
+def configure(config: LeagueConfig, *, xi=None, blend=None, shrink=None,
+              aux_weight=None, aux_shared_level=False) -> LeagueConfig:
     """The league's config with any trialled model setting replaced.
 
-    ``shrink`` is a k to shrink with, or 0 to turn shrinkage off.
+    ``shrink`` is a k to shrink with, or 0 to turn shrinkage off. ``aux_weight``
+    is the weight of every configured auxiliary competition (D42), or 0 to pool
+    none; ``aux_shared_level`` fits them on the primary's level instead of their
+    own.
     """
     model = config.model
     changes = {}
@@ -71,11 +76,34 @@ def configure(config: LeagueConfig, *, xi=None, blend=None, shrink=None) -> Leag
     if shrink is not None:
         changes["shrinkage"] = dataclasses.replace(
             model.shrinkage, enabled=shrink > 0, k=shrink or model.shrinkage.k)
+    sources = model.auxiliary
+    if aux_weight is not None:
+        sources = () if aux_weight == 0 else tuple(
+            dataclasses.replace(a, weight=aux_weight) for a in sources)
+    if aux_shared_level:
+        sources = tuple(dataclasses.replace(a, own_level=False) for a in sources)
+    if sources != model.auxiliary:
+        changes["auxiliary"] = sources
     return dataclasses.replace(config, model=dataclasses.replace(model, **changes))
 
 
+def describe_auxiliary(config: LeagueConfig, loaded) -> str:
+    """The pooled competitions as the header prints them, e.g.
+    ``league_one:0.5/own(712 rows)``. A configured one whose file could not be
+    read says so: the log that would have said it is silenced here."""
+    enabled = config.model.enabled_auxiliary
+    if not enabled:
+        return "off"
+    rows = {r.source.id: len(r) for r in loaded}
+    return ",".join(
+        f"{a.id}:{a.weight:g}/{'own' if a.own_level else 'shared'}"
+        f"({f'{rows[a.id]} rows' if a.id in rows else 'missing'})"
+        for a in enabled)
+
+
 def predict(league: str, config: LeagueConfig, start: str,
-            matches_path: str | None = None) -> pd.DataFrame:
+            matches_path: str | None = None,
+            auxiliary_rows: list | None = None) -> pd.DataFrame:
     """Played matches from ``start`` on, each priced by a fit on earlier ones.
 
     Adds the model's 1X2 as ``raw_h/raw_d/raw_a`` and the weaker side's weighted
@@ -87,8 +115,14 @@ def predict(league: str, config: LeagueConfig, start: str,
     each day's offsets are fitted on residuals of strictly earlier days, and the
     applied shift is kept as ``offset``. The loop is the model layer's own
     ``team_offset.walk_forward``, so the replay and production cannot drift.
+
+    The config's enabled auxiliary competitions (D42) are loaded as production
+    loads them, unless ``auxiliary_rows`` supplies them; each day's fit gets
+    their matches strictly before the day.
     """
     frame = pd.read_csv(matches_path or paths.for_league(league).matches_csv)
+    loaded = (auxiliary.load_enabled(league, config)
+              if auxiliary_rows is None else auxiliary_rows)
     frame, _ = recompute(frame, config)  # the target under this config's blend
     history = team_offset.played_history(frame)
 
@@ -96,7 +130,7 @@ def predict(league: str, config: LeagueConfig, start: str,
     begin = pd.Timestamp(start)
     first = begin - pd.DateOffset(months=settings.window_months) if settings.enabled else begin
     days = sorted(history.loc[history["_day"] >= first, "_day"].unique())
-    priced = team_offset.walk_forward(history, config, days)
+    priced = team_offset.walk_forward(history, config, days, loaded)
     if settings.enabled:
         priced = _apply_offsets(history, priced, config)
     priced = priced[history.loc[priced.index, "_day"] >= begin]
@@ -217,17 +251,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--shrink", type=float, help="shrinkage k, or 0 for none")
     parser.add_argument("--start", help="first match date priced")
     parser.add_argument("--book", help="replay on this bet book's prices only")
+    parser.add_argument("--aux-weight", type=float,
+                        help="weight of every auxiliary competition, or 0 for none "
+                             "(D42); omitted, the league's own")
+    parser.add_argument("--aux-shared-level", action="store_true",
+                        help="pool auxiliary matches on the primary's level")
     args = parser.parse_args(argv)
 
     logging.disable(logging.WARNING)
     config = configure(load_league(args.league), xi=args.xi, blend=args.blend,
-                       shrink=args.shrink)
-    frame = predict(args.league, config, args.start or START[args.league])
+                       shrink=args.shrink, aux_weight=args.aux_weight,
+                       aux_shared_level=args.aux_shared_level)
+    loaded = auxiliary.load_enabled(args.league, config)
+    frame = predict(args.league, config, args.start or START[args.league],
+                    auxiliary_rows=loaded)
     table = report(score(args.league, config, frame, book=args.book))
     model = config.model
     print(f"{args.league}: xi={model.xi} blend={model.xg_blend.xg} "
           f"shrink={model.shrinkage.k if model.shrinkage.enabled else 'off'} "
           f"ev_min={config.signals.ev_min} sides={','.join(config.signals.sides)}"
+          f" aux={describe_auxiliary(config, loaded)}"
           f"{f' book={args.book}' if args.book else ''}")
     print(table.to_string(float_format="{:.4f}".format))
     return 0

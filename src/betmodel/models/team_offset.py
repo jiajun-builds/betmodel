@@ -23,13 +23,18 @@ absorbed the match it is being compared with, and measured on 2024-25 that
 version was worse than no correction at all.
 
 The correction moves only the home/away split. The draw stays the model's.
+
+Where the league pools an auxiliary competition (D42), each replayed day's fit
+gets that competition's matches strictly before the day, chosen by the same
+``models.auxiliary.select`` production uses, and the evidence it reports stays
+the primary league's.
 """
 
 from __future__ import annotations
 
 import logging
 import math
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -37,6 +42,7 @@ import pandas as pd
 
 from betmodel.config.schema import LeagueConfig, TeamOffset
 from betmodel.dates import parse_date_only_series
+from betmodel.models.auxiliary import AuxiliaryRows, select_all
 from betmodel.models.dc import FitError, fit_production_model, prepare_training_frame
 from betmodel.models.poisson import Outcome
 from betmodel.signals.ev import devig
@@ -96,13 +102,16 @@ def played_history(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def walk_forward(history: pd.DataFrame, config: LeagueConfig,
-                 days: Iterable[pd.Timestamp]) -> pd.DataFrame:
+                 days: Iterable[pd.Timestamp],
+                 auxiliary: Sequence[AuxiliaryRows] | None = None) -> pd.DataFrame:
     """Price every match on each of ``days`` from a fit on strictly earlier matches.
 
     ``history`` comes from ``played_history``. Returns one row per priced match,
     indexed like ``history``, with ``raw_h/raw_d/raw_a`` and the weaker club's
     weighted evidence. A day the model cannot be fitted for is skipped, and so is
-    a match with a club absent from that day's training window.
+    a match with a club absent from that day's training window -- which, with
+    ``auxiliary`` rows (as loaded, unselected), still means its primary window:
+    a club seen only in the other division is not priced.
     """
     priced = []
     # One refit per past match day, each of which repeats the fitter's own
@@ -114,7 +123,7 @@ def walk_forward(history: pd.DataFrame, config: LeagueConfig,
     fitter_log.setLevel(logging.ERROR)
     try:
         for day in days:
-            priced.extend(_price_day(history, config, day))
+            priced.extend(_price_day(history, config, day, auxiliary))
     finally:
         fitter_log.setLevel(level)
     if not priced:
@@ -122,14 +131,16 @@ def walk_forward(history: pd.DataFrame, config: LeagueConfig,
     return pd.DataFrame(priced).set_index("index")
 
 
-def _price_day(history: pd.DataFrame, config: LeagueConfig, day) -> list[dict]:
+def _price_day(history: pd.DataFrame, config: LeagueConfig, day,
+               auxiliary: Sequence[AuxiliaryRows] | None = None) -> list[dict]:
     try:
         train = prepare_training_frame(
             history[history["_day"] < day].drop(columns="_day"), config)
-        fit = fit_production_model(train, config)
+        fit = fit_production_model(
+            train, config, auxiliary=select_all(auxiliary, train, config, before=day))
     except FitError:
         return []
-    evidence = dict(zip(fit.teams, fit.model.appearances()[1]))
+    evidence = dict(zip(fit.teams, fit.primary_evidence[1]))
     priced = []
     for index, row in history[history["_day"] == day].iterrows():
         if row["Home"] not in evidence or row["Away"] not in evidence:
@@ -199,10 +210,13 @@ def estimate(res: pd.DataFrame, as_of: pd.Timestamp, settings: TeamOffset) -> Of
 
 
 def from_history(frame: pd.DataFrame, config: LeagueConfig,
-                 as_of: pd.Timestamp) -> Offsets:
+                 as_of: pd.Timestamp,
+                 auxiliary: Sequence[AuxiliaryRows] | None = None) -> Offsets:
     """The production entry point: refit the window, read the residuals, fit.
 
     ``frame`` is the match table as read, unplayed fixtures included.
+    ``auxiliary`` is the league's loaded auxiliary rows, so the residuals are
+    against the model production actually runs.
     """
     settings = config.model.team_offset
     if not settings.enabled:
@@ -212,8 +226,8 @@ def from_history(frame: pd.DataFrame, config: LeagueConfig,
     lo = as_of - pd.DateOffset(months=settings.window_months)
     days = sorted(history.loc[(history["_day"] >= lo) & (history["_day"] < as_of),
                               "_day"].unique())
-    offsets = estimate(residuals(history, walk_forward(history, config, days), config),
-                       as_of, settings)
+    priced = walk_forward(history, config, days, auxiliary)
+    offsets = estimate(residuals(history, priced, config), as_of, settings)
     log.info("team offsets as of %s: kappa %+.3f over %d residuals, %d clubs",
              as_of.date(), offsets.kappa, offsets.n_residuals, len(offsets.deltas))
     return offsets

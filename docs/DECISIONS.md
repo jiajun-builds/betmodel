@@ -1866,3 +1866,104 @@ bet moves.
 - **D40's registered re-test** compares its frozen candidates against the
   production configuration of the day. That configuration now includes this
   blend.
+
+## D42 — China League One is auxiliary evidence in the CSL fit.
+
+**Decided 2026-11-11.** CSL only. Liga MX has no auxiliary and is untouched.
+
+**The problem.** A promoted club enters the CSL with no CSL matches. The model
+either refuses to price it or rates it on a handful of games, and the handful is
+exactly when the market knows the club better than we do. Its League One season
+is real evidence about it, and we were throwing it away.
+
+**The shape.** League One matches are pooled into the same weighted
+continuous-Poisson fit (`model.auxiliary` in `leagues/csl.yml`;
+`models/auxiliary.py`, `models/poisson.py`, `models/dc.py`). Each match weighs
+its Dixon-Coles weight times 0.5. League One gets its own intercept shift and its
+own home-advantage shift:
+
+    log lambda_home = c + gamma + attack_home + defence_away + home_advantage + eta
+    log lambda_away = c + gamma + attack_away + defence_home
+
+so the gap between the divisions is read only from clubs that played in both,
+which is the honest source of it. The `xg` stage keeps
+`data/csl/league_one_matches.csv` current from SofaScore (tournament 782).
+
+**Why this shape.** The September 2026 walk-forward on the four promoted clubs
+of 2025–26:
+
+- pooled at 0.5 on League One's own level, cross-entropy against Pinnacle's
+  close fell 2.26 (×1000), 95% CI [−4.89, −0.36];
+- 0.25 and 0.5 could not be told apart; 1.0 was slightly worse;
+- CLV was unchanged (+14.0% against +13.7%);
+- all of the gain was in promoted-club fixtures; no other fixture moved.
+
+League One's home advantage is smaller (0.24 against the CSL's 0.28). Pooled on
+the CSL's level it pulls the CSL's down, which is why it has its own.
+
+**The invariants**, each stated by a test in `tests/unit/test_auxiliary.py`:
+
+1. Off means identical: no auxiliary fits to the same floating point as before.
+   G1 is green with no exemption, and the walk-forward with `--aux-weight 0` is
+   byte-identical to the one before this change.
+2. The primary's weighting does not move. The window, the as-of date and the
+   Dixon-Coles reference date come from the CSL table alone; League One rows
+   after the CSL's latest match are left out; `min_train` counts CSL rows.
+3. Down-weighted, and on its own level, as above.
+4. Only CSL clubs are priced. `team_stats.csv` and `simulations.csv` list the
+   clubs with a CSL match in the window, as before.
+5. League One is not evidence. `Matches` and `WeightedMatches`, which
+   `min_team_evidence` reads, count CSL matches at their undiluted weight.
+   League One's are in the appended `AuxMatches` and `AuxWeightedMatches`.
+6. No leak in the replay. Each replayed day's fit gets League One rows strictly
+   before that day, through the same `auxiliary.select` production uses.
+7. A blank target stays blank, and an all-zero xG pair is stored blank.
+8. A failed League One sync logs what it did not do and leaves the CSL's xG
+   stage standing.
+
+**Rejected.**
+
+- **A `leagues/league_one.yml`.** A league file means captures, an anchor and a
+  threshold, and none of that has evidence behind it here.
+- **Weight 1.0.** Slightly worse than 0.5 in the same walk-forward.
+- **Pricing from League One alone.** A fixture priced with no CSL match behind a
+  club scored very poorly (excess about 195). A club is priced once it has
+  played a CSL match, and not before.
+- **Counting it as evidence.** It would let League One matches carry a club past
+  `min_team_evidence`, i.e. make a fixture able to fire on another division's
+  data. The evidence columns stay CSL-only.
+
+**Limits.** The evidence is four promoted clubs, and CLV did not move. This is
+worth having before a season starts; it is not worth betting on by itself. The
+next real test is the 2027 promoted clubs. The reported level shift is the
+intercept's given the clubs' ratings, which are centred over both divisions, so
+its sign alone does not say which division scores more. A League One club
+missing from `team_name_mapping.csv`'s `sofascore_team` column is two clubs to
+the fitter, and the division gap loses one of its few bridges.
+
+**Validation rerun (2026-11-11).** The September figures above predate D38, and
+on today's model the gain is much smaller. Same fixtures paired, excess
+cross-entropy against Pinnacle's close (x1000), League One at 0.5 on its own
+level against off, by `scripts/walkforward.py csl` and `--aux-weight 0`:
+
+| Fixtures | Difference | 95% interval | n |
+|---|---|---|---|
+| 2024 | 0.00 | — | 238 |
+| 2025 | -0.08 | [-0.50, +0.28] | 236 |
+| 2026 | -0.41 | [-0.95, +0.07] | 212 |
+| 2025-26 | -0.23 | [-0.58, +0.07] | 448 |
+| 2025-26, promoted clubs | -0.97 | [-2.39, +0.28] | 105 |
+| 2025-26, everyone else | -0.01 | [-0.11, +0.09] | 343 |
+
+The direction is the September one and every interval includes zero. D38's
+offset and the opener pool already take most of what League One was correcting,
+which is the home/away split of a club the model has barely seen. Weights 0.25
+and 1.0 gave -0.23 and -0.24, and a shared level -0.19, so none of the choices
+can be told apart; 0.5 on its own level is kept because it is the one that was
+argued for in advance. The rule fired 21 times in 2025-26 either way, at CLV
++21.8% with League One and +17.4% without, which on 21 bets is not a
+difference. So this goes in as a change that does no measurable harm to any
+fixture and probably helps the promoted ones, not as a demonstrated gain, and
+`enabled: false` in `leagues/csl.yml` takes it out again.
+
+2026 League One xG is 191 of 240: SofaScore published none for rounds 1-7.

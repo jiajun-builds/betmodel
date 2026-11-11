@@ -15,7 +15,8 @@ Layout, per league::
         close_report.csv            closing-line reports already sent (TRACKED)
         alert_outbox.json           signal alerts Telegram did not accept (TRACKED)
         team_name_mapping.csv       provider namespaces -> canonical name
-        now_line.csv                current reference line   (ignored, transient)
+        league_one_matches.csv      csl only: League One, auxiliary fit evidence (D42)
+        now_line.csv               current reference line   (ignored, transient)
         model/                      team_stats, simulations, meta sidecars
         research/                   large regenerable stores (ignored)
         cache/                      provider response caches (ignored)
@@ -122,6 +123,17 @@ class LeaguePaths:
     @property
     def team_mapping_csv(self) -> str:
         return os.path.join(self.root, "team_name_mapping.csv")
+
+    def auxiliary_csv(self, file: str) -> str:
+        """An auxiliary competition's match table (D42), e.g. League One for CSL.
+
+        ``file`` is validated by the config as a bare file name, so this cannot
+        reach outside the league's directory; checked again here because a path
+        is the wrong place to trust a caller.
+        """
+        if os.path.basename(file) != file or not file:
+            raise ValueError(f"auxiliary file must be a bare file name, got {file!r}")
+        return os.path.join(self.root, file)
 
     # --- tracked, irreplaceable ---------------------------------------------
     @property

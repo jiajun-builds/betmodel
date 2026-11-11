@@ -12,6 +12,12 @@ league's model, and produces team strengths and 1X2 outcome probabilities. Each
 club's persistent gap to Pinnacle's close is then taken off the home/away split
 (`model.team_offset`; D38 for CSL, D40 for Liga MX).
 
+China League One is pooled into the CSL fit as **auxiliary evidence**
+(`model.auxiliary`, D42): half-weighted, on its own scoring level and home
+advantage, so a promoted club arrives with a rating. It is never priced, never
+counted as evidence (`Matches`/`WeightedMatches` and `min_team_evidence` are
+CSL-only) and has no odds or signals. Do not give it a league file.
+
 **The odds monitoring layer.** It watches Pinnacle and the betting platforms.
 Pinnacle's **opening** price calibrates the model's output. The calibrated
 probabilities are then compared against the betting platforms' prices, and a

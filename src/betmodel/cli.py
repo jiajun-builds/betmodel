@@ -44,10 +44,18 @@ def _fixtures(league: str, args) -> int:
 
 
 def _xg(league: str, args) -> int:
+    from betmodel.xg import auxiliary_sync
     from betmodel.xg.sync import sync
 
-    stats = sync(league, load_league(league), dry_run=args.dry_run, limit=args.limit)
+    config = load_league(league)
+    stats = sync(league, config, dry_run=args.dry_run, limit=args.limit)
     log.info("%s: xg %s", league, stats)
+    # After the primary has written, and unable to undo it: an auxiliary sync
+    # logs its own failure and returns (D42).
+    for source in config.model.enabled_auxiliary:
+        if source.source is None or source.source.provider != "sofascore":
+            continue
+        auxiliary_sync.sync(league, config, source, dry_run=args.dry_run, limit=args.limit)
     return 0
 
 

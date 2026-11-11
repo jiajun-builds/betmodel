@@ -8,6 +8,12 @@ Three artefacts, and the split matters:
     training window part-way through and can carry less than half the sample of
     an established club while being reported on the same scale.
 
+    Only clubs with a primary-league match are listed, and ``Matches`` and
+    ``WeightedMatches`` count primary matches only, at their undiluted weight:
+    an auxiliary competition (D42) informs a rating but is never evidence for
+    it. What it contributed is in the trailing ``AuxMatches`` and
+    ``AuxWeightedMatches``, the latter at the weight it fitted with.
+
 ``simulations.csv``
     One row per ordered team pairing, not per fixture, so the exporters can look
     up any matchup without refitting. Carries 1X2 and, where configured,
@@ -40,7 +46,7 @@ import pandas as pd
 from betmodel import paths
 from betmodel.config import load_league
 from betmodel.config.schema import LeagueConfig
-from betmodel.models import team_offset
+from betmodel.models import auxiliary, team_offset
 from betmodel.models.dc import ProductionFit, fit_from_csv
 
 log = logging.getLogger(__name__)
@@ -48,20 +54,26 @@ log = logging.getLogger(__name__)
 TEAM_STATS_COLUMNS = [
     "Team", "Attack", "Defense", "Const", "HomeAdv",
     "Matches", "WeightedMatches", "Date",
+    # Appended, not inserted: a reader that indexes the original columns by
+    # position or name is unaffected.
+    "AuxMatches", "AuxWeightedMatches",
 ]
 
 
 def team_stats_frame(fit: ProductionFit, as_of: str) -> pd.DataFrame:
-    counts, weighted = fit.model.appearances()
+    counts, weighted = fit.primary_evidence
+    aux_counts, aux_weighted = fit.auxiliary_evidence
     return pd.DataFrame({
         "Team": fit.teams,
-        "Attack": fit.model.attack,
-        "Defense": fit.model.defence,
+        "Attack": fit.attack,
+        "Defense": fit.defence,
         "Const": float(fit.model.const),
         "HomeAdv": float(fit.model.home_advantage),
         "Matches": counts.astype(int),
         "WeightedMatches": weighted,
         "Date": as_of,
+        "AuxMatches": aux_counts.astype(int),
+        "AuxWeightedMatches": aux_weighted,
     })[TEAM_STATS_COLUMNS]
 
 
@@ -112,14 +124,28 @@ def run_model(league: str, *, write: bool = True,
     """
     config = load_league(league)
     lp = paths.for_league(league)
-    fit, train = fit_from_csv(lp.matches_csv, config)
+    loaded = auxiliary.load_enabled(league, config)
+    fit, train = fit_from_csv(lp.matches_csv, config, auxiliary=loaded)
+    for use in fit.auxiliary:
+        log.info(
+            "%s: %s pooled, %d matches at weight %.2f, %d bridge clubs, "
+            "level shift %s, home-advantage shift %s",
+            league, use.id, use.rows, use.weight, len(use.bridges),
+            "shared" if use.level_shift is None else f"{use.level_shift:+.4f}",
+            "shared" if use.home_shift is None else f"{use.home_shift:+.4f}",
+        )
+    for rows in loaded:
+        if not any(use.id == rows.source.id for use in fit.auxiliary):
+            log.info("%s: %s pooled no matches; none inside the window with a target",
+                     league, rows.source.id)
 
     as_of = train["Date"].max().strftime("%Y-%m-%d")
     offsets = team_offset.Offsets()
     if config.model.team_offset.enabled:
         if today is None:
             today = pd.Timestamp(datetime.now(ZoneInfo(config.timezone)).date())
-        offsets = team_offset.from_history(pd.read_csv(lp.matches_csv), config, today)
+        offsets = team_offset.from_history(pd.read_csv(lp.matches_csv), config, today,
+                                           auxiliary=loaded)
     stats = team_stats_frame(fit, as_of)
     sims = simulations_frame(fit, config, as_of, offsets)
 
