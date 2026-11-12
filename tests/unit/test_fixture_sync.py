@@ -263,3 +263,118 @@ def test_the_last_rounds_results_are_written_even_when_nothing_is_upcoming(
     assert (row["HG"], row["AG"], row["Res"]) == (3.0, 1.0, "H")
     assert upcoming_path.read_text() == "kept\n", "the upcoming list was overwritten"
     assert not (tmp_path / "meta.json").exists(), "the fixtures were stamped as refreshed"
+
+
+# --------------------------------------------------------------------------- #
+# the end of a season
+# --------------------------------------------------------------------------- #
+
+def _stored(tmp_path, fixtures):
+    """The upcoming list as the previous run left it."""
+    rows = [{"Season": "Clausura 2026", "Round": "17", "Date": k.strftime("%Y-%m-%d"),
+             "Time": k.strftime("%H:%M"), "Home": h, "Away": a,
+             "kickoff_utc": k.strftime("%Y-%m-%dT%H:%M:%SZ")} for h, a, k in fixtures]
+    pd.DataFrame(rows, columns=sync.UPCOMING_COLUMNS).to_csv(
+        tmp_path / "upcoming.csv", index=False)
+
+
+LAST_KICKOFF = datetime(2026, 5, 10, 1, 0, tzinfo=timezone.utc)
+AFTER = LAST_KICKOFF + timedelta(days=4)
+
+
+def _last_round(**over):
+    values = {"home": "Toluca", "away": "Leon", "kickoff": LAST_KICKOFF,
+              "home_goals": 1, "away_goals": 1, "finished": True}
+    values.update(over)
+    return _match(**values)
+
+
+def test_a_finished_season_empties_the_list_without_failing(tmp_path, monkeypatch):
+    """The CSL's last round was 2026-11-08, and from the next day every refresh
+    failed on the guard. A stage that fails daily for a whole off-season is one
+    whose real failures nobody reads."""
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    stats, _ = _run(tmp_path, [_match(), _last_round()], monkeypatch, now=AFTER)
+    assert stats["season_complete"] == 1 and stats["upcoming"] == 0
+    left = pd.read_csv(tmp_path / "upcoming.csv")
+    assert list(left.columns) == sync.UPCOMING_COLUMNS and left.empty
+    assert (tmp_path / "meta.json").exists()
+
+
+def test_the_empty_list_reads_back_as_no_fixtures(tmp_path, monkeypatch):
+    """Every stage downstream loads this file. Empty must mean nothing to do,
+    not a missing column."""
+    from betmodel.fixtures.upcoming import load_upcoming
+
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    _run(tmp_path, [_match(), _last_round()], monkeypatch, now=AFTER)
+    assert load_upcoming(str(tmp_path / "upcoming.csv")) == []
+
+
+def test_a_finished_season_stays_finished_on_the_next_run(tmp_path, monkeypatch):
+    """The second run finds the empty list the first one wrote. That is the
+    decision already made, not a lost schedule."""
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    _run(tmp_path, [_match(), _last_round()], monkeypatch, now=AFTER)
+    stats, _ = _run(tmp_path, [_match(), _last_round()], monkeypatch,
+                    now=AFTER + timedelta(days=1))
+    assert stats["season_complete"] == 1
+
+
+def test_an_outage_that_drops_the_remaining_fixtures_is_still_refused(
+    tmp_path, monkeypatch,
+):
+    """The guard's original purpose. The list was waiting on a fixture the
+    response does not have, so the schedule went missing; it did not run out."""
+    later = LAST_KICKOFF + timedelta(days=7)
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF), ("Atlas", "Puebla", later)])
+    with pytest.raises(RuntimeError, match="Atlas v Puebla"):
+        _run(tmp_path, [_match(), _last_round()], monkeypatch, now=AFTER)
+    assert len(pd.read_csv(tmp_path / "upcoming.csv")) == 2
+
+
+def test_a_stored_fixture_still_in_the_future_is_not_a_finished_season(
+    tmp_path, monkeypatch,
+):
+    future = AFTER + timedelta(days=2)
+    _stored(tmp_path, [("Toluca", "Leon", future)])
+    with pytest.raises(RuntimeError, match="not among the finished matches"):
+        _run(tmp_path, [_match(), _last_round(kickoff=future)], monkeypatch, now=AFTER)
+
+
+def test_a_postponed_match_without_a_new_date_keeps_the_season_open(
+    tmp_path, monkeypatch,
+):
+    """Unplayed and in the past: it will be replayed on a date nobody has
+    published yet, and that is exactly when the list must not be emptied."""
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    postponed = _match(home="Atlas", away="Puebla", kickoff=LAST_KICKOFF,
+                       home_goals=None, away_goals=None, finished=False)
+    with pytest.raises(RuntimeError, match="not final: Atlas v Puebla"):
+        _run(tmp_path, [_match(), _last_round(), postponed], monkeypatch, now=AFTER)
+
+
+def test_a_last_round_still_in_play_is_not_a_finished_season(tmp_path, monkeypatch):
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    live = _last_round(finished=False)
+    with pytest.raises(RuntimeError, match="not final"):
+        _run(tmp_path, [_match(), live], monkeypatch,
+             now=LAST_KICKOFF + timedelta(minutes=50))
+
+
+def test_a_rescheduled_last_match_is_matched_within_the_date_tolerance(
+    tmp_path, monkeypatch,
+):
+    """Providers nudge kickoffs; the stored kickoff and the final one need only
+    be the same match."""
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF - timedelta(hours=20))])
+    stats, _ = _run(tmp_path, [_match(), _last_round()], monkeypatch, now=AFTER)
+    assert stats["season_complete"] == 1
+
+
+def test_a_dry_run_reports_a_finished_season_and_writes_nothing(tmp_path, monkeypatch):
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    stats, _ = _run(tmp_path, [_match(), _last_round()], monkeypatch, now=AFTER,
+                    dry_run=True)
+    assert stats["season_complete"] == 1
+    assert len(pd.read_csv(tmp_path / "upcoming.csv")) == 1

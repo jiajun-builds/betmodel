@@ -15,6 +15,14 @@ results, and a model refit immediately afterwards would train on the remains.
 allowed. Every timing decision downstream reads that file, so an outage that
 emptied it would silently stop opening-line capture rather than raise.
 
+The one empty list that is accepted without being told is the end of a season,
+and only on evidence the response itself carries: every match in it is final,
+and every fixture the stored list was waiting for is in the past and now among
+them. An outage cannot produce that -- it would have to return the very results
+the stored list was waiting on while losing everything after them. Before this,
+the CSL's last round (2026-11-08) left every daily refresh failing, and a stage
+that fails every day for four months is one whose real failures nobody reads.
+
 **Forward-only.** Results are merged for matches the upstream now reports as
 played; a match that reverts to unplayed is left as it is.
 
@@ -338,12 +346,21 @@ def sync(
         key=lambda m: m.kickoff,
     )
     stats["upcoming"] = len(upcoming)
-    refuse_upcoming = not upcoming and not allow_empty_upcoming
+    complete, why = (False, "")
+    if not upcoming and not allow_empty_upcoming:
+        complete, why = season_complete(
+            matches, lp.upcoming_fixtures_csv, now, tolerance)
+        if complete:
+            stats["season_complete"] = 1
+    refuse_upcoming = not upcoming and not allow_empty_upcoming and not complete
 
     if dry_run:
         log.info("%s: would write %s", league, stats)
         if refuse_upcoming:
-            log.warning("%s: no upcoming fixture; would keep the existing list", league)
+            log.warning("%s: no upcoming fixture (%s); would keep the existing list",
+                        league, why)
+        elif complete:
+            log.info("%s: season complete; would write an empty upcoming list", league)
         return stats
 
     # The results first, unconditionally. The guard below protects the upcoming
@@ -354,11 +371,15 @@ def sync(
     history.drop(columns=["MatchDate"]).to_csv(lp.matches_csv, index=False)
     if refuse_upcoming:
         raise RuntimeError(
-            f"{league}: the provider returned no upcoming fixture. Results were "
-            "written; the upcoming list was not, because every timing decision "
-            "downstream reads it and it is not overwritten with nothing. Pass "
-            "allow_empty_upcoming to override at season end."
+            f"{league}: the provider returned no upcoming fixture, and this does "
+            f"not look like the end of a season: {why}. Results were written; "
+            "the upcoming list was not, because every timing decision downstream "
+            "reads it and it is not overwritten with nothing. Pass "
+            "allow_empty_upcoming to override."
         )
+    if complete:
+        log.info("%s: season complete; every fixture on the list has been played, "
+                 "so the upcoming list is now empty", league)
     pd.DataFrame([{
         "Season": m.season, "Round": m.round,
         "Date": m.local_date(config.timezone),
@@ -371,6 +392,48 @@ def sync(
     _stamp(lp.fixtures_meta_json, now)
     log.info("%s: fixtures %s", league, stats)
     return stats
+
+
+def season_complete(matches: list[Match], stored_path: str, now: datetime,
+                    tolerance) -> tuple[bool, str]:
+    """Whether an empty schedule is the end of a season rather than an outage.
+
+    ``(True, "")``, or ``(False, why not)``. Both conditions must hold, because
+    each alone is what a partial response could look like:
+
+    * every match the provider returned is final, so nothing is in play,
+      postponed without a new date, or still to come; and
+    * the stored upcoming list says what the schedule was waiting for, and every
+      fixture on it has kicked off and is among those final matches.
+
+    A stored list that cannot be read is no evidence, so it refuses. One that is
+    readable and empty is this decision having been made on an earlier run.
+    """
+    unfinished = [m for m in matches if not (m.played and m.final(now))]
+    if unfinished:
+        shown = ", ".join(f"{m.home} v {m.away} ({_iso(m.kickoff)})" for m in unfinished[:5])
+        return False, f"{len(unfinished)} match(es) not final: {shown}"
+
+    from betmodel.fixtures.upcoming import load_upcoming
+
+    try:
+        stored = load_upcoming(stored_path)
+    except (OSError, ValueError) as exc:
+        return False, f"no readable stored upcoming list to check against ({exc})"
+
+    finals: dict[tuple[str, str], list[datetime]] = {}
+    for m in matches:
+        finals.setdefault((m.home, m.away), []).append(m.kickoff)
+    missing = [
+        f for f in stored
+        if f.kickoff > now
+        or not any(abs(k - f.kickoff) <= tolerance for k in finals.get(f.key, ()))
+    ]
+    if missing:
+        shown = ", ".join(f"{f.label} ({_iso(f.kickoff)})" for f in missing[:5])
+        return False, (f"{len(missing)} fixture(s) on the stored list are not among "
+                       f"the finished matches: {shown}")
+    return True, ""
 
 
 def _locate(history, by_pairing, match: Match, zone: str, tolerance) -> int | None:
