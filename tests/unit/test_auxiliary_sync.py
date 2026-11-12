@@ -180,3 +180,55 @@ def test_ligamx_runs_no_auxiliary_sync(monkeypatch):
     monkeypatch.setattr(auxiliary_sync, "sync",
                         lambda *a, **k: pytest.fail("ligamx has no auxiliary"))
     assert cli._xg("ligamx", argparse.Namespace(dry_run=False, limit=None)) == 0
+
+
+# --------------------------------------------------------------------------- #
+# a blank is asked about for a month, not for ever
+# --------------------------------------------------------------------------- #
+
+NOW = datetime(2026, 11, 12, 6, 0, tzinfo=timezone.utc)
+
+
+def test_a_blank_older_than_a_month_is_no_longer_asked_about(league_dir):
+    """League One 2026 rounds 1-7 have no xG and never got any. Asking about
+    all fifty blanks every day cost three minutes of each refresh."""
+    _run(FakeClient([_event(1, 1), _event(2, 30)], {2: (0.9, 1.1)}), now=NOW)
+    client = FakeClient([_event(1, 1), _event(2, 30)], {1: (1.0, 1.0), 2: (0.9, 1.1)})
+    stats = _run(client, now=NOW)
+    assert 1 not in client.fetched
+    assert stats["abandoned"] == 1
+    assert _table(league_dir).set_index("event_id").loc["1", "HxG"] == ""
+
+
+def test_a_recent_blank_is_still_asked_about_every_run(league_dir):
+    early = datetime(2026, 10, 15, tzinfo=timezone.utc)
+    _run(FakeClient([_event(1, 1), _event(2, 30)], {2: (0.9, 1.1)}), now=early)
+    client = FakeClient([_event(1, 1), _event(2, 30)], {1: (1.0, 1.0), 2: (0.9, 1.1)})
+    stats = _run(client, now=early)
+    assert 1 in client.fetched and stats["abandoned"] == 0
+    assert _table(league_dir).set_index("event_id").loc["1", "HxG"] == "1"
+
+
+def test_a_row_new_to_the_file_is_asked_once_however_old(league_dir):
+    """A first sync or a backfill adds months-old matches. Each still gets the
+    one request that tells us whether it has xG."""
+    client = FakeClient([_event(1, 1), _event(2, 30)], {1: (1.0, 1.0), 2: (0.9, 1.1)})
+    stats = _run(client, now=NOW)
+    assert sorted(client.fetched) == [1, 2] and stats["abandoned"] == 0
+    assert _table(league_dir).set_index("event_id").loc["1", "HxG"] == "1"
+
+
+def test_the_review_window_still_wins_over_age(league_dir):
+    """Off-season, the latest match is itself over a month old. It is still
+    inside the review window, so a late revision is still picked up."""
+    _run(FakeClient([_event(1, 30)], {}), now=NOW + pd.Timedelta(days=60))
+    client = FakeClient([_event(1, 30)], {1: (1.4, 0.2)})
+    stats = _run(client, now=NOW + pd.Timedelta(days=60))
+    assert client.fetched == [1] and stats["abandoned"] == 0
+
+
+def test_giving_up_can_be_turned_off(league_dir):
+    _run(FakeClient([_event(1, 1), _event(2, 30)], {2: (0.9, 1.1)}), now=NOW)
+    client = FakeClient([_event(1, 1), _event(2, 30)], {1: (1.0, 1.0), 2: (0.9, 1.1)})
+    stats = _run(client, now=NOW, give_up_days=None)
+    assert 1 in client.fetched and stats["abandoned"] == 0
