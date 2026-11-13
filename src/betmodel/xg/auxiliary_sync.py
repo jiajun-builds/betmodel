@@ -19,6 +19,15 @@ rating, never for a stale CSL.
 
 The file is only ever added to: a row not in this season's listing (every past
 season's, for a start) is kept as it is.
+
+**A blank is asked about for a month, not for ever.** SofaScore publishes xG
+within minutes of full time and revises it within days, or does not publish it
+at all: League One 2026 rounds 1-7 have none, nor does one 2024 match, and that
+did not change in the eight months the season ran. Asking about all fifty every
+day spent about three minutes of each refresh on answers known in advance. A
+blank is refetched until its match is ``GIVE_UP_DAYS`` old, then counted as
+``abandoned`` and left; ``give_up_days=None`` asks about every blank again. A row
+new to the file is always asked once, whatever its age.
 """
 
 from __future__ import annotations
@@ -37,6 +46,11 @@ from betmodel.models.auxiliary import COLUMNS
 from betmodel.xg.sync import REVIEW_WINDOW_DAYS
 
 log = logging.getLogger(__name__)
+
+#: How long after kickoff a match with no xG is still asked about. Thirty days is
+#: several times the longest wait for a first figure seen, and costs one request
+#: a day per blank inside it.
+GIVE_UP_DAYS = 30
 
 
 def _number(value) -> float | None:
@@ -95,6 +109,8 @@ def sync(
     dry_run: bool = False,
     limit: int | None = None,
     review_days: int = REVIEW_WINDOW_DAYS,
+    give_up_days: int | None = GIVE_UP_DAYS,
+    now: datetime | None = None,
     client=None,
 ) -> dict[str, int]:
     """Upsert the current season's finished matches and refresh their xG.
@@ -103,7 +119,7 @@ def sync(
     untouched. xG is read with the league's own ``period_strategy``.
     """
     stats = {"listed": 0, "added": 0, "fetched": 0, "written": 0, "revised": 0,
-             "unpublished": 0, "cleared": 0, "failed": 0}
+             "unpublished": 0, "cleared": 0, "abandoned": 0, "failed": 0}
     if source.source is None or source.source.provider != "sofascore":
         log.warning("%s: auxiliary %s has no sofascore source; not synced",
                     league, source.id)
@@ -112,7 +128,8 @@ def sync(
     path = paths.for_league(league).auxiliary_csv(source.file)
     try:
         return _sync(league, config, source, path, stats, dry_run=dry_run, limit=limit,
-                     review_days=review_days, client=client)
+                     review_days=review_days, give_up_days=give_up_days,
+                     now=now or datetime.now(timezone.utc), client=client)
     except Exception as exc:  # noqa: BLE001 -- see the module note
         stats["failed"] = 1
         log.error(
@@ -131,7 +148,8 @@ def _is_provider_failure(exc: Exception) -> bool:
     return isinstance(exc, (SofascoreUnavailable, http.HttpError))
 
 
-def _sync(league, config, source, path, stats, *, dry_run, limit, review_days, client):
+def _sync(league, config, source, path, stats, *, dry_run, limit, review_days,
+          give_up_days, now, client):
     if os.path.exists(path):
         table = pd.read_csv(path, dtype=str, keep_default_na=False)
     else:
@@ -191,7 +209,19 @@ def _sync(league, config, source, path, stats, *, dry_run, limit, review_days, c
     latest = dates.max()
     recent = (dates >= latest - pd.Timedelta(days=review_days)) if pd.notna(latest) \
         else pd.Series(False, index=table.index)
-    wanted = table.index[(missing | recent) & (table["event_id"] != "")]
+    # A blank is asked about only while SofaScore might still publish it.
+    if give_up_days is None:
+        abandoned = pd.Series(False, index=table.index)
+    else:
+        kickoff = pd.to_datetime(table["kickoff_utc"], utc=True, errors="coerce")
+        kickoff = kickoff.fillna(pd.to_datetime(table["Date"], utc=True, errors="coerce"))
+        # A row this run added has never been asked about, however old its
+        # match: a first sync, or a backfill, still gets one try at every row.
+        new = table["event_id"].isin(added)
+        abandoned = missing & ~recent & ~new & (
+            kickoff < pd.Timestamp(now) - pd.Timedelta(days=give_up_days))
+    stats["abandoned"] = int((abandoned & (table["event_id"] != "")).sum())
+    wanted = table.index[(missing | recent) & ~abandoned & (table["event_id"] != "")]
 
     for position in wanted:
         if limit is not None and stats["fetched"] >= limit:
