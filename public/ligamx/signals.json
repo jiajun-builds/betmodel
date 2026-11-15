@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-14T22:51:18Z",
+ "generated_at": "2026-11-15T00:01:14Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-7-2026-11-14-queretaro-monterrey",
-   "kickoff_utc": "2026-11-14T23:00:00Z",
-   "round": "7",
-   "home_team": "Queretaro",
-   "away_team": "Monterrey",
-   "model": {
-    "home": 0.2666980395406925,
-    "draw": 0.2449387137061377,
-    "away": 0.4883632467531699,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 3.65,
-     "ev": -0.0265521556764724,
-     "captured_at": "2026-11-09T00:31:14Z",
-     "last_update": "2026-11-09T00:19:08.111Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.8,
-     "ev": -0.06923288791667681,
-     "captured_at": "2026-11-09T00:31:14Z",
-     "last_update": "2026-11-09T00:19:08.111Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 1.98,
-     "ev": -0.033040771428723636,
-     "captured_at": "2026-11-09T00:31:14Z",
-     "last_update": "2026-11-09T00:19:08.111Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 3.65,
-     "ev": -0.0265521556764724
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.8,
-     "ev": -0.06923288791667681
-    },
-    "away": {
-     "book": "duel",
-     "odds": 1.98,
-     "ev": -0.033040771428723636
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 3.65,
-    "ev": -0.0265521556764724,
-    "proof": "window",
-    "captured_at": "2026-11-09T00:31:14Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-17-2026-11-20-puebla-atletico-san-luis",
    "kickoff_utc": "2026-11-21T01:00:00Z",
@@ -430,18 +360,18 @@
    "home_team": "UNAM Pumas",
    "away_team": "Monterrey",
    "model": {
-    "home": 0.3732919571145316,
-    "draw": 0.24254627559216865,
-    "away": 0.38416176729329987,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.3533451907013106,
+    "draw": 0.24997759966258543,
+    "away": 0.396677209636104,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 2.54,
-     "ev": -0.05183842892908974,
+     "ev": -0.10250321561867104,
      "captured_at": "2026-11-09T14:11:14Z",
      "last_update": "2026-11-09T13:54:34.295Z",
      "proof": "observed"
@@ -450,7 +380,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.7,
-     "ev": -0.10257878030897594,
+     "ev": -0.07508288124843387,
      "captured_at": "2026-11-09T14:11:14Z",
      "last_update": "2026-11-09T13:54:34.295Z",
      "proof": "observed"
@@ -459,7 +389,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.64,
-     "ev": 0.014187065654311715,
+     "ev": 0.04722783343931458,
      "captured_at": "2026-11-09T14:11:14Z",
      "last_update": "2026-11-09T13:54:34.295Z",
      "proof": "observed"
@@ -469,24 +399,24 @@
     "home": {
      "book": "duel",
      "odds": 2.54,
-     "ev": -0.05183842892908974
+     "ev": -0.10250321561867104
     },
     "draw": {
      "book": "duel",
      "odds": 3.7,
-     "ev": -0.10257878030897594
+     "ev": -0.07508288124843387
     },
     "away": {
      "book": "duel",
      "odds": 2.64,
-     "ev": 0.014187065654311715
+     "ev": 0.04722783343931458
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.64,
-    "ev": 0.014187065654311715,
+    "ev": 0.04722783343931458,
     "proof": "observed",
     "captured_at": "2026-11-09T14:11:14Z"
    },
@@ -640,18 +570,18 @@
    "home_team": "Queretaro",
    "away_team": "Necaxa",
    "model": {
-    "home": 0.45951456718739453,
-    "draw": 0.2525048965405658,
-    "away": 0.2879805362720395,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.5434023298905017,
+    "draw": 0.22769404863190523,
+    "away": 0.22890362147759302,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 1.52,
-     "ev": -0.3015378578751603,
+     "ev": -0.17402845856643734,
      "captured_at": "2026-11-09T15:11:14Z",
      "last_update": "2026-11-09T14:53:52.589Z",
      "proof": "window"
@@ -660,7 +590,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 4.5,
-     "ev": 0.1362720344325461,
+     "ev": 0.024623218843573547,
      "captured_at": "2026-11-09T15:11:14Z",
      "last_update": "2026-11-09T14:53:52.589Z",
      "proof": "window"
@@ -669,7 +599,7 @@
      "book": "duel",
      "side": "away",
      "odds": 6.2,
-     "ev": 0.785479324886645,
+     "ev": 0.41920245316107674,
      "captured_at": "2026-11-09T15:11:14Z",
      "last_update": "2026-11-09T14:53:52.589Z",
      "proof": "window"
@@ -679,29 +609,29 @@
     "home": {
      "book": "duel",
      "odds": 1.52,
-     "ev": -0.3015378578751603
+     "ev": -0.17402845856643734
     },
     "draw": {
      "book": "duel",
      "odds": 4.5,
-     "ev": 0.1362720344325461
+     "ev": 0.024623218843573547
     },
     "away": {
      "book": "duel",
      "odds": 6.2,
-     "ev": 0.785479324886645
+     "ev": 0.41920245316107674
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 6.2,
-    "ev": 0.785479324886645,
+    "ev": 0.41920245316107674,
     "proof": "window",
     "captured_at": "2026-11-09T15:11:14Z"
    },
    "bet": null,
-   "state": "unanchored"
+   "state": "paused"
   }
  ]
 }
