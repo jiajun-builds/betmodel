@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-21T00:51:20Z",
+ "generated_at": "2026-11-21T02:46:18Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-11-20-puebla-atletico-san-luis",
-   "kickoff_utc": "2026-11-21T01:00:00Z",
-   "round": "17",
-   "home_team": "Puebla",
-   "away_team": "Atletico San Luis",
-   "model": {
-    "home": 0.3572205803233279,
-    "draw": 0.270117195339964,
-    "away": 0.37266222433670804,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.64,
-     "ev": -0.056937667946414416,
-     "captured_at": "2026-11-09T15:21:18Z",
-     "last_update": "2026-11-09T15:15:54.144Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.5,
-     "ev": -0.05458981631012605,
-     "captured_at": "2026-11-09T15:21:18Z",
-     "last_update": "2026-11-09T15:15:54.144Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.64,
-     "ev": -0.01617172775109077,
-     "captured_at": "2026-11-09T15:21:18Z",
-     "last_update": "2026-11-09T15:15:54.144Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.64,
-     "ev": -0.056937667946414416
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.5,
-     "ev": -0.05458981631012605
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.64,
-     "ev": -0.01617172775109077
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.64,
-    "ev": -0.01617172775109077,
-    "proof": "observed",
-    "captured_at": "2026-11-09T15:21:18Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-17-2026-11-20-fc-juarez-atlas",
    "kickoff_utc": "2026-11-21T03:00:00Z",
