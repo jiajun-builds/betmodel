@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-21T22:46:13Z",
+ "generated_at": "2026-11-21T22:51:18Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-11-21-pachuca-toluca",
-   "kickoff_utc": "2026-11-21T22:50:00Z",
-   "round": "17",
-   "home_team": "Pachuca",
-   "away_team": "Toluca",
-   "model": {
-    "home": 0.32018961230289644,
-    "draw": 0.24074574368770535,
-    "away": 0.43906464400939815,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.52,
-     "ev": -0.19312217699670098,
-     "captured_at": "2026-11-09T15:21:18Z",
-     "last_update": "2026-11-09T15:20:51.972Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.85,
-     "ev": -0.07312888680233443,
-     "captured_at": "2026-11-09T15:21:18Z",
-     "last_update": "2026-11-09T15:20:51.972Z",
-     "proof": "observed"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.58,
-     "ev": 0.13278678154424717,
-     "captured_at": "2026-11-09T15:21:18Z",
-     "last_update": "2026-11-09T15:20:51.972Z",
-     "proof": "observed"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.52,
-     "ev": -0.19312217699670098
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.85,
-     "ev": -0.07312888680233443
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.58,
-     "ev": 0.13278678154424717
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.58,
-    "ev": 0.13278678154424717,
-    "proof": "observed",
-    "captured_at": "2026-11-09T15:21:18Z"
-   },
-   "bet": null,
-   "state": "paused"
-  },
   {
    "fixture_id": "MEX-apertura-2026-17-2026-11-21-santos-laguna-leon",
    "kickoff_utc": "2026-11-21T23:00:00Z",
