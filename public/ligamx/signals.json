@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-21T22:51:18Z",
+ "generated_at": "2026-11-22T00:46:18Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-17-2026-11-21-santos-laguna-leon",
-   "kickoff_utc": "2026-11-21T23:00:00Z",
-   "round": "17",
-   "home_team": "Santos Laguna",
-   "away_team": "Leon",
-   "model": {
-    "home": 0.3869550213054933,
-    "draw": 0.24733857391058803,
-    "away": 0.3657064047839186,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.5,
-     "ev": -0.03261244673626673,
-     "captured_at": "2026-11-09T13:51:13Z",
-     "last_update": "2026-11-09T13:45:38.426Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.8,
-     "ev": -0.060113419139765534,
-     "captured_at": "2026-11-09T13:51:13Z",
-     "last_update": "2026-11-09T13:45:38.426Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.64,
-     "ev": -0.03453509137045485,
-     "captured_at": "2026-11-09T13:51:13Z",
-     "last_update": "2026-11-09T13:45:38.426Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.5,
-     "ev": -0.03261244673626673
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.8,
-     "ev": -0.060113419139765534
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.64,
-     "ev": -0.03453509137045485
-    }
-   },
-   "judged": {
-    "side": "home",
-    "book": "duel",
-    "odds": 2.5,
-    "ev": -0.03261244673626673,
-    "proof": "window",
-    "captured_at": "2026-11-09T13:51:13Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-17-2026-11-21-unam-pumas-monterrey",
    "kickoff_utc": "2026-11-22T01:00:00Z",
