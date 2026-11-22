@@ -1,20 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-22T02:51:24Z",
+ "generated_at": "2026-11-22T06:21:52Z",
  "results": [
-  {
-   "fixture_id": "MEX-apertura-2026-final-2026-05-24-unam-pumas-cruz-azul",
-   "match_date": "2026-05-24",
-   "season": "Clausura 2026",
-   "round": "Final",
-   "home_team": "UNAM Pumas",
-   "away_team": "Cruz Azul",
-   "home_goals": 1,
-   "away_goals": 2,
-   "result": "A",
-   "status": "played"
-  },
   {
    "fixture_id": "MEX-apertura-2026-1-2026-07-16-tijuana-tigres-uanl",
    "match_date": "2026-07-16",
@@ -1774,6 +1762,54 @@
    "round": "17",
    "home_team": "Tijuana",
    "away_team": "Atlante",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-17-2026-11-21-pachuca-toluca",
+   "match_date": "2026-11-21",
+   "season": "Apertura 2026",
+   "round": "17",
+   "home_team": "Pachuca",
+   "away_team": "Toluca",
+   "home_goals": 2,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-17-2026-11-21-santos-laguna-leon",
+   "match_date": "2026-11-21",
+   "season": "Apertura 2026",
+   "round": "17",
+   "home_team": "Santos Laguna",
+   "away_team": "Leon",
+   "home_goals": 1,
+   "away_goals": 2,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-17-2026-11-21-unam-pumas-monterrey",
+   "match_date": "2026-11-21",
+   "season": "Apertura 2026",
+   "round": "17",
+   "home_team": "UNAM Pumas",
+   "away_team": "Monterrey",
+   "home_goals": 0,
+   "away_goals": 2,
+   "result": "A",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-17-2026-11-21-tigres-uanl-club-america",
+   "match_date": "2026-11-21",
+   "season": "Apertura 2026",
+   "round": "17",
+   "home_team": "Tigres UANL",
+   "away_team": "Club America",
    "home_goals": 1,
    "away_goals": 0,
    "result": "H",
