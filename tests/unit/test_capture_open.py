@@ -344,6 +344,76 @@ def test_a_whole_batch_coming_back_empty_records_no_sighting(monkeypatch, tmp_pa
     assert "WARNING" not in caplog.text, "ordinary a week out; must not cry wolf"
 
 
+def _listed(event_id, home, away, kickoff):
+    return {"id": event_id, "home": home, "away": away,
+            "date": kickoff.isoformat().replace("+00:00", "Z")}
+
+
+def _priced_entry(event_id):
+    return {"id": event_id, "bookmakers": {"Duel": [{
+        "name": oddsapiio.ML_MARKET, "odds": [{"home": 1.9, "draw": 3.5, "away": 4.0}],
+        "updatedAt": "2026-08-28T08:00:00Z"}]}}
+
+
+TARGET = ("Wuhan Three Towns", "Henan Songshan Longmen")
+
+
+def test_a_priced_canary_turns_an_all_unpriced_batch_into_evidence(monkeypatch, tmp_path):
+    """The batch a week out, where nobody has priced anything, used to come back
+    empty and record nothing. Duel's last sighting then went stale for hours and
+    its opener failed the proof's gap check: 8 of 39 Liga MX openers in October
+    were `observed`. A listed event that is already priced rides along, so the
+    provider's answer is non-empty and the target's absence means unpriced."""
+    events = [_listed("7", *TARGET, NOW + timedelta(days=6)),
+              _listed("99", "Shanghai Port", "Beijing Guoan", NOW + timedelta(hours=20))]
+    client = _StubClient(events, quoted=[_priced_entry("99")])
+    rows, unpriced, used = _run(monkeypatch, tmp_path, client)
+    assert client.batches == [["7", "99"]]
+    assert rows == [], "the canary is asked about, never banked"
+    assert {u[:2] for u in unpriced} == {TARGET}
+    assert {u[2] for u in unpriced} == {"onexbet", "duel"}
+    assert used == 2, "the canary takes a slot, not a request"
+
+
+def test_a_canary_that_also_comes_back_empty_still_proves_nothing(monkeypatch, tmp_path):
+    """An empty answer is still indistinguishable from a provider blank."""
+    events = [_listed("7", *TARGET, NOW + timedelta(days=6)),
+              _listed("99", "Shanghai Port", "Beijing Guoan", NOW + timedelta(hours=20))]
+    client = _StubClient(events, quoted=[])
+    rows, unpriced, _ = _run(monkeypatch, tmp_path, client)
+    assert client.batches == [["7", "99"]]
+    assert (rows, unpriced) == ([], [])
+
+
+def test_the_canary_is_the_soonest_future_event_we_are_not_asking_about():
+    events = [_listed("7", *TARGET, NOW + timedelta(days=6)),
+              _listed("1", "A", "B", NOW - timedelta(hours=1)),     # kicked off
+              _listed("2", "C", "D", NOW + timedelta(days=2)),
+              _listed("3", "E", "F", NOW + timedelta(hours=3)),
+              {"id": "4", "home": "G", "away": "H"}]                # no kickoff
+    assert co._canary(events, {"7"}, NOW) == "3"
+    assert co._canary(events, {"7", "2", "3"}, NOW) is None
+
+
+def test_every_batch_carries_the_canary(monkeypatch, tmp_path):
+    """One slot each, so the proof does not hold for the first batch only."""
+    names = [("Shanghai Port", "Beijing Guoan"), ("Shandong Taishan", "Chengdu Rongcheng"),
+             ("Shanghai Shenhua", "Qingdao West Coast"), ("Dalian Yingbo", "Tianjin Jinmen Tiger"),
+             ("Yunnan Yukun", "Wuhan Three Towns"), ("Zhejiang Professional", "Henan Songshan Longmen"),
+             ("Qingdao Hainiu", "Shenzhen Xinpengcheng"), ("Beijing Guoan", "Chongqing Tonglianglong"),
+             ("Changchun Yatai", "Meizhou Hakka"), ("Henan Songshan Longmen", "Shanghai Port")]
+    kickoff = NOW + timedelta(days=6)
+    pending = _pending(tmp_path, [(h, a, kickoff) for h, a in names], [])
+    events = [_listed(str(i), h, a, kickoff) for i, (h, a) in enumerate(names)]
+    events.append(_listed("99", "Liaoning Tieren", "Qingdao Hainiu", NOW + timedelta(hours=5)))
+    client = _StubClient(events, quoted=[_priced_entry("99")])
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: client)
+    co._capture_oddsapiio("csl", load_league("csl"), pending, now=NOW, dry_run=False)
+    assert len(pending) == 10
+    assert [len(b) for b in client.batches] == [10, 2], "nine targets and the canary, then one"
+    assert all(b[-1] == "99" for b in client.batches)
+
+
 def test_an_event_missing_from_a_populated_response_is_an_unpriced_sighting(
     monkeypatch, tmp_path
 ):

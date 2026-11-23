@@ -266,6 +266,38 @@ def _event_matchday(value, timezone_name: str) -> str | None:
     return local_matchday(kickoff.to_pydatetime(), timezone_name)
 
 
+def _canary(events: list[dict], targets: set[str], now: datetime) -> str | None:
+    """A listed event, not one we are asking about, most likely to be priced.
+
+    **Why every ``odds/multi`` request carries one.** The endpoint omits an event
+    until a market is posted, so a batch of fixtures nobody has priced comes back
+    empty -- and an empty response is also what a provider-side blank looks like,
+    so it records no sighting. A week out that is every batch on most ticks. The
+    unpriced sighting was then refreshed only on the ticks where some other
+    fixture in the batch happened to be priced, hours apart, and the opener that
+    followed failed the proof's gap check: Duel earned ``observed`` on 8 of 39
+    Liga MX openers in October, on a fixture we had been watching all along.
+
+    An event already priced, asked about alongside, makes the response non-empty
+    whenever the provider is answering, which is what lets the targets' absence
+    count as evidence. The soonest future kickoff is the one most likely to have
+    a market. No canary -- nothing else listed -- is the old behaviour, and the
+    empty response still proves nothing.
+    """
+    best: tuple[pd.Timestamp, str] | None = None
+    for event in events:
+        event_id = str(event.get("id") or "")
+        if not event_id or event_id in targets:
+            continue
+        kickoff = pd.to_datetime(event.get("date"), utc=True, format="ISO8601",
+                                 errors="coerce")
+        if pd.isna(kickoff) or kickoff.to_pydatetime() <= now:
+            continue
+        if best is None or kickoff < best[0]:
+            best = (kickoff, event_id)
+    return None if best is None else best[1]
+
+
 def _same_meeting(pending: Pending, event_day: str | None, timezone_name: str) -> bool:
     """Whether a listed event is this pending fixture, not another meeting of the pair.
 
@@ -402,10 +434,18 @@ def _capture_oddsapiio(
 
     ids = [str(event.get("id")) for _, event in matched]
     matched_by_id = {str(event.get("id")): (p, event) for p, event in matched}
+    canary = _canary(events, set(ids), now)
+    if canary is None:
+        batches = client.iter_batches(ids)
+    else:
+        # One slot per request for the canary, so every request carries it.
+        size = oddsapiio.MULTI_BATCH_SIZE - 1
+        batches = (ids[i:i + size] + [canary] for i in range(0, len(ids), size))
+        log.info("%s/oddsapiio: canary event %s rides with each batch", league, canary)
     #: Fixtures in a batch the endpoint answered with nothing at all. See below.
     blank: list[str] = []
     done = 0
-    for batch in client.iter_batches(ids):
+    for batch in batches:
         if haul.requests >= budget:
             log.info("%s/oddsapiio: request budget %d reached (%d spent); %d "
                      "matched fixture(s) left for the next tick",
@@ -418,7 +458,7 @@ def _capture_oddsapiio(
                 batch, oddsapiio.books_from_config(config.odds.books))
         finally:
             haul.requests = client.requests
-        done += len(batch)
+        done += sum(1 for i in batch if i in matched_by_id)
         quoted_by_id = {str(q.get("id", q.get("eventId", ""))): q for q in quoted}
 
         # **An empty response records nothing.** `odds/multi` omits a book, or
