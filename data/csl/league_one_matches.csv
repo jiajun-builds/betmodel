@@ -720,3 +720,4 @@ event_id,Season,Round,Date,Time,kickoff_utc,home_sofascore,away_sofascore,home_t
 15657996,2026,30,2026-11-07,06:30,2026-11-07T06:30:00Z,Shenzhen Juniors FC,Suzhou Dongwu,510603,164044,1,4,0.71,2.47
 15657997,2026,30,2026-11-07,06:30,2026-11-07T06:30:00Z,Shaanxi Union FC,Guangxi Hengchen FC,510602,510605,4,0,1.38,0.9
 17558761,2026,Final,2026-11-15,07:00,2026-11-15T07:00:00Z,Guizhou Zhucheng Athletic,Jiangxi Dingnan United,1079260,196341,3,1,,
+17558762,2026,Final,2026-11-22,07:30,2026-11-22T07:30:00Z,Jiangxi Dingnan United,Guizhou Zhucheng Athletic,196341,1079260,0,2,,

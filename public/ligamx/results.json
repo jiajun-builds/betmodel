@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-23T01:01:19Z",
+ "generated_at": "2026-11-23T06:23:11Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-1-2026-07-16-tijuana-tigres-uanl",
@@ -1813,6 +1813,30 @@
    "home_goals": 1,
    "away_goals": 0,
    "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-17-2026-11-22-guadalajara-cruz-azul",
+   "match_date": "2026-11-22",
+   "season": "Apertura 2026",
+   "round": "17",
+   "home_team": "Guadalajara",
+   "away_team": "Cruz Azul",
+   "home_goals": 1,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-17-2026-11-22-queretaro-necaxa",
+   "match_date": "2026-11-22",
+   "season": "Apertura 2026",
+   "round": "17",
+   "home_team": "Queretaro",
+   "away_team": "Necaxa",
+   "home_goals": 2,
+   "away_goals": 2,
+   "result": "D",
    "status": "played"
   }
  ]
