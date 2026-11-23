@@ -78,6 +78,33 @@ def test_a_failing_league_makes_the_run_fail(monkeypatch):
     assert len(calls) > 1, "the other leagues must still have been attempted"
 
 
+def test_the_failing_league_is_named_for_the_alert(monkeypatch, tmp_path):
+    """On 2026-11-23 the alert said "all leagues" for a Liga MX-only fault,
+    because the refresh runs `all` and only the log knew which one failed."""
+    from betmodel import cli
+
+    out = tmp_path / "github_output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(out))
+
+    def _ligamx_only(league, args):
+        if league == "ligamx":
+            raise RuntimeError("ligamx: the provider returned no upcoming fixture")
+
+    monkeypatch.setitem(cli.STAGES, "fixtures", _ligamx_only)
+    assert cli.main(["all", "fixtures"]) == 1
+    assert out.read_text(encoding="utf-8") == "failed_leagues=Liga MX\n"
+
+
+def test_a_clean_run_names_no_league(monkeypatch, tmp_path):
+    from betmodel import cli
+
+    out = tmp_path / "github_output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(out))
+    monkeypatch.setitem(cli.STAGES, "fixtures", lambda league, args: 0)
+    assert cli.main(["all", "fixtures"]) == 0
+    assert not out.exists()
+
+
 # --------------------------------------------------------------------------- #
 # a rate limit must not outlive the tick that met it
 # --------------------------------------------------------------------------- #
