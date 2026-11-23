@@ -408,8 +408,15 @@ def season_complete(matches: list[Match], stored_path: str, now: datetime,
 
     A stored list that cannot be read is no evidence, so it refuses. One that is
     readable and empty is this decision having been made on an earlier run.
+
+    A postponed original that has been replayed is not unfinished. SofaScore
+    keeps the abandoned listing (no score, the old date) beside the replacement,
+    and Liga MX's six of them held the guard shut for good: it refused the
+    Apertura's last round on 2026-11-23 and would have refused every day of the
+    winter break. See `_superseded`.
     """
-    unfinished = [m for m in matches if not (m.played and m.final(now))]
+    unfinished = [m for m in matches
+                  if not (m.played and m.final(now)) and not _superseded(m, matches, now)]
     if unfinished:
         shown = ", ".join(f"{m.home} v {m.away} ({_iso(m.kickoff)})" for m in unfinished[:5])
         return False, f"{len(unfinished)} match(es) not final: {shown}"
@@ -434,6 +441,23 @@ def season_complete(matches: list[Match], stored_path: str, now: datetime,
         return False, (f"{len(missing)} fixture(s) on the stored list are not among "
                        f"the finished matches: {shown}")
     return True, ""
+
+
+def _superseded(match: Match, matches: list[Match], now: datetime) -> bool:
+    """An unplayed past listing whose pairing was later played to a result.
+
+    Same season, so a Clausura meeting never stands in for a postponed Apertura
+    one. Unplayed only: a score that is not yet final is a match in progress,
+    and a postponement with no replayed match yet is still owed.
+    """
+    if match.played or match.kickoff > now:
+        return False
+    return any(
+        other.season == match.season and other.home == match.home
+        and other.away == match.away and other.kickoff > match.kickoff
+        and other.final(now)
+        for other in matches
+    )
 
 
 def _locate(history, by_pairing, match: Match, zone: str, tolerance) -> int | None:
