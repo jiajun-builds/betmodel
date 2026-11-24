@@ -178,6 +178,7 @@ docs/DECISIONS.md       why things are the way they are; read before changing a 
 
 ```bash
 betmodel <league> <stage>        # fixtures xg model reduce signals publish notify
+betmodel <league> discover       # add newly scheduled fixtures (D43)
 betmodel <league> capture-opens  # opening lines
 betmodel <league> capture-anchor # the anchor, when an edge is waiting on one
 betmodel <league> capture-closes # closing lines

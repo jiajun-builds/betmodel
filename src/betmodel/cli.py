@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from datetime import datetime, timezone
 
@@ -40,6 +41,15 @@ def _fixtures(league: str, args) -> int:
         allow_empty_upcoming=args.allow_empty_upcoming,
     )
     log.info("%s: fixtures %s", league, stats)
+    return 0
+
+
+def _discover(league: str, args) -> int:
+    from betmodel.fixtures.discover import discover
+
+    stats = discover(league, load_league(league), dry_run=args.dry_run,
+                     ignore_schedule=args.ignore_schedule)
+    log.info("%s: discover %s", league, stats)
     return 0
 
 
@@ -172,6 +182,7 @@ def _all(league: str, args) -> int:
 #: League-scoped stages.
 STAGES = {
     "fixtures": _fixtures,
+    "discover": _discover,
     "xg": _xg,
     "freshness": _freshness,
     "model": _model,
@@ -258,18 +269,44 @@ def main(argv: list[str] | None = None) -> int:
                   file=sys.stderr)
             return 2
 
-    failures = 0
+    failed: list[str] = []
     for league in leagues:
         try:
             STAGES[args.stage](league, args)
         except (ConfigError, Exception) as exc:  # noqa: BLE001
             # One league's outage must not cost another league's capture, and a
             # capture missed is not recoverable.
-            failures += 1
+            failed.append(league)
             log.error("%s %s failed: %s", league, args.stage, exc)
             if len(leagues) == 1:
+                _report_failed(failed)
                 raise
-    return 1 if failures else 0
+    _report_failed(failed)
+    return 1 if failed else 0
+
+
+def _report_failed(failed: list[str]) -> None:
+    """Name the failed leagues to the workflow, for its failure alert.
+
+    The refresh runs ``all``, so without this the alert could say only that
+    some league failed; on 2026-11-23 it read "all leagues" for a Liga MX-only
+    fault. A step output, because the alert is sent by curl in a later step that
+    must not depend on this package importing. Nothing outside Actions.
+    """
+    path = os.environ.get("GITHUB_OUTPUT")
+    if not path or not failed:
+        return
+    names = []
+    for league in failed:
+        try:
+            names.append(load_league(league).name)
+        except Exception:  # noqa: BLE001 -- a broken config is a failure to name, not hide
+            names.append(league)
+    try:
+        with open(path, "a", encoding="utf-8") as out:
+            out.write(f"failed_leagues={'、'.join(names)}\n")
+    except OSError as exc:
+        log.warning("could not record the failed leagues for the alert: %s", exc)
 
 
 if __name__ == "__main__":

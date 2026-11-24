@@ -1967,3 +1967,40 @@ fixture and probably helps the promoted ones, not as a demonstrated gain, and
 `enabled: false` in `leagues/csl.yml` takes it out again.
 
 2026 League One xG is 191 of 240: SofaScore published none for rounds 1-7.
+
+## D43 — Newly scheduled fixtures are discovered every half hour, and only added.
+
+Opening prices are polled only for fixtures on the upcoming list, and the full
+fixture sync rewrites that list once a day. A regular season is scheduled months
+ahead, so the daily cadence never cost an opener there: of the Pinnacle openers
+refused since the anchor cutover, none was a fixture we had not yet listed. A
+knockout round is the case it does cost. Liga MX's Apertura 2026 quarterfinals
+were set by the last regular-season match at 2026-11-23 03:10Z, were priced
+within hours, and were absent from the list until the next day's refresh. No
+opener for them could be proven, so none could anchor.
+
+`betmodel <league> discover` asks SofaScore for the season's scheduled events
+only (`events/next`, about four requests for Liga MX's two tournaments) and
+appends any future fixture not already listed under that pairing and local
+matchday. It runs on the capture tick, before the opens, on the league's
+`sources.fixtures.discover_interval_minutes` slot (30 for Liga MX), so a new
+tie is polled within half an hour of SofaScore listing it.
+
+**It only adds, and that is the design rather than a limitation.** It never
+removes or rewrites a row, never touches `matches.csv`, never stamps the
+fixtures' freshness, and never writes an empty list. The full sync stays the
+authority with all its guards, and replaces whatever discovery added on its next
+run. The worst a wrong discovery can do is add a row for one day.
+
+**Its commit is the one that yields.** The refresh rewrites the upcoming list
+whole, so a rebase conflict between the two means a newer complete list has
+landed. The capture tick commits discovery separately with
+`yield_on_conflict`, which drops that commit, and only that commit, rather than
+resolving it. The opens commit after it carries prices that cannot be
+recaptured and must never inherit the conflict. Rehearsed in scratch repositories:
+collision, collision over an unpushed closing-line commit, and no collision.
+
+**What it does not fix.** A round a book prices before SofaScore lists it is
+still seen priced on arrival. For the liguilla that gap is SofaScore's
+bracket-update delay, which we do not control. The CSL is not opted in: its
+schedule is on TheSportsDB and it has no knockout stage.

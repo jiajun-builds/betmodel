@@ -64,7 +64,7 @@ jobs:
         # it is listed beside: a single command installed pandas without numpy
         # and every capture failed on import.
         run: |
-          pip install --quiet "pandas>=2.0" "requests>=2.28" "PyYAML>=6.0"
+          pip install --quiet "pandas>=2.0" "requests>=2.28" "PyYAML>=6.0" "curl_cffi>=0.7"
           pip install --quiet --no-deps -e .
 
       - name: Resolve which league and which ticks
@@ -133,6 +133,39 @@ jobs:
         with:
           message: "chore(odds): record a closing-line report"
           paths: data/*/close_report.csv
+
+      # Before the opens, so a fixture scheduled since the daily refresh is
+      # polled on this same tick. A knockout round's pairings exist only once the
+      # previous round is played and are priced within hours; the daily refresh
+      # alone listed Liga MX's Apertura 2026 quarterfinals up to a day late. Only
+      # adds rows to the upcoming list, on the league's own half-hourly slot (see
+      # betmodel.fixtures.discover); the refresh stays the authority.
+      #
+      # continue-on-error because the daily refresh is the backstop and a
+      # SofaScore outage must not redden every capture tick. The failure is
+      # still in the log, and the refresh reports it loudly if it persists.
+      - name: Discover new fixtures
+        if: always() && steps.plan.outputs.only != 'closes'
+        continue-on-error: true
+        env:
+          SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
+        run: betmodel ${{ steps.plan.outputs.league }} discover
+             ${{ github.event_name == 'workflow_dispatch' && '--ignore-schedule' || '' }}
+             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # Its own commit, and the one commit here that yields. The daily refresh
+      # rewrites this file whole; colliding with it means a newer complete list
+      # has landed, so this one is dropped rather than resolved, and the opens
+      # commit below -- which carries prices that cannot be recaptured -- never
+      # inherits the conflict.
+      - name: Commit discovered fixtures
+        if: always() && steps.plan.outputs.only != 'closes'
+        continue-on-error: true
+        uses: ./.github/actions/commit-data
+        with:
+          message: "chore(fixtures): add newly scheduled fixtures"
+          paths: data/*/upcoming_fixtures.csv
+          yield_on_conflict: "true"
 
       - name: Opening lines
         if: always() && steps.plan.outputs.only != 'closes'

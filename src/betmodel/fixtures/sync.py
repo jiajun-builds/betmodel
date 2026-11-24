@@ -222,7 +222,8 @@ def _report_unmapped(config: LeagueConfig, source: str, *pairs) -> None:
             teams.report_unmapped(config.id, source, raw)
 
 
-def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
+def _from_sofascore(config: LeagueConfig, source: SourceConfig,
+                    kinds: tuple[str, ...] = ("last", "next")) -> list[Match]:
     from betmodel.providers.sofascore import (
         SofascoreClient, event_goals, round_label,
     )
@@ -242,7 +243,7 @@ def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
         # label without it collapses every edition of the tournament into one.
         year = str(seasons[0].get("year") or "").strip()
         season_label = f"{str(label).title()} {year}".strip()
-        for kind in ("last", "next"):
+        for kind in kinds:
             for event in client.season_events(int(tournament), season_id, kind):
                 kickoff = _from_timestamp(event.get("startTimestamp"))
                 raw_home = str((event.get("homeTeam") or {}).get("name") or "")
@@ -380,18 +381,24 @@ def sync(
     if complete:
         log.info("%s: season complete; every fixture on the list has been played, "
                  "so the upcoming list is now empty", league)
-    pd.DataFrame([{
-        "Season": m.season, "Round": m.round,
-        "Date": m.local_date(config.timezone),
-        "Time": m.kickoff.strftime("%H:%M"),
-        "Home": m.home, "Away": m.away,
-        "kickoff_utc": stamp(m.kickoff),
-    } for m in upcoming], columns=UPCOMING_COLUMNS).to_csv(
+    pd.DataFrame([upcoming_row(m, config) for m in upcoming],
+                 columns=UPCOMING_COLUMNS).to_csv(
         lp.upcoming_fixtures_csv, index=False
     )
     _stamp(lp.fixtures_meta_json, now)
     log.info("%s: fixtures %s", league, stats)
     return stats
+
+
+def upcoming_row(match: Match, config: LeagueConfig) -> dict[str, str]:
+    """One row of the upcoming list. Shared with `discover`, which appends to it."""
+    return {
+        "Season": match.season, "Round": match.round,
+        "Date": match.local_date(config.timezone),
+        "Time": match.kickoff.strftime("%H:%M"),
+        "Home": match.home, "Away": match.away,
+        "kickoff_utc": stamp(match.kickoff),
+    }
 
 
 def season_complete(matches: list[Match], stored_path: str, now: datetime,
@@ -408,8 +415,15 @@ def season_complete(matches: list[Match], stored_path: str, now: datetime,
 
     A stored list that cannot be read is no evidence, so it refuses. One that is
     readable and empty is this decision having been made on an earlier run.
+
+    A postponed original that has been replayed is not unfinished. SofaScore
+    keeps the abandoned listing (no score, the old date) beside the replacement,
+    and Liga MX's six of them held the guard shut for good: it refused the
+    Apertura's last round on 2026-11-23 and would have refused every day of the
+    winter break. See `_superseded`.
     """
-    unfinished = [m for m in matches if not (m.played and m.final(now))]
+    unfinished = [m for m in matches
+                  if not (m.played and m.final(now)) and not _superseded(m, matches, now)]
     if unfinished:
         shown = ", ".join(f"{m.home} v {m.away} ({_iso(m.kickoff)})" for m in unfinished[:5])
         return False, f"{len(unfinished)} match(es) not final: {shown}"
@@ -434,6 +448,23 @@ def season_complete(matches: list[Match], stored_path: str, now: datetime,
         return False, (f"{len(missing)} fixture(s) on the stored list are not among "
                        f"the finished matches: {shown}")
     return True, ""
+
+
+def _superseded(match: Match, matches: list[Match], now: datetime) -> bool:
+    """An unplayed past listing whose pairing was later played to a result.
+
+    Same season, so a Clausura meeting never stands in for a postponed Apertura
+    one. Unplayed only: a score that is not yet final is a match in progress,
+    and a postponement with no replayed match yet is still owed.
+    """
+    if match.played or match.kickoff > now:
+        return False
+    return any(
+        other.season == match.season and other.home == match.home
+        and other.away == match.away and other.kickoff > match.kickoff
+        and other.final(now)
+        for other in matches
+    )
 
 
 def _locate(history, by_pairing, match: Match, zone: str, tolerance) -> int | None:

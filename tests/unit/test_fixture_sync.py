@@ -354,6 +354,46 @@ def test_a_postponed_match_without_a_new_date_keeps_the_season_open(
         _run(tmp_path, [_match(), _last_round(), postponed], monkeypatch, now=AFTER)
 
 
+def test_a_postponed_match_that_was_replayed_does_not_hold_the_season_open(
+    tmp_path, monkeypatch,
+):
+    """SofaScore keeps the abandoned listing beside the replay. Six of them in
+    the Apertura 2026 refused its last round, and would have refused every day
+    of the break."""
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    original = _match(home="Atlas", away="Puebla", kickoff=LAST_KICKOFF - timedelta(days=30),
+                      home_goals=None, away_goals=None, finished=False)
+    replay = _match(home="Atlas", away="Puebla", kickoff=LAST_KICKOFF - timedelta(days=10),
+                    home_goals=0, away_goals=1, finished=True)
+    stats, _ = _run(tmp_path, [_match(), _last_round(), original, replay],
+                    monkeypatch, now=AFTER)
+    assert stats["season_complete"] == 1
+
+
+def test_a_meeting_in_another_season_is_not_a_replay(tmp_path, monkeypatch):
+    """A double round-robin across two tournaments repeats the pairing; the
+    later tournament's meeting does not settle the earlier one's postponement."""
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    original = _match(season="Clausura 2026", home="Atlas", away="Puebla",
+                      kickoff=LAST_KICKOFF - timedelta(days=30),
+                      home_goals=None, away_goals=None, finished=False)
+    other = _match(season="Apertura 2026", home="Atlas", away="Puebla",
+                   kickoff=LAST_KICKOFF - timedelta(days=10),
+                   home_goals=0, away_goals=1, finished=True)
+    with pytest.raises(RuntimeError, match="not final: Atlas v Puebla"):
+        _run(tmp_path, [_match(), _last_round(), original, other], monkeypatch, now=AFTER)
+
+
+def test_a_replay_still_in_play_does_not_settle_the_postponement(tmp_path, monkeypatch):
+    _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
+    original = _match(home="Atlas", away="Puebla", kickoff=LAST_KICKOFF - timedelta(days=30),
+                      home_goals=None, away_goals=None, finished=False)
+    live = _match(home="Atlas", away="Puebla", kickoff=AFTER - timedelta(minutes=50),
+                  home_goals=0, away_goals=0, finished=False)
+    with pytest.raises(RuntimeError, match="not final"):
+        _run(tmp_path, [_match(), _last_round(), original, live], monkeypatch, now=AFTER)
+
+
 def test_a_last_round_still_in_play_is_not_a_finished_season(tmp_path, monkeypatch):
     _stored(tmp_path, [("Toluca", "Leon", LAST_KICKOFF)])
     live = _last_round(finished=False)

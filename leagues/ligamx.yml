@@ -31,6 +31,12 @@ sources:
     tournaments:
       apertura: 11621
       clausura: 11620
+    # Ask for newly scheduled fixtures every half hour on the capture tick, and
+    # add them to the upcoming list (betmodel.fixtures.discover). The liguilla's
+    # pairings exist only once the previous round is played and are priced
+    # within hours; the daily refresh found the Apertura 2026 quarterfinals up
+    # to a day late, after every opener was gone. About four SofaScore requests.
+    discover_interval_minutes: 30
   xg:
     provider: sofascore
     network: residential

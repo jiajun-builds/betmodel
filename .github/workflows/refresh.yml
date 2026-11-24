@@ -180,13 +180,25 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           failed=""
-          # The same steps named for the alert, which is in the alerts' language.
+          # The same steps named for the alert, which is in the alerts' language,
+          # each with the leagues the CLI wrote to its step output. Under `all`
+          # that is the only place the failing league is named; empty when the
+          # package could not even import, which the alert then says.
           steps=""
-          [ "${{ steps.fixtures.outcome }}" = "failure" ] && failed="$failed fixtures" && steps="$steps 赛程"
-          [ "${{ steps.xg.outcome }}" = "failure" ] && failed="$failed xG" && steps="$steps xG"
+          leagues=""
+          add() {  # add <step label> <leagues or empty>
+            if [ -n "$2" ]; then
+              steps="$steps、$1 ($2)"
+              leagues="$leagues、$2"
+            else
+              steps="$steps、$1"
+            fi
+          }
+          [ "${{ steps.fixtures.outcome }}" = "failure" ] && failed="$failed fixtures" && add "赛程" "${{ steps.fixtures.outputs.failed_leagues }}"
+          [ "${{ steps.xg.outcome }}" = "failure" ] && failed="$failed xG" && add "xG" "${{ steps.xg.outputs.failed_leagues }}"
           # A step that failed without continue-on-error already failed the job;
           # catch that too, so this is the one place a broken refresh is reported.
-          [ "${{ job.status }}" = "failure" ] && failed="$failed (a step failed)" && steps="$steps 其他步骤"
+          [ "${{ job.status }}" = "failure" ] && failed="$failed (a step failed)" && add "其他步骤" ""
 
           if [ -z "$failed" ]; then
             echo "every fetch succeeded"
@@ -196,11 +208,21 @@ jobs:
           echo "::error::refresh failed:$failed"
           if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
             run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            league="${{ inputs.league || 'all' }}"
-            [ "$league" = "all" ] && league="全部联赛"
-            steps="${steps# }"
+            steps="${steps#、}"
+            # Each league once, in the order it first failed. awk rather than
+            # tr or paste, which split a multibyte separator byte by byte.
+            league=$(printf '%s\n' "$leagues" | awk '{
+              n = split($0, part, "、")
+              for (i = 1; i <= n; i++)
+                if (part[i] != "" && !seen[part[i]]++) out = out (out == "" ? "" : "、") part[i]
+            } END { print out }')
+            if [ -z "$league" ]; then
+              league="${{ inputs.league || 'all' }}"
+              [ "$league" = "all" ] && league="联赛未知（见日志）"
+            fi
             # HTML like every other alert. Safe unescaped: each piece is a fixed
-            # string or a league id, none of which can hold markup.
+            # string, a league id or a league's configured name, none of which
+            # holds markup.
             text=$(printf '❌ <b>数据刷新失败</b>\n<b>%s</b>\n失败步骤: <b>%s</b>\n<a href="%s">查看运行日志</a>' \
               "$league" "$steps" "$run_url")
             # The alert is best-effort: a send that fails must not replace the

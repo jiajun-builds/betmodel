@@ -23,6 +23,17 @@ inputs:
       losslessly via the union driver in .gitattributes.
     required: false
     default: "false"
+  yield_on_conflict:
+    description: >
+      True when this commit is worth less than anything it could collide with,
+      and should be dropped on a rebase conflict rather than resolved. For the
+      fixture discovery's additions to the upcoming list: the daily refresh
+      rewrites that file whole and is the authority, so a conflict means a newer
+      complete list has landed, and this run's few added rows are either in it
+      or found again on the next discovery slot. Dropping leaves the checkout at
+      main, so the steps after it start clean.
+    required: false
+    default: "false"
   skip_ci:
     description: >
       Append "[skip ci]" to the commit message. True for the capture ticks, whose
@@ -56,6 +67,7 @@ runs:
         STAGE_PATHS: ${{ inputs.paths }}
         SKIP_CI: ${{ inputs.skip_ci }}
         DERIVED: ${{ inputs.derived }}
+        YIELD_ON_CONFLICT: ${{ inputs.yield_on_conflict }}
       run: |
         set -euo pipefail
         # Default false. Flipped to true only after a successful push, so a failed
@@ -95,6 +107,7 @@ runs:
         else
           git commit -m "$COMMIT_MESSAGE"
         fi
+        ours=$(git rev-parse HEAD)
 
         # main may have moved (an earlier job in this same tick, a data refresh),
         # so rebase on top before pushing. The retry loop closes the pull->push
@@ -114,6 +127,21 @@ runs:
           if git pull --rebase origin main && git push origin main; then
             pushed=1
             break
+          fi
+
+          # Only this step's own commit is ever dropped. An earlier commit still
+          # waiting to be pushed -- a closing line whose push failed -- may be
+          # under it, and it carries rows that cannot be recaptured.
+          if [ "$YIELD_ON_CONFLICT" = "true" ] \
+             && [ -n "$(git diff --name-only --diff-filter=U || true)" ] \
+             && [ "$(git rev-parse -q --verify REBASE_HEAD || true)" = "$ours" ]; then
+            echo "conflict with a newer main; dropping this commit, as asked"
+            if GIT_EDITOR=true git rebase --skip; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            git reset --keep "$ours~1"
+            exit 0
           fi
 
           if [ "$DERIVED" = "true" ]; then
@@ -157,6 +185,13 @@ runs:
           sleep 3
         done
         if [ "$pushed" -ne 1 ]; then
+          if [ "$YIELD_ON_CONFLICT" = "true" ] && [ "$(git rev-parse HEAD)" = "$ours" ]; then
+            # Not left for the next commit step to carry: it would replay this
+            # commit and could inherit its conflict.
+            echo "::warning::push failed after retries; dropping this commit, as asked"
+            git reset --keep "$ours~1"
+            exit 0
+          fi
           echo "push failed after retries" >&2
           exit 1
         fi
