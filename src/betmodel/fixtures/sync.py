@@ -222,7 +222,8 @@ def _report_unmapped(config: LeagueConfig, source: str, *pairs) -> None:
             teams.report_unmapped(config.id, source, raw)
 
 
-def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
+def _from_sofascore(config: LeagueConfig, source: SourceConfig,
+                    kinds: tuple[str, ...] = ("last", "next")) -> list[Match]:
     from betmodel.providers.sofascore import (
         SofascoreClient, event_goals, round_label,
     )
@@ -242,7 +243,7 @@ def _from_sofascore(config: LeagueConfig, source: SourceConfig) -> list[Match]:
         # label without it collapses every edition of the tournament into one.
         year = str(seasons[0].get("year") or "").strip()
         season_label = f"{str(label).title()} {year}".strip()
-        for kind in ("last", "next"):
+        for kind in kinds:
             for event in client.season_events(int(tournament), season_id, kind):
                 kickoff = _from_timestamp(event.get("startTimestamp"))
                 raw_home = str((event.get("homeTeam") or {}).get("name") or "")
@@ -380,18 +381,24 @@ def sync(
     if complete:
         log.info("%s: season complete; every fixture on the list has been played, "
                  "so the upcoming list is now empty", league)
-    pd.DataFrame([{
-        "Season": m.season, "Round": m.round,
-        "Date": m.local_date(config.timezone),
-        "Time": m.kickoff.strftime("%H:%M"),
-        "Home": m.home, "Away": m.away,
-        "kickoff_utc": stamp(m.kickoff),
-    } for m in upcoming], columns=UPCOMING_COLUMNS).to_csv(
+    pd.DataFrame([upcoming_row(m, config) for m in upcoming],
+                 columns=UPCOMING_COLUMNS).to_csv(
         lp.upcoming_fixtures_csv, index=False
     )
     _stamp(lp.fixtures_meta_json, now)
     log.info("%s: fixtures %s", league, stats)
     return stats
+
+
+def upcoming_row(match: Match, config: LeagueConfig) -> dict[str, str]:
+    """One row of the upcoming list. Shared with `discover`, which appends to it."""
+    return {
+        "Season": match.season, "Round": match.round,
+        "Date": match.local_date(config.timezone),
+        "Time": match.kickoff.strftime("%H:%M"),
+        "Home": match.home, "Away": match.away,
+        "kickoff_utc": stamp(match.kickoff),
+    }
 
 
 def season_complete(matches: list[Match], stored_path: str, now: datetime,

@@ -44,6 +44,15 @@ def _fixtures(league: str, args) -> int:
     return 0
 
 
+def _discover(league: str, args) -> int:
+    from betmodel.fixtures.discover import discover
+
+    stats = discover(league, load_league(league), dry_run=args.dry_run,
+                     ignore_schedule=args.ignore_schedule)
+    log.info("%s: discover %s", league, stats)
+    return 0
+
+
 def _xg(league: str, args) -> int:
     from betmodel.xg import auxiliary_sync
     from betmodel.xg.sync import sync
@@ -173,6 +182,7 @@ def _all(league: str, args) -> int:
 #: League-scoped stages.
 STAGES = {
     "fixtures": _fixtures,
+    "discover": _discover,
     "xg": _xg,
     "freshness": _freshness,
     "model": _model,
