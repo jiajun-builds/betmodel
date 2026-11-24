@@ -272,7 +272,9 @@ class _StubClient:
         #: What the real client counts at the wire; one per call here.
         self.requests = 0
 
-    def upcoming_events(self, lookahead_days):
+    league_slugs = ("regular",)
+
+    def upcoming_events(self, lookahead_days, *, slugs=None, accept=None):
         self.requests += 1
         return self._events
 
@@ -896,3 +898,102 @@ def test_the_budget_is_spent_against_the_real_count(monkeypatch, tmp_path):
     )
     assert wire.calls == ["events", "events", "odds/multi"], "eleven is two batches"
     assert used == 3
+
+
+# --------------------------------------------------------------------------- #
+# a knockout stage is listed under its own slug
+# --------------------------------------------------------------------------- #
+
+LIGAMX_SLUGS = ("mexico-liga-mx-clausura", "mexico-liga-mx-apertura",
+                "mexico-liga-mx-apertura-playoffs", "mexico-liga-mx-clausura-playoffs")
+
+
+def _pending_round(round_):
+    fixture = co.Fixture(home="Pachuca", away="Guadalajara",
+                         kickoff=NOW + timedelta(days=1), round=round_)
+    return co.Pending(fixture=fixture, missing=())
+
+
+def test_a_pending_knockout_round_asks_the_playoff_slugs_first():
+    """The Apertura 2026 quarterfinals were listed only under the playoff slug,
+    and asking the two regular slugs first spent two of three requests on empty
+    listings, every tick."""
+    order = co._slug_order(LIGAMX_SLUGS, [_pending_round("Quarterfinals")])
+    assert order[:2] == ["mexico-liga-mx-apertura-playoffs",
+                         "mexico-liga-mx-clausura-playoffs"]
+
+
+def test_a_regular_round_keeps_the_configured_order():
+    order = co._slug_order(LIGAMX_SLUGS, [_pending_round("17")])
+    assert order == list(LIGAMX_SLUGS)
+
+
+def test_a_round_without_a_label_is_not_a_knockout():
+    assert co._slug_order(LIGAMX_SLUGS, [_pending_round("")]) == list(LIGAMX_SLUGS)
+
+
+def _walking_client(monkeypatch, listings):
+    client = oddsapiio.OddsApiIoClient(LIGAMX_SLUGS)
+    asked = []
+
+    def get(path, **params):
+        asked.append(params["league"])
+        return listings.get(params["league"], [])
+
+    monkeypatch.setattr(client, "get", get)
+    return client, asked
+
+
+QF_EVENT = {"id": "1", "home": "Pachuca", "away": "Guadalajara"}
+OTHER = {"id": "2", "home": "Leon", "away": "Toluca"}
+
+
+def test_the_walk_stops_at_the_first_listing_holding_our_fixtures(monkeypatch):
+    client, asked = _walking_client(monkeypatch, {
+        "mexico-liga-mx-apertura": [OTHER],
+        "mexico-liga-mx-apertura-playoffs": [QF_EVENT],
+    })
+    events = client.list_events(NOW, NOW + timedelta(days=14),
+                                accept=lambda ev: any(e["id"] == "1" for e in ev))
+    assert events == [QF_EVENT]
+    assert asked == ["mexico-liga-mx-clausura", "mexico-liga-mx-apertura",
+                     "mexico-liga-mx-apertura-playoffs"], "and no further"
+
+
+def test_a_good_first_guess_costs_one_request(monkeypatch):
+    client, asked = _walking_client(monkeypatch, {
+        "mexico-liga-mx-apertura-playoffs": [QF_EVENT]})
+    order = co._slug_order(LIGAMX_SLUGS, [_pending_round("Quarterfinals")])
+    client.list_events(NOW, NOW + timedelta(days=14), slugs=order,
+                       accept=lambda ev: True)
+    assert asked == ["mexico-liga-mx-apertura-playoffs"]
+
+
+def test_refusing_every_listing_still_returns_the_first_non_empty_one(monkeypatch):
+    """Never less than the old first-non-empty rule: the fixture-absent warning
+    downstream needs the listing to say what was there instead."""
+    client, asked = _walking_client(monkeypatch, {"mexico-liga-mx-apertura": [OTHER]})
+    events = client.list_events(NOW, NOW + timedelta(days=14), accept=lambda ev: False)
+    assert events == [OTHER]
+    assert len(asked) == len(LIGAMX_SLUGS)
+
+
+def test_the_capture_passes_the_phase_and_the_stop_rule(monkeypatch, tmp_path):
+    seen = {}
+
+    class _Recording(_StubClient):
+        league_slugs = LIGAMX_SLUGS
+
+        def upcoming_events(self, lookahead_days, *, slugs=None, accept=None):
+            seen["slugs"], seen["accept"] = slugs, accept
+            return super().upcoming_events(lookahead_days)
+
+    client = _Recording([QF_EVENT])
+    monkeypatch.setattr(oddsapiio, "OddsApiIoClient", lambda *a, **k: client)
+    config = load_league("ligamx")
+    fixture = co.Fixture(home="Pachuca", away="Guadalajara",
+                         kickoff=NOW + timedelta(days=1), round="Quarterfinals")
+    pending = [co.Pending(fixture=fixture, missing=co.books_for(config, "oddsapiio"))]
+    co._capture_oddsapiio("ligamx", config, pending, now=NOW, dry_run=False)
+    assert seen["slugs"][0] == "mexico-liga-mx-apertura-playoffs"
+    assert seen["accept"]([QF_EVENT]) and not seen["accept"]([OTHER])

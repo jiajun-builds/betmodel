@@ -266,6 +266,27 @@ def _event_matchday(value, timezone_name: str) -> str | None:
     return local_matchday(kickoff.to_pydatetime(), timezone_name)
 
 
+def _knockout(fixture: Fixture) -> bool:
+    """A round named rather than numbered: Quarterfinals, Final, Play-in."""
+    label = str(fixture.round or "").strip()
+    return bool(label) and not label.isdigit()
+
+
+def _slug_order(slugs: tuple[str, ...], pending: list[Pending]) -> list[str]:
+    """The league's odds-api.io slugs, the phase we are waiting on first.
+
+    odds-api.io files a knockout stage under its own slug
+    (``mexico-liga-mx-apertura-playoffs``), and the listing walk bills every
+    slug it tries. Waiting on a quarterfinal and asking the regular-season slugs
+    first cost two empty listings a tick, which on a three-request budget left
+    nothing for the odds. Without the playoff slug at all, the Apertura 2026
+    quarterfinals were pending against a listing of zero events. Stable within
+    each group, so the configured order still breaks ties.
+    """
+    playoffs_first = any(_knockout(p.fixture) for p in pending)
+    return sorted(slugs, key=lambda slug: ("playoffs" in slug) != playoffs_first)
+
+
 def _canary(events: list[dict], targets: set[str], now: datetime) -> str | None:
     """A listed event, not one we are asking about, most likely to be priced.
 
@@ -369,14 +390,27 @@ def _capture_oddsapiio(
         base_url=provider.get("base_url", oddsapiio.BASE_URL),
         credential=provider.get("credential", "default"),
     )
+    mapping = teams.for_league(league)
+    wanted = {p.fixture.key for p in pending}
+
+    def ours(listing: list[dict]) -> bool:
+        return any(
+            (mapping.to_standard(str(e.get("home") or "")),
+             mapping.to_standard(str(e.get("away") or ""))) in wanted
+            for e in listing
+        )
+
     try:
-        events = client.upcoming_events(config.odds.open.lookahead_days)
+        events = client.upcoming_events(
+            config.odds.open.lookahead_days,
+            slugs=_slug_order(client.league_slugs, pending),
+            accept=ours,
+        )
     finally:
         # Read off the client, never counted here: the listing walks the
         # league's slugs and is one request or several. See `requests` there.
         haul.requests = client.requests
 
-    mapping = teams.for_league(league)
     by_key: dict[tuple[str, str], list[dict]] = {}
     unmapped: list[str] = []
     for event in events:
