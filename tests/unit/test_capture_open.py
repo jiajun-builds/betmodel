@@ -997,3 +997,37 @@ def test_the_capture_passes_the_phase_and_the_stop_rule(monkeypatch, tmp_path):
     co._capture_oddsapiio("ligamx", config, pending, now=NOW, dry_run=False)
     assert seen["slugs"][0] == "mexico-liga-mx-apertura-playoffs"
     assert seen["accept"]([QF_EVENT]) and not seen["accept"]([OTHER])
+
+
+# --------------------------------------------------------------------------- #
+# a quote on another day is not an unpriced sighting
+# --------------------------------------------------------------------------- #
+
+def test_a_pairing_quoted_on_another_day_mints_no_sighting(monkeypatch, tmp_path, caplog):
+    """SofaScore held placeholder dates for four Apertura 2026 quarterfinals that
+    Pinnacle was quoting on the real ones, and all four were recorded unpriced.
+    The watch keys on the pairing without its date, so the corrected fixture
+    would inherit the sighting and its first price, however late, would pass as
+    `observed`. Refusing the price is right; calling the fixture unpriced is not."""
+    with caplog.at_level("WARNING"):
+        rows, unpriced, _ = _run_anchor(monkeypatch, tmp_path,
+                                        [_priced("2026-09-05T11:00:00Z")])
+    assert rows == [], "another meeting's price is never this one's opener"
+    assert unpriced == []
+    assert "quoted on ['2026-09-05'] but pending on ['2026-09-03']" in caplog.text
+
+
+def test_a_pairing_listed_unpriced_on_another_day_is_still_unpriced(monkeypatch, tmp_path):
+    """No book quotes the pairing at all, so the fixture is unpriced whatever its
+    date: nothing here can certify a later price wrongly."""
+    event = _event("Wuhan Three Towns", "Henan Songshan Longmen")
+    event["commence_time"] = "2026-09-05T11:00:00Z"
+    _, unpriced, _ = _run_anchor(monkeypatch, tmp_path, [event])
+    assert unpriced == [("Wuhan Three Towns", "Henan Songshan Longmen", "pinnacle")]
+
+
+def test_a_quote_on_the_fixture_s_own_day_is_still_banked(monkeypatch, tmp_path):
+    rows, unpriced, _ = _run_anchor(monkeypatch, tmp_path,
+                                    [_priced("2026-09-03T11:00:00Z")])
+    assert [r["bookmaker"] for r in rows] == ["pinnacle"]
+    assert unpriced == []

@@ -266,6 +266,10 @@ def _event_matchday(value, timezone_name: str) -> str | None:
     return local_matchday(kickoff.to_pydatetime(), timezone_name)
 
 
+def _priced_pairs(priced: set[tuple[str, str, str]]) -> set[tuple[str, str]]:
+    return {(home, away) for home, away, _ in priced}
+
+
 def _knockout(fixture: Fixture) -> bool:
     """A round named rather than numbered: Quarterfinals, Final, Play-in."""
     label = str(fixture.round or "").strip()
@@ -605,6 +609,9 @@ def _capture_theoddsapi(
     for p in pending:
         wanted.setdefault(p.fixture.key, []).append(p)
     priced: set[tuple[str, str, str]] = set()
+    #: Pairs the response quotes on a matchday no pending fixture has, and the
+    #: days it quotes them on. See the withholding below.
+    elsewhere: dict[tuple[str, str], set[str]] = {}
 
     for record in theoddsapi.iter_prices(events):
         home = mapping.to_standard(str(record["api_home_team"]))
@@ -616,6 +623,8 @@ def _capture_theoddsapi(
             None,
         ) if home and away else None
         if pend is None:
+            if (home, away) in wanted:
+                elsewhere.setdefault((home, away), set()).add(str(day))
             continue
         book = next((b for b in pend.missing if b.key == record["bookmaker"]), None)
         if book is None:
@@ -658,6 +667,24 @@ def _capture_theoddsapi(
         if any((h is None or h == p.fixture.home) and (a is None or a == p.fixture.away)
                for _, _, h, a in unnamed)
     }
+    # **Nor does a quote for the pairing on another day.** The book is pricing
+    # this pairing; the meeting check refuses the price because the days
+    # disagree, and that refusal is right, but the fixture is not unpriced. The
+    # watch keys on the pairing without its date, so a sighting minted here is
+    # one the corrected fixture inherits, and its first price would pass as
+    # `observed` however late it came. On 2026-11-24 SofaScore held placeholder
+    # dates for four Apertura quarterfinals that Pinnacle was quoting on the
+    # real ones, and all four were recorded unpriced.
+    for key in elsewhere:
+        mine = sorted(local_matchday(p.fixture.kickoff, config.timezone)
+                      for p in wanted[key])
+        if key not in _priced_pairs(priced):
+            log.warning(
+                "%s/theoddsapi: %s v %s is quoted on %s but pending on %s; no "
+                "unpriced sighting recorded -- the schedule's date may be wrong",
+                league, key[0], key[1], sorted(elsewhere[key]), mine,
+            )
+        withheld.add(key)
     if unnamed:
         log.warning(
             "%s/theoddsapi: unmapped team(s) in the response %s; no unpriced sighting "
