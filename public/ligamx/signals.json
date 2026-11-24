@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-24T05:31:37Z",
+ "generated_at": "2026-11-24T06:01:36Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-toluca-atlas",
@@ -150,18 +150,18 @@
    "home_team": "Pachuca",
    "away_team": "Guadalajara",
    "model": {
-    "home": 0.3360223558456993,
-    "draw": 0.2735171616983308,
-    "away": 0.3904604824559701,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.3444213659486776,
+    "draw": 0.28297231510799653,
+    "away": 0.3726063189433258,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 2.68,
-     "ev": -0.09946008633352588,
+     "ev": -0.07695073925754392,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -170,7 +170,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.5,
-     "ev": -0.042689934055842205,
+     "ev": -0.009596897122012171,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -179,7 +179,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.54,
-     "ev": -0.008230374561835951,
+     "ev": -0.05357994988395243,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -189,24 +189,24 @@
     "home": {
      "book": "duel",
      "odds": 2.68,
-     "ev": -0.09946008633352588
+     "ev": -0.07695073925754392
     },
     "draw": {
      "book": "duel",
      "odds": 3.5,
-     "ev": -0.042689934055842205
+     "ev": -0.009596897122012171
     },
     "away": {
      "book": "duel",
      "odds": 2.54,
-     "ev": -0.008230374561835951
+     "ev": -0.05357994988395243
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.54,
-    "ev": -0.008230374561835951,
+    "ev": -0.05357994988395243,
     "proof": "window",
     "captured_at": "2026-11-24T05:31:33Z"
    },
