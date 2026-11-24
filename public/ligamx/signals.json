@@ -1,6 +1,217 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-23T06:23:11Z",
- "signals": []
+ "generated_at": "2026-11-24T01:41:22Z",
+ "signals": [
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-toluca-atlas",
+   "kickoff_utc": "2026-11-26T01:00:00Z",
+   "round": "Quarterfinals",
+   "home_team": "Toluca",
+   "away_team": "Atlas",
+   "model": {
+    "home": 0.6675931891993314,
+    "draw": 0.18639364970294983,
+    "away": 0.1460131610977187,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 1.43,
+     "ev": -0.04534173944495612,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-24T01:00:27.178Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 5.4,
+     "ev": 0.006525708395929142,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-24T01:00:27.178Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 6.6,
+     "ev": -0.03631313675505665,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-24T01:00:27.178Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 1.43,
+     "ev": -0.04534173944495612
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 5.4,
+     "ev": 0.006525708395929142
+    },
+    "away": {
+     "book": "duel",
+     "odds": 6.6,
+     "ev": -0.03631313675505665
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 6.6,
+    "ev": -0.03631313675505665,
+    "proof": "window",
+    "captured_at": "2026-11-24T01:41:19Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-monterrey-club-america",
+   "kickoff_utc": "2026-11-26T03:00:00Z",
+   "round": "Quarterfinals",
+   "home_team": "Monterrey",
+   "away_team": "Club America",
+   "model": {
+    "home": 0.39497103151512974,
+    "draw": 0.2517101551911481,
+    "away": 0.3533188132937222,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 2.38,
+     "ev": -0.0599689449939913,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-23T23:35:17.392Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.5,
+     "ev": -0.11901445683098166,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-23T23:35:17.392Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.88,
+     "ev": 0.017558182285919877,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-23T23:35:17.392Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 2.38,
+     "ev": -0.0599689449939913
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.5,
+     "ev": -0.11901445683098166
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.88,
+     "ev": 0.017558182285919877
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.88,
+    "ev": 0.017558182285919877,
+    "proof": "window",
+    "captured_at": "2026-11-24T01:41:19Z"
+   },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-leon-cruz-azul",
+   "kickoff_utc": "2026-11-27T03:00:00Z",
+   "round": "Quarterfinals",
+   "home_team": "Leon",
+   "away_team": "Cruz Azul",
+   "model": {
+    "home": 0.3035966282414143,
+    "draw": 0.24579268064063242,
+    "away": 0.4506106911179534,
+    "method": "raw",
+    "anchor_proof": null
+   },
+   "quotes": [
+    {
+     "book": "duel",
+     "side": "home",
+     "odds": 3.15,
+     "ev": -0.04367062103954489,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-23T23:28:11.476Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "draw",
+     "odds": 3.55,
+     "ev": -0.12743598372575493,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-23T23:28:11.476Z",
+     "proof": "window"
+    },
+    {
+     "book": "duel",
+     "side": "away",
+     "odds": 2.18,
+     "ev": -0.017668693362861587,
+     "captured_at": "2026-11-24T01:41:19Z",
+     "last_update": "2026-11-23T23:28:11.476Z",
+     "proof": "window"
+    }
+   ],
+   "best": {
+    "home": {
+     "book": "duel",
+     "odds": 3.15,
+     "ev": -0.04367062103954489
+    },
+    "draw": {
+     "book": "duel",
+     "odds": 3.55,
+     "ev": -0.12743598372575493
+    },
+    "away": {
+     "book": "duel",
+     "odds": 2.18,
+     "ev": -0.017668693362861587
+    }
+   },
+   "judged": {
+    "side": "away",
+    "book": "duel",
+    "odds": 2.18,
+    "ev": -0.017668693362861587,
+    "proof": "window",
+    "captured_at": "2026-11-24T01:41:19Z"
+   },
+   "bet": null,
+   "state": ""
+  }
+ ]
 }
