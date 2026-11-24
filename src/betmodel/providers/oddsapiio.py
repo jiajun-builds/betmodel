@@ -26,7 +26,7 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable, Sequence
+from typing import Any, Callable, Iterable, Sequence
 
 from betmodel.providers import http
 
@@ -308,13 +308,29 @@ class OddsApiIoClient:
         )
 
     # --- endpoints ----------------------------------------------------------
-    def list_events(self, start: datetime, end: datetime) -> list[dict]:
+    def list_events(
+        self,
+        start: datetime,
+        end: datetime,
+        *,
+        slugs: Sequence[str] | None = None,
+        accept: Callable[[list[dict]], bool] | None = None,
+    ) -> list[dict]:
         """Events in ``[start, end)``, trying each league slug in turn.
 
         Several slugs exist because some competitions split a calendar year into
-        two tournaments, and only one of them answers at a given moment.
+        two tournaments, and each tournament files its knockout stage under a
+        slug of its own; only one of them answers usefully at a given moment.
+        Every slug tried is a billed request, so the walk stops at the first
+        listing ``accept`` takes -- by default, any non-empty one. A non-empty
+        listing ``accept`` refuses is kept as the fallback, so refusing never
+        returns less than the old first-non-empty rule did.
+
+        ``slugs`` reorders the walk for this call; the caller knows which phase
+        of the season it is waiting on, and the right first guess is one request.
         """
-        for slug in self.league_slugs:
+        fallback: list[dict] = []
+        for slug in (self.league_slugs if slugs is None else slugs):
             events = self.get(
                 "events",
                 sport=self.sport,
@@ -322,13 +338,24 @@ class OddsApiIoClient:
                 limit=100,
                 **{"from": _rfc3339(start), "to": _rfc3339(end)},
             )
-            if events:
-                return list(events)
-        return []
+            if not events:
+                continue
+            events = list(events)
+            if accept is None or accept(events):
+                return events
+            fallback = fallback or events
+        return fallback
 
-    def upcoming_events(self, lookahead_days: int) -> list[dict]:
+    def upcoming_events(
+        self,
+        lookahead_days: int,
+        *,
+        slugs: Sequence[str] | None = None,
+        accept: Callable[[list[dict]], bool] | None = None,
+    ) -> list[dict]:
         now = datetime.now(timezone.utc)
-        return self.list_events(now, now + timedelta(days=lookahead_days))
+        return self.list_events(now, now + timedelta(days=lookahead_days),
+                                slugs=slugs, accept=accept)
 
     def multi_odds(self, event_ids: Sequence[Any], books: Sequence[Book]) -> list[dict]:
         """Current odds for up to :data:`MULTI_BATCH_SIZE` events, all books at once."""

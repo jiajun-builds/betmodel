@@ -112,8 +112,9 @@ def test_an_odds_listing_that_mostly_matches_still_names_the_club_it_dropped(
 
     class _Client:
         requests = 0
+        league_slugs = ("regular",)
 
-        def upcoming_events(self, _days):
+        def upcoming_events(self, _days, *, slugs=None, accept=None):
             self.requests += 1
             return [{"id": "1", "home": "Wuhan Three Towns",
                      "away": "Henan Songshan Longmen"},
