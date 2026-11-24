@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-24T06:23:11Z",
+ "generated_at": "2026-11-24T22:26:09Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-toluca-atlas",
@@ -150,18 +150,18 @@
    "home_team": "Pachuca",
    "away_team": "Guadalajara",
    "model": {
-    "home": 0.3446670583118294,
-    "draw": 0.2829577595037198,
-    "away": 0.37237518218445065,
-    "method": "market_anchor",
-    "anchor_proof": "observed"
+    "home": 0.3366679719753104,
+    "draw": 0.27349188307075,
+    "away": 0.3898401449539397,
+    "method": "raw",
+    "anchor_proof": null
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 2.68,
-     "ev": -0.07629228372429708,
+     "ev": -0.09772983510616806,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -170,7 +170,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.5,
-     "ev": -0.009647841736980634,
+     "ev": -0.04277840925237497,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -179,7 +179,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.54,
-     "ev": -0.0541670372514953,
+     "ev": -0.009806031816993133,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -189,24 +189,24 @@
     "home": {
      "book": "duel",
      "odds": 2.68,
-     "ev": -0.07629228372429708
+     "ev": -0.09772983510616806
     },
     "draw": {
      "book": "duel",
      "odds": 3.5,
-     "ev": -0.009647841736980634
+     "ev": -0.04277840925237497
     },
     "away": {
      "book": "duel",
      "odds": 2.54,
-     "ev": -0.0541670372514953
+     "ev": -0.009806031816993133
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.54,
-    "ev": -0.0541670372514953,
+    "ev": -0.009806031816993133,
     "proof": "window",
     "captured_at": "2026-11-24T05:31:33Z"
    },
@@ -221,7 +221,7 @@
    "away_team": "Cruz Azul",
    "model": {
     "home": 0.3028926232176659,
-    "draw": 0.24574643906719923,
+    "draw": 0.2457464390671992,
     "away": 0.4513609377151351,
     "method": "raw",
     "anchor_proof": null
@@ -240,7 +240,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.55,
-     "ev": -0.12760014131144282,
+     "ev": -0.12760014131144293,
      "captured_at": "2026-11-24T01:41:19Z",
      "last_update": "2026-11-23T23:28:11.476Z",
      "proof": "window"
@@ -264,7 +264,7 @@
     "draw": {
      "book": "duel",
      "odds": 3.55,
-     "ev": -0.12760014131144282
+     "ev": -0.12760014131144293
     },
     "away": {
      "book": "duel",
