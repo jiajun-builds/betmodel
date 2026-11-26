@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-26T00:51:20Z",
+ "generated_at": "2026-11-26T02:46:18Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-toluca-atlas",
-   "kickoff_utc": "2026-11-26T01:00:00Z",
-   "round": "Quarterfinals",
-   "home_team": "Toluca",
-   "away_team": "Atlas",
-   "model": {
-    "home": 0.6673137925764873,
-    "draw": 0.18661377660564102,
-    "away": 0.1460724308178716,
-    "method": "raw",
-    "anchor_proof": null
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 1.43,
-     "ev": -0.045741276615623216,
-     "captured_at": "2026-11-24T01:41:19Z",
-     "last_update": "2026-11-24T01:00:27.178Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 5.4,
-     "ev": 0.007714393670461561,
-     "captured_at": "2026-11-24T01:41:19Z",
-     "last_update": "2026-11-24T01:00:27.178Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 6.6,
-     "ev": -0.035921956602047445,
-     "captured_at": "2026-11-24T01:41:19Z",
-     "last_update": "2026-11-24T01:00:27.178Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 1.43,
-     "ev": -0.045741276615623216
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 5.4,
-     "ev": 0.007714393670461561
-    },
-    "away": {
-     "book": "duel",
-     "odds": 6.6,
-     "ev": -0.035921956602047445
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 6.6,
-    "ev": -0.035921956602047445,
-    "proof": "window",
-    "captured_at": "2026-11-24T01:41:19Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-monterrey-club-america",
    "kickoff_utc": "2026-11-26T03:00:00Z",
