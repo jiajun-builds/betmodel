@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-26T02:56:26Z",
+ "generated_at": "2026-11-26T04:01:28Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-monterrey-club-america",
-   "kickoff_utc": "2026-11-26T03:00:00Z",
-   "round": "Quarterfinals",
-   "home_team": "Monterrey",
-   "away_team": "Club America",
-   "model": {
-    "home": 0.39533699541970807,
-    "draw": 0.2515645528422357,
-    "away": 0.35309845173805626,
-    "method": "raw",
-    "anchor_proof": null
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.38,
-     "ev": -0.05909795090109482,
-     "captured_at": "2026-11-24T01:41:19Z",
-     "last_update": "2026-11-23T23:35:17.392Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.5,
-     "ev": -0.11952406505217494,
-     "captured_at": "2026-11-24T01:41:19Z",
-     "last_update": "2026-11-23T23:35:17.392Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.88,
-     "ev": 0.016923541005601894,
-     "captured_at": "2026-11-24T01:41:19Z",
-     "last_update": "2026-11-23T23:35:17.392Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.38,
-     "ev": -0.05909795090109482
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.5,
-     "ev": -0.11952406505217494
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.88,
-     "ev": 0.016923541005601894
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.88,
-    "ev": 0.016923541005601894,
-    "proof": "window",
-    "captured_at": "2026-11-24T01:41:19Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-pachuca-guadalajara",
    "kickoff_utc": "2026-11-27T01:00:00Z",
@@ -210,6 +140,25 @@
     "proof": "window",
     "captured_at": "2026-11-24T01:41:19Z"
    },
+   "bet": null,
+   "state": ""
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-28-club-america-monterrey",
+   "kickoff_utc": "2026-11-29T03:00:00Z",
+   "round": "Quarterfinals",
+   "home_team": "Club America",
+   "away_team": "Monterrey",
+   "model": {
+    "home": 0.44229284517441847,
+    "draw": 0.2513414260657306,
+    "away": 0.30636572875985085,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
+   },
+   "quotes": [],
+   "best": {},
+   "judged": null,
    "bet": null,
    "state": ""
   }
