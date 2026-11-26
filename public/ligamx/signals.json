@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-26T04:01:28Z",
+ "generated_at": "2026-11-26T06:23:25Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-pachuca-guadalajara",
@@ -10,9 +10,9 @@
    "home_team": "Pachuca",
    "away_team": "Guadalajara",
    "model": {
-    "home": 0.3366436711635754,
-    "draw": 0.27349306368256704,
-    "away": 0.38986326515385744,
+    "home": 0.33597521130691294,
+    "draw": 0.2734545580209166,
+    "away": 0.3905702306721704,
     "method": "raw",
     "anchor_proof": null
    },
@@ -21,7 +21,7 @@
      "book": "duel",
      "side": "home",
      "odds": 2.68,
-     "ev": -0.0977949612816178,
+     "ev": -0.09958643369747333,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -30,7 +30,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.5,
-     "ev": -0.042774277111015335,
+     "ev": -0.04290904692679187,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -39,7 +39,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.54,
-     "ev": -0.00974730650920208,
+     "ev": -0.007951614092687187,
      "captured_at": "2026-11-24T05:31:33Z",
      "last_update": "2026-11-24T04:15:28.239Z",
      "proof": "window"
@@ -49,24 +49,24 @@
     "home": {
      "book": "duel",
      "odds": 2.68,
-     "ev": -0.0977949612816178
+     "ev": -0.09958643369747333
     },
     "draw": {
      "book": "duel",
      "odds": 3.5,
-     "ev": -0.042774277111015335
+     "ev": -0.04290904692679187
     },
     "away": {
      "book": "duel",
      "odds": 2.54,
-     "ev": -0.00974730650920208
+     "ev": -0.007951614092687187
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.54,
-    "ev": -0.00974730650920208,
+    "ev": -0.007951614092687187,
     "proof": "window",
     "captured_at": "2026-11-24T05:31:33Z"
    },
@@ -80,9 +80,9 @@
    "home_team": "Leon",
    "away_team": "Cruz Azul",
    "model": {
-    "home": 0.3028497155691857,
-    "draw": 0.2457330437023531,
-    "away": 0.451417240728461,
+    "home": 0.304371887400637,
+    "draw": 0.24548246137591437,
+    "away": 0.45014565122344874,
     "method": "raw",
     "anchor_proof": null
    },
@@ -91,7 +91,7 @@
      "book": "duel",
      "side": "home",
      "odds": 3.15,
-     "ev": -0.04602339595706506,
+     "ev": -0.04122855468799358,
      "captured_at": "2026-11-24T01:41:19Z",
      "last_update": "2026-11-23T23:28:11.476Z",
      "proof": "window"
@@ -100,7 +100,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.55,
-     "ev": -0.1276476948566465,
+     "ev": -0.1285372621155041,
      "captured_at": "2026-11-24T01:41:19Z",
      "last_update": "2026-11-23T23:28:11.476Z",
      "proof": "window"
@@ -109,7 +109,7 @@
      "book": "duel",
      "side": "away",
      "odds": 2.18,
-     "ev": -0.01591041521195491,
+     "ev": -0.018682480332881668,
      "captured_at": "2026-11-24T01:41:19Z",
      "last_update": "2026-11-23T23:28:11.476Z",
      "proof": "window"
@@ -119,24 +119,24 @@
     "home": {
      "book": "duel",
      "odds": 3.15,
-     "ev": -0.04602339595706506
+     "ev": -0.04122855468799358
     },
     "draw": {
      "book": "duel",
      "odds": 3.55,
-     "ev": -0.1276476948566465
+     "ev": -0.1285372621155041
     },
     "away": {
      "book": "duel",
      "odds": 2.18,
-     "ev": -0.01591041521195491
+     "ev": -0.018682480332881668
     }
    },
    "judged": {
     "side": "away",
     "book": "duel",
     "odds": 2.18,
-    "ev": -0.01591041521195491,
+    "ev": -0.018682480332881668,
     "proof": "window",
     "captured_at": "2026-11-24T01:41:19Z"
    },
@@ -145,14 +145,14 @@
   },
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-28-club-america-monterrey",
-   "kickoff_utc": "2026-11-29T03:00:00Z",
+   "kickoff_utc": "2026-11-29T03:10:00Z",
    "round": "Quarterfinals",
    "home_team": "Club America",
    "away_team": "Monterrey",
    "model": {
-    "home": 0.44229284517441847,
-    "draw": 0.2513414260657306,
-    "away": 0.30636572875985085,
+    "home": 0.43940930930401456,
+    "draw": 0.25215987045659133,
+    "away": 0.30843082023939417,
     "method": "market_anchor",
     "anchor_proof": "observed"
    },

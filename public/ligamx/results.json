@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-26T04:01:28Z",
+ "generated_at": "2026-11-26T06:23:25Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-1-2026-07-16-tijuana-tigres-uanl",
@@ -1836,6 +1836,30 @@
    "away_team": "Necaxa",
    "home_goals": 2,
    "away_goals": 2,
+   "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-toluca-atlas",
+   "match_date": "2026-11-25",
+   "season": "Apertura 2026",
+   "round": "Quarterfinals",
+   "home_team": "Toluca",
+   "away_team": "Atlas",
+   "home_goals": 2,
+   "away_goals": 0,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-25-monterrey-club-america",
+   "match_date": "2026-11-25",
+   "season": "Apertura 2026",
+   "round": "Quarterfinals",
+   "home_team": "Monterrey",
+   "away_team": "Club America",
+   "home_goals": 0,
+   "away_goals": 0,
    "result": "D",
    "status": "played"
   }
