@@ -1,78 +1,8 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-27T00:51:20Z",
+ "generated_at": "2026-11-27T02:56:14Z",
  "signals": [
-  {
-   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-pachuca-guadalajara",
-   "kickoff_utc": "2026-11-27T01:00:00Z",
-   "round": "Quarterfinals",
-   "home_team": "Pachuca",
-   "away_team": "Guadalajara",
-   "model": {
-    "home": 0.33597521130691294,
-    "draw": 0.2734545580209166,
-    "away": 0.3905702306721704,
-    "method": "raw",
-    "anchor_proof": null
-   },
-   "quotes": [
-    {
-     "book": "duel",
-     "side": "home",
-     "odds": 2.68,
-     "ev": -0.09958643369747333,
-     "captured_at": "2026-11-24T05:31:33Z",
-     "last_update": "2026-11-24T04:15:28.239Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "draw",
-     "odds": 3.5,
-     "ev": -0.04290904692679187,
-     "captured_at": "2026-11-24T05:31:33Z",
-     "last_update": "2026-11-24T04:15:28.239Z",
-     "proof": "window"
-    },
-    {
-     "book": "duel",
-     "side": "away",
-     "odds": 2.54,
-     "ev": -0.007951614092687187,
-     "captured_at": "2026-11-24T05:31:33Z",
-     "last_update": "2026-11-24T04:15:28.239Z",
-     "proof": "window"
-    }
-   ],
-   "best": {
-    "home": {
-     "book": "duel",
-     "odds": 2.68,
-     "ev": -0.09958643369747333
-    },
-    "draw": {
-     "book": "duel",
-     "odds": 3.5,
-     "ev": -0.04290904692679187
-    },
-    "away": {
-     "book": "duel",
-     "odds": 2.54,
-     "ev": -0.007951614092687187
-    }
-   },
-   "judged": {
-    "side": "away",
-    "book": "duel",
-    "odds": 2.54,
-    "ev": -0.007951614092687187,
-    "proof": "window",
-    "captured_at": "2026-11-24T05:31:33Z"
-   },
-   "bet": null,
-   "state": ""
-  },
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-leon-cruz-azul",
    "kickoff_utc": "2026-11-27T03:10:00Z",
