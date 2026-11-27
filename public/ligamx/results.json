@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-27T05:41:17Z",
+ "generated_at": "2026-11-27T06:23:06Z",
  "results": [
   {
    "fixture_id": "MEX-apertura-2026-1-2026-07-16-tijuana-tigres-uanl",
@@ -1861,6 +1861,30 @@
    "home_goals": 0,
    "away_goals": 0,
    "result": "D",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-pachuca-guadalajara",
+   "match_date": "2026-11-26",
+   "season": "Apertura 2026",
+   "round": "Quarterfinals",
+   "home_team": "Pachuca",
+   "away_team": "Guadalajara",
+   "home_goals": 2,
+   "away_goals": 1,
+   "result": "H",
+   "status": "played"
+  },
+  {
+   "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-26-leon-cruz-azul",
+   "match_date": "2026-11-26",
+   "season": "Apertura 2026",
+   "round": "Quarterfinals",
+   "home_team": "Leon",
+   "away_team": "Cruz Azul",
+   "home_goals": 0,
+   "away_goals": 4,
+   "result": "A",
    "status": "played"
   }
  ]
