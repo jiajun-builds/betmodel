@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "league": "ligamx",
- "generated_at": "2026-11-27T10:01:30Z",
+ "generated_at": "2026-11-28T04:01:23Z",
  "signals": [
   {
    "fixture_id": "MEX-apertura-2026-quarterfinals-2026-11-28-atlas-toluca",
@@ -220,18 +220,18 @@
    "home_team": "Cruz Azul",
    "away_team": "Leon",
    "model": {
-    "home": 0.6151177640612308,
-    "draw": 0.2076309589745494,
-    "away": 0.17725127696421988,
-    "method": "raw",
-    "anchor_proof": null
+    "home": 0.5902844164442395,
+    "draw": 0.21363931393613905,
+    "away": 0.1960762696196214,
+    "method": "market_anchor",
+    "anchor_proof": "observed"
    },
    "quotes": [
     {
      "book": "duel",
      "side": "home",
      "odds": 1.93,
-     "ev": 0.1871772846381754,
+     "ev": 0.13924892373738218,
      "captured_at": "2026-11-27T10:01:25Z",
      "last_update": "2026-11-27T10:00:25.053Z",
      "proof": "observed"
@@ -240,7 +240,7 @@
      "book": "duel",
      "side": "draw",
      "odds": 3.8,
-     "ev": -0.21100235589671235,
+     "ev": -0.18817060704267163,
      "captured_at": "2026-11-27T10:01:25Z",
      "last_update": "2026-11-27T10:00:25.053Z",
      "proof": "observed"
@@ -249,7 +249,7 @@
      "book": "duel",
      "side": "away",
      "odds": 3.65,
-     "ev": -0.35303283908059746,
+     "ev": -0.2843216158883819,
      "captured_at": "2026-11-27T10:01:25Z",
      "last_update": "2026-11-27T10:00:25.053Z",
      "proof": "observed"
@@ -259,29 +259,29 @@
     "home": {
      "book": "duel",
      "odds": 1.93,
-     "ev": 0.1871772846381754
+     "ev": 0.13924892373738218
     },
     "draw": {
      "book": "duel",
      "odds": 3.8,
-     "ev": -0.21100235589671235
+     "ev": -0.18817060704267163
     },
     "away": {
      "book": "duel",
      "odds": 3.65,
-     "ev": -0.35303283908059746
+     "ev": -0.2843216158883819
     }
    },
    "judged": {
     "side": "home",
     "book": "duel",
     "odds": 1.93,
-    "ev": 0.1871772846381754,
+    "ev": 0.13924892373738218,
     "proof": "observed",
     "captured_at": "2026-11-27T10:01:25Z"
    },
    "bet": null,
-   "state": "unanchored"
+   "state": "paused"
   }
  ]
 }
